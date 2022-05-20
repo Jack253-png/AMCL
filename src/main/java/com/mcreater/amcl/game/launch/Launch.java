@@ -6,26 +6,23 @@ import com.mcreater.amcl.game.getPath;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.pages.MainPage;
-import com.mcreater.amcl.util.FileStringReader;
-import com.mcreater.amcl.util.LinkCommands;
-import com.mcreater.amcl.util.LinkPath;
-import com.mcreater.amcl.util.ZipUtil;
+import com.mcreater.amcl.util.*;
+import javafx.application.Platform;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Vector;
+import java.util.*;
 
 public class Launch {
     String java;
     String jvm;
-    String cp;
     String mem;
     String mainClass;
     String arguments;
     String forge_jvm;
     String fgvm;
-    public void launch(String java_path,String dir,String version_name,boolean ie,String launcherv){
+    public Process p;
+
+    public void launch(String java_path,String dir,String version_name,boolean ie,String launcherv) throws IllegalStateException{
         java = java_path;
 
         if (!new File(dir).exists()){
@@ -62,7 +59,9 @@ public class Launch {
                 }
             }
             if (new File(LinkPath.link(libf.getPath(), getPath.get(l.name))).exists()) {
-                libs.add(LinkPath.link(libf.getPath(), getPath.get(l.name)));
+                if (!libs.contains(LinkPath.link(libf.getPath(), getPath.get(l.name)))) {
+                    libs.add(LinkPath.link(libf.getPath(), getPath.get(l.name)));
+                }
             }
         }
         File nativef = new File(LinkPath.link(f.getPath(),version_name + "-natives"));
@@ -88,18 +87,6 @@ public class Launch {
             classpath.append(s).append(";");
         }
         classpath.append(jar_file).append("\"");
-//        if (!String.valueOf(classpath).contains("org\\apache\\logging\\log4j\\log4j-api")){
-//            classpath.append(LinkPath.link(libf.getPath(), "org\\apache\\logging\\log4j\\log4j-api\\2.17.0\\log4j-api-2.17.0.jar")).append(";");
-//        }
-//
-//        if (!String.valueOf(classpath).contains("org\\apache\\logging\\log4j\\log4j-core")){
-//            classpath.append(LinkPath.link(libf.getPath(), "org\\apache\\logging\\log4j\\log4j-core\\2.17.0\\log4j-core-2.17.0.jar")).append(";");
-//        }
-//
-//        if (!String.valueOf(classpath).contains("net\\sf\\jopt-simple\\jopt-simple")){
-//            System.out.println(0);
-//            classpath.append(LinkPath.link(libf.getPath(), "net\\sf\\jopt-simple\\jopt-simple\\5.0.4\\jopt-simple-5.0.4.jar")).append(";");
-//        }
 
         mem = "-Xmn256m -Xmx4096m";
         mainClass = r.mainClass;
@@ -134,20 +121,22 @@ public class Launch {
             }
         }
         arguments = arguments.replace("${auth_player_name}","123");
-        arguments = arguments.replace("${user_type}","mojang");
+        arguments = arguments.replace("${user_type}","legacy");
         arguments = arguments.replace("${version_type}","AMCL");
         arguments = arguments.replace("${resolution_width}","854");
         arguments = arguments.replace("${resolution_height}","480");
+        File gamedir;
         if (!ie) {
-            arguments = arguments.replace("${game_directory}", dir);
+            gamedir = new File(dir);
         }
         else{
-            arguments = arguments.replace("${game_directory}", f.getPath());
+            gamedir = f;
         }
+        arguments = arguments.replace("${game_directory}", gamedir.getPath());
         arguments = arguments.replace("${user_properties}","{}");
-        arguments = arguments.replace("${auth_uuid}","0".repeat(18));
-        arguments = arguments.replace("${auth_access_token}","0".repeat(18));
-        arguments = arguments.replace("${auth_session}","0".repeat(18));
+        arguments = arguments.replace("${auth_uuid}","8".repeat(18));
+        arguments = arguments.replace("${auth_access_token}","8".repeat(18));
+        arguments = arguments.replace("${auth_session}","8".repeat(18));
         arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
 
         jvm = "-Dfile.encoding=GB18030 -Dminecraft.client.jar=${jar_path} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16m -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -XX:-DontCompileHugeMethods -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false -Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false -Dlog4j2.formatMsgNoLookups=true -Dlog4j.configurationFile=D:\\mods\\util\\.minecraft\\versions\\1.17.1\\log4j2.xml -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Djava.library.path=${native_path} -Dminecraft.launcher.brand=${launcher_brand} -Dminecraft.launcher.version=${launcher_version}";
@@ -178,18 +167,19 @@ public class Launch {
                     }
                 }
                 if (forge_jvm != null) {
-                    fgvm = String.valueOf(forge_jvm);
+                    fgvm = forge_jvm;
                     fgvm = fgvm.replace("${version_name}", version_name);
                     fgvm = fgvm.replace("${primary_jar_name}", version_name + ".jar");
                     fgvm = fgvm.replace("${library_directory}", libf.getPath());
                     StringBuilder forge_libs = new StringBuilder();
                     for (LibModel l : r.libraries) {
-                        if (l.name.contains("cpw.mods") || l.name.contains("org.ow2")) {
+                        if ((l.name.contains("cpw.mods") || l.name.contains("org.ow2")) && !l.name.contains("modlauncher")) {
                             forge_libs.append(LinkPath.link(libf.getPath(), getPath.get(l.name).replace("\\", "/"))).append(";");
                         }
                     }
                     forge_libs = new StringBuilder(forge_libs.substring(0, forge_libs.length() - 1));
-                    fgvm = fgvm.replace("-p ", "-p " + forge_libs);
+                    forge_libs.append("\"");
+                    fgvm = fgvm.replace("-p ", "-p " + "\"" + forge_libs);
                     fgvm = fgvm.replace("--add-modules ALL-MODULE-PATH", " --add-modules ALL-MODULE-PATH");
                 }
                 else{
@@ -202,10 +192,9 @@ public class Launch {
 
             String command = LinkCommands.link(java, jvm, String.valueOf(classpath), mem, fgvm,mainClass.replace(" ",""), arguments);
             command = command.replace("null","");
-            System.out.println(command);
             MainPage.exit_code = -1;
             MainPage.cleanLog();
-            Process p = Runtime.getRuntime().exec(command);
+            p = Runtime.getRuntime().exec(command);
             MainPage.minecraft_running = true;
             new Thread(() -> {
                 while (true){
@@ -213,6 +202,8 @@ public class Launch {
                         int ev = p.exitValue();
                         MainPage.minecraft_running = false;
                         MainPage.exit_code = ev;
+                        Platform.runLater(MainPage::check);
+                        MainPage.launchButton.setDisable(false);
                         break;
                     }
                     catch (IllegalThreadStateException e){
@@ -223,16 +214,15 @@ public class Launch {
                 }
             }).start();
             readProcessOutput(p);
-        }
-        catch (IOException e){
+        } catch (IOException e){
             e.printStackTrace();
         }
     }
-    private static void readProcessOutput(final Process process) {
+    public static void readProcessOutput(final Process process) {
         read(process.getInputStream(), System.out);
         read(process.getErrorStream(), System.err);
     }
-    private static void read(InputStream inputStream, PrintStream out) {
+    public static void read(InputStream inputStream, PrintStream out) {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
@@ -249,5 +239,24 @@ public class Launch {
                 e.printStackTrace();
             }
         }
+    }
+    public static String ret(InputStream inputStream){
+        StringBuilder f = new StringBuilder();
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                f.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return f.toString();
     }
 }

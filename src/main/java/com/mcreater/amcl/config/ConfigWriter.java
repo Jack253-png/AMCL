@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Vector;
 
 public class ConfigWriter{
     public ConfigModel configModel;
@@ -21,9 +22,29 @@ public class ConfigWriter{
         g = gsonBuilder.create();
         file = f;
     }
-    public void write() throws IOException {
-        FileWriter fileWriter = new FileWriter(file);
-        fileWriter.write(g.toJson(configModel));
-        fileWriter.close();
+    public void write(){
+        try {
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write(g.toJson(configModel));
+            fileWriter.close();
+        }
+        catch (IOException e){
+            throw new IllegalStateException("Failed to Write File : "+file.getPath());
+        }
+    }
+    public void check_and_write(){
+        if (configModel.selected_java == null){
+            configModel.selected_java = new Vector<>();
+        }
+        if (configModel.selected_minecraft_dir == null){
+            configModel.selected_minecraft_dir = new Vector<>();
+        }
+        if (configModel.selected_minecraft_dir_index == null){
+            configModel.selected_minecraft_dir_index = "";
+        }
+        if (configModel.selected_version_index == null){
+            configModel.selected_version_index = "";
+        }
+        write();
     }
 }

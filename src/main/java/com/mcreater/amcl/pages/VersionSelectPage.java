@@ -3,23 +3,24 @@ package com.mcreater.amcl.pages;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
-import com.jfoenix.controls.JFXToggleButton;
 import com.mcreater.amcl.HelloApplication;
-import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.game.getMinecraftVersion;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
+import com.mcreater.amcl.game.versionTypeGetter;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Vector;
+
+import static com.mcreater.amcl.pages.MainPage.configWriter;
 
 public class VersionSelectPage extends AbstractAnimationPage{
     VBox dot_minecraft_dir;
@@ -27,8 +28,7 @@ public class VersionSelectPage extends AbstractAnimationPage{
     JFXComboBox<String> dirs;
     JFXButton add_dir;
     JFXButton quit;
-    ConfigWriter configWriter;
-    JFXListView<JFXButton> version_list;
+    JFXListView<Node> version_list;
     HBox buttons;
     VBox versionlist;
     Vector<String> r;
@@ -38,7 +38,14 @@ public class VersionSelectPage extends AbstractAnimationPage{
     double height;
     String last;
     boolean checked;
+
+    Image original = new Image("assets/icons/original.png");
+    Image forge = new Image("assets/icons/forge.png");
+    Image fabric = new Image("assets/icons/fabric.png");
+    Image liteloader = new Image("assets/icons/liteloader.png");
+    Image optifine = new Image("assets/icons/optifine.png");
     public VersionSelectPage(double widthl,double heightl,Background bg){
+        name = "Version Select Page";
         this.setBackground(bg);
         set(this);
         in.play();
@@ -47,12 +54,6 @@ public class VersionSelectPage extends AbstractAnimationPage{
         checked = false;
         width = widthl;
         height = heightl;
-
-        try {
-            configWriter = new ConfigWriter(new File(HelloApplication.config_base_path + "config.json"));
-        } catch (IOException ignored) {
-            throw new IllegalStateException("Null Config File");
-        }
 
         last = configWriter.configModel.selected_version_index;
 
@@ -96,11 +97,7 @@ public class VersionSelectPage extends AbstractAnimationPage{
         quit.setOnAction(event -> {
             if (!checked){
                 configWriter.configModel.selected_version_index = last;
-                try {
-                    configWriter.write();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                configWriter.write();
             }
             HelloApplication.setPage(new MainPage(width, height, bg));
         });
@@ -123,10 +120,7 @@ public class VersionSelectPage extends AbstractAnimationPage{
             }
             else{
                 configWriter.configModel.selected_minecraft_dir.add(path);
-                try {
-                    configWriter.write();
-                } catch (IOException ignored) {
-                }
+                configWriter.write();
                 load_minecraft_dir();
                 r = result;
             }
@@ -164,36 +158,58 @@ public class VersionSelectPage extends AbstractAnimationPage{
         }
     }
     public void load_list(){
-        if (!Objects.equals(dirs.getValue(), null)){
+        if (!Objects.equals(dirs.getValue(), null)) {
 
             configWriter.configModel.selected_minecraft_dir_index = dirs.getValue();
-            try {
-                configWriter.write();
-            } catch (IOException ignored) {
-            }
+            configWriter.write();
 
             Vector<String> result = getMinecraftVersion.get(configWriter.configModel.selected_minecraft_dir_index);
             version_list.getItems().clear();
-            for (String s : result){
-                JFXButton v = new JFXButton(s);
-                v.setDefaultButton(true);
-                v.setFont(Fonts.t_f);
-                v.setOnAction(event -> {
-                    checked = true;
-                    selected_version_name = v.getText();
-                    update_version_name();
-                });
-                version_list.getItems().add(v);
+            if (result != null) {
+                for (String s : result) {
+                    String f = "error";
+                    try {
+                        f = versionTypeGetter.get(configWriter.configModel.selected_minecraft_dir_index, s);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    HBox version = new HBox();
+                    ImageView versionType = new ImageView();
+                    versionType.setFitWidth(40);
+                    versionType.setFitHeight(40);
+                    if (Objects.equals(f, "original")) {
+                        versionType.setImage(original);
+                    } else if (Objects.equals(f, "forge") || Objects.equals(f, "forge-optifine")) {
+                        versionType.setImage(forge);
+                    } else if (Objects.equals(f, "fabric")) {
+                        versionType.setImage(fabric);
+                    } else if (Objects.equals(f, "liteloader")) {
+                        versionType.setImage(liteloader);
+                    } else if (Objects.equals(f, "optifine")) {
+                        versionType.setImage(optifine);
+                    } else {
+                        versionType.setImage(original);
+                    }
+                    HBox butt = new HBox();
+                    butt.setAlignment(Pos.CENTER);
+                    JFXButton v = new JFXButton(s);
+                    v.setDefaultButton(true);
+                    v.setFont(Fonts.t_f);
+                    v.setOnAction(event -> {
+                        checked = true;
+                        selected_version_name = v.getText();
+                        update_version_name();
+                    });
+                    butt.getChildren().add(v);
+                    version.getChildren().addAll(versionType, butt);
+                    version_list.getItems().add(version);
+                }
             }
         }
     }
     public void update_version_name(){
         select_version.setText(selected_version_name);
         configWriter.configModel.selected_version_index = selected_version_name;
-        try {
-            configWriter.write();
-        }
-        catch (IOException ignored){
-        }
+        configWriter.write();
     }
 }
