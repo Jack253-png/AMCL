@@ -27,6 +27,7 @@ public class JavaInfoGetter {
             String type = "JRE";
             String company = "Oracle";
             version = version.replace("\"", "");
+            version = version.replace("_", " update ");
             if (compled.get(2).contains("64")){
                 bits = "64";
             }
@@ -45,7 +46,11 @@ public class JavaInfoGetter {
         }
         catch (IOException ignored){
         }
-        return null;
+        Vector<String> r = new Vector<>();
+        for (int i = 0;i < 4;i++) {
+            r.add("null");
+        }
+        return r;
     }
     public static Vector<String> fromArrayToVector(String[] strings){
         return new Vector<>(List.of(strings));

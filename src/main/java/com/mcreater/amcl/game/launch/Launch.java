@@ -43,6 +43,15 @@ public class Launch {
         Gson g = new Gson();
         VersionJsonModel r = g.fromJson(json_result, VersionJsonModel.class);
 
+        Vector<String> java_info = JavaInfoGetter.fromArrayToVector(JavaInfoGetter.get(new File(java)).get(0).split("\\."));
+        int v;
+        if (Objects.equals(java_info.get(0), "1")){
+            v = Integer.parseInt(java_info.get(1));
+        }
+        else{
+            v = Integer.parseInt(java_info.get(0));
+        }
+
         File libf = new File(LinkPath.link(dir, "libraries"));
         if (!libf.exists()){
             throw new IllegalStateException("Null Lib Dir");
@@ -93,6 +102,18 @@ public class Launch {
         StringBuilder agm = new StringBuilder();
         if (r.minecraftArguments != null) {
             arguments = r.minecraftArguments;
+            if (r.arguments != null){
+                if (r.arguments.game != null){
+                    arguments += " ";
+                    for (Object s : r.arguments.game){
+                        try{
+                            arguments += s + (" ");
+                        }
+                        catch (ClassCastException ignored){
+                        }
+                    }
+                }
+            }
         }
         else{
             for (Object s : r.arguments.game){
@@ -122,7 +143,7 @@ public class Launch {
         }
         arguments = arguments.replace("${auth_player_name}","123");
         arguments = arguments.replace("${user_type}","legacy");
-        arguments = arguments.replace("${version_type}","AMCL");
+        arguments = arguments.replace("${version_type}","\"AMCL " + Vars.launcher_version + "\"");
         arguments = arguments.replace("${resolution_width}","854");
         arguments = arguments.replace("${resolution_height}","480");
         File gamedir;
@@ -139,7 +160,7 @@ public class Launch {
         arguments = arguments.replace("${auth_session}","8".repeat(18));
         arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
 
-        jvm = "-Dfile.encoding=GB18030 -Dminecraft.client.jar=${jar_path} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16m -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -XX:-DontCompileHugeMethods -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false -Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false -Dlog4j2.formatMsgNoLookups=true -Dlog4j.configurationFile=D:\\mods\\util\\.minecraft\\versions\\1.17.1\\log4j2.xml -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Djava.library.path=${native_path} -Dminecraft.launcher.brand=${launcher_brand} -Dminecraft.launcher.version=${launcher_version}";
+        jvm = "-Dfile.encoding=GB18030 -Dminecraft.client.jar=${jar_path} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16m -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -XX:-DontCompileHugeMethods -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false -Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false -Dlog4j2.formatMsgNoLookups=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Djava.library.path=${native_path} -Dminecraft.launcher.brand=${launcher_brand} -Dminecraft.launcher.version=${launcher_version}";
         jvm = jvm.replace("${jar_path}",jar_file.getPath());
         jvm = jvm.replace("${native_path}",nativef.getPath());
         jvm = jvm.replace("${launcher_brand}","AMCL");
@@ -192,7 +213,7 @@ public class Launch {
 
             String command = LinkCommands.link(java, jvm, String.valueOf(classpath), mem, fgvm,mainClass.replace(" ",""), arguments);
             command = command.replace("null","");
-            MainPage.exit_code = -1;
+            MainPage.exit_code = (long) -1;
             MainPage.cleanLog();
             p = Runtime.getRuntime().exec(command);
             MainPage.minecraft_running = true;
@@ -201,7 +222,7 @@ public class Launch {
                     try {
                         int ev = p.exitValue();
                         MainPage.minecraft_running = false;
-                        MainPage.exit_code = ev;
+                        MainPage.exit_code = (long) ev;
                         Platform.runLater(MainPage::check);
                         MainPage.launchButton.setDisable(false);
                         break;

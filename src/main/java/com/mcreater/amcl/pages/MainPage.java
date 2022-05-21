@@ -2,15 +2,18 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.HelloApplication;
+import com.mcreater.amcl.config.ConfigModel;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;
 import com.sun.javafx.application.PlatformImpl;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Background;
@@ -41,15 +44,14 @@ public class MainPage extends AbstractAnimationPage {
     boolean is_ee;
     public static boolean minecraft_running = false;
     static String log = "";
-    public static long exit_code = -1;
+    public static Long exit_code = null;
     public boolean is_vaild_minecraft_dir;
     Launch g;
     static Logger logger = LogManager.getLogger(MainPage.class);
     public MainPage(double width,double height,Background bg){
         name = "Main Page";
         this.setBackground(bg);
-        set(this);
-        in.play();
+        set();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (minecraft_running){
@@ -58,11 +60,12 @@ public class MainPage extends AbstractAnimationPage {
         }));
 
         try {
-            configWriter = new ConfigWriter(new File(HelloApplication.config_base_path + "config.json"));
+            configWriter = new ConfigWriter(new File("config.json"));
             configWriter.check_and_write();
         }
-        catch (IOException ignored){
-            throw new IllegalStateException("Null Config File");
+        catch (IOException e){
+            e.printStackTrace();
+            throw new IllegalStateException("Null Config File : config.json");
         }
 
         is_ee = configWriter.configModel.change_game_dir;
@@ -75,6 +78,7 @@ public class MainPage extends AbstractAnimationPage {
                 g = new Launch();
                 new Thread(() -> {
                     try {
+                        launchButton.setDisable(true);
                         if (new File(configWriter.configModel.selected_java_index).exists()) {
                             g.launch(configWriter.configModel.selected_java_index, configWriter.configModel.selected_minecraft_dir_index, configWriter.configModel.selected_version_index, is_ee, Vars.launcher_version);
                             logger.info("started launch thread");
@@ -83,19 +87,25 @@ public class MainPage extends AbstractAnimationPage {
                             configWriter.configModel.selected_java.remove(configWriter.configModel.selected_java_index);
                             configWriter.configModel.selected_java_index = "";
                             configWriter.write();
-                            FastInfomation.create("Java Checker", "Java has been removed", "");
+                            Platform.runLater(() -> FastInfomation.create("Java Checker", "Java has been removed", "", Alert.AlertType.CONFIRMATION));
+                            launchButton.setDisable(false);
                         }
                     }
                     catch (IllegalStateException e){
                         logger.info("failed to launch", e);
+                        launchButton.setDisable(false);
+                        Platform.runLater(() -> FastInfomation.create("Launcher", "Failed To Launch Minecraft", e.toString(), Alert.AlertType.CONFIRMATION));
                     }
                 }).start();
-                launchButton.setDisable(true);
+
             }
             else{
-                FastInfomation.create("Select Version","No Selected Version","Please Choose A Version");
+                FastInfomation.create("Select Version","No Selected Version","Please Choose A Version", Alert.AlertType.CONFIRMATION);
             }
         });
+        if (minecraft_running){
+            launchButton.setDisable(true);
+        }
 
         launchBox = new VBox();
         launchBox.setAlignment(Pos.BOTTOM_LEFT);
@@ -116,11 +126,19 @@ public class MainPage extends AbstractAnimationPage {
         version_settings.setFont(Fonts.s_f);
         settings.setFont(Fonts.s_f);
 
-        settings.setOnAction(event -> runLater(() -> HelloApplication.setPage(new ConfigPage(width, height, bg))));
+        settings.setOnAction(event ->{
+            if(getCanMovePage()){
+                HelloApplication.setPage(new ConfigPage(width, height, bg));
+            }
+        });
 
         is_vaild_minecraft_dir = configWriter.configModel.selected_minecraft_dir.contains(configWriter.configModel.selected_minecraft_dir_index) && new File(configWriter.configModel.selected_minecraft_dir_index).exists();
 
-        choose_version.setOnAction(event -> runLater(() -> HelloApplication.setPage(new VersionSelectPage(width,height,bg))));
+        choose_version.setOnAction(event -> {
+            if(getCanMovePage()){
+                HelloApplication.setPage(new VersionSelectPage(width, height, bg));
+            }
+        });
 
 
         StackPane graphic = new StackPane();
@@ -188,8 +206,6 @@ public class MainPage extends AbstractAnimationPage {
         hBox2.setMinSize(width / 5,height);
         hBox2.setMaxSize(width / 5,height);
 
-
-
         this.add(GameMenu,0,0,1,1);
         this.add(hBox1,1,0,1,1);
         this.add(hBox2,2,0,1,1);
@@ -200,17 +216,13 @@ public class MainPage extends AbstractAnimationPage {
         launchButton.setDisable(minecraft_running);
         if (!minecraft_running){
             // TODO 初次运行
-            if (!(exit_code == -1)){
+            if (!(exit_code == null)){
                 logger.info("Minecraft exited with code " + exit_code);
-                // TODO 正常退出
-                if (exit_code == 0){
-                    FastInfomation.create("Minecraft Exit","Minecraft Exited Normally\n"+log,"Exit Code : 0");
-                }
                 // TODO minecraft崩溃
-                else{
-                    FastInfomation.create("Minecraft Exit","Minecraft Crashed\n"+log,"Exit Code : "+exit_code);
+                if (exit_code != 0){
+                    FastInfomation.create("Minecraft Exit","Minecraft Crashed","Exit Code : "+exit_code, Alert.AlertType.ERROR);
                 }
-                exit_code = -1;
+                exit_code = null;
             }
         }
 

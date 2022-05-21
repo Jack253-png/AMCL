@@ -2,15 +2,19 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXToggleButton;
 import com.mcreater.amcl.HelloApplication;
 import com.mcreater.amcl.config.ConfigWriter;
+import com.mcreater.amcl.util.JavaInfoGetter;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.Background;
@@ -19,6 +23,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.Vector;
 
 import static com.mcreater.amcl.pages.MainPage.configWriter;
 
@@ -43,30 +48,13 @@ public class ConfigPage extends AbstractAnimationPage {
     Label java_label;
     JFXComboBox<String> java_set;
     JFXButton java_add;
+    JFXButton java_get;
     HBox java_box;
     public ConfigPage(double width,double height,Background bg){
         name = "Config Page";
         this.setBackground(bg);
-        set(this);
-        in.play();
+        set();
         this.setAlignment(Pos.TOP_CENTER);
-
-        exit = new JFXButton("Ok");
-        exit.setFont(Fonts.s_f);
-        exit.setDefaultButton(true);
-        exit.setOnAction(event -> Platform.runLater(() -> {
-            configWriter.write();
-            HelloApplication.setPage(new MainPage(width, height, bg));
-        }));
-
-        cancel = new JFXButton("Cancel");
-        cancel.setFont(Fonts.s_f);
-        cancel.setDefaultButton(true);
-        cancel.setOnAction(event -> Platform.runLater(() -> HelloApplication.setPage(new MainPage(width, height, bg))));
-
-        box_group = new HBox();
-        box_group.getChildren().addAll(cancel, exit);
-        box_group.setAlignment(Pos.TOP_CENTER);
 
         title = new Label("Settings");
         title.setFont(Fonts.b_f);
@@ -104,7 +92,7 @@ public class ConfigPage extends AbstractAnimationPage {
         });
 
 
-        java_add = new JFXButton("Add Java");
+        java_add = new JFXButton("Add");
         java_add.setDefaultButton(true);
         java_add.setFont(Fonts.t_f);
         java_add.setOnAction(event -> {
@@ -112,15 +100,54 @@ public class ConfigPage extends AbstractAnimationPage {
             fileChooser.setTitle("Open Resource File");
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Java Executable", "java.exe"));
             File choosed_path = fileChooser.showOpenDialog(HelloApplication.stage);
-            configWriter.configModel.selected_java.add(choosed_path.getPath());
-            load_java_list();
+            if (choosed_path != null) {
+                configWriter.configModel.selected_java.add(choosed_path.getPath());
+                load_java_list();
+            }
         });
+
+        java_get = new JFXButton("Get");
+        java_get.setDefaultButton(true);
+        java_get.setFont(Fonts.t_f);
+        java_get.setOnAction(event -> new Thread(() -> Platform.runLater(() -> {
+            if (configWriter.configModel.selected_java.contains(configWriter.configModel.selected_java_index) && new File(configWriter.configModel.selected_java_index).exists()) {
+                Vector<String> info = JavaInfoGetter.get(new File(configWriter.configModel.selected_java_index));
+                FastInfomation.create("Java Info", "Java Info : ", "Version = %s\nBits = %s\nCompany = %s\nType = %s".formatted(info.get(0), info.get(1), info.get(2), info.get(3)), Alert.AlertType.CONFIRMATION);
+            }
+            else{
+                FastInfomation.create("Java Select", "Please select a Java executable", "", Alert.AlertType.CONFIRMATION);
+            }
+        })).start());
 
         java_box = new HBox();
         java_box.setAlignment(Pos.TOP_CENTER);
-        java_box.getChildren().addAll(java_label, new MainPage.Spacer(), java_set, new MainPage.Spacer(), java_add);
+        java_box.getChildren().addAll(java_label, new MainPage.Spacer(), java_set, new MainPage.Spacer(), java_get, new MainPage.Spacer(), java_add);
+
+        exit = new JFXButton("Ok");
+        exit.setFont(Fonts.s_f);
+        exit.setDefaultButton(true);
+        exit.setOnAction(event -> Platform.runLater(() -> {
+            if (getCanMovePage()) {
+                configWriter.write();
+                HelloApplication.setPage(new MainPage(width, height, bg));
+            }
+        }));
+
+        cancel = new JFXButton("Cancel");
+        cancel.setFont(Fonts.s_f);
+        cancel.setDefaultButton(true);
+        cancel.setOnAction(event -> Platform.runLater(() -> {
+            if(getCanMovePage()){
+                HelloApplication.setPage(new MainPage(width, height, bg));
+            }
+        }));
+
+        box_group = new HBox();
+        box_group.getChildren().addAll(cancel, exit);
+        box_group.setAlignment(Pos.TOP_CENTER);
 
         configs_box = new VBox();
+        configs_box.setSpacing(1);
         configs_box.setAlignment(Pos.TOP_CENTER);
         configs_box.getChildren().addAll(change_box, wall_box, java_box);
 

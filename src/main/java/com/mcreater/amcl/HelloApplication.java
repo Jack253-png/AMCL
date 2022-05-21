@@ -21,6 +21,8 @@ import org.apache.logging.log4j.message.Message;
 import java.io.File;
 import java.net.MalformedURLException;
 
+import static com.mcreater.amcl.pages.MainPage.configWriter;
+
 public class HelloApplication extends Application {
     static Logger logger = LogManager.getLogger(HelloApplication.class);
     static Scene s;
@@ -28,8 +30,10 @@ public class HelloApplication extends Application {
     boolean use_classic;
     String wallpaper;
     public static String config_base_path;
+    static AbstractAnimationPage last;
     @Override
     public void start(Stage primaryStage){
+        stage = new Stage();
         BackgroundSize bs = new BackgroundSize(BackgroundSize.AUTO,BackgroundSize.AUTO,true,true,false,true);
         logger.info("Launcher Version : " + Vars.launcher_version);
         logger.info("getted background size : " + bs);
@@ -65,9 +69,10 @@ public class HelloApplication extends Application {
 
         logger.info("created background image : " + bg);
 
-        stage = new Stage();
+        last = new MainPage(800,480,bg);
+        stage.opacityProperty().setValue(0);
         setGeometry(stage,800,480);
-        setPage(new MainPage(800,480,bg));
+        setPage(last);
 
         stage.initStyle(StageStyle.UNIFIED);
         stage.setTitle("AMCL " + Vars.launcher_version);
@@ -78,10 +83,16 @@ public class HelloApplication extends Application {
         stage.show();
     }
     public static void setPage(AbstractAnimationPage n){
-        s = new Scene(n);
+        last.setOut();
+        last = n;
+        last.setIn();
+        last.setTypeAll(true);
+        last.in.stop();
+        last.setTypeAll(false);
+        s = new Scene(last);
         s.setFill(Color.TRANSPARENT);
         stage.setScene(s);
-        logger.info("setted page : " + n.name);
+        logger.info("setted page : " + last.name);
     }
     public static void setGeometry(Stage s, double width, double height){
         s.setWidth(width);

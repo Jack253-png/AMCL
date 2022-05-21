@@ -10,7 +10,6 @@ public class ConfigModel {
     public String selected_version_index;
     public boolean use_classic_wallpaper;
     public boolean change_game_dir;
-
     public ConfigModel getI(){
         selected_java = new Vector<>();
         selected_minecraft_dir = new Vector<>();

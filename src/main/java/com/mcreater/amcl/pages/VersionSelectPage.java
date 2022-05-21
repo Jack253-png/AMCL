@@ -8,6 +8,7 @@ import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.versionTypeGetter;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -47,9 +48,7 @@ public class VersionSelectPage extends AbstractAnimationPage{
     public VersionSelectPage(double widthl,double heightl,Background bg){
         name = "Version Select Page";
         this.setBackground(bg);
-        set(this);
-        in.play();
-        set(this);
+        set();
 
         checked = false;
         width = widthl;
@@ -99,7 +98,9 @@ public class VersionSelectPage extends AbstractAnimationPage{
                 configWriter.configModel.selected_version_index = last;
                 configWriter.write();
             }
-            HelloApplication.setPage(new MainPage(width, height, bg));
+            if (getCanMovePage()) {
+                HelloApplication.setPage(new MainPage(width, height, bg));
+            }
         });
 
         add_dir = new JFXButton("Add");
@@ -109,14 +110,14 @@ public class VersionSelectPage extends AbstractAnimationPage{
             DirectoryChooser directoryChooser=new DirectoryChooser();
             File file = directoryChooser.showDialog(HelloApplication.stage);
             if (file == null){
-                FastInfomation.create("Null Minecraft Dir","Unsupported Minecraft Dir","");
+                FastInfomation.create("Null Minecraft Dir","Unsupported Minecraft Dir","", Alert.AlertType.CONFIRMATION);
                 return;
             }
             String path = file.getPath();
             Vector<String> result = getMinecraftVersion.get(path);
 
             if (result == null){
-                FastInfomation.create("Null Minecraft Dir","Unsupported Minecraft Dir","");
+                FastInfomation.create("Null Minecraft Dir","Unsupported Minecraft Dir","", Alert.AlertType.CONFIRMATION);
             }
             else{
                 configWriter.configModel.selected_minecraft_dir.add(path);
