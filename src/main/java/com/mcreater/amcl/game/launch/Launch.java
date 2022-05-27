@@ -5,9 +5,12 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.game.getPath;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
+import com.mcreater.amcl.nativeInterface.EnumWindow;
+import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.util.*;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
 
 import java.io.*;
 import java.util.*;
@@ -19,10 +22,9 @@ public class Launch {
     String mainClass;
     String arguments;
     String forge_jvm;
-    String fgvm;
+    String forgevm;
     public Process p;
-
-    public void launch(String java_path,String dir,String version_name,boolean ie,String launcherv) throws IllegalStateException{
+    public void launch(String java_path,String dir,String version_name,boolean ie,String launcherv, int m) throws IllegalStateException{
         java = java_path;
 
         if (!new File(dir).exists()){
@@ -63,14 +65,18 @@ public class Launch {
             if (l.downloads != null) {
                 if (l.downloads.classifiers != null) {
                     if (l.downloads.classifiers.get("natives-windows") != null) {
-                        natives.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
-                        libs.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
+                        if (new File(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path)).exists()) {
+                            natives.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
+                            libs.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
+                        }
                     }
                 }
             }
             if (l.name.contains("natives-windows")){
-                natives.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
-                libs.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
+                if (new File(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path"))).exists()) {
+                    natives.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
+                    libs.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
+                }
             }
             if (new File(LinkPath.link(libf.getPath(), getPath.get(l.name))).exists()) {
                 if (!libs.contains(LinkPath.link(libf.getPath(), getPath.get(l.name)))) {
@@ -104,7 +110,7 @@ public class Launch {
         }
         classpath.append(jar_file).append("\"");
 
-        mem = "-Xmn256m -Xmx4096m";
+        mem = "-Xmn256m -Xmx" + m + "m";
         mainClass = r.mainClass;
         StringBuilder agm = new StringBuilder();
         if (r.minecraftArguments != null) {
@@ -195,10 +201,10 @@ public class Launch {
                     }
                 }
                 if (forge_jvm != null) {
-                    fgvm = forge_jvm;
-                    fgvm = fgvm.replace("${version_name}", version_name);
-                    fgvm = fgvm.replace("${primary_jar_name}", version_name + ".jar");
-                    fgvm = fgvm.replace("${library_directory}", libf.getPath());
+                    forgevm = forge_jvm;
+                    forgevm = forgevm.replace("${version_name}", version_name);
+                    forgevm = forgevm.replace("${primary_jar_name}", version_name + ".jar");
+                    forgevm = forgevm.replace("${library_directory}", libf.getPath());
                     StringBuilder forge_libs = new StringBuilder();
                     for (LibModel l : r.libraries) {
                         if ((l.name.contains("cpw.mods") || l.name.contains("org.ow2")) && !l.name.contains("modlauncher")) {
@@ -207,8 +213,8 @@ public class Launch {
                     }
                     forge_libs = new StringBuilder(forge_libs.substring(0, forge_libs.length() - 1));
                     forge_libs.append("\"");
-                    fgvm = fgvm.replace("-p ", "-p " + "\"" + forge_libs);
-                    fgvm = fgvm.replace("--add-modules ALL-MODULE-PATH", " --add-modules ALL-MODULE-PATH");
+                    forgevm = forgevm.replace("-p ", "-p " + "\"" + forge_libs);
+                    forgevm = forgevm.replace("--add-modules ALL-MODULE-PATH", " --add-modules ALL-MODULE-PATH");
                 }
                 else{
                     forge_jvm = "";
@@ -218,12 +224,23 @@ public class Launch {
 
         try {
 
-            String command = LinkCommands.link(java, jvm, String.valueOf(classpath), mem, fgvm,mainClass.replace(" ",""), arguments);
+            String command = LinkCommands.link(java, jvm, String.valueOf(classpath), mem, forgevm,mainClass.replace(" ",""), arguments);
             command = command.replace("null","");
             MainPage.exit_code = (long) -1;
             MainPage.cleanLog();
             System.out.println(command);
             p = Runtime.getRuntime().exec(command);
+            new Thread(() -> {
+                while (true) {
+                    if (EnumWindow.getTaskPID().contains(p.pid())) {
+                        System.out.println("Window Showed");
+                        if (!MainPage.log.contains("Incompatible mod set!")) {
+                            Platform.runLater(() -> FastInfomation.create("Launcher", "Minecraft Launch Success", ""));
+                        }
+                        break;
+                    }
+                }
+            }).start();
             MainPage.minecraft_running = true;
             new Thread(() -> {
                 while (true){

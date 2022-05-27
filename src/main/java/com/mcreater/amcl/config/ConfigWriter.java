@@ -42,8 +42,14 @@ public class ConfigWriter{
         if (configModel.selected_minecraft_dir_index == null){
             configModel.selected_minecraft_dir_index = "";
         }
+        if (configModel.selected_java_index == null){
+            configModel.selected_java_index = "";
+        }
         if (configModel.selected_version_index == null){
             configModel.selected_version_index = "";
+        }
+        if (configModel.max_memory < 512 || configModel.max_memory > 4096){
+            configModel.max_memory = 1024;
         }
         write();
     }

@@ -1,4 +1,4 @@
-package com.mcreater.amcl.pages;
+package com.mcreater.amcl.pages.interfaces;
 
 import javafx.scene.text.Font;
 

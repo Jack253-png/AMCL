@@ -1,64 +1,77 @@
 plugins {
-    id 'java'
-    id 'application'
-    id 'org.openjfx.javafxplugin' version '0.0.10'
-    id 'org.beryx.jlink' version '2.24.1'
+  id 'java'
+  id 'application'
+  id 'org.openjfx.javafxplugin' version '0.0.10'
+  id 'org.beryx.jlink' version '2.24.1'
 }
 
 group 'com.mcreater'
 version '1.0-SNAPSHOT'
 
 repositories {
-    maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
-    maven { url 'https://mvnrepository.com/artifact/' }
-    mavenCentral()
+  maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
+  maven { url 'https://mvnrepository.com/artifact/' }
+  mavenCentral()
 }
 
 ext {
-    junitVersion = '5.8.1'
+  junitVersion = '5.8.1'
 }
 
-sourceCompatibility = '17'
-targetCompatibility = '17'
+sourceCompatibility = "11"
+targetCompatibility = "11"
 
 tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
+  options.encoding = 'UTF-8'
 }
 
 application {
-    mainModule = 'com.mcreater.amcl'
-    mainClass = 'com.mcreater.amcl.HelloApplication'
+  mainModule = 'com.mcreater.amcl'
+  mainClass = 'com.mcreater.amcl.HelloApplication'
 }
 
 javafx {
-    version = '17.0.1'
-    modules = ['javafx.controls', 'javafx.fxml']
+  version = '11.0.2'
+  modules = ['javafx.controls', 'javafx.fxml', 'javafx.web']
 }
 
 dependencies {
+  implementation('org.controlsfx:controlsfx:11.1.0')
+  implementation('com.dlsc.formsfx:formsfx-core:11.3.2') {
+    exclude(group: 'org.openjfx')
+  }
+  implementation('net.synedra:validatorfx:0.1.13') {
+    exclude(group: 'org.openjfx')
+  }
+  implementation('org.kordamp.ikonli:ikonli-javafx:12.2.0')
+  implementation('org.kordamp.bootstrapfx:bootstrapfx-core:0.4.0')
+  implementation('eu.hansolo:tilesfx:11.48') {
+    exclude(group: 'org.openjfx')
+  }
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
-    implementation('com.jfoenix:jfoenix:9.0.10')
-    implementation('com.google.code.gson:gson:2.9.0')
-    implementation('com.alibaba:fastjson:2.0.3')
-    implementation('org.apache.logging.log4j:log4j-core:2.17.2')
-    implementation('org.apache.logging.log4j:log4j-api:2.17.2')
-    implementation('commons-httpclient:commons-httpclient:3.1')
+  testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+  implementation('com.jfoenix:jfoenix:9.0.9')
+  implementation('com.google.code.gson:gson:2.9.0')
+  implementation('com.alibaba:fastjson:2.0.3')
+  implementation('org.apache.logging.log4j:log4j-core:2.17.2')
+  implementation('org.apache.logging.log4j:log4j-api:2.17.2')
+  implementation('commons-httpclient:commons-httpclient:3.1')
+  implementation('net.java.dev.jna:jna:5.11.0')
+  implementation('net.java.dev.jna:jna-platform:5.11.0')
 }
 
 test {
-    useJUnitPlatform()
-}
+  useJUnitPlatform()  }
 
 jlink {
-    imageZip = project.file("${buildDir}/distributions/app-${javafx.platform.classifier}.zip")
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-    launcher {
-        name = 'app'
-    }
+  imageZip = project.file("${buildDir}/distributions/app-${javafx.platform.classifier}.zip")
+  options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+  launcher {
+    name = 'app'
+  }
 }
 
 jlinkZip {
-    group = 'distribution'
+  group = 'distribution'
 }

@@ -2,10 +2,12 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.HelloApplication;
-import com.mcreater.amcl.config.ConfigModel;
-import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
+import com.mcreater.amcl.lang.LanguageManager;
+import com.mcreater.amcl.pages.dialogs.FastInfomation;
+import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
+import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;
 import com.sun.javafx.application.PlatformImpl;
@@ -25,7 +27,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Objects;
 
 public class MainPage extends AbstractAnimationPage {
@@ -35,7 +36,6 @@ public class MainPage extends AbstractAnimationPage {
     JFXButton version_settings;
     VBox GameMenu;
     HBox LaunchTitle;
-    public static ConfigWriter configWriter;
     HBox SetTitle;
     Label set;
     JFXButton settings;
@@ -43,13 +43,15 @@ public class MainPage extends AbstractAnimationPage {
     VBox launchBox;
     boolean is_ee;
     public static boolean minecraft_running = false;
-    static String log = "";
+    public static String log = "";
     public static Long exit_code = null;
     public boolean is_vaild_minecraft_dir;
     Launch g;
     static Logger logger = LogManager.getLogger(MainPage.class);
+    public static boolean window_showed;
+
     public MainPage(double width,double height,Background bg){
-        name = "Main Page";
+        l = null;
         this.setBackground(bg);
         set();
 
@@ -59,48 +61,40 @@ public class MainPage extends AbstractAnimationPage {
             }
         }));
 
-        try {
-            configWriter = new ConfigWriter(new File("config.json"));
-            configWriter.check_and_write();
-        }
-        catch (IOException e){
-            e.printStackTrace();
-            throw new IllegalStateException("Null Config File : config.json");
-        }
-
-        is_ee = configWriter.configModel.change_game_dir;
+        is_ee = HelloApplication.configReader.configModel.change_game_dir;
 
         launchButton = new JFXButton();
         launchButton.setFont(Fonts.b_f);
         launchButton.setStyle("-fx-background-color: rgb(173,216,246);");
         launchButton.setOnAction(event -> {
-            if (!Objects.equals(launchButton.getText(), "No Version")) {
+            if (!Objects.equals(launchButton.getText(), HelloApplication.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
+                HelloApplication.configReader.check_and_write();
                 g = new Launch();
                 new Thread(() -> {
                     try {
                         launchButton.setDisable(true);
-                        if (new File(configWriter.configModel.selected_java_index).exists()) {
-                            g.launch(configWriter.configModel.selected_java_index, configWriter.configModel.selected_minecraft_dir_index, configWriter.configModel.selected_version_index, is_ee, Vars.launcher_version);
+                        if (new File(HelloApplication.configReader.configModel.selected_java_index).exists()) {
+                            g.launch(HelloApplication.configReader.configModel.selected_java_index, HelloApplication.configReader.configModel.selected_minecraft_dir_index, HelloApplication.configReader.configModel.selected_version_index, is_ee, Vars.launcher_version, HelloApplication.configReader.configModel.max_memory);
                             logger.info("started launch thread");
                         }
                         else{
-                            configWriter.configModel.selected_java.remove(configWriter.configModel.selected_java_index);
-                            configWriter.configModel.selected_java_index = "";
-                            configWriter.write();
-                            Platform.runLater(() -> FastInfomation.create("Java Checker", "Java has been removed", "", Alert.AlertType.CONFIRMATION));
+                            HelloApplication.configReader.configModel.selected_java.remove(HelloApplication.configReader.configModel.selected_java_index);
+                            HelloApplication.configReader.configModel.selected_java_index = "";
+                            HelloApplication.configReader.write();
+                            Platform.runLater(() -> FastInfomation.create(HelloApplication.languageManager.get("ui.mainpage.launch.javaChecker.name"), HelloApplication.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), ""));
                             launchButton.setDisable(false);
                         }
                     }
                     catch (IllegalStateException e){
                         logger.info("failed to launch", e);
                         launchButton.setDisable(false);
-                        Platform.runLater(() -> FastInfomation.create("Launcher", "Failed To Launch Minecraft", e.toString(), Alert.AlertType.CONFIRMATION));
+                        Platform.runLater(() -> FastInfomation.create(HelloApplication.languageManager.get("ui.mainpage.launch.launchFailed.name"), HelloApplication.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
                     }
                 }).start();
 
             }
             else{
-                FastInfomation.create("Select Version","No Selected Version","Please Choose A Version", Alert.AlertType.CONFIRMATION);
+                FastInfomation.create(HelloApplication.languageManager.get("ui.mainpage.launch.noVersion.name"),HelloApplication.languageManager.get("ui.mainpage.launch.noVersion.Headcontent"),HelloApplication.languageManager.get("ui.mainpage.launch.noVersion.content"));
             }
         });
         if (minecraft_running){
@@ -112,12 +106,12 @@ public class MainPage extends AbstractAnimationPage {
         launchBox.setMaxSize(width / 2,height - 185);
         launchBox.getChildren().add(launchButton);
 
-        title = new Label("AMCL "+Vars.launcher_version);
-        launch = new Label("Launch");
-        set = new Label("Settings");
-        choose_version = new JFXButton("Choose...");
+        title = new Label();
+        launch = new Label();
+        set = new Label();
+        choose_version = new JFXButton();
         version_settings = new JFXButton();
-        settings = new JFXButton(" Settings");
+        settings = new JFXButton();
 
         title.setFont(Fonts.b_f);
         launch.setFont(Fonts.t_f);
@@ -128,18 +122,17 @@ public class MainPage extends AbstractAnimationPage {
 
         settings.setOnAction(event ->{
             if(getCanMovePage()){
-                HelloApplication.setPage(new ConfigPage(width, height, bg));
+                HelloApplication.setPage(HelloApplication.CONFIGPAGE);
             }
         });
 
-        is_vaild_minecraft_dir = configWriter.configModel.selected_minecraft_dir.contains(configWriter.configModel.selected_minecraft_dir_index) && new File(configWriter.configModel.selected_minecraft_dir_index).exists();
+        is_vaild_minecraft_dir = HelloApplication.configReader.configModel.selected_minecraft_dir.contains(HelloApplication.configReader.configModel.selected_minecraft_dir_index) && new File(HelloApplication.configReader.configModel.selected_minecraft_dir_index).exists();
 
         choose_version.setOnAction(event -> {
             if(getCanMovePage()){
-                HelloApplication.setPage(new VersionSelectPage(width, height, bg));
+                HelloApplication.setPage(HelloApplication.VERSIONSELECTPAGE);
             }
         });
-
 
         StackPane graphic = new StackPane();
         Node svg = SVG.gear(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D);
@@ -154,23 +147,6 @@ public class MainPage extends AbstractAnimationPage {
         version_settings.setGraphic(graphic);
         settings.setGraphic(graphic1);
 
-        if (new File(configWriter.configModel.selected_minecraft_dir_index).exists()) {
-            if (configWriter.configModel.selected_minecraft_dir.contains(configWriter.configModel.selected_minecraft_dir_index)) {
-                if (Objects.requireNonNull(getMinecraftVersion.get(configWriter.configModel.selected_minecraft_dir_index)).contains(configWriter.configModel.selected_version_index)) {
-                    version_settings.setText(" " + configWriter.configModel.selected_version_index);
-                    launchButton.setText("Launch");
-                } else {
-                    clean_null_version();
-                }
-            }
-            else{
-                clean_null_version();
-            }
-        }
-        else{
-            clean_null_version();
-        }
-
         LaunchTitle = new HBox();
         LaunchTitle.setAlignment(Pos.BOTTOM_CENTER);
         LaunchTitle.getChildren().add(launch);
@@ -178,6 +154,11 @@ public class MainPage extends AbstractAnimationPage {
         SetTitle = new HBox();
         SetTitle.setAlignment(Pos.BOTTOM_CENTER);
         SetTitle.getChildren().add(set);
+
+        choose_version.setButtonType(JFXButton.ButtonType.RAISED);
+        version_settings.setButtonType(JFXButton.ButtonType.RAISED);
+        settings.setButtonType(JFXButton.ButtonType.RAISED);
+        launchButton.setButtonType(JFXButton.ButtonType.RAISED);
 
         GameMenu = new VBox();
         GameMenu.setMinHeight(height);
@@ -195,7 +176,8 @@ public class MainPage extends AbstractAnimationPage {
                 new SplitPane(),
                 new Spacer(),
                 version_settings,
-                settings
+                settings,
+                new Spacer()
         );
 
         HBox hBox1 = new HBox();
@@ -206,10 +188,10 @@ public class MainPage extends AbstractAnimationPage {
         hBox2.setMinSize(width / 5,height);
         hBox2.setMaxSize(width / 5,height);
 
-        this.add(GameMenu,0,0,1,1);
-        this.add(hBox1,1,0,1,1);
-        this.add(hBox2,2,0,1,1);
-        this.add(launchBox,3,0,1,1);
+        this.add(GameMenu,0,1,1,1);
+        this.add(hBox1,1,1,1,1);
+        this.add(hBox2,2,1,1,1);
+        this.add(launchBox,3,1,1,1);
     }
     public static void check(){
         launchButton.setDisable(minecraft_running);
@@ -219,12 +201,12 @@ public class MainPage extends AbstractAnimationPage {
                 logger.info("Minecraft exited with code " + exit_code);
                 // TODO minecraft崩溃
                 if (exit_code != 0){
-                    FastInfomation.create("Minecraft Exit","Minecraft Crashed","Exit Code : "+exit_code, Alert.AlertType.ERROR);
+                    FastInfomation.create(HelloApplication.languageManager.get("ui.mainpage.minecraftExit.title"),HelloApplication.languageManager.get("ui.mainpage.minecraftExit.Headercontent"),String.format(HelloApplication.languageManager.get("ui.mainpage.minecraftExit.content"), exit_code));
                 }
                 exit_code = null;
+                window_showed = false;
             }
         }
-
     }
     public static void runLater(Runnable runnable){
         PlatformImpl.runLater(runnable);
@@ -245,9 +227,40 @@ public class MainPage extends AbstractAnimationPage {
         }
     }
     public void clean_null_version(){
-        version_settings.setText(" No Version");
-        launchButton.setText("No Version");
-        configWriter.configModel.selected_version_index = "";
-        configWriter.write();
+        version_settings.setText(HelloApplication.languageManager.get("ui.mainpage.launchButton.noVersion"));
+        launchButton.setText(HelloApplication.languageManager.get("ui.mainpage.launchButton.noVersion"));
+        HelloApplication.configReader.configModel.selected_version_index = "";
+        HelloApplication.configReader.write();
+    }
+    public void flush(){
+        if (new File(HelloApplication.configReader.configModel.selected_minecraft_dir_index).exists()) {
+            if (HelloApplication.configReader.configModel.selected_minecraft_dir.contains(HelloApplication.configReader.configModel.selected_minecraft_dir_index)) {
+                if (HelloApplication.configReader.configModel.selected_version_index != null) {
+                    if (Objects.requireNonNull(getMinecraftVersion.get(HelloApplication.configReader.configModel.selected_minecraft_dir_index)).contains(HelloApplication.configReader.configModel.selected_version_index)) {
+                        version_settings.setText(" " + HelloApplication.configReader.configModel.selected_version_index);
+                        launchButton.setText(HelloApplication.languageManager.get("ui.mainpage.launchButton.hasVersion"));
+                    } else {
+                        clean_null_version();
+                    }
+                }
+            }
+            else{
+                clean_null_version();
+            }
+        }
+        else{
+            clean_null_version();
+        }
+    }
+    public void refresh(){
+        flush();
+    }
+    public void refreshLanguage(){
+        name = HelloApplication.languageManager.get("ui.mainpage.name");
+        title.setText(String.format(HelloApplication.languageManager.get("ui.title"), Vars.launcher_version));
+        launch.setText(HelloApplication.languageManager.get("ui.mainpage.launchTitle.launch.name"));
+        set.setText(HelloApplication.languageManager.get("ui.mainpage.settings.name"));
+        choose_version.setText(HelloApplication.languageManager.get("ui.mainpage.choose_version.name"));
+        settings.setText(" "+HelloApplication.languageManager.get("ui.mainpage.settings.name"));
     }
 }

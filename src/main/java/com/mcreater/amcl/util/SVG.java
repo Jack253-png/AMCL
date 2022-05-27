@@ -21,13 +21,13 @@ public final class SVG {
         }
 
         if (!(width < 0.0D) && !(height < 0.0D)) {
-            Group svg = new Group(new Node[]{path});
+            Group svg = new Group(path);
             double scale = Math.min(width / 24.0D, height / 24.0D);
             svg.setScaleX(scale);
             svg.setScaleY(scale);
             return svg;
         } else {
-            StackPane pane = new StackPane(new Node[]{path});
+            StackPane pane = new StackPane(path);
             pane.setAlignment(Pos.CENTER);
             return pane;
         }
