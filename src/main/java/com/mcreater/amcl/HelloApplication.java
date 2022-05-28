@@ -1,7 +1,6 @@
 package com.mcreater.amcl;
 
 import com.jfoenix.controls.JFXButton;
-import com.mcreater.amcl.config.ConfigModel;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
@@ -23,7 +22,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import com.mcreater.amcl.pages.MainPage;
@@ -37,8 +35,6 @@ public class HelloApplication extends Application {
     static Logger logger = LogManager.getLogger(HelloApplication.class);
     public static Scene s = new Scene(new Pane());
     public static Stage stage;
-    boolean use_classic;
-    String wallpaper;
     public static AbstractAnimationPage last;
     static boolean is_t;
     public static MainPage MAINPAGE;
@@ -46,13 +42,15 @@ public class HelloApplication extends Application {
     public static VersionSelectPage VERSIONSELECTPAGE;
     public static ConfigWriter configReader;
     public static LanguageManager languageManager;
+    static Background bg;
+    static BackgroundSize bs;
     @Override
     public void start(Stage primaryStage){
         if (is_t) {
             languageManager = new LanguageManager(LanguageManager.LanguageType.CHINESE);
             stage = new Stage();
             setGeometry(stage, 800, 480);
-            BackgroundSize bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true);
+            bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true);
             logger.info("Launcher Version : " + Vars.launcher_version);
             logger.info("getted background size : " + bs);
             try {
@@ -66,29 +64,15 @@ public class HelloApplication extends Application {
                 }
                 configReader = new ConfigWriter(new File("AMCL/config.json"));
                 configReader.check_and_write();
-                ConfigModel result = configReader.configModel;
-                use_classic = result.use_classic_wallpaper;
             } catch (Exception e) {
                 logger.error("failed to read config", e);
             }
-            if (!use_classic) {
-                wallpaper = "assets/background.jpg";
-            } else {
-                wallpaper = "assets/background-classic.jpg";
-            }
-            logger.info("use wallpaper path : " + wallpaper);
 
-            Background bg = new Background(new BackgroundImage(new Image(wallpaper),
-                    BackgroundRepeat.NO_REPEAT,
-                    BackgroundRepeat.NO_REPEAT,
-                    BackgroundPosition.DEFAULT,
-                    bs));
+            MAINPAGE = new MainPage(800, 480);
+            CONFIGPAGE = new ConfigPage(800, 480);
+            VERSIONSELECTPAGE = new VersionSelectPage(800, 480);
 
-            logger.info("created background image : " + bg);
-
-            MAINPAGE = new MainPage(800, 480, bg);
-            CONFIGPAGE = new ConfigPage(800, 480, bg);
-            VERSIONSELECTPAGE = new VersionSelectPage(800, 480, bg);
+            setBackground(!configReader.configModel.use_classic_wallpaper);
 
             last = MAINPAGE;
             setPage(last);
@@ -196,6 +180,7 @@ public class HelloApplication extends Application {
         VBox v = new VBox(top, last);
         Pane p = new Pane();
         p.getChildren().addAll(v);
+        setBackground(configReader.configModel.use_classic_wallpaper);
         s.setRoot(p);
         s.setFill(Color.TRANSPARENT);
         stage.setScene(s);
@@ -215,8 +200,27 @@ public class HelloApplication extends Application {
         stage.setTitle(String.format(languageManager.get("ui.title"), Vars.launcher_version));
     }
 
-    public static void main(String[] args, boolean is_true) {
+    public static void startApplication(String[] args, boolean is_true) {
         is_t = is_true;
         launch(args);
+    }
+    public static void setBackground(boolean b){
+        String wallpaper;
+        if (!b) {
+            wallpaper = "assets/background.jpg";
+        } else {
+            wallpaper = "assets/background-classic.jpg";
+        }
+        logger.info("use wallpaper path : " + wallpaper);
+
+        bg = new Background(new BackgroundImage(new Image(wallpaper),
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.DEFAULT,
+                bs));
+
+        MAINPAGE.setBackground(bg);
+        VERSIONSELECTPAGE.setBackground(bg);
+        CONFIGPAGE.setBackground(bg);
     }
 }

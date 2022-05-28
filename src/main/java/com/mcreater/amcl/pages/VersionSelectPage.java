@@ -10,20 +10,14 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.LinkPath;
-import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
-
-import javax.tools.JavaFileObject;
-import javax.tools.SimpleJavaFileObject;
 import java.io.File;
 import java.util.Objects;
 import java.util.Vector;
@@ -51,9 +45,8 @@ public class VersionSelectPage extends AbstractAnimationPage {
     Image fabric = new Image("assets/icons/fabric.png");
     Image liteloader = new Image("assets/icons/liteloader.png");
     Image optifine = new Image("assets/icons/optifine.png");
-    public VersionSelectPage(double widthl,double heightl,Background bg){
+    public VersionSelectPage(double widthl,double heightl){
         l = HelloApplication.MAINPAGE;
-        this.setBackground(bg);
         set();
 
         checked = false;

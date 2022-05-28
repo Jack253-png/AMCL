@@ -11,6 +11,6 @@ public class Main {
     public static void main(String[] args) {
         logger.info("initialize");
         logger.info("launching core with arguments : " + Arrays.toString(args));
-        HelloApplication.main(args, Objects.equals(System.getProperty("os.name"), "Windows 10"));
+        HelloApplication.startApplication(args, Objects.equals(System.getProperty("os.name"), "Windows 10"));
     }
 }

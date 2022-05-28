@@ -19,7 +19,7 @@ public class FastInfomation {
         layout.setHeading(new Label(Title));
         layout.setBody(new Label(HeaderText + "\n" + ContentText));
 
-        JFXButton addButton = new JFXButton("Ok");
+        JFXButton addButton = new JFXButton(HelloApplication.languageManager.get("ui.dialogs.information.ok.name"));
         addButton.setFont(Fonts.s_f);
         addButton.setDefaultButton(true);
         addButton.setOnAction(addEvent -> {

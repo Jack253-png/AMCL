@@ -11,7 +11,9 @@ import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.util.*;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
+import javafx.scene.text.Font;
 
+import java.awt.*;
 import java.io.*;
 import java.util.*;
 

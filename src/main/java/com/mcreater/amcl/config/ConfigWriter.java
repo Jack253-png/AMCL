@@ -48,7 +48,7 @@ public class ConfigWriter{
         if (configModel.selected_version_index == null){
             configModel.selected_version_index = "";
         }
-        if (configModel.max_memory < 512 || configModel.max_memory > 4096){
+        if (configModel.max_memory < 256 || configModel.max_memory > 4096){
             configModel.max_memory = 1024;
         }
         write();

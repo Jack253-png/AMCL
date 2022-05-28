@@ -5,7 +5,6 @@ import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipOutputStream;
 
 public class ZipUtil {
     public static void unzip(String iy,String o) throws IOException {
@@ -18,7 +17,7 @@ public class ZipUtil {
             //指定编码，否则压缩包里面不能有中文目录
             zp=new ZipFile(iy, Charset.forName("gbk"));
             //遍历里面的文件及文件夹
-            Enumeration entries=zp.entries();
+            Enumeration<? extends ZipEntry> entries=zp.entries();
             while(entries.hasMoreElements()){
                 ZipEntry entry= (ZipEntry) entries.nextElement();
                 String zipEntryName=entry.getName();

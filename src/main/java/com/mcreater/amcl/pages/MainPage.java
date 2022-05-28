@@ -4,21 +4,17 @@ import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.HelloApplication;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
-import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;
-import com.sun.javafx.application.PlatformImpl;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -50,9 +46,8 @@ public class MainPage extends AbstractAnimationPage {
     static Logger logger = LogManager.getLogger(MainPage.class);
     public static boolean window_showed;
 
-    public MainPage(double width,double height,Background bg){
+    public MainPage(double width,double height){
         l = null;
-        this.setBackground(bg);
         set();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -64,7 +59,7 @@ public class MainPage extends AbstractAnimationPage {
         is_ee = HelloApplication.configReader.configModel.change_game_dir;
 
         launchButton = new JFXButton();
-        launchButton.setFont(Fonts.b_f);
+        launchButton.setFont(Fonts.s_f);
         launchButton.setStyle("-fx-background-color: rgb(173,216,246);");
         launchButton.setOnAction(event -> {
             if (!Objects.equals(launchButton.getText(), HelloApplication.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
@@ -207,9 +202,6 @@ public class MainPage extends AbstractAnimationPage {
                 window_showed = false;
             }
         }
-    }
-    public static void runLater(Runnable runnable){
-        PlatformImpl.runLater(runnable);
     }
     public static void cleanLog(){
         log = "";
