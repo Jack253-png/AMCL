@@ -43,7 +43,7 @@ public class MainPage extends AbstractAnimationPage {
     public static Long exit_code = null;
     public boolean is_vaild_minecraft_dir;
     Launch g;
-    static Logger logger = LogManager.getLogger(MainPage.class);
+    public static Logger logger = LogManager.getLogger(MainPage.class);
     public static boolean window_showed;
 
     public MainPage(double width,double height){

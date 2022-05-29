@@ -107,7 +107,7 @@ public class HelloApplication extends Application {
         last.refreshLanguage();
         last.refreshType();
         refresh();
-
+        
         setPageCore(n);
     }
     public static void setPageCore(AbstractAnimationPage n){

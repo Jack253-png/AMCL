@@ -2,6 +2,7 @@ package com.mcreater.amcl.game.launch;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
+import com.mcreater.amcl.HelloApplication;
 import com.mcreater.amcl.game.getPath;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
@@ -235,9 +236,9 @@ public class Launch {
             new Thread(() -> {
                 while (true) {
                     if (EnumWindow.getTaskPID().contains(p.pid())) {
-                        System.out.println("Window Showed");
+                        MainPage.logger.info("Window Showed");
                         if (!MainPage.log.contains("Incompatible mod set!")) {
-                            Platform.runLater(() -> FastInfomation.create("Launcher", "Minecraft Launch Success", ""));
+                            Platform.runLater(() -> FastInfomation.create(HelloApplication.languageManager.get("ui.launch.success.title"), HelloApplication.languageManager.get("ui.launch.success.Headercontent"), ""));
                         }
                         break;
                     }
