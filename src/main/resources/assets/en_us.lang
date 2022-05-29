@@ -37,4 +37,5 @@ ui.configpage.java_info.Headercontent=Version = %s\nBits = %s\nCompany = %s\nTyp
 ui.configpage.select_java.title=Java Select
 ui.configpage.select_java.Headercontent=Please select a Java executable
 ui.configpage.exit.name=Ok
+ui.configpage.lang_label.name=Language
 ui.dialogs.information.ok.name=Ok

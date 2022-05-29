@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXToggleButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
 import com.mcreater.amcl.HelloApplication;
+import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -18,6 +19,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import java.io.File;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class ConfigPage extends AbstractAnimationPage {
     VBox mainBox;
@@ -29,10 +32,6 @@ public class ConfigPage extends AbstractAnimationPage {
     Label change_label;
     JFXToggleButton change_set;
     HBox change_box;
-
-    Label wall_label;
-    JFXToggleButton wall_set;
-    HBox wall_box;
 
     VBox configs_box;
 
@@ -46,6 +45,12 @@ public class ConfigPage extends AbstractAnimationPage {
     Slider max_mem;
     GridPane mem_pane;
 
+    Label lang_label;
+    JFXComboBox<String> lang_set;
+    HBox lang_box;
+
+    Map<String, String> langs;
+
     int w;
     int h;
     public ConfigPage(int width, int height){
@@ -54,6 +59,10 @@ public class ConfigPage extends AbstractAnimationPage {
         h = height;
         set();
         this.setAlignment(Pos.TOP_CENTER);
+
+        langs = new TreeMap<>();
+        langs.put("简体中文", "CHINESE");
+        langs.put("English(US)", "ENGLISH");
 
         title = new Label();
         title.setFont(Fonts.b_f);
@@ -68,20 +77,6 @@ public class ConfigPage extends AbstractAnimationPage {
         change_box = new HBox();
         change_box.getChildren().addAll(change_label, new MainPage.Spacer(), change_set);
         change_box.setAlignment(Pos.CENTER);
-
-        wall_label = new Label();
-        wall_label.setFont(Fonts.t_f);
-
-        wall_set = new JFXToggleButton();
-        wall_set.setSelected(HelloApplication.configReader.configModel.use_classic_wallpaper);
-        wall_set.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            HelloApplication.configReader.configModel.use_classic_wallpaper = newValue;
-            HelloApplication.setBackground(newValue);
-        });
-
-        wall_box = new HBox();
-        wall_box.getChildren().addAll(wall_label, new MainPage.Spacer(), wall_set);
-        wall_box.setAlignment(Pos.CENTER);
 
         mem_label = new Label();
         mem_label.setFont(Fonts.t_f);
@@ -155,10 +150,30 @@ public class ConfigPage extends AbstractAnimationPage {
         box_group.getChildren().addAll(exit);
         box_group.setAlignment(Pos.TOP_CENTER);
 
+        lang_label = new Label();
+        lang_label.setFont(Fonts.t_f);
+
+        lang_set = new JFXComboBox<>();
+        for (Map.Entry<String, String> entry : langs.entrySet()) {
+            lang_set.getItems().add(entry.getKey());
+        }
+        lang_set.getSelectionModel().select(getKey(langs, HelloApplication.configReader.configModel.language));
+        lang_set.setOnAction(event -> {
+            HelloApplication.configReader.configModel.language = langs.get(lang_set.getValue());
+            HelloApplication.configReader.write();
+            HelloApplication.languageManager.setLanguage(LanguageManager.valueOf(HelloApplication.configReader.configModel.language));
+            refreshLanguage();
+            HelloApplication.setAllPage(this);
+        });
+
+        lang_box = new HBox();
+        lang_box.setAlignment(Pos.TOP_CENTER);
+        lang_box.getChildren().addAll(lang_label, new MainPage.Spacer(), lang_set);
+
         configs_box = new VBox();
         configs_box.setSpacing(1);
         configs_box.setAlignment(Pos.TOP_CENTER);
-        configs_box.getChildren().addAll(change_box, wall_box, java_box, mem_pane);
+        configs_box.getChildren().addAll(change_box, java_box, mem_pane, lang_box);
 
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
         java_add.setButtonType(JFXButton.ButtonType.RAISED);
@@ -190,11 +205,11 @@ public class ConfigPage extends AbstractAnimationPage {
         name = HelloApplication.languageManager.get("ui.configpage.name");
         title.setText(HelloApplication.languageManager.get("ui.configpage.title.name"));
         change_label.setText(HelloApplication.languageManager.get("ui.configpage.change_label.name"));
-        wall_label.setText(HelloApplication.languageManager.get("ui.configpage.wall_label.name"));
         mem_label.setText(HelloApplication.languageManager.get("ui.configpage.mem_label.name"));
         java_label.setText(HelloApplication.languageManager.get("ui.configpage.java_label.name"));
         java_add.setText(HelloApplication.languageManager.get("ui.configpage.java_add.name"));
         exit.setText(HelloApplication.languageManager.get("ui.configpage.exit.name"));
+        lang_label.setText(HelloApplication.languageManager.get("ui.configpage.lang_label.name"));
     }
     public void setMem(Number mem){
         HelloApplication.configReader.configModel.max_memory = mem.intValue();
@@ -202,5 +217,14 @@ public class ConfigPage extends AbstractAnimationPage {
     }
     public void refreshType(){
 
+    }
+    private static String getKey(Map<String,String> map,String value){
+        String key="";
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            if(value.equals(entry.getValue())){
+                key=entry.getKey();
+            }
+        }
+        return key;
     }
 }

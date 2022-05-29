@@ -10,7 +10,6 @@ public class ConfigModel {
     public String selected_minecraft_dir_index;
     public String selected_java_index;
     public String selected_version_index;
-    public boolean use_classic_wallpaper;
     public boolean change_game_dir;
     public int max_memory;
     public String language;
@@ -20,7 +19,6 @@ public class ConfigModel {
         selected_minecraft_dir_index = "";
         selected_java_index = "";
         selected_version_index = "";
-        use_classic_wallpaper = false;
         change_game_dir = false;
         max_memory = 1024;
         language = "CHINESE";

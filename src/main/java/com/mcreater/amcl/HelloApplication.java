@@ -30,7 +30,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-
 public class HelloApplication extends Application {
     static Logger logger = LogManager.getLogger(HelloApplication.class);
     public static Scene s = new Scene(new Pane());
@@ -73,7 +72,7 @@ public class HelloApplication extends Application {
             CONFIGPAGE = new ConfigPage(800, 480);
             VERSIONSELECTPAGE = new VersionSelectPage(800, 480);
 
-            setBackground(!configReader.configModel.use_classic_wallpaper);
+            setBackground();
 
             last = MAINPAGE;
             setPage(last);
@@ -109,11 +108,14 @@ public class HelloApplication extends Application {
         last.refreshType();
         refresh();
 
+        setPageCore(n);
+    }
+    public static void setPageCore(AbstractAnimationPage n){
         double t_size = 45;
         VBox top = new VBox();
         top.setStyle("-fx-background-color:#d9b8f1");
         top.setPrefSize(800, t_size);
-        // 标题栏
+
         GridPane title = new GridPane();
         title.setAlignment(Pos.CENTER);
         JFXButton close = new JFXButton();
@@ -182,11 +184,17 @@ public class HelloApplication extends Application {
         VBox v = new VBox(top, last);
         Pane p = new Pane();
         p.getChildren().addAll(v);
-        setBackground(configReader.configModel.use_classic_wallpaper);
+        setBackground();
         s.setRoot(p);
         s.setFill(Color.TRANSPARENT);
         stage.setScene(s);
         logger.info("set page : " + last.name);
+    }
+    public static void setAllPage(AbstractAnimationPage n){
+        MAINPAGE.name = languageManager.get("ui.mainpage.name");
+        VERSIONSELECTPAGE.name = languageManager.get("ui.versionselectpage.name");
+        CONFIGPAGE.name = languageManager.get("ui.configpage.name");
+        setPageCore(n);
     }
     public static void setGeometry(Stage s, double width, double height){
         s.setWidth(width);
@@ -206,14 +214,9 @@ public class HelloApplication extends Application {
         is_t = is_true;
         launch(args);
     }
-    public static void setBackground(boolean b){
+    public static void setBackground(){
         String wallpaper;
-        if (!b) {
-            wallpaper = "assets/background.jpg";
-        } else {
-            wallpaper = "assets/background-classic.jpg";
-        }
-        logger.info("use wallpaper path : " + wallpaper);
+        wallpaper = "assets/background.jpg";
 
         bg = new Background(new BackgroundImage(new Image(wallpaper),
                 BackgroundRepeat.NO_REPEAT,

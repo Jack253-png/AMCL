@@ -37,4 +37,5 @@ ui.configpage.java_info.Headercontent=版本 = %s\n位数 = %s\n公司 = %s\n类
 ui.configpage.select_java.title=Java 选择
 ui.configpage.select_java.Headercontent=请选择一个 Java 可执行文件
 ui.configpage.exit.name=确定
+ui.configpage.lang_label.name=语言
 ui.dialogs.information.ok.name=确定
