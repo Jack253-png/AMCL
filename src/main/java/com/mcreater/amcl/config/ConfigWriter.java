@@ -2,6 +2,8 @@ package com.mcreater.amcl.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mcreater.amcl.lang.LanguageManager;
+import com.mcreater.amcl.util.LocateHelper;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -50,6 +52,9 @@ public class ConfigWriter{
         }
         if (configModel.max_memory < 256 || configModel.max_memory > 4096){
             configModel.max_memory = 1024;
+        }
+        if (!LanguageManager.vaild_languages.contains(configModel.language)){
+            configModel.language = LocateHelper.get();
         }
         write();
     }

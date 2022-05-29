@@ -47,7 +47,7 @@ public class HelloApplication extends Application {
     @Override
     public void start(Stage primaryStage){
         if (is_t) {
-            languageManager = new LanguageManager(LanguageManager.LanguageType.CHINESE);
+            languageManager = new LanguageManager(null);
             stage = new Stage();
             setGeometry(stage, 800, 480);
             bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true);
@@ -68,6 +68,7 @@ public class HelloApplication extends Application {
                 logger.error("failed to read config", e);
             }
 
+            languageManager.setLanguage(LanguageManager.valueOf(configReader.configModel.language));
             MAINPAGE = new MainPage(800, 480);
             CONFIGPAGE = new ConfigPage(800, 480);
             VERSIONSELECTPAGE = new VersionSelectPage(800, 480);
@@ -105,6 +106,7 @@ public class HelloApplication extends Application {
         last.setTypeAll(false);
         last.refresh();
         last.refreshLanguage();
+        last.refreshType();
         refresh();
 
         double t_size = 45;

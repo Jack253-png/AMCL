@@ -7,6 +7,7 @@ import com.mcreater.amcl.HelloApplication;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 
 public class FastInfomation {
@@ -16,8 +17,10 @@ public class FastInfomation {
         alert.setOverlayClose(false);
 
         JFXDialogLayout layout = new JFXDialogLayout();
+        HBox b = new HBox();
+        b.getChildren().addAll(new Label(HeaderText), new Label(ContentText));
         layout.setHeading(new Label(Title));
-        layout.setBody(new Label(HeaderText + "\n" + ContentText));
+        layout.setBody(b);
 
         JFXButton addButton = new JFXButton(HelloApplication.languageManager.get("ui.dialogs.information.ok.name"));
         addButton.setFont(Fonts.s_f);

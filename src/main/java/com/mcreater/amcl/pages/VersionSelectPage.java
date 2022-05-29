@@ -240,6 +240,9 @@ public class VersionSelectPage extends AbstractAnimationPage {
     public void refresh(){
 
     }
+    public void refreshType(){
+
+    }
     public void refreshLanguage(){
         name = HelloApplication.languageManager.get("ui.versionselectpage.name");
         title.setText(HelloApplication.languageManager.get("ui.versionselectpage.title.name"));

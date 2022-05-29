@@ -13,6 +13,7 @@ public class ConfigModel {
     public boolean use_classic_wallpaper;
     public boolean change_game_dir;
     public int max_memory;
+    public String language;
     public ConfigModel getI(){
         selected_java = new Vector<>();
         selected_minecraft_dir = new Vector<>();
@@ -22,6 +23,7 @@ public class ConfigModel {
         use_classic_wallpaper = false;
         change_game_dir = false;
         max_memory = 1024;
+        language = "CHINESE";
         return this;
     }
 }

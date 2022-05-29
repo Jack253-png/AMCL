@@ -200,4 +200,7 @@ public class ConfigPage extends AbstractAnimationPage {
         HelloApplication.configReader.configModel.max_memory = mem.intValue();
         HelloApplication.configReader.write();
     }
+    public void refreshType(){
+
+    }
 }

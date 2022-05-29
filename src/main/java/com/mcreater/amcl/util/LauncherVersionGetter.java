@@ -4,6 +4,7 @@ import com.sun.javafx.css.CalculatedValue;
 import com.sun.javafx.geom.Vec2d;
 
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.Vector;
 
 public class LauncherVersionGetter {
@@ -17,6 +18,6 @@ public class LauncherVersionGetter {
         works.add("e");
         works.add("f");
         works.add("g");
-        System.out.println(String.format("%dw%d%s", c.get(Calendar.YEAR) % 100, c.get(Calendar.WEEK_OF_YEAR), works.get(1 - 1)));
+        System.out.println(String.format("%dw%d%s", c.get(Calendar.YEAR) % 100, c.get(Calendar.WEEK_OF_YEAR), works.get(0)));
     }
 }
