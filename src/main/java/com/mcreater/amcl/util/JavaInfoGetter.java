@@ -6,9 +6,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
-public class JavaInfoGetter {
-    public static Vector<String> get(File f){
+public class JavaInfoGetter implements Callable<Vector<String>> {
+    static File p;
+    public static Vector<String> get(File f) throws ExecutionException, InterruptedException {
+        p = f;
+        FutureTask<Vector<String>> futureTask = new FutureTask<>(new JavaInfoGetter());
+        Thread thread = new Thread(futureTask);
+        thread.start();
+        return futureTask.get();
+    }
+    public static Vector<String> getCore(File f){
         try {
             String p = f.getPath();
             Process proc = Runtime.getRuntime().exec(LinkCommands.link(p, "-version"));
@@ -57,5 +68,10 @@ public class JavaInfoGetter {
     }
     public static String change_filename(String java, String filename){
         return java.replace("java.exe", filename);
+    }
+
+    @Override
+    public Vector<String> call() throws Exception {
+        return getCore(p);
     }
 }

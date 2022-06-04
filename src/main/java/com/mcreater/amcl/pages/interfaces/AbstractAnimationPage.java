@@ -28,7 +28,6 @@ public abstract class AbstractAnimationPage extends GridPane implements Animatio
     }
 
     public void setTypeAll(boolean t) {
-        ArrayList<Node> Descendents = new ArrayList<>();
         for (Node n : this.getChildrenUnmodifiable()) {
             n.setDisable(t);
         }

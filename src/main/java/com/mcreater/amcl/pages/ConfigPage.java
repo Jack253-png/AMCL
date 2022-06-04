@@ -9,6 +9,7 @@ import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.util.JavaInfoGetter;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -18,9 +19,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+
+import javax.tools.JavaCompiler;
 import java.io.File;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Vector;
+import java.util.concurrent.ExecutionException;
 
 public class ConfigPage extends AbstractAnimationPage {
     VBox mainBox;
@@ -125,7 +130,13 @@ public class ConfigPage extends AbstractAnimationPage {
         java_get.setFont(Fonts.t_f);
         java_get.setOnAction(event -> new Thread(() -> Platform.runLater(() -> {
             if (HelloApplication.configReader.configModel.selected_java.contains(HelloApplication.configReader.configModel.selected_java_index) && new File(HelloApplication.configReader.configModel.selected_java_index).exists()) {
-                FastInfomation.create(HelloApplication.languageManager.get("ui.configpage.java_info.title"), HelloApplication.languageManager.get("ui.configpage.java_info.Headercontent"), "");
+                Vector<String> v = null;
+                try {
+                    v = JavaInfoGetter.get(new File(HelloApplication.configReader.configModel.selected_java_index));
+                } catch (ExecutionException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                FastInfomation.create(HelloApplication.languageManager.get("ui.configpage.java_info.title"), String.format(HelloApplication.languageManager.get("ui.configpage.java_info.Headercontent"), v.get(0), v.get(1), v.get(2), v.get(3)), "");
             }
             else{
                 FastInfomation.create(HelloApplication.languageManager.get("ui.configpage.select_java.title"), HelloApplication.languageManager.get("ui.configpage.select_java.Headercontent"), "");
@@ -140,10 +151,8 @@ public class ConfigPage extends AbstractAnimationPage {
         exit.setFont(Fonts.s_f);
         exit.setDefaultButton(true);
         exit.setOnAction(event -> Platform.runLater(() -> {
-            if (getCanMovePage()) {
-                HelloApplication.configReader.write();
-                HelloApplication.setPage(HelloApplication.MAINPAGE);
-            }
+            HelloApplication.configReader.write();
+            HelloApplication.setPage(HelloApplication.MAINPAGE, this);
         }));
 
         box_group = new HBox();

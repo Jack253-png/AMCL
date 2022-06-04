@@ -14,27 +14,28 @@ public class versionTypeGetter {
         String json_result = FileStringReader.read(version_json);
         Gson g = new Gson();
         VersionJsonModel v = g.fromJson(json_result, VersionJsonModel.class);
-        String type = "original";
         Vector<String> forge = new Vector<>();
         forge.add("cpw.mods.modlauncher.Launcher");
         forge.add("cpw.mods.bootstraplauncher.BootstrapLauncher");
 
         if (Objects.equals(v.mainClass, "net.fabricmc.loader.impl.launch.knot.KnotClient")){
-            type = "fabric";
+            return "fabric";
         }
         if (forge.contains(v.mainClass) || getTweakClass(v).contains("net.minecraftforge.fml.common.launcher.FMLTweaker")){
-            type = "forge";
             if (getTweakClass(v).contains("optifine.OptiFineForgeTweaker")){
-                type = "forge-optifine";
+                return "forge-optifine";
+            }
+            else{
+                return "forge";
             }
         }
         if (getTweakClass(v).contains("com.mumfrey.liteloader.launch.LiteLoaderTweaker")){
-            type = "liteloader";
+            return "liteloader";
         }
         if (getTweakClass(v).contains("optifine.OptiFineTweaker")){
-            type = "optifine";
+            return "optifine";
         }
-        return type;
+        return "original";
     }
     public static Vector<String> getTweakClass(VersionJsonModel v){
         Vector<String> tweakClasses = new Vector<>();

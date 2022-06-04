@@ -7,11 +7,16 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.ConfigPage;
 import com.mcreater.amcl.pages.VersionSelectPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.redirect.log4jErr;
+import com.mcreater.amcl.redirect.log4jOut;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;
+import com.mcreater.amcl.util.multiThread.Run;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -75,7 +80,7 @@ public class HelloApplication extends Application {
             setBackground();
 
             last = MAINPAGE;
-            setPage(last);
+            setPage(last, last);
 
             stage.initStyle(StageStyle.UNIFIED);
             refresh();
@@ -96,19 +101,27 @@ public class HelloApplication extends Application {
             alert.showAndWait();
         }
     }
-    public static void setPage(AbstractAnimationPage n) {
-        last.setOut();
-        last = n;
-        last.setIn();
-        last.setTypeAll(true);
-        last.in.stop();
-        last.setTypeAll(false);
-        last.refresh();
-        last.refreshLanguage();
-        last.refreshType();
-        refresh();
-        
-        setPageCore(n);
+    public static void setPage(AbstractAnimationPage n, AbstractAnimationPage caller) {
+        if (caller.getCanMovePage()) {
+            last.setOut();
+            last = n;
+            last.setIn();
+            last.setTypeAll(true);
+            last.in.stop();
+            last.setTypeAll(false);
+            Service<String> refresh = Run.run(last::refresh);
+            Service<String> refreshLanguage = Run.run(last::refreshLanguage);
+            Service<String> refreshType = Run.run(last::refreshType);
+            refresh.start();
+            refreshLanguage.start();
+            refreshType.start();
+//        new Thread(() -> last.refresh()).start();
+//        new Thread(() -> last.refreshLanguage()).start();
+//        new Thread(() -> last.refreshType()).start();
+            refresh();
+
+            setPageCore(n);
+        }
     }
     public static void setPageCore(AbstractAnimationPage n){
         double t_size = 45;
@@ -138,10 +151,7 @@ public class HelloApplication extends Application {
         close.setGraphic(graphic);
         close.setStyle(round);
         close.setButtonType(JFXButton.ButtonType.RAISED);
-        close.setOnAction(event -> {
-            last.setOut();
-            Platform.exit();
-        });
+        close.setOnAction(event -> Platform.exit());
         if (n != MAINPAGE) close.setDisable(true);
         min.setPrefWidth(t_size / 2.5);
         min.setPrefHeight(t_size / 2.5);
@@ -161,7 +171,7 @@ public class HelloApplication extends Application {
         else{
             back.setOnAction(event -> {
                 configReader.write();
-                setPage(lpa);
+                setPage(lpa, lpa);
             });
             ln.setText(lpa.name);
         }
@@ -201,6 +211,7 @@ public class HelloApplication extends Application {
         s.setHeight(height);
         s.setResizable(false);
         logger.info("setted size (" + width+", "+height+") for stage " + s);
+        logger.info(String.format("setted size (%f, %f) for stage %s", width, height, s));
     }
     public static void set(JFXButton n, double s){
         n.setMaxSize(s,s);

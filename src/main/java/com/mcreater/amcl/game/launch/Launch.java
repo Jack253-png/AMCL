@@ -3,18 +3,16 @@ package com.mcreater.amcl.game.launch;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.HelloApplication;
+import com.mcreater.amcl.exceptions.*;
 import com.mcreater.amcl.game.getPath;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.nativeInterface.EnumWindow;
-import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.MainPage;
+import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.util.*;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.text.Font;
 
-import java.awt.*;
 import java.io.*;
 import java.util.*;
 
@@ -27,43 +25,37 @@ public class Launch {
     String forge_jvm;
     String forgevm;
     public Process p;
-    public void launch(String java_path,String dir,String version_name,boolean ie,String launcherv, int m) throws IllegalStateException{
+    ProcessDialog d;
+    public void launch(String java_path,String dir,String version_name,boolean ie,String launcherv, int m) throws IllegalStateException, InterruptedException, LaunchException {
+        MainPage.d.Create();
+        MainPage.d.setV(0, 5, HelloApplication.languageManager.get("ui.launch._01"));
         java = java_path;
+        MainPage.d.setV(0, 10, HelloApplication.languageManager.get("ui.launch._02"));
 
         if (!new File(dir).exists()){
-            throw new IllegalStateException("Null Minecraft Dir");
+            throw new BadMinecraftDirException();
         }
         File f = new File(LinkPath.link(dir, "versions\\" + version_name));
         if (!f.exists()){
-            throw new IllegalStateException("Null Version Dir");
+            throw new BadVersionDirException();
         }
         File json_file = new File(LinkPath.link(f.getPath(),version_name + ".json"));
         File jar_file = new File(LinkPath.link(f.getPath(),version_name + ".jar"));
-
         if (!json_file.exists() || !jar_file.exists()){
-            throw new IllegalStateException("Missing Main Files");
+            throw new BadMainFilesException();
         }
-
+        MainPage.d.setV(0, 75, HelloApplication.languageManager.get("ui.launch._03"));
         String json_result = FileStringReader.read(json_file.getPath());
         Gson g = new Gson();
         VersionJsonModel r = g.fromJson(json_result, VersionJsonModel.class);
 
-        Vector<String> java_info = JavaInfoGetter.fromArrayToVector(JavaInfoGetter.get(new File(java)).get(0).split("\\."));
-        int v;
-        if (Objects.equals(java_info.get(0), "1")){
-            v = Integer.parseInt(java_info.get(1));
-        }
-        else{
-            v = Integer.parseInt(java_info.get(0));
-        }
-
         File libf = new File(LinkPath.link(dir, "libraries"));
         if (!libf.exists()){
-            throw new IllegalStateException("Null Lib Dir");
+            throw new BadLibDirException();
         }
         Vector<String> libs = new Vector<>();
         Vector<String> natives = new Vector<>();
-
+        int s0 = 0;
         for (LibModel l : r.libraries){
             if (l.downloads != null) {
                 if (l.downloads.classifiers != null) {
@@ -86,13 +78,16 @@ public class Launch {
                     libs.add(LinkPath.link(libf.getPath(), getPath.get(l.name)));
                 }
             }
+            s0 += 1;
+            MainPage.d.setV(0, 75 + 5 * s0 / r.libraries.size(), String.format(HelloApplication.languageManager.get("ui.launch._04"), l.name));
+            MainPage.d.setV(1, (int) ((double) s0 / r.libraries.size() * 100));
         }
-        System.out.println(natives);
+        MainPage.d.setV(0, 80, String.format(HelloApplication.languageManager.get("ui.launch._05"), r.libraries.size()));
         File nativef = new File(LinkPath.link(f.getPath(),version_name + "-natives"));
         if (!nativef.exists()){
             boolean b = nativef.mkdirs();
             if (!b){
-                throw new IllegalStateException("Null Native Dir");
+                throw new BadNativeDirException();
             }
         }
         for (String p : natives){
@@ -103,12 +98,12 @@ public class Launch {
             }
             catch (Exception e){
                 e.printStackTrace();
-                throw new IllegalStateException("Null to Unzip Native");
+                throw new BadUnzipException();
             }
+            MainPage.d.setV(0, 85, HelloApplication.languageManager.get("ui.launch._06"));
         }
         StringBuilder classpath = new StringBuilder("-cp \"");
         for (String s : libs){
-            System.out.println(s);
             classpath.append(s).append(";");
         }
         classpath.append(jar_file).append("\"");
@@ -138,9 +133,16 @@ public class Launch {
                         agm.append((String) s).append(" ");
                     } catch (ClassCastException e) {
                         LinkedTreeMap ltm = (LinkedTreeMap) s;
-                        for (String s1 : (ArrayList<String>) ltm.get("value")) {
-                            if (!s1.contains("demo")) {
-                                agm.append(s1).append(" ");
+                        try {
+                            for (String s1 : (ArrayList<String>) ltm.get("value")) {
+                                if (!s1.contains("demo")) {
+                                    agm.append(s1).append(" ");
+                                }
+                            }
+                        }
+                        catch (ClassCastException e1){
+                            if (!((String) ltm.get("value")).contains("demo")) {
+                                agm.append((String) ltm.get("value")).append(" ");
                             }
                         }
                     }
@@ -228,18 +230,18 @@ public class Launch {
         try {
 
             String command = LinkCommands.link(java, jvm, String.valueOf(classpath), mem, forgevm,mainClass.replace(" ",""), arguments);
+            MainPage.d.setV(0, 90, HelloApplication.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
-            MainPage.exit_code = (long) -1;
-            MainPage.cleanLog();
             System.out.println(command);
+            MainPage.exit_code = null;
+            MainPage.cleanLog();
+            MainPage.d.setV(0, 95, HelloApplication.languageManager.get("ui.launch._08"));
             p = Runtime.getRuntime().exec(command);
             new Thread(() -> {
                 while (true) {
                     if (EnumWindow.getTaskPID().contains(p.pid())) {
                         MainPage.logger.info("Window Showed");
-                        if (!MainPage.log.contains("Incompatible mod set!")) {
-                            Platform.runLater(() -> FastInfomation.create(HelloApplication.languageManager.get("ui.launch.success.title"), HelloApplication.languageManager.get("ui.launch.success.Headercontent"), ""));
-                        }
+                        MainPage.d.close();
                         break;
                     }
                 }
@@ -249,6 +251,7 @@ public class Launch {
                 while (true){
                     try {
                         int ev = p.exitValue();
+                        MainPage.d.close();
                         MainPage.minecraft_running = false;
                         MainPage.exit_code = (long) ev;
                         Platform.runLater(MainPage::check);
@@ -296,6 +299,7 @@ public class Launch {
             String line;
             while ((line = reader.readLine()) != null) {
                 f.append(line).append("\n");
+                System.out.println(line);
             }
         } catch (IOException e) {
             e.printStackTrace();

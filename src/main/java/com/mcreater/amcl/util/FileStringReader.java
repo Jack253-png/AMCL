@@ -11,7 +11,7 @@ public class FileStringReader {
         BufferedReader reader = null;
         StringBuilder r = new StringBuilder();
         try {
-            reader = new BufferedReader(new FileReader(p));
+            reader = new BufferedReader(new FileReader(file));
             String tempString = null;
             while ((tempString = reader.readLine()) != null) {
                 // 显示行号

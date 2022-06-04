@@ -8,7 +8,7 @@ public interface AnimationPage {
     Timeline in = new Timeline();
     Timeline out = new Timeline();
     boolean played = false;
-    long delay = 500;
+    long delay = 250;
     default void set(){
         in.setCycleCount(1);
         in.getKeyFrames().clear();
@@ -25,8 +25,5 @@ public interface AnimationPage {
     }
     default void setIn(){
         in.play();
-    }
-    default void setPlayed(){
-        boolean played = true;
     }
 }

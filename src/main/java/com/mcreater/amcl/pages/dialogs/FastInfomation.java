@@ -17,10 +17,8 @@ public class FastInfomation {
         alert.setOverlayClose(false);
 
         JFXDialogLayout layout = new JFXDialogLayout();
-        HBox b = new HBox();
-        b.getChildren().addAll(new Label(HeaderText), new Label(ContentText));
         layout.setHeading(new Label(Title));
-        layout.setBody(b);
+        layout.setBody(new Label(HeaderText + "\n" + ContentText));
 
         JFXButton addButton = new JFXButton(HelloApplication.languageManager.get("ui.dialogs.information.ok.name"));
         addButton.setFont(Fonts.s_f);

@@ -2,19 +2,30 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.HelloApplication;
+import com.mcreater.amcl.exceptions.LaunchException;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
+import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoublePropertyBase;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
+import javafx.scene.effect.BoxBlur;
+import javafx.scene.effect.GaussianBlur;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -24,7 +35,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.Objects;
-
 public class MainPage extends AbstractAnimationPage {
     Label title;
     Label launch;
@@ -45,7 +55,8 @@ public class MainPage extends AbstractAnimationPage {
     Launch g;
     public static Logger logger = LogManager.getLogger(MainPage.class);
     public static boolean window_showed;
-
+    public static ProcessDialog d;
+    public static ProcessDialog l;
     public MainPage(double width,double height){
         l = null;
         set();
@@ -62,9 +73,12 @@ public class MainPage extends AbstractAnimationPage {
         launchButton.setFont(Fonts.s_f);
         launchButton.setStyle("-fx-background-color: rgb(173,216,246);");
         launchButton.setOnAction(event -> {
+            flush();
             if (!Objects.equals(launchButton.getText(), HelloApplication.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
                 HelloApplication.configReader.check_and_write();
                 g = new Launch();
+                d = new ProcessDialog(2, HelloApplication.languageManager.get("ui.mainpage.launch._01"));
+                d.setV(0, 1, HelloApplication.languageManager.get("ui.mainpage.launch._02"));
                 new Thread(() -> {
                     try {
                         launchButton.setDisable(true);
@@ -80,7 +94,8 @@ public class MainPage extends AbstractAnimationPage {
                             launchButton.setDisable(false);
                         }
                     }
-                    catch (IllegalStateException e){
+                    catch (LaunchException | InterruptedException e){
+                        d.close();
                         logger.info("failed to launch", e);
                         launchButton.setDisable(false);
                         Platform.runLater(() -> FastInfomation.create(HelloApplication.languageManager.get("ui.mainpage.launch.launchFailed.name"), HelloApplication.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
@@ -89,6 +104,7 @@ public class MainPage extends AbstractAnimationPage {
 
             }
             else{
+                if (d != null) d.close();
                 FastInfomation.create(HelloApplication.languageManager.get("ui.mainpage.launch.noVersion.name"),HelloApplication.languageManager.get("ui.mainpage.launch.noVersion.Headcontent"),HelloApplication.languageManager.get("ui.mainpage.launch.noVersion.content"));
             }
         });
@@ -116,17 +132,16 @@ public class MainPage extends AbstractAnimationPage {
         settings.setFont(Fonts.s_f);
 
         settings.setOnAction(event ->{
-            if(getCanMovePage()){
-                HelloApplication.setPage(HelloApplication.CONFIGPAGE);
-            }
+            HelloApplication.setPage(HelloApplication.CONFIGPAGE, this);
         });
 
         is_vaild_minecraft_dir = HelloApplication.configReader.configModel.selected_minecraft_dir.contains(HelloApplication.configReader.configModel.selected_minecraft_dir_index) && new File(HelloApplication.configReader.configModel.selected_minecraft_dir_index).exists();
 
         choose_version.setOnAction(event -> {
-            if(getCanMovePage()){
-                HelloApplication.setPage(HelloApplication.VERSIONSELECTPAGE);
-            }
+            l = new ProcessDialog(1, HelloApplication.languageManager.get("ui.versionListLoad._02"));
+            l.setV(0, 0, "Sending Load Version Event");
+            HelloApplication.setPage(HelloApplication.VERSIONSELECTPAGE, this);
+
         });
 
         StackPane graphic = new StackPane();
@@ -158,7 +173,7 @@ public class MainPage extends AbstractAnimationPage {
         GameMenu = new VBox();
         GameMenu.setMinHeight(height);
         GameMenu.setMinWidth(width / 4);
-        GameMenu.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
+        GameMenu.setStyle("-fx-background-color: rgba(255,255,255,0.5);");
         GameMenu.setAlignment(Pos.TOP_CENTER);
         GameMenu.getChildren().addAll(
                 title,
@@ -196,6 +211,7 @@ public class MainPage extends AbstractAnimationPage {
                 logger.info("Minecraft exited with code " + exit_code);
                 // TODO minecraft崩溃
                 if (exit_code != 0){
+
                     FastInfomation.create(HelloApplication.languageManager.get("ui.mainpage.minecraftExit.title"),HelloApplication.languageManager.get("ui.mainpage.minecraftExit.Headercontent"),String.format(HelloApplication.languageManager.get("ui.mainpage.minecraftExit.content"), exit_code));
                 }
                 exit_code = null;

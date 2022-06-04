@@ -6,6 +6,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 public class HttpConnectionUtil {
 
@@ -35,7 +36,7 @@ public class HttpConnectionUtil {
                 //获取返回的数据
                 is = connection.getInputStream();
                 if (null != is) {
-                    br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                    br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
                     String temp = null;
                     while (null != (temp = br.readLine())) {
                         result.append(temp);
