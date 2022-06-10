@@ -58,20 +58,20 @@ public class ZipUtil {
                 InputStream in = zp.getInputStream(entry);
                 String outpath=(LinkPath.link(o, zipEntryName)).replace("/",File.separator);
                 File file = new File(outpath.substring(0,outpath.lastIndexOf(File.separator)));
-                if(!file.exists()){
-                    file.mkdirs();
-                }
                 if(new File(outpath).isDirectory())
-                    continue;
-
-                OutputStream out = new FileOutputStream(outpath);
-                byte[] bf = new byte[4096];
-                int len;
-                while ((len = in.read(bf)) > 0) {
-                    out.write(bf, 0, len);
+                    new File(outpath).mkdirs();
+                else {
+                    try {
+                        OutputStream out = new FileOutputStream(outpath);
+                        byte[] bf = new byte[4096];
+                        int len;
+                        while ((len = in.read(bf)) > 0) {
+                            out.write(bf, 0, len);
+                        }
+                        in.close();
+                        out.close();
+                    } catch (FileNotFoundException ignored) {}
                 }
-                in.close();
-                out.close();
             }
             zp.close();
         }catch ( Exception e){

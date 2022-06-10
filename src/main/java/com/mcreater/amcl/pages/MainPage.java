@@ -1,6 +1,7 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXRippler;
 import com.mcreater.amcl.HelloApplication;
 import com.mcreater.amcl.exceptions.LaunchException;
 import com.mcreater.amcl.game.getMinecraftVersion;
@@ -16,6 +17,7 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoublePropertyBase;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -23,13 +25,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
-import javafx.scene.effect.BoxBlur;
-import javafx.scene.effect.GaussianBlur;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.effect.*;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,6 +57,7 @@ public class MainPage extends AbstractAnimationPage {
     public static ProcessDialog d;
     public static ProcessDialog l;
     public MainPage(double width,double height){
+        super(width, height);
         l = null;
         set();
 
@@ -134,6 +134,9 @@ public class MainPage extends AbstractAnimationPage {
         settings.setOnAction(event ->{
             HelloApplication.setPage(HelloApplication.CONFIGPAGE, this);
         });
+        version_settings.setOnAction(event -> {
+            HelloApplication.setPage(HelloApplication.VERSIONINFOPAGE, this);
+        });
 
         is_vaild_minecraft_dir = HelloApplication.configReader.configModel.selected_minecraft_dir.contains(HelloApplication.configReader.configModel.selected_minecraft_dir_index) && new File(HelloApplication.configReader.configModel.selected_minecraft_dir_index).exists();
 
@@ -170,7 +173,17 @@ public class MainPage extends AbstractAnimationPage {
         settings.setButtonType(JFXButton.ButtonType.RAISED);
         launchButton.setButtonType(JFXButton.ButtonType.RAISED);
 
+        choose_version.setMaxWidth(width / 4);
+        version_settings.setMaxWidth(width / 4);
+        settings.setMaxWidth(width / 4);
+
+        choose_version.setStyle("-fx-background-radius:25;-fx-border-radius:25");
+        version_settings.setStyle("-fx-background-radius:25;-fx-border-radius:25");
+        settings.setStyle("-fx-background-radius:25;-fx-border-radius:25");
+
         GameMenu = new VBox();
+        GameMenu.setMaxHeight(height);
+        GameMenu.setMaxWidth(width / 4);
         GameMenu.setMinHeight(height);
         GameMenu.setMinWidth(width / 4);
         GameMenu.setStyle("-fx-background-color: rgba(255,255,255,0.5);");
@@ -187,13 +200,14 @@ public class MainPage extends AbstractAnimationPage {
                 new Spacer(),
                 version_settings,
                 settings,
-                new Spacer()
+                new Spacer(),
+                new JFXRippler()
         );
 
         HBox hBox1 = new HBox();
         hBox1.setMinSize(width / 5,height);
         hBox1.setMaxSize(width / 5,height);
-
+        
         HBox hBox2 = new HBox();
         hBox2.setMinSize(width / 5,height);
         hBox2.setMaxSize(width / 5,height);
@@ -206,10 +220,8 @@ public class MainPage extends AbstractAnimationPage {
     public static void check(){
         launchButton.setDisable(minecraft_running);
         if (!minecraft_running){
-            // TODO 初次运行
-            if (!(exit_code == null)){
+            if (exit_code != null){
                 logger.info("Minecraft exited with code " + exit_code);
-                // TODO minecraft崩溃
                 if (exit_code != 0){
 
                     FastInfomation.create(HelloApplication.languageManager.get("ui.mainpage.minecraftExit.title"),HelloApplication.languageManager.get("ui.mainpage.minecraftExit.Headercontent"),String.format(HelloApplication.languageManager.get("ui.mainpage.minecraftExit.content"), exit_code));

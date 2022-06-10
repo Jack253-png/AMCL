@@ -1,5 +1,6 @@
 package com.mcreater.amcl.pages.dialogs;
 
+import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXListView;
@@ -18,6 +19,7 @@ public class ProcessDialog extends JFXAlert<String> {
     public Label l;
     public ProcessDialog(int process_num, String title){
         super(HelloApplication.stage);
+        this.setAnimation(JFXAlertAnimation.BOTTOM_ANIMATION);
         this.initModality(Modality.APPLICATION_MODAL);
         this.setOverlayClose(false);
         JFXDialogLayout layout = new JFXDialogLayout();

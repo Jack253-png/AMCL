@@ -59,3 +59,4 @@ ui.mainpage.launch._01=Launching
 ui.mainpage.launch._02=Sending Launch Event
 ui.versionListLoad._01=loaded version %s
 ui.versionListLoad._02=loading version
+ui.versioninfopage.name=Version Info Page

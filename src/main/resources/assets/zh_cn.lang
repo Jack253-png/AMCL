@@ -59,3 +59,4 @@ ui.mainpage.launch._01=启动中
 ui.mainpage.launch._02=发送启动请求中
 ui.versionListLoad._01=加载了版本 %s
 ui.versionListLoad._02=加载版本中
+ui.versioninfopage.name=版本信息页

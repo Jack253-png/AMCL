@@ -24,10 +24,11 @@ public class NativeDownloadTask extends AbstractTask{
         return this;
     }
 
-    public void execute() throws IOException {
+    public Integer execute() throws IOException {
         new DownloadTask(server, local, chunkSize).setHash(hash).execute();
         if (new File(native_path).exists()){
             ZipUtil.unzip(local, native_path);
         }
+        return null;
     }
 }

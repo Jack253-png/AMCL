@@ -55,13 +55,9 @@ public class ConfigPage extends AbstractAnimationPage {
     HBox lang_box;
 
     Map<String, String> langs;
-
-    int w;
-    int h;
     public ConfigPage(int width, int height){
+        super(width, height);
         l = HelloApplication.MAINPAGE;
-        w = width;
-        h = height;
         set();
         this.setAlignment(Pos.TOP_CENTER);
 
@@ -125,7 +121,7 @@ public class ConfigPage extends AbstractAnimationPage {
             }
         });
 
-        java_get = new JFXButton(HelloApplication.languageManager.get("ui.configpage.java_get.name"));
+        java_get = new JFXButton();
         java_get.setDefaultButton(true);
         java_get.setFont(Fonts.t_f);
         java_get.setOnAction(event -> new Thread(() -> Platform.runLater(() -> {
@@ -188,11 +184,13 @@ public class ConfigPage extends AbstractAnimationPage {
         java_add.setButtonType(JFXButton.ButtonType.RAISED);
         exit.setButtonType(JFXButton.ButtonType.RAISED);
 
+        exit.setStyle("-fx-background-radius:25;-fx-border-radius:25");
+
         mainBox = new VBox();
         mainBox.setAlignment(Pos.TOP_CENTER);
         mainBox.getChildren().addAll(title, configs_box, box_group);
-        mainBox.setMinSize(w, h);
-        mainBox.setMaxSize(w, h);
+        mainBox.setMinSize(this.width, this.height);
+        mainBox.setMaxSize(this.width, this.height);
         mainBox.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
         this.add(mainBox,0,1,1,1);
     }
@@ -207,8 +205,8 @@ public class ConfigPage extends AbstractAnimationPage {
         }
     }
     public void refresh(){
-        this.setMinSize(w, h);
-        this.setMaxSize(w, h);
+        this.setMinSize(this.width, this.height);
+        this.setMaxSize(this.width, this.height);
     }
     public void refreshLanguage(){
         name = HelloApplication.languageManager.get("ui.configpage.name");
@@ -216,6 +214,7 @@ public class ConfigPage extends AbstractAnimationPage {
         change_label.setText(HelloApplication.languageManager.get("ui.configpage.change_label.name"));
         mem_label.setText(HelloApplication.languageManager.get("ui.configpage.mem_label.name"));
         java_label.setText(HelloApplication.languageManager.get("ui.configpage.java_label.name"));
+        java_get.setText(HelloApplication.languageManager.get("ui.configpage.java_get.name"));
         java_add.setText(HelloApplication.languageManager.get("ui.configpage.java_add.name"));
         exit.setText(HelloApplication.languageManager.get("ui.configpage.exit.name"));
         lang_label.setText(HelloApplication.languageManager.get("ui.configpage.lang_label.name"));

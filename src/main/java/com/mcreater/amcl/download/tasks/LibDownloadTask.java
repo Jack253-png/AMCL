@@ -16,7 +16,8 @@ public class LibDownloadTask extends AbstractTask{
         this.hash = hash;
         return this;
     }
-    public void execute() throws IOException {
+    public Integer execute() throws IOException {
         new DownloadTask(server, local, chunkSize).setHash(hash).execute();
+        return null;
     }
 }

@@ -18,8 +18,11 @@ public class versionTypeGetter {
         forge.add("cpw.mods.modlauncher.Launcher");
         forge.add("cpw.mods.bootstraplauncher.BootstrapLauncher");
 
-        if (Objects.equals(v.mainClass, "net.fabricmc.loader.impl.launch.knot.KnotClient")){
+        if (v.mainClass.contains("net.fabricmc.loader") || getTweakClass(v).contains("net.fabricmc.loader.launch.FabricClientTweaker")){
             return "fabric";
+        }
+        if (getTweakClass(v).contains("net.minecraftforge.fml.common.launcher.FMLTweaker") || getTweakClass(v).contains("cpw.mods.fml.common.launcher.FMLTweaker")){
+            return "forge";
         }
         if (forge.contains(v.mainClass) || getTweakClass(v).contains("net.minecraftforge.fml.common.launcher.FMLTweaker")){
             if (getTweakClass(v).contains("optifine.OptiFineForgeTweaker")){

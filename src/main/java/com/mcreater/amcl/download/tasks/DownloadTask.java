@@ -5,9 +5,7 @@ import com.mcreater.amcl.util.HashHelper;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class DownloadTask extends AbstractTask{
@@ -17,10 +15,18 @@ public class DownloadTask extends AbstractTask{
     FileOutputStream fos = null;
     InputStream inputStream = null;
     public DownloadTask(String server, String local) {
-        super(server, local);
+        super(server.replace("http", "https").replace("maven.modmuss50.me", "maven.fabricmc.net"), local);
+        if (!this.server.contains("https")){
+            this.server = this.server.replace("http", "https");
+        }
+        this.server = this.server.replace("maven.modmuss50.me", "maven.fabricmc.net");
     }
     public DownloadTask(String server, String local, int chunkSize) {
         super(server, local);
+        if (!this.server.contains("https")){
+            this.server = this.server.replace("http", "https");
+        }
+        this.server = this.server.replace("maven.modmuss50.me", "maven.fabricmc.net");
         this.chunkSize = chunkSize;
     }
 
@@ -38,9 +44,7 @@ public class DownloadTask extends AbstractTask{
         return c;
     }
     public void clean() throws IOException {
-        BufferedWriter w = new BufferedWriter(new FileWriter(local));
-        w.write("");
-        w.close();
+        new File(local).delete();
     }
     public void download() throws IOException {
         inputStream = conn.getInputStream();
@@ -54,22 +58,28 @@ public class DownloadTask extends AbstractTask{
         }
         conn.disconnect();
     }
-    public void execute() throws IOException {
+    public void d() throws IOException {
+        conn = getConnection();
+        if (conn.getResponseCode() == 404){
+            server = FasterUrls.rev(server);
+            conn = getConnection();
+            if (!(conn.getResponseCode() == 404)) {
+                download();
+            }
+            else{
+                throw new IOException();
+            }
+        }
+        else {
+            download();
+        }
+    }
+    public Integer execute() throws IOException {
         if ((hash != null) && (!checkHash())) {
             clean();
             try {
                 // 包含中文字符时需要转码
-                conn = getConnection();
-                if (conn.getResponseCode() == 404){
-                    server = FasterUrls.rev(server);
-                    conn = getConnection();
-                    if (!(conn.getResponseCode() == 404)) {
-                        download();
-                    }
-                }
-                else {
-                    download();
-                }
+                d();
             } catch (Exception e) {
                 clean();
                 execute();
@@ -82,5 +92,17 @@ public class DownloadTask extends AbstractTask{
                 }
             }
         }
+        else{
+            if (hash == null){
+                while (true){
+                    try {
+                        d();
+                        break;
+                    }
+                    catch (IOException ignored){}
+                }
+            }
+        }
+        return null;
     }
 }

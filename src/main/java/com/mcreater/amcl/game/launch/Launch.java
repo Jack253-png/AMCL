@@ -12,6 +12,8 @@ import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.util.*;
 import javafx.application.Platform;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
@@ -26,6 +28,7 @@ public class Launch {
     String forgevm;
     public Process p;
     ProcessDialog d;
+    Logger logger = LogManager.getLogger(this.getClass());
     public void launch(String java_path,String dir,String version_name,boolean ie,String launcherv, int m) throws IllegalStateException, InterruptedException, LaunchException {
         MainPage.d.Create();
         MainPage.d.setV(0, 5, HelloApplication.languageManager.get("ui.launch._01"));
@@ -56,32 +59,35 @@ public class Launch {
         Vector<String> libs = new Vector<>();
         Vector<String> natives = new Vector<>();
         int s0 = 0;
-        for (LibModel l : r.libraries){
-            if (l.downloads != null) {
-                if (l.downloads.classifiers != null) {
-                    if (l.downloads.classifiers.get("natives-windows") != null) {
-                        if (new File(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path)).exists()) {
-                            natives.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
-                            libs.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
+        for (LibModel l : r.libraries) {
+            if (l.name != null) {
+                if (l.downloads != null) {
+                    if (l.downloads.classifiers != null) {
+                        if (l.downloads.classifiers.get("natives-windows") != null) {
+                            if (new File(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path)).exists()) {
+                                natives.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
+                                libs.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
+                            }
                         }
                     }
                 }
-            }
-            if (l.name.contains("natives-windows")){
-                if (new File(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path"))).exists()) {
-                    natives.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
-                    libs.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
+                if (l.name.contains("natives-windows")) {
+                    if (new File(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path"))).exists()) {
+                        natives.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
+                        libs.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
+                    }
                 }
-            }
-            if (new File(LinkPath.link(libf.getPath(), getPath.get(l.name))).exists()) {
-                if (!libs.contains(LinkPath.link(libf.getPath(), getPath.get(l.name)))) {
-                    libs.add(LinkPath.link(libf.getPath(), getPath.get(l.name)));
+                if (new File(LinkPath.link(libf.getPath(), getPath.get(l.name))).exists()) {
+                    if (!libs.contains(LinkPath.link(libf.getPath(), getPath.get(l.name)))) {
+                        libs.add(LinkPath.link(libf.getPath(), getPath.get(l.name)));
+                    }
                 }
             }
             s0 += 1;
             MainPage.d.setV(0, 75 + 5 * s0 / r.libraries.size(), String.format(HelloApplication.languageManager.get("ui.launch._04"), l.name));
             MainPage.d.setV(1, (int) ((double) s0 / r.libraries.size() * 100));
         }
+        MainPage.d.setV(1, 100);
         MainPage.d.setV(0, 80, String.format(HelloApplication.languageManager.get("ui.launch._05"), r.libraries.size()));
         File nativef = new File(LinkPath.link(f.getPath(),version_name + "-natives"));
         if (!nativef.exists()){
@@ -232,7 +238,7 @@ public class Launch {
             String command = LinkCommands.link(java, jvm, String.valueOf(classpath), mem, forgevm,mainClass.replace(" ",""), arguments);
             MainPage.d.setV(0, 90, HelloApplication.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
-            System.out.println(command);
+            logger.info(String.format("Command Line : %s", command));
             MainPage.exit_code = null;
             MainPage.cleanLog();
             MainPage.d.setV(0, 95, HelloApplication.languageManager.get("ui.launch._08"));

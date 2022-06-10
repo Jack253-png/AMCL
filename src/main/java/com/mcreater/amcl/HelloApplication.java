@@ -3,12 +3,12 @@ package com.mcreater.amcl;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
-import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.ConfigPage;
+import com.mcreater.amcl.pages.MainPage;
+import com.mcreater.amcl.pages.VersionInfoPage;
 import com.mcreater.amcl.pages.VersionSelectPage;
+import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.redirect.log4jErr;
-import com.mcreater.amcl.redirect.log4jOut;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.multiThread.Run;
@@ -16,7 +16,6 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -28,28 +27,30 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-
-import com.mcreater.amcl.pages.MainPage;
 import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+
 public class HelloApplication extends Application {
     static Logger logger = LogManager.getLogger(HelloApplication.class);
-    public static Scene s = new Scene(new Pane());
+    public static Scene s = new Scene(new Pane(), Color.TRANSPARENT);
     public static Stage stage;
     public static AbstractAnimationPage last;
     static boolean is_t;
     public static MainPage MAINPAGE;
     public static ConfigPage CONFIGPAGE;
     public static VersionSelectPage VERSIONSELECTPAGE;
+    public static VersionInfoPage VERSIONINFOPAGE;
     public static ConfigWriter configReader;
     public static LanguageManager languageManager;
     static Background bg;
     static BackgroundSize bs;
     @Override
-    public void start(Stage primaryStage){
+    public void start(Stage primaryStage) throws AWTException, IOException {
         if (is_t) {
             languageManager = new LanguageManager(null);
             stage = new Stage();
@@ -76,6 +77,7 @@ public class HelloApplication extends Application {
             MAINPAGE = new MainPage(800, 480);
             CONFIGPAGE = new ConfigPage(800, 480);
             VERSIONSELECTPAGE = new VersionSelectPage(800, 480);
+            VERSIONINFOPAGE = new VersionInfoPage(800, 480);
 
             setBackground();
 
@@ -88,6 +90,8 @@ public class HelloApplication extends Application {
 
             logger.info("created stage : " + stage);
 
+            stage.getIcons().add(new Image("assets/grass.png"));
+
             stage.initStyle(StageStyle.TRANSPARENT);
             WindowMovement windowMovement = new WindowMovement();
             windowMovement.windowMove(s, stage);
@@ -96,7 +100,7 @@ public class HelloApplication extends Application {
         else{
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("System Version Checker");
-            alert.setHeaderText("Please Use Windows 10");
+            alert.setHeaderText("Please Use Windows");
             alert.setContentText("Launcher Will Exit");
             alert.showAndWait();
         }
@@ -115,9 +119,6 @@ public class HelloApplication extends Application {
             refresh.start();
             refreshLanguage.start();
             refreshType.start();
-//        new Thread(() -> last.refresh()).start();
-//        new Thread(() -> last.refreshLanguage()).start();
-//        new Thread(() -> last.refreshType()).start();
             refresh();
 
             setPageCore(n);
@@ -126,7 +127,7 @@ public class HelloApplication extends Application {
     public static void setPageCore(AbstractAnimationPage n){
         double t_size = 45;
         VBox top = new VBox();
-        top.setStyle("-fx-background-color:#d9b8f1");
+        top.setStyle("-fx-background-color: rgb(173,216,246)");
         top.setPrefSize(800, t_size);
 
         GridPane title = new GridPane();
@@ -151,8 +152,12 @@ public class HelloApplication extends Application {
         close.setGraphic(graphic);
         close.setStyle(round);
         close.setButtonType(JFXButton.ButtonType.RAISED);
-        close.setOnAction(event -> Platform.exit());
-        if (n != MAINPAGE) close.setDisable(true);
+        close.setOnAction(event -> {
+            last.setOut();
+            stage.close();
+            Platform.exit();
+            System.exit(0);
+        });
         min.setPrefWidth(t_size / 2.5);
         min.setPrefHeight(t_size / 2.5);
         min.setGraphic(graphic1);
@@ -192,24 +197,28 @@ public class HelloApplication extends Application {
         top.getChildren().add(title);
 
         VBox v = new VBox(top, last);
+        v.setStyle("-fx-background-radius:25;-fx-border-radius:25");
         Pane p = new Pane();
         p.getChildren().addAll(v);
         setBackground();
+        s.setFill(null);
         s.setRoot(p);
         s.setFill(Color.TRANSPARENT);
         stage.setScene(s);
         logger.info("set page : " + last.name);
+
     }
     public static void setAllPage(AbstractAnimationPage n){
         MAINPAGE.name = languageManager.get("ui.mainpage.name");
         VERSIONSELECTPAGE.name = languageManager.get("ui.versionselectpage.name");
         CONFIGPAGE.name = languageManager.get("ui.configpage.name");
+        VERSIONINFOPAGE.name = languageManager.get("ui.versioninfopage.name");
         setPageCore(n);
     }
     public static void setGeometry(Stage s, double width, double height){
         s.setWidth(width);
         s.setHeight(height);
-        s.setResizable(false);
+//        s.setResizable(false);
         logger.info("setted size (" + width+", "+height+") for stage " + s);
         logger.info(String.format("setted size (%f, %f) for stage %s", width, height, s));
     }
@@ -226,8 +235,7 @@ public class HelloApplication extends Application {
         launch(args);
     }
     public static void setBackground(){
-        String wallpaper;
-        wallpaper = "assets/background.jpg";
+        String wallpaper = "assets/background.jpg";
 
         bg = new Background(new BackgroundImage(new Image(wallpaper),
                 BackgroundRepeat.NO_REPEAT,
@@ -238,5 +246,6 @@ public class HelloApplication extends Application {
         MAINPAGE.setBackground(bg);
         VERSIONSELECTPAGE.setBackground(bg);
         CONFIGPAGE.setBackground(bg);
+        VERSIONINFOPAGE.setBackground(bg);
     }
 }

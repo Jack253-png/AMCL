@@ -8,7 +8,7 @@ public class Run {
         return new Service<>() {
             @Override
             protected Task<String> createTask() {
-                return new Task<String>() {
+                return new Task<>() {
                     @Override
                     protected String call() throws Exception {
                         runnable.run();

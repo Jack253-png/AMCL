@@ -11,6 +11,8 @@ import com.mcreater.amcl.model.original.VersionsModel;
 import com.mcreater.amcl.util.FasterUrls;
 import com.mcreater.amcl.util.LinkPath;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,8 +27,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class OriginalDownload {
     static GsonBuilder gb;
     static Vector<AbstractTask> tasks = new Vector<>();
-    static int chunkSize = 512;
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name) throws IOException {
+    static int chunkSize;
+    static Logger logger = LogManager.getLogger(OriginalDownload.class);
+    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize) throws IOException {
+        tasks.clear();
+        OriginalDownload.chunkSize = chunkSize;
         String url = "http://launchermeta.mojang.com/mc/game/version_manifest.json";
         gb = new GsonBuilder();
         gb.setPrettyPrinting();
@@ -72,14 +77,14 @@ public class OriginalDownload {
         Vector<AbstractTask> temp = new Vector<>();
         new Thread(() -> {
             do {
-                System.out.printf("%d / %d\n", i.get(), tasks.size());
-                if (tasks.size() - i.get() <= 5){
-                    for (AbstractTask t : tasks){
-                        if (!temp.contains(t)){
-                            System.out.println(t.server);
-                        }
-                    }
-                }
+                logger.info(String.format("%d / %d\n", i.get(), tasks.size()));
+//                if (tasks.size() - i.get() <= 5){
+//                    for (AbstractTask t : tasks){
+//                        if (!temp.contains(t)){
+//                            logger.info(t.server);
+//                        }
+//                    }
+//                }
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -101,6 +106,7 @@ public class OriginalDownload {
                 }
             }).start();
         }
+        do{}while (i.get() != tasks.size());
     }
     public static void createNewDir(String path){
         Vector<String> paths = new Vector<>(List.of(path.split("\\\\")));

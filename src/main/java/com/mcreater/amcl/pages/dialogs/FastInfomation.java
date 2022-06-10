@@ -1,5 +1,6 @@
 package com.mcreater.amcl.pages.dialogs;
 
+import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
@@ -13,6 +14,7 @@ import javafx.stage.Modality;
 public class FastInfomation {
     public static void create(String Title, String HeaderText, String ContentText){
         JFXAlert<String> alert = new JFXAlert<>(HelloApplication.stage);
+        alert.setAnimation(JFXAlertAnimation.BOTTOM_ANIMATION);
         alert.initModality(Modality.APPLICATION_MODAL);
         alert.setOverlayClose(false);
 

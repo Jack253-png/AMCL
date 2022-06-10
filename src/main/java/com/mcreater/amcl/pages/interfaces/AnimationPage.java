@@ -1,14 +1,16 @@
 package com.mcreater.amcl.pages.interfaces;
 
 import com.mcreater.amcl.HelloApplication;
-import javafx.animation.*;
+import com.mcreater.amcl.pages.MainPage;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.util.Duration;
 
 public interface AnimationPage {
     Timeline in = new Timeline();
     Timeline out = new Timeline();
-    boolean played = false;
-    long delay = 250;
+    long delay = 500;
     default void set(){
         in.setCycleCount(1);
         in.getKeyFrames().clear();
@@ -25,5 +27,8 @@ public interface AnimationPage {
     }
     default void setIn(){
         in.play();
+    }
+    default void setPlayed(boolean b){
+
     }
 }
