@@ -276,6 +276,11 @@ public class MainPage extends AbstractAnimationPage {
     public void refreshType(){
 
     }
+
+    public void onExitPage() {
+
+    }
+
     public void refreshLanguage(){
         name = HelloApplication.languageManager.get("ui.mainpage.name");
         title.setText(String.format(HelloApplication.languageManager.get("ui.title"), Vars.launcher_version));

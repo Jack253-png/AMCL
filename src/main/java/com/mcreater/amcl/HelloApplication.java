@@ -107,6 +107,8 @@ public class HelloApplication extends Application {
     }
     public static void setPage(AbstractAnimationPage n, AbstractAnimationPage caller) {
         if (caller.getCanMovePage()) {
+            configReader.write();
+            last.onExitPage();
             last.setOut();
             last = n;
             last.setIn();

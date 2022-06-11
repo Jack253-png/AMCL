@@ -31,4 +31,5 @@ public abstract class AbstractAnimationPage extends GridPane implements Animatio
     public abstract void refresh();
     public abstract void refreshLanguage();
     public abstract void refreshType();
+    public abstract void onExitPage();
 }

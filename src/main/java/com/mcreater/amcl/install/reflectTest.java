@@ -21,5 +21,7 @@ public class reflectTest {
 //        ForgeDownload.download(fast, "1.7.10", "D:\\mods\\s\\.minecraft", "1.7.10-forge-10.13.4.1614", 1024, "10.13.4.1614");
 //        FabricDownload.download(fast, "1.16.5", "D:\\mods\\s\\.minecraft", "1.16.5-fabric-0.11.6", 1024, "0.11.6");
 //        FabricDownload.download(fast, "1.16.5", "D:\\mods\\s\\.minecraft", "1.16.5-fabric-0.1.0.48", 1024, "0.1.0.48");
+        FabricDownload.download(fast, "1.19", "D:\\mods\\s\\.minecraft", "1.19-fabric-0.14.7", 1024, "0.14.7");
+//        OriginalDownload.download(fast, "1.19", "D:\\mods\\s\\.minecraft", "1.19", 512);
     }
 }

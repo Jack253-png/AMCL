@@ -18,7 +18,6 @@ ui.mainpage.minecraftExit.Headercontent=Minecraft Crashed
 ui.mainpage.minecraftExit.content=Exit Code : %s
 ui.versionselectpage.name=Version Select Page
 ui.versionselectpage.title.name=Minecraft Dir
-ui.versionselectpage.ok.name=Ok
 ui.versionselectpage.add_dir.name=Add
 ui.versionselectpage.error_dir.title=Null Minecraft Dir
 ui.versionselectpage.error_dir.Headercontent=Unsupported Minecraft Dir

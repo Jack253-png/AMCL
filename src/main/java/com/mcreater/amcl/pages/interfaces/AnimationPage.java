@@ -28,7 +28,4 @@ public interface AnimationPage {
     default void setIn(){
         in.play();
     }
-    default void setPlayed(boolean b){
-
-    }
 }

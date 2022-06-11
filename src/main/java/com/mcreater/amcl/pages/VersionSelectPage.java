@@ -9,6 +9,7 @@ import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.LinkPath;
 import com.mcreater.amcl.util.setSize;
 import javafx.application.Platform;
@@ -33,7 +34,6 @@ public class VersionSelectPage extends AbstractAnimationPage {
     Label title;
     JFXComboBox<String> dirs;
     JFXButton add_dir;
-    JFXButton quit;
     JFXListView<HBox> version_list;
     HBox buttons;
     VBox versionlist;
@@ -63,7 +63,6 @@ public class VersionSelectPage extends AbstractAnimationPage {
         last_dir = HelloApplication.configReader.configModel.selected_minecraft_dir_index;
 
         version_list = new JFXListView<>();
-        version_list.setStyle("-fx-hbar-policy: never; -fx-vbar-policy: never");
         version_list.getSelectionModel().getSelectedItems().addListener((ListChangeListener<HBox>) c -> {
             try {
                 checked = true;
@@ -108,28 +107,6 @@ public class VersionSelectPage extends AbstractAnimationPage {
             load_list();
         });
 
-        quit = new JFXButton();
-        quit.setFont(Fonts.t_f);
-        quit.setDefaultButton(true);
-        quit.setOnAction(event -> {
-            if (!checked){
-                if (!Objects.equals(dirs.getValue(), last_dir)) {
-                    dirs.getSelectionModel().select(last_dir);
-                }
-                selected_version_name = last;
-                update_version_name();
-                HelloApplication.configReader.configModel.selected_version_index = last;
-                HelloApplication.configReader.configModel.selected_minecraft_dir_index = last_dir;
-                HelloApplication.configReader.write();
-            }
-            else {
-                HelloApplication.configReader.configModel.selected_version_index = selected_version_name;
-                HelloApplication.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
-                HelloApplication.configReader.write();
-            }
-            HelloApplication.setPage(HelloApplication.MAINPAGE, this);
-        });
-
         add_dir = new JFXButton();
         add_dir.setFont(Fonts.t_f);
         add_dir.setDefaultButton(true);
@@ -163,10 +140,9 @@ public class VersionSelectPage extends AbstractAnimationPage {
         dot_minecraft_dir.setAlignment(Pos.TOP_CENTER);
 
         add_dir.setStyle("-fx-background-radius:25;-fx-border-radius:25");
-        quit.setStyle("-fx-background-radius:25;-fx-border-radius:25");
 
         buttons = new HBox();
-        buttons.getChildren().addAll(add_dir,quit);
+        buttons.getChildren().addAll(add_dir);
         buttons.setStyle("-fx-background-color: rgba(255,255,255,0.0);");
         buttons.setAlignment(Pos.TOP_CENTER);
 
@@ -175,19 +151,11 @@ public class VersionSelectPage extends AbstractAnimationPage {
         versionlist.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
         versionlist.setAlignment(Pos.TOP_CENTER);
 
-        ScrollPane pane = new ScrollPane();
-        pane.prefWidthProperty().bind(version_list.widthProperty());
-        pane.prefHeightProperty().bind(version_list.heightProperty());
-        pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        pane.setContent(version_list);
-        setSize.set(pane, this.width / 4 * 2, this.height / 4 * 3 + this.height / 20);
-
-        versionlist.getChildren().addAll(new MainPage.Spacer(), pane);
+        version_list.getStylesheets().add("assets/c.css");
+        versionlist.getChildren().addAll(new MainPage.Spacer(), version_list);
 
         dot_minecraft_dir.getChildren().addAll(title,dirs,new MainPage.Spacer(),select_version,new MainPage.Spacer(),buttons);
 
-        quit.setButtonType(JFXButton.ButtonType.RAISED);
         add_dir.setButtonType(JFXButton.ButtonType.RAISED);
 
         this.add(dot_minecraft_dir, 0, 1, 1, 1);
@@ -269,7 +237,6 @@ public class VersionSelectPage extends AbstractAnimationPage {
             setTypeAll(false);
             MainPage.l.setV(0, 100, "");
             Platform.runLater(MainPage.l::close);
-            setSize.set(version_list, this.width / 4 * 2, version_list.getItems().size() * 56.065);
         };
 //        load.run();
         new Thread(load).start();
@@ -303,10 +270,28 @@ public class VersionSelectPage extends AbstractAnimationPage {
         last = HelloApplication.configReader.configModel.selected_version_index;
         last_dir = HelloApplication.configReader.configModel.selected_minecraft_dir_index;
     }
+
+    public void onExitPage() {
+        if (!checked){
+            if (!Objects.equals(dirs.getValue(), last_dir)) {
+                dirs.getSelectionModel().select(last_dir);
+            }
+            selected_version_name = last;
+            update_version_name();
+            HelloApplication.configReader.configModel.selected_version_index = last;
+            HelloApplication.configReader.configModel.selected_minecraft_dir_index = last_dir;
+            HelloApplication.configReader.write();
+        }
+        else {
+            HelloApplication.configReader.configModel.selected_version_index = selected_version_name;
+            HelloApplication.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
+            HelloApplication.configReader.write();
+        }
+    }
+
     public void refreshLanguage(){
         name = HelloApplication.languageManager.get("ui.versionselectpage.name");
         title.setText(HelloApplication.languageManager.get("ui.versionselectpage.title.name"));
-        quit.setText(HelloApplication.languageManager.get("ui.versionselectpage.ok.name"));
         add_dir.setText(HelloApplication.languageManager.get("ui.versionselectpage.add_dir.name"));
     }
 }

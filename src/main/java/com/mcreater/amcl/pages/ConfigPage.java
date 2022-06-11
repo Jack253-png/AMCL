@@ -9,6 +9,7 @@ import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.JavaInfoGetter;
 import com.mcreater.amcl.util.setSize;
 import com.sun.prism.image.ViewPort;
@@ -58,6 +59,9 @@ public class ConfigPage extends AbstractAnimationPage {
 
     VBox menu;
     JFXButton setting;
+    SettingPage last;
+    SettingPage p1;
+    SettingPage p2;
     public ConfigPage(int width, int height){
         super(width, height);
         l = HelloApplication.MAINPAGE;
@@ -106,7 +110,6 @@ public class ConfigPage extends AbstractAnimationPage {
         load_java_list();
         java_set.setOnAction(event -> {
             HelloApplication.configReader.configModel.selected_java_index = java_set.getValue();
-            HelloApplication.configReader.write();
         });
 
         java_add = new JFXButton();
@@ -157,7 +160,6 @@ public class ConfigPage extends AbstractAnimationPage {
         lang_set.getSelectionModel().select(getKey(langs, HelloApplication.configReader.configModel.language));
         lang_set.setOnAction(event -> {
             HelloApplication.configReader.configModel.language = langs.get(lang_set.getValue());
-            HelloApplication.configReader.write();
             HelloApplication.languageManager.setLanguage(LanguageManager.valueOf(HelloApplication.configReader.configModel.language));
             refreshLanguage();
             HelloApplication.setAllPage(this);
@@ -173,15 +175,21 @@ public class ConfigPage extends AbstractAnimationPage {
         configs_box.getChildren().addAll(change_box, java_box, mem_pane, lang_box);
         configs_box.setStyle("-fx-background-color : rgba(255, 255, 255, 0.0)");
 
+        for (int i = 0;i < 100;i++){
+            HBox b = new HBox();
+            setSize.set(b, 10, 10);
+            configs_box.getChildren().add(b);
+        }
+
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
         java_add.setButtonType(JFXButton.ButtonType.RAISED);
 
-        ScrollPane p1 = new ScrollPane();
-        p1.getStylesheets().add("assets/a.css");
-        p1.setContent(configs_box);
-        p1.setStyle("-fx-background-color : rgba(255, 255, 255, 0.0)");
-        p1.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        p1.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        mainBox = new VBox();
+
+        p1 = new SettingPage(this.width / 4 * 3, this.height / 11 * 10, configs_box);
+        p2 = new SettingPage(this.width / 4 * 3, this.height / 11 * 10, new VBox());
+
+        last = null;
 
         setting = new JFXButton();
         setting.setFont(Fonts.s_f);
@@ -189,22 +197,37 @@ public class ConfigPage extends AbstractAnimationPage {
         setting.setOnAction(event -> setP1(p1));
         setSize.setWidth(setting, this.width / 4);
 
+        JFXButton settings = new JFXButton();
+        settings.setFont(Fonts.s_f);
+        settings.setStyle("-fx-background-radius:25;-fx-border-radius:25");
+        settings.setOnAction(event -> setP1(p2));
+        setSize.setWidth(settings, this.width / 4);
+
         menu = new VBox();
         menu.setStyle("-fx-background-color : rgba(255, 255, 255, 0.75)");
-        menu.getChildren().addAll(setting);
+        menu.getChildren().addAll(setting, settings);
         setSize.set(menu, this.width / 4,this.height);
 
         setP1(p1);
     }
-    public void setP1(ScrollPane p){
-        this.getChildren().clear();
-        mainBox = new VBox();
-        mainBox.setAlignment(Pos.TOP_CENTER);
-        mainBox.getChildren().addAll(p);
-        setSize.set(mainBox, this.width / 4 * 3, this.height);
-        mainBox.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
-        this.add(menu, 0, 0, 1, 1);
-        this.add(mainBox,1,0,1,1);
+    public void setP1(SettingPage p){
+        if (p.CanMovePage() && last != p) {
+            if (last != null) {
+                last.setOut();
+            }
+            last = p;
+            last.setIn();
+            last.setTypeAll(true);
+            last.in.stop();
+            last.setTypeAll(false);
+            this.getChildren().clear();
+            mainBox = new VBox();
+            mainBox.setAlignment(Pos.TOP_CENTER);
+            mainBox.getChildren().addAll(p);
+            setSize.set(mainBox, this.width / 4 * 3, this.height);
+            this.add(menu, 0, 0, 1, 1);
+            this.add(mainBox, 1, 0, 1, 1);
+        }
     }
     public void load_java_list(){
         java_set.getItems().clear();
@@ -217,7 +240,8 @@ public class ConfigPage extends AbstractAnimationPage {
         }
     }
     public void refresh(){
-
+        p1.set(this.opacityProperty());
+        p2.set(this.opacityProperty());
     }
     public void refreshLanguage(){
         name = HelloApplication.languageManager.get("ui.configpage.name");
@@ -232,11 +256,15 @@ public class ConfigPage extends AbstractAnimationPage {
     }
     public void setMem(Number mem){
         HelloApplication.configReader.configModel.max_memory = mem.intValue();
-        HelloApplication.configReader.write();
     }
     public void refreshType(){
 
     }
+
+    public void onExitPage() {
+
+    }
+
     private static String getKey(Map<String,String> map,String value){
         String key="";
         for (Map.Entry<String, String> entry : map.entrySet()) {

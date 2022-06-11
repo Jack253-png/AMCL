@@ -37,5 +37,9 @@ public class VersionInfoPage extends AbstractAnimationPage {
     public void refreshType() {
 
     }
+    
+    public void onExitPage() {
+
+    }
 }
 
