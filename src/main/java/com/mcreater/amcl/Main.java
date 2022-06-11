@@ -41,8 +41,7 @@ public class Main {
             area.setTabSize(4);
             frame.add(area);
             frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            frame.setSize(400, 600);
-            frame.setResizable(false);
+            frame.setSize(600, 800);
         }
     }
 }

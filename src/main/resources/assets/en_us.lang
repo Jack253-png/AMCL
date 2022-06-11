@@ -36,7 +36,6 @@ ui.configpage.java_info.title=Java Info
 ui.configpage.java_info.Headercontent=Version = %s\nBits = %s\nCompany = %s\nType = %s
 ui.configpage.select_java.title=Java Select
 ui.configpage.select_java.Headercontent=Please select a Java executable
-ui.configpage.exit.name=Ok
 ui.configpage.lang_label.name=Language
 ui.dialogs.information.ok.name=Ok
 ui.launch.success.title=Launcher
@@ -60,3 +59,4 @@ ui.mainpage.launch._02=Sending Launch Event
 ui.versionListLoad._01=loaded version %s
 ui.versionListLoad._02=loading version
 ui.versioninfopage.name=Version Info Page
+ui.configpage.menu._01=Launcher Settings

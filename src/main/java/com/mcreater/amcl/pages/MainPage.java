@@ -12,6 +12,7 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;
+import com.mcreater.amcl.util.setSize;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
@@ -182,10 +183,7 @@ public class MainPage extends AbstractAnimationPage {
         settings.setStyle("-fx-background-radius:25;-fx-border-radius:25");
 
         GameMenu = new VBox();
-        GameMenu.setMaxHeight(height);
-        GameMenu.setMaxWidth(width / 4);
-        GameMenu.setMinHeight(height);
-        GameMenu.setMinWidth(width / 4);
+        setSize.set(GameMenu, width / 4, height);
         GameMenu.setStyle("-fx-background-color: rgba(255,255,255,0.5);");
         GameMenu.setAlignment(Pos.TOP_CENTER);
         GameMenu.getChildren().addAll(
@@ -205,12 +203,10 @@ public class MainPage extends AbstractAnimationPage {
         );
 
         HBox hBox1 = new HBox();
-        hBox1.setMinSize(width / 5,height);
-        hBox1.setMaxSize(width / 5,height);
+        setSize.set(hBox1,width / 5,height);
         
         HBox hBox2 = new HBox();
-        hBox2.setMinSize(width / 5,height);
-        hBox2.setMaxSize(width / 5,height);
+        setSize.set(hBox2,width / 5,height);
 
         this.add(GameMenu,0,1,1,1);
         this.add(hBox1,1,1,1,1);
@@ -251,6 +247,7 @@ public class MainPage extends AbstractAnimationPage {
         launchButton.setText(HelloApplication.languageManager.get("ui.mainpage.launchButton.noVersion"));
         HelloApplication.configReader.configModel.selected_version_index = "";
         HelloApplication.configReader.write();
+        version_settings.setDisable(true);
     }
     public void flush(){
         if (new File(HelloApplication.configReader.configModel.selected_minecraft_dir_index).exists()) {
@@ -259,6 +256,7 @@ public class MainPage extends AbstractAnimationPage {
                     if (Objects.requireNonNull(getMinecraftVersion.get(HelloApplication.configReader.configModel.selected_minecraft_dir_index)).contains(HelloApplication.configReader.configModel.selected_version_index)) {
                         version_settings.setText(" " + HelloApplication.configReader.configModel.selected_version_index);
                         launchButton.setText(HelloApplication.languageManager.get("ui.mainpage.launchButton.hasVersion"));
+                        version_settings.setDisable(false);
                     } else {
                         clean_null_version();
                     }

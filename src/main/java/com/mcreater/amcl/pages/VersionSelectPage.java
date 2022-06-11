@@ -10,6 +10,7 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.LinkPath;
+import com.mcreater.amcl.util.setSize;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
@@ -157,8 +158,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
 
 
         dot_minecraft_dir = new VBox();
-        dot_minecraft_dir.setMaxSize(this.width / 4,this.height);
-        dot_minecraft_dir.setMinSize(this.width / 4,this.height);
+        setSize.set(dot_minecraft_dir, this.width / 4,this.height);
         dot_minecraft_dir.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
         dot_minecraft_dir.setAlignment(Pos.TOP_CENTER);
 
@@ -171,8 +171,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
         buttons.setAlignment(Pos.TOP_CENTER);
 
         versionlist = new VBox();
-        versionlist.setMaxSize(this.width / 4 * 3,this.height);
-        versionlist.setMinSize(this.width / 4 * 3,this.height);
+        setSize.set(versionlist, this.width / 4 * 3,this.height);
         versionlist.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
         versionlist.setAlignment(Pos.TOP_CENTER);
 
@@ -182,8 +181,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
         pane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         pane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         pane.setContent(version_list);
-        pane.setMinSize(this.width / 4 * 2, this.height / 4 * 3 + this.height / 20);
-        pane.setMaxSize(this.width / 4 * 2, this.height / 4 * 3 + this.height / 20);
+        setSize.set(pane, this.width / 4 * 2, this.height / 4 * 3 + this.height / 20);
 
         versionlist.getChildren().addAll(new MainPage.Spacer(), pane);
 
@@ -271,8 +269,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
             setTypeAll(false);
             MainPage.l.setV(0, 100, "");
             Platform.runLater(MainPage.l::close);
-            version_list.setMinSize(this.width / 4 * 2, version_list.getItems().size() * 56.065);
-            version_list.setMaxSize(this.width / 4 * 2, version_list.getItems().size() * 56.065);
+            setSize.set(version_list, this.width / 4 * 2, version_list.getItems().size() * 56.065);
         };
 //        load.run();
         new Thread(load).start();
