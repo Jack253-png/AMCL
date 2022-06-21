@@ -4,10 +4,8 @@
         <Console name="SysOut" target="SYSTEM_OUT">
             <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level][%c{1}/%M] %msg%n" />
         </Console>
-        <File name="LogFile" immediateFlush="true" fileName="AMCL/logs/log.log" filePattern="AMCL/logs/log - %d{yyyy-MM-dd HH_mm_ss}">
-            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level][%c{1}/%M] %msg%n" />
-            <Policies>
-            </Policies>
+        <File name="LogFile" immediateFlush="true" fileName="AMCL/logs/log.log">
+            <PatternLayout charset="UTF-8" pattern="[%d{HH:mm:ss}] [%t/%level][%c{1}/%M] %msg%n" />
         </File>
     </Appenders>
     <Loggers>

@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,10 +28,7 @@ public class ForgeDownload {
     static int chunkSize;
     static Vector<AbstractTask> tasks = new Vector<>();
     static Logger logger = LogManager.getLogger(ForgeDownload.class);
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, String forge_version) throws IOException, ParserConfigurationException, SAXException {
-        download(faster, id, minecraft_dir, version_name, 1024, forge_version);
-    }
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String forge_version) throws IOException, ParserConfigurationException, SAXException {
+    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String forge_version) throws IOException, ParserConfigurationException, SAXException, InterruptedException {
         tasks.clear();
         ForgeDownload.chunkSize = chunkSize;
         Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", faster)));
@@ -247,6 +245,7 @@ public class ForgeDownload {
                 }
             } while (d.get() != tasks.size());
         }
+        FileUtils.del(temp_path);
     }
     public static boolean deleteDirectory(File f, String orgin){
         if (!f.exists()){

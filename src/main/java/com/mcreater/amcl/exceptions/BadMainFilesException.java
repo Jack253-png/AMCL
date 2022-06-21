@@ -1,11 +1,11 @@
 package com.mcreater.amcl.exceptions;
 
-import com.mcreater.amcl.HelloApplication;
+import com.mcreater.amcl.Application;
 
 public class BadMainFilesException extends LaunchException{
     public BadMainFilesException(){}
     @Override
     public String toString() {
-        return HelloApplication.languageManager.get("exceptions.BadMainFiles.name");
+        return Application.languageManager.get("exceptions.BadMainFiles.name");
     }
 }

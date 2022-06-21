@@ -4,7 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXToggleButton;
-import com.mcreater.amcl.HelloApplication;
+import com.mcreater.amcl.Application;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
@@ -12,18 +12,15 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.JavaInfoGetter;
 import com.mcreater.amcl.util.setSize;
-import com.sun.prism.image.ViewPort;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -31,6 +28,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
+
+import static com.mcreater.amcl.util.FinalSVGs.InPage;
+import static com.mcreater.amcl.util.FinalSVGs.OutPage;
 
 public class ConfigPage extends AbstractAnimationPage {
     VBox mainBox;
@@ -62,11 +62,14 @@ public class ConfigPage extends AbstractAnimationPage {
     SettingPage last;
     SettingPage p1;
     SettingPage p2;
+    JFXButton setted;
     public ConfigPage(int width, int height){
         super(width, height);
-        l = HelloApplication.MAINPAGE;
+        l = Application.MAINPAGE;
         set();
         this.setAlignment(Pos.TOP_CENTER);
+
+        double t_size = Application.barSize;
 
         langs = new TreeMap<>();
         langs.put("简体中文", "CHINESE");
@@ -76,8 +79,8 @@ public class ConfigPage extends AbstractAnimationPage {
         title.setFont(Fonts.b_f);
 
         change_set = new JFXToggleButton();
-        change_set.setSelected(HelloApplication.configReader.configModel.change_game_dir);
-        change_set.selectedProperty().addListener((observable, oldValue, newValue) -> HelloApplication.configReader.configModel.change_game_dir = newValue);
+        change_set.setSelected(Application.configReader.configModel.change_game_dir);
+        change_set.selectedProperty().addListener((observable, oldValue, newValue) -> Application.configReader.configModel.change_game_dir = newValue);
 
         change_label = new Label();
         change_label.setFont(Fonts.t_f);
@@ -89,11 +92,11 @@ public class ConfigPage extends AbstractAnimationPage {
         mem_label = new Label();
         mem_label.setFont(Fonts.t_f);
 
-        max_mem = new JFXSlider(256, 4096, HelloApplication.configReader.configModel.max_memory);
+        max_mem = new JFXSlider(256, 4096, Application.configReader.configModel.max_memory);
         max_mem.setShowTickLabels(true);
         max_mem.setShowTickMarks(true);
-        max_mem.setMajorTickUnit(128);
-        max_mem.setMinorTickCount(128);
+        max_mem.setMajorTickUnit(256);
+        max_mem.setMinorTickCount(256);
         max_mem.setOrientation(Orientation.HORIZONTAL);
         setSize.set(max_mem, 400, 50);
         max_mem.valueProperty().addListener((observable, oldValue, newValue) -> setMem(newValue));
@@ -109,7 +112,7 @@ public class ConfigPage extends AbstractAnimationPage {
         java_set = new JFXComboBox<>();
         load_java_list();
         java_set.setOnAction(event -> {
-            HelloApplication.configReader.configModel.selected_java_index = java_set.getValue();
+            Application.configReader.configModel.selected_java_index = java_set.getValue();
         });
 
         java_add = new JFXButton();
@@ -117,11 +120,11 @@ public class ConfigPage extends AbstractAnimationPage {
         java_add.setFont(Fonts.t_f);
         java_add.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle(HelloApplication.languageManager.get("ui.configpage.java_choose.title"));
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(HelloApplication.languageManager.get("ui.configpage.java_choose.filename.description"), "java.exe"));
-            File choosed_path = fileChooser.showOpenDialog(HelloApplication.stage);
+            fileChooser.setTitle(Application.languageManager.get("ui.configpage.java_choose.title"));
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(Application.languageManager.get("ui.configpage.java_choose.filename.description"), "java.exe"));
+            File choosed_path = fileChooser.showOpenDialog(Application.stage);
             if (choosed_path != null) {
-                HelloApplication.configReader.configModel.selected_java.add(choosed_path.getPath());
+                Application.configReader.configModel.selected_java.add(choosed_path.getPath());
                 load_java_list();
             }
         });
@@ -131,17 +134,17 @@ public class ConfigPage extends AbstractAnimationPage {
         java_get.setFont(Fonts.t_f);
         java_get.setOnAction(event -> new Thread(() -> {
             java_get.setDisable(true);
-            if (HelloApplication.configReader.configModel.selected_java.contains(HelloApplication.configReader.configModel.selected_java_index) && new File(HelloApplication.configReader.configModel.selected_java_index).exists()) {
+            if (Application.configReader.configModel.selected_java.contains(Application.configReader.configModel.selected_java_index) && new File(Application.configReader.configModel.selected_java_index).exists()) {
                 Vector<String> v;
                 try {
-                    v = JavaInfoGetter.get(new File(HelloApplication.configReader.configModel.selected_java_index));
+                    v = JavaInfoGetter.get(new File(Application.configReader.configModel.selected_java_index));
                 } catch (ExecutionException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                Platform.runLater(() -> FastInfomation.create(HelloApplication.languageManager.get("ui.configpage.java_info.title"), String.format(HelloApplication.languageManager.get("ui.configpage.java_info.Headercontent"), v.get(0), v.get(1), v.get(2), v.get(3)), ""));
+                Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.configpage.java_info.title"), String.format(Application.languageManager.get("ui.configpage.java_info.Headercontent"), v.get(0), v.get(1), v.get(2), v.get(3)), ""));
             }
             else{
-                Platform.runLater(() -> FastInfomation.create(HelloApplication.languageManager.get("ui.configpage.select_java.title"), HelloApplication.languageManager.get("ui.configpage.select_java.Headercontent"), ""));
+                Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.configpage.select_java.title"), Application.languageManager.get("ui.configpage.select_java.Headercontent"), ""));
             }
             java_get.setDisable(false);
         }).start());
@@ -157,12 +160,12 @@ public class ConfigPage extends AbstractAnimationPage {
         for (Map.Entry<String, String> entry : langs.entrySet()) {
             lang_set.getItems().add(entry.getKey());
         }
-        lang_set.getSelectionModel().select(getKey(langs, HelloApplication.configReader.configModel.language));
+        lang_set.getSelectionModel().select(getKey(langs, Application.configReader.configModel.language));
         lang_set.setOnAction(event -> {
-            HelloApplication.configReader.configModel.language = langs.get(lang_set.getValue());
-            HelloApplication.languageManager.setLanguage(LanguageManager.valueOf(HelloApplication.configReader.configModel.language));
+            Application.configReader.configModel.language = langs.get(lang_set.getValue());
+            Application.languageManager.setLanguage(LanguageManager.valueOf(Application.configReader.configModel.language));
             refreshLanguage();
-            HelloApplication.setAllPage(this);
+            Application.setAllPage(this);
         });
 
         lang_box = new HBox();
@@ -173,42 +176,45 @@ public class ConfigPage extends AbstractAnimationPage {
         configs_box.setSpacing(10);
         setSize.setAll(this.width / 4 * 3, this.height / 14, change_box, java_box, mem_pane, lang_box);
         configs_box.getChildren().addAll(change_box, java_box, mem_pane, lang_box);
-        configs_box.setStyle("-fx-background-color : rgba(255, 255, 255, 0.0)");
-
-        for (int i = 0;i < 100;i++){
-            HBox b = new HBox();
-            setSize.set(b, 10, 10);
-            configs_box.getChildren().add(b);
-        }
+        configs_box.setId("config-box");
 
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
         java_add.setButtonType(JFXButton.ButtonType.RAISED);
 
         mainBox = new VBox();
 
-        p1 = new SettingPage(this.width / 4 * 3, this.height / 11 * 10, configs_box);
-        p2 = new SettingPage(this.width / 4 * 3, this.height / 11 * 10, new VBox());
+        p1 = new SettingPage(this.width / 4 * 3, this.height - t_size, configs_box);
 
         last = null;
 
         setting = new JFXButton();
         setting.setFont(Fonts.s_f);
-        setting.setStyle("-fx-background-radius:25;-fx-border-radius:25");
-        setting.setOnAction(event -> setP1(p1));
+        setting.setOnAction(event -> {
+            setP1(p1);
+            setType(setting);
+        });
         setSize.setWidth(setting, this.width / 4);
 
-        JFXButton settings = new JFXButton();
-        settings.setFont(Fonts.s_f);
-        settings.setStyle("-fx-background-radius:25;-fx-border-radius:25");
-        settings.setOnAction(event -> setP1(p2));
-        setSize.setWidth(settings, this.width / 4);
-
         menu = new VBox();
-        menu.setStyle("-fx-background-color : rgba(255, 255, 255, 0.75)");
-        menu.getChildren().addAll(setting, settings);
-        setSize.set(menu, this.width / 4,this.height);
+        menu.setId("config-menu");
+        menu.getChildren().addAll(setting);
+        setSize.set(menu, this.width / 4,this.height - t_size);
 
         setP1(p1);
+        setType(setting);
+    }
+    public void setType(JFXButton b){
+        setted = b;
+        for (Node bs : menu.getChildren()){
+            if (bs == b){
+                ((JFXButton) bs).setGraphic(InPage);
+                bs.setDisable(true);
+            }
+            else{
+                ((JFXButton) bs).setGraphic(OutPage);
+                bs.setDisable(false);
+            }
+        }
     }
     public void setP1(SettingPage p){
         if (p.CanMovePage() && last != p) {
@@ -224,16 +230,16 @@ public class ConfigPage extends AbstractAnimationPage {
             mainBox = new VBox();
             mainBox.setAlignment(Pos.TOP_CENTER);
             mainBox.getChildren().addAll(p);
-            setSize.set(mainBox, this.width / 4 * 3, this.height);
+            setSize.set(mainBox, this.width / 4 * 3, this.height - Application.barSize);
             this.add(menu, 0, 0, 1, 1);
             this.add(mainBox, 1, 0, 1, 1);
         }
     }
     public void load_java_list(){
         java_set.getItems().clear();
-        java_set.getItems().addAll(HelloApplication.configReader.configModel.selected_java);
-        if (HelloApplication.configReader.configModel.selected_java.contains(HelloApplication.configReader.configModel.selected_java_index) || new File(HelloApplication.configReader.configModel.selected_java_index).exists()){
-            java_set.getSelectionModel().select(HelloApplication.configReader.configModel.selected_java.indexOf(HelloApplication.configReader.configModel.selected_java_index));
+        java_set.getItems().addAll(Application.configReader.configModel.selected_java);
+        if (Application.configReader.configModel.selected_java.contains(Application.configReader.configModel.selected_java_index) || new File(Application.configReader.configModel.selected_java_index).exists()){
+            java_set.getSelectionModel().select(Application.configReader.configModel.selected_java.indexOf(Application.configReader.configModel.selected_java_index));
         }
         else{
             java_set.getSelectionModel().select("");
@@ -242,20 +248,21 @@ public class ConfigPage extends AbstractAnimationPage {
     public void refresh(){
         p1.set(this.opacityProperty());
         p2.set(this.opacityProperty());
+        setType(setted);
     }
     public void refreshLanguage(){
-        name = HelloApplication.languageManager.get("ui.configpage.name");
-        title.setText(HelloApplication.languageManager.get("ui.configpage.title.name"));
-        change_label.setText(HelloApplication.languageManager.get("ui.configpage.change_label.name"));
-        mem_label.setText(HelloApplication.languageManager.get("ui.configpage.mem_label.name"));
-        java_label.setText(HelloApplication.languageManager.get("ui.configpage.java_label.name"));
-        java_get.setText(HelloApplication.languageManager.get("ui.configpage.java_get.name"));
-        java_add.setText(HelloApplication.languageManager.get("ui.configpage.java_add.name"));
-        lang_label.setText(HelloApplication.languageManager.get("ui.configpage.lang_label.name"));
-        setting.setText(HelloApplication.languageManager.get("ui.configpage.menu._01"));
+        name = Application.languageManager.get("ui.configpage.name");
+        title.setText(Application.languageManager.get("ui.configpage.title.name"));
+        change_label.setText(Application.languageManager.get("ui.configpage.change_label.name"));
+        mem_label.setText(Application.languageManager.get("ui.configpage.mem_label.name"));
+        java_label.setText(Application.languageManager.get("ui.configpage.java_label.name"));
+        java_get.setText(Application.languageManager.get("ui.configpage.java_get.name"));
+        java_add.setText(Application.languageManager.get("ui.configpage.java_add.name"));
+        lang_label.setText(Application.languageManager.get("ui.configpage.lang_label.name"));
+        setting.setText(Application.languageManager.get("ui.configpage.menu._01"));
     }
     public void setMem(Number mem){
-        HelloApplication.configReader.configModel.max_memory = mem.intValue();
+        Application.configReader.configModel.max_memory = mem.intValue();
     }
     public void refreshType(){
 

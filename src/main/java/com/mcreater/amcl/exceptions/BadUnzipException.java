@@ -1,11 +1,11 @@
 package com.mcreater.amcl.exceptions;
 
-import com.mcreater.amcl.HelloApplication;
+import com.mcreater.amcl.Application;
 
 public class BadUnzipException extends LaunchException{
     public BadUnzipException(){}
     @Override
     public String toString() {
-        return HelloApplication.languageManager.get("exceptions.BadUnzipException.name");
+        return Application.languageManager.get("exceptions.BadUnzipException.name");
     }
 }

@@ -12,7 +12,7 @@ public final class SVG {
     private SVG() {
     }
 
-    private static Node createSVGPath(String d, ObjectBinding<? extends Paint> fill, double width, double height) {
+    public static Node createSVGPath(String d, ObjectBinding<? extends Paint> fill, double width, double height) {
         SVGPath path = new SVGPath();
         path.getStyleClass().add("svg");
         path.setContent(d);

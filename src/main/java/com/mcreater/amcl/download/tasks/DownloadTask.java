@@ -6,6 +6,7 @@ import com.mcreater.amcl.util.HashHelper;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class DownloadTask extends AbstractTask{
@@ -15,10 +16,8 @@ public class DownloadTask extends AbstractTask{
     FileOutputStream fos = null;
     InputStream inputStream = null;
     public DownloadTask(String server, String local) {
-        super(server.replace("http", "https").replace("maven.modmuss50.me", "maven.fabricmc.net"), local);
-        if (!this.server.contains("https")){
-            this.server = this.server.replace("http", "https");
-        }
+        super(server, local);
+        this.server = this.server.replace("http:", "https:");
         this.server = this.server.replace("maven.modmuss50.me", "maven.fabricmc.net");
     }
     public DownloadTask(String server, String local, int chunkSize) {
@@ -78,7 +77,6 @@ public class DownloadTask extends AbstractTask{
         if ((hash != null) && (!checkHash())) {
             clean();
             try {
-                // 包含中文字符时需要转码
                 d();
             } catch (Exception e) {
                 clean();
@@ -99,8 +97,13 @@ public class DownloadTask extends AbstractTask{
                         d();
                         break;
                     }
-                    catch (IOException ignored){}
+                    catch (IOException ignored){
+                        ignored.printStackTrace();
+                    }
                 }
+            }
+            else if (!checkHash()){
+                execute();
             }
         }
         return null;

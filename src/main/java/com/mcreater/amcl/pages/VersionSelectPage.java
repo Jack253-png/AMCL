@@ -3,21 +3,18 @@ package com.mcreater.amcl.pages;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
-import com.mcreater.amcl.HelloApplication;
+import com.mcreater.amcl.Application;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.LinkPath;
 import com.mcreater.amcl.util.setSize;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -28,6 +25,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.util.Objects;
 import java.util.Vector;
+
+import static com.mcreater.amcl.util.Images.*;
 
 public class VersionSelectPage extends AbstractAnimationPage {
     VBox dot_minecraft_dir;
@@ -42,32 +41,27 @@ public class VersionSelectPage extends AbstractAnimationPage {
     Label select_version;
     String last;
     boolean checked;
-
-    Image original = new Image("assets/icons/original.png");
-    Image forge = new Image("assets/icons/forge.png");
-    Image fabric = new Image("assets/icons/fabric.png");
-    Image liteloader = new Image("assets/icons/liteloader.png");
-    Image optifine = new Image("assets/icons/optifine.png");
     Vector<String> result;
     Logger logger = LogManager.getLogger(VersionSelectPage.class);
     boolean first_load = true;
     String last_dir;
     public VersionSelectPage(double width,double height){
         super(width, height);
-        l = HelloApplication.MAINPAGE;
+        l = Application.MAINPAGE;
         set();
+
+        double t_size = Application.barSize;
 
         checked = false;
 
-        last = HelloApplication.configReader.configModel.selected_version_index;
-        last_dir = HelloApplication.configReader.configModel.selected_minecraft_dir_index;
+        last = Application.configReader.configModel.selected_version_index;
+        last_dir = Application.configReader.configModel.selected_minecraft_dir_index;
 
         version_list = new JFXListView<>();
         version_list.getSelectionModel().getSelectedItems().addListener((ListChangeListener<HBox>) c -> {
             try {
                 checked = true;
                 selected_version_name = ((Label) ((HBox) c.getList().get(0).getChildren().get(1)).getChildren().get(0)).getText();
-                selected_version_name = selected_version_name.substring(1, selected_version_name.length());
                 update_version_name();
             }
             catch (IndexOutOfBoundsException e){
@@ -86,15 +80,15 @@ public class VersionSelectPage extends AbstractAnimationPage {
         select_version.setFont(Fonts.s_f);
         select_version.setText(last);
 
-        if (HelloApplication.configReader.configModel.selected_minecraft_dir.contains(HelloApplication.configReader.configModel.selected_minecraft_dir_index)) {
-            dirs.getSelectionModel().select(HelloApplication.configReader.configModel.selected_minecraft_dir.indexOf(HelloApplication.configReader.configModel.selected_minecraft_dir_index));
+        if (Application.configReader.configModel.selected_minecraft_dir.contains(Application.configReader.configModel.selected_minecraft_dir_index)) {
+            dirs.getSelectionModel().select(Application.configReader.configModel.selected_minecraft_dir.indexOf(Application.configReader.configModel.selected_minecraft_dir_index));
         }
         else {
-            HelloApplication.configReader.configModel.selected_minecraft_dir_index = "";
-            HelloApplication.configReader.configModel.selected_version_index = "";
+            Application.configReader.configModel.selected_minecraft_dir_index = "";
+            Application.configReader.configModel.selected_version_index = "";
             select_version.setText("");
             try {
-                HelloApplication.configReader.write();
+                Application.configReader.write();
             }
             catch (Exception ignored){
             }
@@ -112,8 +106,8 @@ public class VersionSelectPage extends AbstractAnimationPage {
         add_dir.setDefaultButton(true);
         add_dir.setOnAction(event -> {
             DirectoryChooser directoryChooser=new DirectoryChooser();
-            Runnable setDialog = () -> FastInfomation.create(HelloApplication.languageManager.get("ui.versionselectpage.error_dir.title"),HelloApplication.languageManager.get("ui.versionselectpage.error_dir.Headercontent"),"");
-            File file = directoryChooser.showDialog(HelloApplication.stage);
+            Runnable setDialog = () -> FastInfomation.create(Application.languageManager.get("ui.versionselectpage.error_dir.title"), Application.languageManager.get("ui.versionselectpage.error_dir.Headercontent"),"");
+            File file = directoryChooser.showDialog(Application.stage);
             if (file == null){
                 setDialog.run();
             }
@@ -123,8 +117,8 @@ public class VersionSelectPage extends AbstractAnimationPage {
                 if (result == null) {
                     setDialog.run();
                 } else {
-                    HelloApplication.configReader.configModel.selected_minecraft_dir.add(path);
-                    HelloApplication.configReader.write();
+                    Application.configReader.configModel.selected_minecraft_dir.add(path);
+                    Application.configReader.write();
                     dirs.getSelectionModel().select(path);
                     load_minecraft_dir();
                     r = result;
@@ -139,33 +133,31 @@ public class VersionSelectPage extends AbstractAnimationPage {
         dot_minecraft_dir.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
         dot_minecraft_dir.setAlignment(Pos.TOP_CENTER);
 
-        add_dir.setStyle("-fx-background-radius:25;-fx-border-radius:25");
-
         buttons = new HBox();
         buttons.getChildren().addAll(add_dir);
         buttons.setStyle("-fx-background-color: rgba(255,255,255,0.0);");
         buttons.setAlignment(Pos.TOP_CENTER);
 
         versionlist = new VBox();
-        setSize.set(versionlist, this.width / 4 * 3,this.height);
+        version_list.setVerticalGap(0.0);
+//        setSize.set(versionlist, this.width / 4 * 3,this.height);
         versionlist.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
         versionlist.setAlignment(Pos.TOP_CENTER);
 
-        version_list.getStylesheets().add("assets/c.css");
-        versionlist.getChildren().addAll(new MainPage.Spacer(), version_list);
+        setSize.set(version_list, this.width / 4 * 3,this.height - t_size);
+        versionlist.getChildren().add(version_list);
 
         dot_minecraft_dir.getChildren().addAll(title,dirs,new MainPage.Spacer(),select_version,new MainPage.Spacer(),buttons);
 
         add_dir.setButtonType(JFXButton.ButtonType.RAISED);
 
-        this.add(dot_minecraft_dir, 0, 1, 1, 1);
-        this.add(versionlist,1,1 ,1,1);
-
+        this.add(dot_minecraft_dir, 0, 0, 1, 1);
+        this.add(versionlist,1,0 ,1,1);
     }
     public void load_minecraft_dir(){
         version_list.getItems().clear();
         dirs.getItems().clear();
-        for (String p : HelloApplication.configReader.configModel.selected_minecraft_dir) {
+        for (String p : Application.configReader.configModel.selected_minecraft_dir) {
             dirs.getItems().add(p);
         }
     }
@@ -174,27 +166,27 @@ public class VersionSelectPage extends AbstractAnimationPage {
             Platform.runLater(MainPage.l::show);
             setTypeAll(true);
             if (!Objects.equals(dirs.getValue(), null)) {
-                HelloApplication.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
-                HelloApplication.configReader.write();
+                Application.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
+                Application.configReader.write();
 
-                result = getMinecraftVersion.get(HelloApplication.configReader.configModel.selected_minecraft_dir_index);
+                result = getMinecraftVersion.get(Application.configReader.configModel.selected_minecraft_dir_index);
                 Platform.runLater(version_list.getItems()::clear);
                 if (result != null) {
                     int dg = result.size();
                     int ld = 0;
                     for (String s : result) {
                         try {
-                            Thread.sleep(75);
+                            Thread.sleep(65);
                         } catch (InterruptedException ignored) {
                         }
                         logger.info(String.format("loading version %s", s));
                         String f = "error";
-                        if (!new File(LinkPath.link(LinkPath.link(LinkPath.link(HelloApplication.configReader.configModel.selected_minecraft_dir_index, "versions"), s), s + ".json")).exists()) {
+                        if (!new File(LinkPath.link(LinkPath.link(LinkPath.link(Application.configReader.configModel.selected_minecraft_dir_index, "versions"), s), s + ".json")).exists()) {
                             logger.warn(String.format("Failed to load version name %s !", s));
                             continue;
                         }
                         try {
-                            f = versionTypeGetter.get(HelloApplication.configReader.configModel.selected_minecraft_dir_index, s);
+                            f = versionTypeGetter.get(Application.configReader.configModel.selected_minecraft_dir_index, s);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -223,14 +215,15 @@ public class VersionSelectPage extends AbstractAnimationPage {
                         Platform.runLater(() -> {
                             HBox butt = new HBox();
                             butt.setAlignment(Pos.CENTER_LEFT);
-                            Label v = new Label(" "+s);
+                            Label v = new Label(s);
                             v.setFont(Fonts.t_f);
                             butt.getChildren().add(v);
+                            version.setSpacing(15);
                             version.getChildren().addAll(versionType, butt);
                             version_list.getItems().add(version);
                         });
                         ld += 1;
-                        MainPage.l.setV(0, ld * 100 / dg, String.format(HelloApplication.languageManager.get("ui.versionListLoad._01"), s));
+                        MainPage.l.setV(0, ld * 100 / dg, String.format(Application.languageManager.get("ui.versionListLoad._01"), s));
                     }
                 }
             }
@@ -242,33 +235,16 @@ public class VersionSelectPage extends AbstractAnimationPage {
         new Thread(load).start();
     }
     public void update_version_name(){
-        select_version.setText(selected_version_name);
-        HelloApplication.configReader.configModel.selected_version_index = selected_version_name;
-        HelloApplication.configReader.write();
+        Platform.runLater(() -> select_version.setText(selected_version_name));
+        Application.configReader.configModel.selected_version_index = selected_version_name;
+        Application.configReader.write();
     }
     public void refresh(){
-        if (first_load) {
-            load_list();
-            first_load = false;
-        }
-        else {
-            Vector<String> rde = getMinecraftVersion.get(HelloApplication.configReader.configModel.selected_minecraft_dir_index);
-            assert rde != null;
-            if (result.size() == rde.size()) {
-                for (int i = 0; i < rde.size(); i++) {
-                    if (!Objects.equals(result.get(i), rde.get(i))) {
-                        load_list();
-                        break;
-                    }
-                }
-            } else {
-                load_list();
-            }
-        }
+        load_list();
     }
     public void refreshType(){
-        last = HelloApplication.configReader.configModel.selected_version_index;
-        last_dir = HelloApplication.configReader.configModel.selected_minecraft_dir_index;
+        last = Application.configReader.configModel.selected_version_index;
+        last_dir = Application.configReader.configModel.selected_minecraft_dir_index;
     }
 
     public void onExitPage() {
@@ -278,20 +254,20 @@ public class VersionSelectPage extends AbstractAnimationPage {
             }
             selected_version_name = last;
             update_version_name();
-            HelloApplication.configReader.configModel.selected_version_index = last;
-            HelloApplication.configReader.configModel.selected_minecraft_dir_index = last_dir;
-            HelloApplication.configReader.write();
+            Application.configReader.configModel.selected_version_index = last;
+            Application.configReader.configModel.selected_minecraft_dir_index = last_dir;
+            Application.configReader.write();
         }
         else {
-            HelloApplication.configReader.configModel.selected_version_index = selected_version_name;
-            HelloApplication.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
-            HelloApplication.configReader.write();
+            Application.configReader.configModel.selected_version_index = selected_version_name;
+            Application.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
+            Application.configReader.write();
         }
     }
 
     public void refreshLanguage(){
-        name = HelloApplication.languageManager.get("ui.versionselectpage.name");
-        title.setText(HelloApplication.languageManager.get("ui.versionselectpage.title.name"));
-        add_dir.setText(HelloApplication.languageManager.get("ui.versionselectpage.add_dir.name"));
+        name = Application.languageManager.get("ui.versionselectpage.name");
+        title.setText(Application.languageManager.get("ui.versionselectpage.title.name"));
+        add_dir.setText(Application.languageManager.get("ui.versionselectpage.add_dir.name"));
     }
 }

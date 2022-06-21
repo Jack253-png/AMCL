@@ -22,14 +22,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CountDownLatch;
 
 public class OriginalDownload {
     static GsonBuilder gb;
     static Vector<AbstractTask> tasks = new Vector<>();
     static int chunkSize;
     static Logger logger = LogManager.getLogger(OriginalDownload.class);
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize) throws IOException {
+    static String vj;
+
+    public static String getVJ(){
+        return vj;
+    }
+    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize) throws IOException, InterruptedException {
         tasks.clear();
         OriginalDownload.chunkSize = chunkSize;
         String url = "http://launchermeta.mojang.com/mc/game/version_manifest.json";
@@ -52,7 +57,8 @@ public class OriginalDownload {
         String version_dir = LinkPath.link(minecraft_dir, "versions\\" + version_name);
         new File(version_dir).mkdirs();
 
-        String version_json = HttpConnectionUtil.doGet(version_url);
+        String version_json = HttpConnectionUtil.doGet(FasterUrls.fast(version_url, faster));
+        vj = version_json;
         BufferedWriter bw = new BufferedWriter(new FileWriter(LinkPath.link(version_dir, version_name + ".json")));
         bw.write(version_json);
         bw.close();
@@ -72,33 +78,25 @@ public class OriginalDownload {
         String hash = model.downloads.get("client").sha1;
         tasks.add(new LibDownloadTask(url, path, chunkSize).setHash(hash));
     }
-    public static void runTasks(){
-        AtomicInteger i = new AtomicInteger(0);
-        Vector<AbstractTask> temp = new Vector<>();
+    public static void runTasks() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(tasks.size());
         new Thread(() -> {
             do {
-                logger.info(String.format("%d / %d\n", i.get(), tasks.size()));
-//                if (tasks.size() - i.get() <= 5){
-//                    for (AbstractTask t : tasks){
-//                        if (!temp.contains(t)){
-//                            logger.info(t.server);
-//                        }
-//                    }
-//                }
+                logger.info(String.format("%d / %d\n", tasks.size() - latch.getCount(), tasks.size()));
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-            } while (i.get() != tasks.size());
+                latch.countDown();
+            } while (tasks.size() - latch.getCount() != tasks.size());
         }).start();
         for (AbstractTask task : tasks){
             new Thread(() -> {
                 while (true) {
                     try {
                         task.execute();
-                        i.addAndGet(1);
-                        temp.add(task);
+                        latch.countDown();
                         break;
                     } catch (Exception eignored) {
                         eignored.printStackTrace();
@@ -106,7 +104,7 @@ public class OriginalDownload {
                 }
             }).start();
         }
-        do{}while (i.get() != tasks.size());
+        latch.await();
     }
     public static void createNewDir(String path){
         Vector<String> paths = new Vector<>(List.of(path.split("\\\\")));
@@ -119,7 +117,7 @@ public class OriginalDownload {
         new File(assets_root).mkdirs();
         new File(assets_indexes).mkdirs();
         new File(assets_objects).mkdirs();
-        String result = HttpConnectionUtil.doGet(model.assetIndex.get("url"));
+        String result = HttpConnectionUtil.doGet(FasterUrls.fast(model.assetIndex.get("url"), faster));
         String assets_index_path = LinkPath.link(assets_indexes, model.assetIndex.get("id") + ".json");
         BufferedWriter bw = new BufferedWriter(new FileWriter(assets_index_path));
         bw.write(result);

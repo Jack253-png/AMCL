@@ -2,7 +2,7 @@ package com.mcreater.amcl.game.launch;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import com.mcreater.amcl.HelloApplication;
+import com.mcreater.amcl.Application;
 import com.mcreater.amcl.exceptions.*;
 import com.mcreater.amcl.game.getPath;
 import com.mcreater.amcl.model.LibModel;
@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 public class Launch {
     String java;
@@ -31,9 +32,9 @@ public class Launch {
     Logger logger = LogManager.getLogger(this.getClass());
     public void launch(String java_path,String dir,String version_name,boolean ie,String launcherv, int m) throws IllegalStateException, InterruptedException, LaunchException {
         MainPage.d.Create();
-        MainPage.d.setV(0, 5, HelloApplication.languageManager.get("ui.launch._01"));
+        MainPage.d.setV(0, 5, Application.languageManager.get("ui.launch._01"));
         java = java_path;
-        MainPage.d.setV(0, 10, HelloApplication.languageManager.get("ui.launch._02"));
+        MainPage.d.setV(0, 10, Application.languageManager.get("ui.launch._02"));
 
         if (!new File(dir).exists()){
             throw new BadMinecraftDirException();
@@ -47,7 +48,7 @@ public class Launch {
         if (!json_file.exists() || !jar_file.exists()){
             throw new BadMainFilesException();
         }
-        MainPage.d.setV(0, 75, HelloApplication.languageManager.get("ui.launch._03"));
+        MainPage.d.setV(0, 75, Application.languageManager.get("ui.launch._03"));
         String json_result = FileStringReader.read(json_file.getPath());
         Gson g = new Gson();
         VersionJsonModel r = g.fromJson(json_result, VersionJsonModel.class);
@@ -84,11 +85,11 @@ public class Launch {
                 }
             }
             s0 += 1;
-            MainPage.d.setV(0, 75 + 5 * s0 / r.libraries.size(), String.format(HelloApplication.languageManager.get("ui.launch._04"), l.name));
+            MainPage.d.setV(0, 75 + 5 * s0 / r.libraries.size(), String.format(Application.languageManager.get("ui.launch._04"), l.name));
             MainPage.d.setV(1, (int) ((double) s0 / r.libraries.size() * 100));
         }
         MainPage.d.setV(1, 100);
-        MainPage.d.setV(0, 80, String.format(HelloApplication.languageManager.get("ui.launch._05"), r.libraries.size()));
+        MainPage.d.setV(0, 80, String.format(Application.languageManager.get("ui.launch._05"), r.libraries.size()));
         File nativef = new File(LinkPath.link(f.getPath(),version_name + "-natives"));
         if (!nativef.exists()){
             boolean b = nativef.mkdirs();
@@ -106,7 +107,7 @@ public class Launch {
                 e.printStackTrace();
                 throw new BadUnzipException();
             }
-            MainPage.d.setV(0, 85, HelloApplication.languageManager.get("ui.launch._06"));
+            MainPage.d.setV(0, 85, Application.languageManager.get("ui.launch._06"));
         }
         StringBuilder classpath = new StringBuilder("-cp \"");
         for (String s : libs){
@@ -234,20 +235,21 @@ public class Launch {
         }
 
         try {
-
             String command = LinkCommands.link(java, jvm, String.valueOf(classpath), mem, forgevm,mainClass.replace(" ",""), arguments);
-            MainPage.d.setV(0, 90, HelloApplication.languageManager.get("ui.launch._07"));
+            MainPage.d.setV(0, 90, Application.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
             logger.info(String.format("Command Line : %s", command));
             MainPage.exit_code = null;
             MainPage.cleanLog();
-            MainPage.d.setV(0, 95, HelloApplication.languageManager.get("ui.launch._08"));
+            MainPage.d.setV(0, 95, Application.languageManager.get("ui.launch._08"));
             p = Runtime.getRuntime().exec(command);
+            CountDownLatch latch = new CountDownLatch(2);
             new Thread(() -> {
                 while (true) {
                     if (EnumWindow.getTaskPID().contains(p.pid())) {
                         MainPage.logger.info("Window Showed");
                         MainPage.d.close();
+                        latch.countDown();
                         break;
                     }
                 }
@@ -262,12 +264,16 @@ public class Launch {
                         MainPage.exit_code = (long) ev;
                         Platform.runLater(MainPage::check);
                         MainPage.launchButton.setDisable(false);
+                        ChangeDir.changeToDefault();
                         break;
                     }
                     catch (IllegalThreadStateException e){
                         if (!MainPage.minecraft_running) {
                             MainPage.minecraft_running = true;
                         }
+                    }
+                    finally {
+                        latch.countDown();
                     }
                 }
             }).start();

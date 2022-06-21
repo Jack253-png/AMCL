@@ -9,13 +9,12 @@ import com.mcreater.amcl.pages.VersionInfoPage;
 import com.mcreater.amcl.pages.VersionSelectPage;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.multiThread.Run;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.concurrent.Service;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -35,8 +34,8 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
-public class HelloApplication extends Application {
-    static Logger logger = LogManager.getLogger(HelloApplication.class);
+public class Application extends javafx.application.Application {
+    static Logger logger = LogManager.getLogger(Application.class);
     public static Scene s = new Scene(new Pane(), Color.TRANSPARENT);
     public static Stage stage;
     public static AbstractAnimationPage last;
@@ -47,17 +46,19 @@ public class HelloApplication extends Application {
     public static VersionInfoPage VERSIONINFOPAGE;
     public static ConfigWriter configReader;
     public static LanguageManager languageManager;
+    public static ThemeManager themeManager;
     static Background bg;
     static BackgroundSize bs;
+    public static double barSize = 45;
     @Override
-    public void start(Stage primaryStage) throws AWTException, IOException {
+    public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException {
         if (is_t) {
             languageManager = new LanguageManager(null);
+            themeManager = new ThemeManager();
             stage = new Stage();
             setGeometry(stage, 800, 480);
             bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true);
             logger.info("Launcher Version : " + Vars.launcher_version);
-            logger.info("getted background size : " + bs);
             try {
                 File f = new File("AMCL");
                 boolean b = true;
@@ -79,6 +80,8 @@ public class HelloApplication extends Application {
             VERSIONSELECTPAGE = new VersionSelectPage(800, 480);
             VERSIONINFOPAGE = new VersionInfoPage(800, 480);
 
+            themeManager.apply(this);
+
             setBackground();
 
             last = MAINPAGE;
@@ -87,8 +90,6 @@ public class HelloApplication extends Application {
             stage.initStyle(StageStyle.UNIFIED);
             refresh();
             stage.setScene(s);
-
-            logger.info("created stage : " + stage);
 
             stage.getIcons().add(new Image("assets/grass.png"));
 
@@ -115,21 +116,17 @@ public class HelloApplication extends Application {
             last.setTypeAll(true);
             last.in.stop();
             last.setTypeAll(false);
-            Service<String> refresh = Run.run(last::refresh);
-            Service<String> refreshLanguage = Run.run(last::refreshLanguage);
-            Service<String> refreshType = Run.run(last::refreshType);
-            refresh.start();
-            refreshLanguage.start();
-            refreshType.start();
+            Run.run(last::refresh).start();
+            Run.run(last::refreshLanguage).start();
+            Run.run(last::refreshType).start();
             refresh();
-
             setPageCore(n);
         }
     }
     public static void setPageCore(AbstractAnimationPage n){
-        double t_size = 45;
+        double t_size = barSize;
         VBox top = new VBox();
-        top.setStyle("-fx-background-color: rgb(173,216,246)");
+        top.setId("top-bar");
         top.setPrefSize(800, t_size);
 
         GridPane title = new GridPane();
@@ -147,12 +144,9 @@ public class HelloApplication extends Application {
         graphic1.getChildren().setAll(svg1);
         graphic2.getChildren().setAll(svg2);
 
-        String round = "-fx-background-radius:" + t_size / 2 + ";-fx-border-radius: " + t_size / 2;
-
         close.setPrefWidth(t_size / 6 * 5);
         close.setPrefHeight(t_size / 6 * 5);
         close.setGraphic(graphic);
-        close.setStyle(round);
         close.setButtonType(JFXButton.ButtonType.RAISED);
         close.setOnAction(event -> {
             last.setOut();
@@ -163,15 +157,13 @@ public class HelloApplication extends Application {
         min.setPrefWidth(t_size / 2.5);
         min.setPrefHeight(t_size / 2.5);
         min.setGraphic(graphic1);
-        min.setStyle(round);
         min.setButtonType(JFXButton.ButtonType.RAISED);
-        min.setOnAction(event -> HelloApplication.stage.setIconified(true));
+        min.setOnAction(event -> Application.stage.setIconified(true));
 
         back.setPrefWidth(t_size / 2.5);
         back.setPrefHeight(t_size / 2.5);
         back.setGraphic(graphic2);
         back.setButtonType(JFXButton.ButtonType.RAISED);
-        back.setStyle(round);
         AbstractAnimationPage lpa = last.l;
         Label ln = new Label();
         if (lpa == null) back.setDisable(true);
@@ -198,8 +190,8 @@ public class HelloApplication extends Application {
         title.add(cl, 1, 0, 1, 1);
         top.getChildren().add(title);
 
+        themeManager.applyTopBar(top);
         VBox v = new VBox(top, last);
-        v.setStyle("-fx-background-radius:25;-fx-border-radius:25");
         Pane p = new Pane();
         p.getChildren().addAll(v);
         setBackground();
@@ -207,8 +199,6 @@ public class HelloApplication extends Application {
         s.setRoot(p);
         s.setFill(Color.TRANSPARENT);
         stage.setScene(s);
-        logger.info("set page : " + last.name);
-
     }
     public static void setAllPage(AbstractAnimationPage n){
         MAINPAGE.name = languageManager.get("ui.mainpage.name");
@@ -220,9 +210,8 @@ public class HelloApplication extends Application {
     public static void setGeometry(Stage s, double width, double height){
         s.setWidth(width);
         s.setHeight(height);
-//        s.setResizable(false);
+        s.setResizable(false);
         logger.info("setted size (" + width+", "+height+") for stage " + s);
-        logger.info(String.format("setted size (%f, %f) for stage %s", width, height, s));
     }
     public static void set(JFXButton n, double s){
         n.setMaxSize(s,s);
@@ -237,6 +226,7 @@ public class HelloApplication extends Application {
         launch(args);
     }
     public static void setBackground(){
+
         String wallpaper = "assets/background.jpg";
 
         bg = new Background(new BackgroundImage(new Image(wallpaper),

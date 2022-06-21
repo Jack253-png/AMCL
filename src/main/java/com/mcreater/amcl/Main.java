@@ -1,47 +1,34 @@
 package com.mcreater.amcl;
 
-import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.redirect.log4jOut;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import javax.swing.JOptionPane;
+import java.io.File;
 import java.util.Arrays;
-public class Main {
+public class Main{
+    static String[] args;
     static {
         File f = new File("AMCL/logs/log.log");
         f.delete();
     }
     static Logger logger = LogManager.getLogger(Main.class);
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
+        Main.args = args;
+        new Main().start();
+    }
+
+    public void start() throws Exception {
         try {
             log4jOut.redirect();
             logger.info("initialize");
             logger.info("launching core with arguments : " + Arrays.toString(args));
-            HelloApplication.startApplication(args, true);
+            Application.startApplication(args, System.getProperty("os.name").contains("Windows"));
         }
-        catch (Exception e){
+        catch (Exception e) {
             logger.error("Error while launcher running", e);
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw, true);
-            e.printStackTrace(pw);
-            String errorMessage = sw.getBuffer().toString();
-            JFrame frame = new JFrame();
-            InputStream st = new ResourceGetter().get("assets/grass.png");
-            BufferedImage i = ImageIO.read(st);
-            frame.setIconImage(i);
-            frame.setTitle("Error");
-            frame.setVisible(true);
-            JTextArea area = new JTextArea();
-            area.setText(errorMessage);
-            area.setEditable(false);
-            area.setTabSize(4);
-            frame.add(area);
-            frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            frame.setSize(600, 800);
+            JOptionPane.showMessageDialog(null, "If tou want to see the infomation, please visit the log file.", "Exception", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

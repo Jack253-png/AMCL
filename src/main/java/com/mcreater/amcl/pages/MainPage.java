@@ -1,8 +1,7 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXRippler;
-import com.mcreater.amcl.HelloApplication;
+import com.mcreater.amcl.Application;
 import com.mcreater.amcl.exceptions.LaunchException;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
@@ -10,26 +9,18 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.util.ChangeDir;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.setSize;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.DoublePropertyBase;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
-import javafx.scene.effect.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -68,30 +59,32 @@ public class MainPage extends AbstractAnimationPage {
             }
         }));
 
-        is_ee = HelloApplication.configReader.configModel.change_game_dir;
+        is_ee = Application.configReader.configModel.change_game_dir;
 
         launchButton = new JFXButton();
+        launchButton.setId("launch-button");
         launchButton.setFont(Fonts.s_f);
-        launchButton.setStyle("-fx-background-color: rgb(173,216,246);");
         launchButton.setOnAction(event -> {
             flush();
-            if (!Objects.equals(launchButton.getText(), HelloApplication.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
-                HelloApplication.configReader.check_and_write();
+            ChangeDir.saveNowDir();
+            if (!Objects.equals(launchButton.getText(), Application.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
+                Application.configReader.check_and_write();
                 g = new Launch();
-                d = new ProcessDialog(2, HelloApplication.languageManager.get("ui.mainpage.launch._01"));
-                d.setV(0, 1, HelloApplication.languageManager.get("ui.mainpage.launch._02"));
-                new Thread(() -> {
+                d = new ProcessDialog(2, Application.languageManager.get("ui.mainpage.launch._01"));
+                d.setV(0, 1, Application.languageManager.get("ui.mainpage.launch._02"));
+                Thread la = new Thread(() -> {
                     try {
                         launchButton.setDisable(true);
-                        if (new File(HelloApplication.configReader.configModel.selected_java_index).exists()) {
-                            g.launch(HelloApplication.configReader.configModel.selected_java_index, HelloApplication.configReader.configModel.selected_minecraft_dir_index, HelloApplication.configReader.configModel.selected_version_index, is_ee, Vars.launcher_version, HelloApplication.configReader.configModel.max_memory);
+                        if (new File(Application.configReader.configModel.selected_java_index).exists()) {
+                            ChangeDir.changeTo(Application.configReader.configModel.selected_minecraft_dir_index);
+                            g.launch(Application.configReader.configModel.selected_java_index, Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index, is_ee, Vars.launcher_version, Application.configReader.configModel.max_memory);
                             logger.info("started launch thread");
                         }
                         else{
-                            HelloApplication.configReader.configModel.selected_java.remove(HelloApplication.configReader.configModel.selected_java_index);
-                            HelloApplication.configReader.configModel.selected_java_index = "";
-                            HelloApplication.configReader.write();
-                            Platform.runLater(() -> FastInfomation.create(HelloApplication.languageManager.get("ui.mainpage.launch.javaChecker.name"), HelloApplication.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), ""));
+                            Application.configReader.configModel.selected_java.remove(Application.configReader.configModel.selected_java_index);
+                            Application.configReader.configModel.selected_java_index = "";
+                            Application.configReader.write();
+                            Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.mainpage.launch.javaChecker.name"), Application.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), ""));
                             launchButton.setDisable(false);
                         }
                     }
@@ -99,14 +92,15 @@ public class MainPage extends AbstractAnimationPage {
                         d.close();
                         logger.info("failed to launch", e);
                         launchButton.setDisable(false);
-                        Platform.runLater(() -> FastInfomation.create(HelloApplication.languageManager.get("ui.mainpage.launch.launchFailed.name"), HelloApplication.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
+                        Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.mainpage.launch.launchFailed.name"), Application.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
                     }
-                }).start();
-
+                });
+                la.setName("Launch Thread");
+                la.start();
             }
             else{
                 if (d != null) d.close();
-                FastInfomation.create(HelloApplication.languageManager.get("ui.mainpage.launch.noVersion.name"),HelloApplication.languageManager.get("ui.mainpage.launch.noVersion.Headcontent"),HelloApplication.languageManager.get("ui.mainpage.launch.noVersion.content"));
+                FastInfomation.create(Application.languageManager.get("ui.mainpage.launch.noVersion.name"), Application.languageManager.get("ui.mainpage.launch.noVersion.Headcontent"), Application.languageManager.get("ui.mainpage.launch.noVersion.content"));
             }
         });
         if (minecraft_running){
@@ -133,19 +127,18 @@ public class MainPage extends AbstractAnimationPage {
         settings.setFont(Fonts.s_f);
 
         settings.setOnAction(event ->{
-            HelloApplication.setPage(HelloApplication.CONFIGPAGE, this);
+            Application.setPage(Application.CONFIGPAGE, this);
         });
         version_settings.setOnAction(event -> {
-            HelloApplication.setPage(HelloApplication.VERSIONINFOPAGE, this);
+            Application.setPage(Application.VERSIONINFOPAGE, this);
         });
 
-        is_vaild_minecraft_dir = HelloApplication.configReader.configModel.selected_minecraft_dir.contains(HelloApplication.configReader.configModel.selected_minecraft_dir_index) && new File(HelloApplication.configReader.configModel.selected_minecraft_dir_index).exists();
+        is_vaild_minecraft_dir = Application.configReader.configModel.selected_minecraft_dir.contains(Application.configReader.configModel.selected_minecraft_dir_index) && new File(Application.configReader.configModel.selected_minecraft_dir_index).exists();
 
         choose_version.setOnAction(event -> {
-            l = new ProcessDialog(1, HelloApplication.languageManager.get("ui.versionListLoad._02"));
-            l.setV(0, 0, "Sending Load Version Event");
-            HelloApplication.setPage(HelloApplication.VERSIONSELECTPAGE, this);
-
+            l = new ProcessDialog(1, Application.languageManager.get("ui.versionListLoad._02"));
+            l.setV(0, 0, Application.languageManager.get("ui.mainpage.loadlist.name"));
+            Application.setPage(Application.VERSIONSELECTPAGE, this);
         });
 
         StackPane graphic = new StackPane();
@@ -175,36 +168,32 @@ public class MainPage extends AbstractAnimationPage {
         launchButton.setButtonType(JFXButton.ButtonType.RAISED);
 
         choose_version.setMaxWidth(width / 4);
+
         version_settings.setMaxWidth(width / 4);
+
         settings.setMaxWidth(width / 4);
 
-        choose_version.setStyle("-fx-background-radius:25;-fx-border-radius:25");
-        version_settings.setStyle("-fx-background-radius:25;-fx-border-radius:25");
-        settings.setStyle("-fx-background-radius:25;-fx-border-radius:25");
-
         GameMenu = new VBox();
+        GameMenu.setId("game-menu");
         setSize.set(GameMenu, width / 4, height);
-        GameMenu.setStyle("-fx-background-color: rgba(255,255,255,0.5);");
         GameMenu.setAlignment(Pos.TOP_CENTER);
         GameMenu.getChildren().addAll(
                 title,
                 LaunchTitle,
-                new SplitPane(),
+                setSize.setSplit(new SplitPane(), width / 4 - 20),
                 new Spacer(),
                 choose_version,
                 new Spacer(),
                 SetTitle,
-                new SplitPane(),
+                setSize.setSplit(new SplitPane(), width / 4 - 20),
                 new Spacer(),
                 version_settings,
                 settings,
-                new Spacer(),
-                new JFXRippler()
+                new Spacer()
         );
 
         HBox hBox1 = new HBox();
         setSize.set(hBox1,width / 5,height);
-        
         HBox hBox2 = new HBox();
         setSize.set(hBox2,width / 5,height);
 
@@ -220,7 +209,7 @@ public class MainPage extends AbstractAnimationPage {
                 logger.info("Minecraft exited with code " + exit_code);
                 if (exit_code != 0){
 
-                    FastInfomation.create(HelloApplication.languageManager.get("ui.mainpage.minecraftExit.title"),HelloApplication.languageManager.get("ui.mainpage.minecraftExit.Headercontent"),String.format(HelloApplication.languageManager.get("ui.mainpage.minecraftExit.content"), exit_code));
+                    FastInfomation.create(Application.languageManager.get("ui.mainpage.minecraftExit.title"), Application.languageManager.get("ui.mainpage.minecraftExit.Headercontent"),String.format(Application.languageManager.get("ui.mainpage.minecraftExit.content"), exit_code));
                 }
                 exit_code = null;
                 window_showed = false;
@@ -243,19 +232,19 @@ public class MainPage extends AbstractAnimationPage {
         }
     }
     public void clean_null_version(){
-        version_settings.setText(HelloApplication.languageManager.get("ui.mainpage.launchButton.noVersion"));
-        launchButton.setText(HelloApplication.languageManager.get("ui.mainpage.launchButton.noVersion"));
-        HelloApplication.configReader.configModel.selected_version_index = "";
-        HelloApplication.configReader.write();
+        version_settings.setText(Application.languageManager.get("ui.mainpage.launchButton.noVersion"));
+        launchButton.setText(Application.languageManager.get("ui.mainpage.launchButton.noVersion"));
+        Application.configReader.configModel.selected_version_index = "";
+        Application.configReader.write();
         version_settings.setDisable(true);
     }
     public void flush(){
-        if (new File(HelloApplication.configReader.configModel.selected_minecraft_dir_index).exists()) {
-            if (HelloApplication.configReader.configModel.selected_minecraft_dir.contains(HelloApplication.configReader.configModel.selected_minecraft_dir_index)) {
-                if (HelloApplication.configReader.configModel.selected_version_index != null) {
-                    if (Objects.requireNonNull(getMinecraftVersion.get(HelloApplication.configReader.configModel.selected_minecraft_dir_index)).contains(HelloApplication.configReader.configModel.selected_version_index)) {
-                        version_settings.setText(" " + HelloApplication.configReader.configModel.selected_version_index);
-                        launchButton.setText(HelloApplication.languageManager.get("ui.mainpage.launchButton.hasVersion"));
+        if (new File(Application.configReader.configModel.selected_minecraft_dir_index).exists()) {
+            if (Application.configReader.configModel.selected_minecraft_dir.contains(Application.configReader.configModel.selected_minecraft_dir_index)) {
+                if (Application.configReader.configModel.selected_version_index != null) {
+                    if (Objects.requireNonNull(getMinecraftVersion.get(Application.configReader.configModel.selected_minecraft_dir_index)).contains(Application.configReader.configModel.selected_version_index)) {
+                        version_settings.setText(" " + Application.configReader.configModel.selected_version_index);
+                        launchButton.setText(Application.languageManager.get("ui.mainpage.launchButton.hasVersion"));
                         version_settings.setDisable(false);
                     } else {
                         clean_null_version();
@@ -282,11 +271,11 @@ public class MainPage extends AbstractAnimationPage {
     }
 
     public void refreshLanguage(){
-        name = HelloApplication.languageManager.get("ui.mainpage.name");
-        title.setText(String.format(HelloApplication.languageManager.get("ui.title"), Vars.launcher_version));
-        launch.setText(HelloApplication.languageManager.get("ui.mainpage.launchTitle.launch.name"));
-        set.setText(HelloApplication.languageManager.get("ui.mainpage.settings.name"));
-        choose_version.setText(HelloApplication.languageManager.get("ui.mainpage.choose_version.name"));
-        settings.setText(" "+HelloApplication.languageManager.get("ui.mainpage.settings.name"));
+        name = Application.languageManager.get("ui.mainpage.name");
+        title.setText(String.format(Application.languageManager.get("ui.title"), Vars.launcher_version));
+        launch.setText(Application.languageManager.get("ui.mainpage.launchTitle.launch.name"));
+        set.setText(Application.languageManager.get("ui.mainpage.settings.name"));
+        choose_version.setText(Application.languageManager.get("ui.mainpage.choose_version.name"));
+        settings.setText(" "+ Application.languageManager.get("ui.mainpage.settings.name"));
     }
 }

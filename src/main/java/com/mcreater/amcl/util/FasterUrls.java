@@ -12,13 +12,14 @@ public class FasterUrls {
         s.put("http://launchermeta.mojang.com/mc/game/version_manifest_v2.json", "https://bmclapi2.bangbang93.com/mc/game/version_manifest_v2.json");
         s.put("https://launchermeta.mojang.com", "https://bmclapi2.bangbang93.com");
         s.put("https://launcher.mojang.com", "https://bmclapi2.bangbang93.com");
+        s.put("https://piston-meta.mojang.com", "https://bmclapi2.bangbang93.com");
         s.put("http://resources.download.minecraft.net", "https://bmclapi2.bangbang93.com/assets");
         s.put("https://libraries.minecraft.net", "https://bmclapi2.bangbang93.com/maven");
         s.put("https://launchermeta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json", "https://bmclapi2.bangbang93.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json");
         s.put("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", "https://bmclapi2.bangbang93.com/maven/net/minecraftforge/forge/maven-metadata.xml");
         s.put("https://files.minecraftforge.net/maven", "https://bmclapi2.bangbang93.com/maven");
 //        s.put("https://maven.minecraftforge.net/", "https://bmclapi2.bangbang93.com/maven");
-        s.put("http://dl.liteloader.com/versions/versions.json", "https://bmclapi.bangbang93.com/maven/com/mumfrey/liteloader/versions.json");
+//        s.put("http://dl.liteloader.com/versions/versions.json", "https://bmclapi.bangbang93.com/maven/com/mumfrey/liteloader/versions.json");
         s.put("https://authlib-injector.yushi.moe", "https://bmclapi2.bangbang93.com/mirrors/authlib-injector");
         s.put("https://meta.fabricmc.net", "https://bmclapi2.bangbang93.com/fabric-meta");
         s.put("https://maven.fabricmc.net", "https://bmclapi2.bangbang93.com/maven");

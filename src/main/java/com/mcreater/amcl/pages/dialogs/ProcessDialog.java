@@ -5,7 +5,7 @@ import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXProgressBar;
-import com.mcreater.amcl.HelloApplication;
+import com.mcreater.amcl.Application;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -18,7 +18,7 @@ public class ProcessDialog extends JFXAlert<String> {
     public JFXListView<JFXProgressBar> p;
     public Label l;
     public ProcessDialog(int process_num, String title){
-        super(HelloApplication.stage);
+        super(Application.stage);
         this.setAnimation(JFXAlertAnimation.BOTTOM_ANIMATION);
         this.initModality(Modality.APPLICATION_MODAL);
         this.setOverlayClose(false);

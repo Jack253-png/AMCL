@@ -1,0 +1,11 @@
+.root .thumb {
+    -fx-background-color: rgba(173,216,246, 1.0);
+}
+ 
+.root .track {
+    -fx-background-color: rgba(173,216,246, 1.0);
+}
+ 
+.root .animated-thumb {
+    -fx-background-color: rgba(173,216,246, 1.0);
+}
