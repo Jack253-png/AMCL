@@ -2,27 +2,36 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXProgressBar;
 import com.mcreater.amcl.Application;
+import com.mcreater.amcl.controls.RemoteMod;
 import com.mcreater.amcl.game.mods.ModHelper;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
+import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.FinalSVGs;
+import com.mcreater.amcl.util.multiThread.Run;
 import com.mcreater.amcl.util.setSize;
+import com.sun.jna.platform.unix.X11;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import jnr.ffi.annotations.In;
+import org.controlsfx.dialog.ProgressDialog;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
+import java.util.Vector;
 
 import static com.mcreater.amcl.util.FinalSVGs.*;
 import static com.mcreater.amcl.util.Images.*;
@@ -45,9 +54,11 @@ public class VersionInfoPage extends AbstractAnimationPage {
     VBox b2;
     JFXButton modsMenu;
     GridPane mods;
-    JFXListView<GridPane> modList;
+    JFXListView<RemoteMod> modList;
     JFXButton addMod;
     JFXButton setted;
+    JFXProgressBar bar;
+    JFXButton refresh;
     public VersionInfoPage(double width, double height){
         super(width, height);
         l = Application.MAINPAGE;
@@ -102,21 +113,23 @@ public class VersionInfoPage extends AbstractAnimationPage {
         b2 = new VBox();
         mods = new GridPane();
         modList = new JFXListView<>();
-        setSize.set(modList, this.width / 4 * 3, this.height - t_size * 2);
-        for (int i = 0;i < 10;i++){
-            GridPane g = new GridPane();
-            Random random = new Random();
-            int r = random.nextInt() % 256;
-            int g1 = random.nextInt() % 256;
-            int b = random.nextInt() % 256;
-            g.setStyle(String.format("-fx-background-color : rgb(%d, %d, %d)", r, g1, b));
-            modList.getItems().add(g);
-        }
+        setSize.set(modList, this.width / 4 * 3, this.height - t_size * 2 - 10);
+
         addMod = new JFXButton();
         setSize.set(addMod, t_size, t_size);
         addMod.setGraphic(addNode);
+
+        refresh = new JFXButton();
+        setSize.set(refresh, t_size, t_size);
+        refresh.setGraphic(refreshNode);
+        refresh.setOnAction(actionEvent -> new Thread(this::loadMods).start());
+
+        bar = new JFXProgressBar(-1.0D);
+        setSize.setWidth(bar, this.width / 4 * 3);
         mods.add(addMod, 0, 0, 1, 1);
-        mods.add(modList, 0, 1, 1, 1);
+        mods.add(refresh, 1, 0, 1, 1);
+        mods.add(bar, 0, 1, 2, 1);
+        mods.add(modList, 0, 2, 2, 1);
         b2.getChildren().addAll(mods);
 
         p2 = new SettingPage(this.width / 4 * 3, this.height - t_size, b2);
@@ -162,6 +175,7 @@ public class VersionInfoPage extends AbstractAnimationPage {
     }
     public void setType(JFXButton b){
         setted = b;
+        b.setCursor(Cursor.HAND);
         for (Node bs : menu.getChildren()){
             if (bs == b){
                 ((JFXButton) bs).setGraphic(InPage);
@@ -193,17 +207,42 @@ public class VersionInfoPage extends AbstractAnimationPage {
             FastInfomation.create(Application.languageManager.get("ui.versioninfopage.unModded.title"), Application.languageManager.get("ui.versioninfopage.unModded.content"), "");
         }
     }
-    public void loadModList(){
-        for (File file : ModHelper.getMod(Application.configReader.configModel.selected_minecraft_dir_index,Application.configReader.configModel.selected_version_index)){
-            ModHelper.getModInfo(file.getPath());
+    public void runLater(Runnable runnable){
+        Platform.runLater(runnable);
+    }
+    public void setType(boolean b){
+        modList.setDisable(b);
+        addMod.setDisable(b);
+        refresh.setDisable(b);
+    }
+    public void loadMods(){
+        Platform.runLater(() -> bar.setProgress(-1.0D));
+        Platform.runLater(() -> modList.getItems().clear());
+        Platform.runLater(() -> setType(true));
+        Vector<File> f = ModHelper.getMod(Application.configReader.configModel.selected_minecraft_dir_index,Application.configReader.configModel.selected_version_index);
+        for (File file : f){
+            RemoteMod m = new RemoteMod(ModHelper.getModInfo(file.getPath()));
+            Platform.runLater(() -> modList.getItems().add(m));
+            double d = (double) modList.getItems().size() / (double) f.size();
+            Platform.runLater(() -> bar.setProgress(d));
+            sleep(100);
         }
+        bar.setProgress(1.0D);
+        sleep(50);
+        Platform.runLater(() -> setType(false));
+    }
+    public void sleep(long l){
+        try {
+            Thread.sleep(l);
+        }
+        catch (InterruptedException e){}
     }
     public void refresh() {
         Platform.runLater(this::setByview);
         p1.set(this.opacityProperty());
         p2.set(this.opacityProperty());
         setType(setted);
-        new Thread(this::loadModList).start();
+        loadMods();
     }
 
     public void refreshLanguage() {

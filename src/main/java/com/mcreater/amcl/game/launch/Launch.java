@@ -30,7 +30,7 @@ public class Launch {
     public Process p;
     ProcessDialog d;
     Logger logger = LogManager.getLogger(this.getClass());
-    public void launch(String java_path,String dir,String version_name,boolean ie,String launcherv, int m) throws IllegalStateException, InterruptedException, LaunchException {
+    public void launch(String java_path, String dir, String version_name, boolean ie, int m) throws IllegalStateException, InterruptedException, LaunchException {
         MainPage.d.Create();
         MainPage.d.setV(0, 5, Application.languageManager.get("ui.launch._01"));
         java = java_path;
@@ -167,8 +167,8 @@ public class Launch {
             }
         }
         arguments = arguments.replace("${auth_player_name}","123");
-        arguments = arguments.replace("${user_type}","legacy");
-        arguments = arguments.replace("${version_type}","\"AMCL " + Vars.launcher_version + "\"");
+        arguments = arguments.replace("${user_type}","mojang");
+        arguments = arguments.replace("${version_type}", String.format("\"%s %s\"", Vars.launcher_name, Vars.launcher_version));
         arguments = arguments.replace("${resolution_width}","854");
         arguments = arguments.replace("${resolution_height}","480");
         File gamedir;
@@ -188,8 +188,8 @@ public class Launch {
         jvm = "-Dfile.encoding=GB18030 -Dminecraft.client.jar=${jar_path} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16m -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -XX:-DontCompileHugeMethods -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false -Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false -Dlog4j2.formatMsgNoLookups=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Djava.library.path=${native_path} -Dminecraft.launcher.brand=${launcher_brand} -Dminecraft.launcher.version=${launcher_version}";
         jvm = jvm.replace("${jar_path}",jar_file.getPath());
         jvm = jvm.replace("${native_path}",nativef.getPath());
-        jvm = jvm.replace("${launcher_brand}","AMCL");
-        jvm = jvm.replace("${launcher_version}",launcherv);
+        jvm = jvm.replace("${launcher_brand}",Vars.launcher_name);
+        jvm = jvm.replace("${launcher_version}",Vars.launcher_version);
 
         if (r.arguments != null){
             if (r.arguments.jvm != null){

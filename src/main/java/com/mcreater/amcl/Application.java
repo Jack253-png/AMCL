@@ -218,7 +218,7 @@ public class Application extends javafx.application.Application {
         n.setMinSize(s,s);
     }
     public static void refresh(){
-        stage.setTitle(String.format(languageManager.get("ui.title"), Vars.launcher_version));
+        stage.setTitle(String.format(languageManager.get("ui.title"), Vars.launcher_name, Vars.launcher_version));
     }
 
     public static void startApplication(String[] args, boolean is_true) {

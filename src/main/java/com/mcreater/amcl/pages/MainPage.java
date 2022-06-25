@@ -38,7 +38,6 @@ public class MainPage extends AbstractAnimationPage {
     JFXButton settings;
     public static JFXButton launchButton;
     VBox launchBox;
-    boolean is_ee;
     public static boolean minecraft_running = false;
     public static String log = "";
     public static Long exit_code = null;
@@ -59,8 +58,6 @@ public class MainPage extends AbstractAnimationPage {
             }
         }));
 
-        is_ee = Application.configReader.configModel.change_game_dir;
-
         launchButton = new JFXButton();
         launchButton.setId("launch-button");
         launchButton.setFont(Fonts.s_f);
@@ -77,7 +74,7 @@ public class MainPage extends AbstractAnimationPage {
                         launchButton.setDisable(true);
                         if (new File(Application.configReader.configModel.selected_java_index).exists()) {
                             ChangeDir.changeTo(Application.configReader.configModel.selected_minecraft_dir_index);
-                            g.launch(Application.configReader.configModel.selected_java_index, Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index, is_ee, Vars.launcher_version, Application.configReader.configModel.max_memory);
+                            g.launch(Application.configReader.configModel.selected_java_index, Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index, Application.configReader.configModel.change_game_dir, Application.configReader.configModel.max_memory);
                             logger.info("started launch thread");
                         }
                         else{
@@ -126,12 +123,8 @@ public class MainPage extends AbstractAnimationPage {
         version_settings.setFont(Fonts.s_f);
         settings.setFont(Fonts.s_f);
 
-        settings.setOnAction(event ->{
-            Application.setPage(Application.CONFIGPAGE, this);
-        });
-        version_settings.setOnAction(event -> {
-            Application.setPage(Application.VERSIONINFOPAGE, this);
-        });
+        settings.setOnAction(event -> Application.setPage(Application.CONFIGPAGE, this));
+        version_settings.setOnAction(event -> Application.setPage(Application.VERSIONINFOPAGE, this));
 
         is_vaild_minecraft_dir = Application.configReader.configModel.selected_minecraft_dir.contains(Application.configReader.configModel.selected_minecraft_dir_index) && new File(Application.configReader.configModel.selected_minecraft_dir_index).exists();
 
@@ -272,7 +265,7 @@ public class MainPage extends AbstractAnimationPage {
 
     public void refreshLanguage(){
         name = Application.languageManager.get("ui.mainpage.name");
-        title.setText(String.format(Application.languageManager.get("ui.title"), Vars.launcher_version));
+        title.setText(String.format(Application.languageManager.get("ui.title"), Vars.launcher_name, Vars.launcher_version));
         launch.setText(Application.languageManager.get("ui.mainpage.launchTitle.launch.name"));
         set.setText(Application.languageManager.get("ui.mainpage.settings.name"));
         choose_version.setText(Application.languageManager.get("ui.mainpage.choose_version.name"));

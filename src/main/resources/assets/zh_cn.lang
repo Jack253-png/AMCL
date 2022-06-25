@@ -1,4 +1,4 @@
-ui.title=AMCL %s
+ui.title=%s %s
 ui.mainpage.name=主页
 ui.mainpage.launchButton.noVersion=没有可用版本
 ui.mainpage.launchButton.hasVersion=启动

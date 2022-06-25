@@ -1,4 +1,4 @@
-ui.title=AMCL %s
+ui.title=%s %s
 ui.mainpage.name=Main Page
 ui.mainpage.launchButton.noVersion=No Version
 ui.mainpage.launchButton.hasVersion=Launch

@@ -5,10 +5,13 @@ import javafx.scene.Node;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
 
+import java.util.Stack;
+
 public abstract class FinalSVGs {
     public static StackPane InPage;
     public static StackPane OutPage;
     public static StackPane addNode;
+    public static StackPane refreshNode;
     private static final double t_size = 45;
     static {
         InPage = new StackPane();
@@ -22,5 +25,9 @@ public abstract class FinalSVGs {
         addNode = new StackPane();
         Node add = SVG.plus(Bindings.createObjectBinding(() -> Paint.valueOf("#000000")), t_size, t_size);
         addNode.getChildren().setAll(add);
+
+        refreshNode = new StackPane();
+        Node refresh = SVG.refresh(Bindings.createObjectBinding(() -> Paint.valueOf("#000000")), t_size, t_size);
+        refreshNode.getChildren().setAll(refresh);
     }
 }
