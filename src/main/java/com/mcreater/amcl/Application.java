@@ -1,6 +1,7 @@
 package com.mcreater.amcl;
 
 import com.jfoenix.controls.JFXButton;
+import com.mcreater.amcl.api.githubrest.GithubReleases;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.ConfigPage;
@@ -12,7 +13,6 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.SVG;
-import com.mcreater.amcl.util.UpdateChecker;
 import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.multiThread.Run;
 import javafx.application.Platform;
@@ -100,10 +100,10 @@ public class Application extends javafx.application.Application {
             windowMovement.windowMove(s, stage);
             stage.show();
             new Thread(() -> {
-                if (UpdateChecker.isDevelop()){
+                if (GithubReleases.isDevelop()){
                     Platform.runLater(() -> FastInfomation.create(languageManager.get("ui.mainpage.versionChecker.title"), languageManager.get("ui.mainpage.versionChecker.inDevelope"), ""));
                 }
-                else if (UpdateChecker.outDated()){
+                else if (GithubReleases.outDated()){
                     Platform.runLater(() -> FastInfomation.create(languageManager.get("ui.mainpage.versionChecker.title"), languageManager.get("ui.mainpage.versionChecker.outDated"), ""));
                 }
             }).start();
