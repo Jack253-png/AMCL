@@ -73,3 +73,7 @@ ui.mainpage.loadlist.name=Sending load version event...
 ui.versioninfopage.menu._02=Mods
 ui.versioninfopage.unModded.title=Unmodded Version
 ui.versioninfopage.unModded.content=This version is not installed mod loader
+ui.browser.title=Launcher Web Browser
+ui.mainpage.versionChecker.title=Version Checker
+ui.mainpage.versionChecker.inDevelope=This version of AMCL is in develope
+ui.mainpage.versionChecker.outDated=This version of AMCL is outdated

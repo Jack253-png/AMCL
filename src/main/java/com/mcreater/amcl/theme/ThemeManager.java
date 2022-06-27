@@ -2,12 +2,14 @@ package com.mcreater.amcl.theme;
 
 import com.mcreater.amcl.Application;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
+import com.mcreater.amcl.pages.BrowserPage;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -16,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class ThemeManager {
-    public String themeName = "default";
+    public static String themeName = "default";
     Logger logger = LogManager.getLogger(ThemeManager.class);
     public void setThemeName(String name){
         themeName = name;
@@ -59,6 +61,9 @@ public class ThemeManager {
                 ((Parent) n).getStylesheets().add(sheetPath);
             }
         }
+    }
+    public static String getPath(){
+        return "assets/themes/" + ThemeManager.themeName + "/%s.css";
     }
 
     public static ArrayList<Node> GetAllNodes(Parent root){

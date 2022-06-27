@@ -7,10 +7,12 @@ import com.mcreater.amcl.pages.ConfigPage;
 import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.pages.VersionInfoPage;
 import com.mcreater.amcl.pages.VersionSelectPage;
+import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.SVG;
+import com.mcreater.amcl.util.UpdateChecker;
 import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.multiThread.Run;
 import javafx.application.Platform;
@@ -97,6 +99,14 @@ public class Application extends javafx.application.Application {
             WindowMovement windowMovement = new WindowMovement();
             windowMovement.windowMove(s, stage);
             stage.show();
+            new Thread(() -> {
+                if (UpdateChecker.isDevelop()){
+                    Platform.runLater(() -> FastInfomation.create(languageManager.get("ui.mainpage.versionChecker.title"), languageManager.get("ui.mainpage.versionChecker.inDevelope"), ""));
+                }
+                else if (UpdateChecker.outDated()){
+                    Platform.runLater(() -> FastInfomation.create(languageManager.get("ui.mainpage.versionChecker.title"), languageManager.get("ui.mainpage.versionChecker.outDated"), ""));
+                }
+            }).start();
         }
         else{
             Alert alert = new Alert(Alert.AlertType.ERROR);

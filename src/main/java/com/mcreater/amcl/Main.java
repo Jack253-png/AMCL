@@ -1,6 +1,5 @@
 package com.mcreater.amcl;
 
-import com.mcreater.amcl.redirect.log4jOut;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,7 +20,6 @@ public class Main{
 
     public void start() throws Exception {
         try {
-            log4jOut.redirect();
             logger.info("initialize");
             logger.info("launching core with arguments : " + Arrays.toString(args));
             Application.startApplication(args, System.getProperty("os.name").contains("Windows"));

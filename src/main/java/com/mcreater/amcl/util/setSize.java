@@ -1,10 +1,9 @@
 package com.mcreater.amcl.util;
 
-import javafx.scene.control.Control;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Region;
 
-public class setSize {
+public class SetSize {
     public static void set(Region n, double width, double height){
         n.setMinSize(width, height);
         n.setMaxSize(width, height);

@@ -12,7 +12,7 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.ChangeDir;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;
-import com.mcreater.amcl.util.setSize;
+import com.mcreater.amcl.util.SetSize;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
@@ -168,17 +168,17 @@ public class MainPage extends AbstractAnimationPage {
 
         GameMenu = new VBox();
         GameMenu.setId("game-menu");
-        setSize.set(GameMenu, width / 4, height);
+        SetSize.set(GameMenu, width / 4, height);
         GameMenu.setAlignment(Pos.TOP_CENTER);
         GameMenu.getChildren().addAll(
                 title,
                 LaunchTitle,
-                setSize.setSplit(new SplitPane(), width / 4 - 20),
+                SetSize.setSplit(new SplitPane(), width / 4 - 20),
                 new Spacer(),
                 choose_version,
                 new Spacer(),
                 SetTitle,
-                setSize.setSplit(new SplitPane(), width / 4 - 20),
+                SetSize.setSplit(new SplitPane(), width / 4 - 20),
                 new Spacer(),
                 version_settings,
                 settings,
@@ -186,14 +186,16 @@ public class MainPage extends AbstractAnimationPage {
         );
 
         HBox hBox1 = new HBox();
-        setSize.set(hBox1,width / 5,height);
+        SetSize.set(hBox1,width / 5,height);
         HBox hBox2 = new HBox();
-        setSize.set(hBox2,width / 5,height);
+        SetSize.set(hBox2,width / 5,height);
 
         this.add(GameMenu,0,1,1,1);
         this.add(hBox1,1,1,1,1);
         this.add(hBox2,2,1,1,1);
         this.add(launchBox,3,1,1,1);
+        BrowserPage page = new BrowserPage("https://html5test.com");
+        page.open();
     }
     public static void check(){
         launchButton.setDisable(minecraft_running);

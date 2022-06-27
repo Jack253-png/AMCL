@@ -10,7 +10,7 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.LinkPath;
-import com.mcreater.amcl.util.setSize;
+import com.mcreater.amcl.util.SetSize;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
@@ -129,7 +129,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
 
 
         dot_minecraft_dir = new VBox();
-        setSize.set(dot_minecraft_dir, this.width / 4,this.height);
+        SetSize.set(dot_minecraft_dir, this.width / 4,this.height);
         dot_minecraft_dir.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
         dot_minecraft_dir.setAlignment(Pos.TOP_CENTER);
 
@@ -144,7 +144,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
         versionlist.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
         versionlist.setAlignment(Pos.TOP_CENTER);
 
-        setSize.set(version_list, this.width / 4 * 3,this.height - t_size);
+        SetSize.set(version_list, this.width / 4 * 3,this.height - t_size);
         versionlist.getChildren().add(version_list);
 
         dot_minecraft_dir.getChildren().addAll(title,dirs,new MainPage.Spacer(),select_version,new MainPage.Spacer(),buttons);
@@ -175,10 +175,6 @@ public class VersionSelectPage extends AbstractAnimationPage {
                     int dg = result.size();
                     int ld = 0;
                     for (String s : result) {
-                        try {
-                            Thread.sleep(65);
-                        } catch (InterruptedException ignored) {
-                        }
                         logger.info(String.format("loading version %s", s));
                         String f = "error";
                         if (!new File(LinkPath.link(LinkPath.link(LinkPath.link(Application.configReader.configModel.selected_minecraft_dir_index, "versions"), s), s + ".json")).exists()) {

@@ -73,3 +73,7 @@ ui.mainpage.loadlist.name=发送加载请求中...
 ui.versioninfopage.menu._02=模组
 ui.versioninfopage.unModded.title=没有修改过的版本
 ui.versioninfopage.unModded.content=这个版本没有安装模组加载器
+ui.browser.title=网页浏览器
+ui.mainpage.versionChecker.title=版本检查
+ui.mainpage.versionChecker.inDevelope=此版本是一个开发者坂本
+ui.mainpage.versionChecker.outDated=此版本已经过时

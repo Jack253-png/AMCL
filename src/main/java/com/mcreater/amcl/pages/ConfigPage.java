@@ -11,7 +11,7 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.JavaInfoGetter;
-import com.mcreater.amcl.util.setSize;
+import com.mcreater.amcl.util.SetSize;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -98,7 +98,7 @@ public class ConfigPage extends AbstractAnimationPage {
         max_mem.setMajorTickUnit(256);
         max_mem.setMinorTickCount(256);
         max_mem.setOrientation(Orientation.HORIZONTAL);
-        setSize.set(max_mem, 400, 50);
+        SetSize.set(max_mem, 400, 50);
         max_mem.valueProperty().addListener((observable, oldValue, newValue) -> setMem(newValue));
 
         mem_pane = new GridPane();
@@ -174,7 +174,7 @@ public class ConfigPage extends AbstractAnimationPage {
 
         configs_box = new VBox();
         configs_box.setSpacing(10);
-        setSize.setAll(this.width / 4 * 3, this.height / 14, change_box, java_box, mem_pane, lang_box);
+        SetSize.setAll(this.width / 4 * 3, this.height / 14, change_box, java_box, mem_pane, lang_box);
         configs_box.getChildren().addAll(change_box, java_box, mem_pane, lang_box);
         configs_box.setId("config-box");
 
@@ -193,12 +193,12 @@ public class ConfigPage extends AbstractAnimationPage {
             setP1(p1);
             setType(setting);
         });
-        setSize.setWidth(setting, this.width / 4);
+        SetSize.setWidth(setting, this.width / 4);
 
         menu = new VBox();
         menu.setId("config-menu");
         menu.getChildren().addAll(setting);
-        setSize.set(menu, this.width / 4,this.height - t_size);
+        SetSize.set(menu, this.width / 4,this.height - t_size);
 
         setP1(p1);
         setType(setting);
@@ -230,7 +230,7 @@ public class ConfigPage extends AbstractAnimationPage {
             mainBox = new VBox();
             mainBox.setAlignment(Pos.TOP_CENTER);
             mainBox.getChildren().addAll(p);
-            setSize.set(mainBox, this.width / 4 * 3, this.height - Application.barSize);
+            SetSize.set(mainBox, this.width / 4 * 3, this.height - Application.barSize);
             this.add(menu, 0, 0, 1, 1);
             this.add(mainBox, 1, 0, 1, 1);
         }
