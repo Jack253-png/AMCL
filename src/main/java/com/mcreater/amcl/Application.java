@@ -11,6 +11,7 @@ import com.mcreater.amcl.pages.VersionSelectPage;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;
@@ -104,7 +105,10 @@ public class Application extends javafx.application.Application {
                     Platform.runLater(() -> FastInfomation.create(languageManager.get("ui.mainpage.versionChecker.title"), languageManager.get("ui.mainpage.versionChecker.inDevelope"), ""));
                 }
                 else if (GithubReleases.outDated()){
-                    Platform.runLater(() -> FastInfomation.create(languageManager.get("ui.mainpage.versionChecker.title"), languageManager.get("ui.mainpage.versionChecker.outDated"), ""));
+                    Platform.runLater(() -> {
+                        FastInfomation.create(languageManager.get("ui.mainpage.versionChecker.title"), languageManager.get("ui.mainpage.versionChecker.outDated"), "");
+                        new UpgradePage().open();
+                    });
                 }
             }).start();
         }

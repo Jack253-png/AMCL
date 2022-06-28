@@ -77,3 +77,6 @@ ui.browser.title=Launcher Web Browser
 ui.mainpage.versionChecker.title=Version Checker
 ui.mainpage.versionChecker.inDevelope=This version of AMCL is in develope
 ui.mainpage.versionChecker.outDated=This version of AMCL is outdated
+ui.mainpage.versionChecker.isCurrent.true=(Current Version)
+ui.mainpage.versionChecker.isCurrent.false=
+ui.updateItem.copy.name=Copy

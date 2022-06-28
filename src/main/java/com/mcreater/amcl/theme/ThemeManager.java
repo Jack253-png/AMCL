@@ -2,14 +2,12 @@ package com.mcreater.amcl.theme;
 
 import com.mcreater.amcl.Application;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
-import com.mcreater.amcl.pages.BrowserPage;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

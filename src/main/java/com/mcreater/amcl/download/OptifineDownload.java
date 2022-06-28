@@ -46,6 +46,7 @@ public class OptifineDownload {
         URLClassLoader loader = new URLClassLoader(new URL[]{new File("opti.jar").toURL()});
         Class<?> installer = loader.loadClass("optifine.Installer");
         Object instance = installer.newInstance();
+
         Method getOptiFineVersion = installer.getDeclaredMethod("getOptiFineVersion");
         String ofVer = (String) getOptiFineVersion.invoke(instance);
         Class<?> utils = loader.loadClass("optifine.Utils");
@@ -56,19 +57,19 @@ public class OptifineDownload {
         Method installOptiFineLibrary = installer.getDeclaredMethod("installOptiFineLibrary", String.class, String.class, File.class, boolean.class);
         installOptiFineLibrary.setAccessible(true);
         installOptiFineLibrary.invoke(instance, id, ofEd, new File(LinkPath.link(minecraft_dir, "libraries")), false);
+
         try{
             Method installLaunchwrapperLibrary = installer.getDeclaredMethod("installLaunchwrapperLibrary", String.class, String.class, File.class);
             installLaunchwrapperLibrary.setAccessible(true);
             installLaunchwrapperLibrary.invoke(instance, id, ofEd, new File(LinkPath.link(minecraft_dir, "libraries")));
         }
-        catch (Exception ignored){
-            ignored.printStackTrace();
-        }
+        catch (Exception ignored){}
+
         Method updateJson = installer.getDeclaredMethod("updateJson", File.class, String.class, File.class, String.class, String.class);
         updateJson.setAccessible(true);
         updateJson.invoke(instance, new File(LinkPath.link(minecraft_dir, "versions")), version_name, new File(LinkPath.link(minecraft_dir, "libraries")), id, ofEd);
+
         JSONObject f = new JSONObject(new Gson().fromJson(FileStringReader.read(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)), Map.class));
-        System.out.println(f.getJSONArray("libraries"));
         for (Object o : ob.getJSONArray("libraries")){
             f.getJSONArray("libraries").add(o);
         }

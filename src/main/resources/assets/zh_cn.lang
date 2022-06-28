@@ -77,3 +77,6 @@ ui.browser.title=网页浏览器
 ui.mainpage.versionChecker.title=版本检查
 ui.mainpage.versionChecker.inDevelope=此版本是一个开发者坂本
 ui.mainpage.versionChecker.outDated=此版本已经过时
+ui.mainpage.versionChecker.isCurrent.true=(当前版本)
+ui.mainpage.versionChecker.isCurrent.false=
+ui.updateItem.copy.name=复制

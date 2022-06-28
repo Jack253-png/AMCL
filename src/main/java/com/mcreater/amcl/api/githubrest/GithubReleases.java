@@ -2,6 +2,7 @@ package com.mcreater.amcl.api.githubrest;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
+import com.mcreater.amcl.api.githubrest.models.AssetsModel;
 import com.mcreater.amcl.api.githubrest.models.ReleaseModel;
 import com.mcreater.amcl.util.Vars;
 
@@ -11,7 +12,10 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.util.Objects;
 import java.util.Vector;
@@ -34,31 +38,46 @@ public class GithubReleases {
             if (t) {
                 InputStream is = conn.getInputStream();
                 if (null != is) {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(is));
+                    BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
                     String temp = null;
                     while (null != (temp = br.readLine())) {
                         re += temp + "\n";
                     }
                 }
             }
-            Vector<ReleaseModel> models = new Vector<>();
+            else{
+                throw new IllegalStateException();
+            }
             Gson g = new Gson();
             Vector<LinkedTreeMap<?, ?>> res = g.fromJson(re, Vector.class);
+            Vector<ReleaseModel> releases = new Vector<>();
             for (Object o : res){
-                ReleaseModel model = g.fromJson(g.toJson(o), ReleaseModel.class);
-                models.add(model);
+                releases.add(g.fromJson(g.toJson(o), ReleaseModel.class));
             }
-            return models;
+            int h = getVersionsBehind(releases, Vars.launcher_version);
+            for (ReleaseModel model : releases){
+                int i = -1;
+                for (int index = 0;index < releases.size();index++){
+                    if (Objects.equals(releases.get(index).tag_name, model.tag_name)){
+                        i = index;
+                    }
+                }
+                model.outdated = !(i <= h - 1);
+                model.iscurrent = i == h;
+            }
+            return releases;
         }
-        catch (IOException e){
+        catch (IOException e) {
             return new Vector<>();
         }
     }
     public static int getVersionsBehind(){
-        Vector<ReleaseModel> result = GithubReleases.getReleases();
+        return getVersionsBehind(GithubReleases.getReleases(), Vars.launcher_version);
+    }
+    public static int getVersionsBehind(Vector<ReleaseModel> result, String node_name){
         int i = -1;
         for (int index = 0;index < result.size();index++){
-            if (Objects.equals(result.get(index).tag_name, Vars.launcher_version)){
+            if (Objects.equals(result.get(index).tag_name, node_name)){
                 i = index;
             }
         }

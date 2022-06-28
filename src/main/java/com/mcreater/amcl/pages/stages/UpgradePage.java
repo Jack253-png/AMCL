@@ -1,0 +1,55 @@
+package com.mcreater.amcl.pages.stages;
+
+import com.jfoenix.controls.JFXCheckBox;
+import com.mcreater.amcl.Application;
+import com.mcreater.amcl.api.githubrest.GithubReleases;
+import com.mcreater.amcl.api.githubrest.models.AssetsModel;
+import com.mcreater.amcl.api.githubrest.models.ReleaseModel;
+import com.mcreater.amcl.controls.UpdateItem;
+import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.theme.ThemeManager;
+import com.mcreater.amcl.util.SetSize;
+import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TitledPane;
+import javafx.scene.layout.VBox;
+
+import java.util.List;
+
+public class UpgradePage extends AbstractStage {
+    public SettingPage content;
+    public VBox c;
+    public UpgradePage(){
+        c = new VBox();
+        for (ReleaseModel model : GithubReleases.getReleases()) {
+            VBox b = new VBox();
+            Label desc = new Label(model.body);
+            desc.setFont(Fonts.t_f);
+            desc.setStyle("word-break:break-all;word-wrap:break-word;");
+            b.getChildren().add(desc);
+            for (AssetsModel m : model.assets){
+                List<String> l = List.of(m.name.split("\\."));
+                b.getChildren().add(new UpdateItem(l.get(l.size() - 1), m.browser_download_url));
+            }
+            TitledPane pane = new TitledPane(String.format("%s %s", model.tag_name, Application.languageManager.get(String.format("ui.mainpage.versionChecker.isCurrent.%s", model.iscurrent))), b);
+            pane.setAnimated(true);
+            pane.getStylesheets().add(String.format(ThemeManager.getPath(), String.format("TitledPane%s", model.prerelease)));
+            SetSize.setWidth(pane, 800);
+            pane.setExpanded(false);
+            pane.setDisable(model.outdated);
+            c.getChildren().add(pane);
+        }
+        content = new SettingPage(800, 600, c);
+        content.getStylesheets().add(String.format(ThemeManager.getPath(), "SettingPage"));
+        this.setWidth(800);
+        this.setHeight(600);
+        this.setResizable(false);
+    }
+    public void open() {
+        Scene s = new Scene(content);
+        this.setScene(s);
+        this.show();
+    }
+}

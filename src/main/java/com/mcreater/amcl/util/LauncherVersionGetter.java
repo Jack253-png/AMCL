@@ -1,11 +1,7 @@
 package com.mcreater.amcl.util;
 
-import com.sun.javafx.css.CalculatedValue;
-import com.sun.javafx.geom.Vec2d;
-
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Locale;
 import java.util.Vector;
 
 public class LauncherVersionGetter {

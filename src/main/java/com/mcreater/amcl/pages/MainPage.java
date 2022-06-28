@@ -9,6 +9,7 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.stages.BrowserPage;
 import com.mcreater.amcl.util.ChangeDir;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;

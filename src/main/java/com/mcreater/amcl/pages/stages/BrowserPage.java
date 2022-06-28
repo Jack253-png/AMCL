@@ -1,4 +1,4 @@
-package com.mcreater.amcl.pages;
+package com.mcreater.amcl.pages.stages;
 
 import com.mcreater.amcl.theme.ThemeManager;
 import javafx.application.Platform;
@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 
 import java.io.File;
 
-public class BrowserPage extends Stage {
+public class BrowserPage extends AbstractStage {
     WebView w;
     String title;
     Thread updateTitle;
