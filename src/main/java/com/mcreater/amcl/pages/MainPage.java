@@ -195,8 +195,6 @@ public class MainPage extends AbstractAnimationPage {
         this.add(hBox1,1,1,1,1);
         this.add(hBox2,2,1,1,1);
         this.add(launchBox,3,1,1,1);
-        BrowserPage page = new BrowserPage("https://html5test.com");
-        page.open();
     }
     public static void check(){
         launchButton.setDisable(minecraft_running);
