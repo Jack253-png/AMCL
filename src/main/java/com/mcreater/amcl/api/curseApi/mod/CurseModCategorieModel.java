@@ -1,4 +1,4 @@
-package com.mcreater.amcl.api.curseforge.mod;
+package com.mcreater.amcl.api.curseApi.mod;
 
 public class CurseModCategorieModel {
     public String name;

@@ -25,7 +25,7 @@ public class reflectTest {
 //        FabricDownload.download(fast, "1.16.5", "D:\\mods\\s\\.minecraft", "1.16.5-fabric-0.1.0.48", 1024, "0.1.0.48");
 //        FabricDownload.download(fast, "1.19", "D:\\mods\\s\\.minecraft", "1.19-fabric-0.14.7", 1024, "0.14.7");
 //        OriginalDownload.download(fast, "1.19", "D:\\mods\\s\\.minecraft", "1.19", 512);
-//        OptifineDownload.download(fast, "1.12.2", "D:\\mods\\s\\.minecraft", "1.12.2-optitest", 1024, "HD_U_G5");
-        OptifineDownload.download(fast, "1.7.10", "D:\\mods\\s\\.minecraft", "1.7.10-optitest", 1024, "HD_U_E7");
+        OptifineDownload.download(fast, "1.12.2", "D:\\mods\\s\\.minecraft", "1.12.2-optitest", 1024, "HD_U_G5");
+//        OptifineDownload.download(fast, "1.7.10", "D:\\mods\\s\\.minecraft", "1.7.10-optitest", 1024, "HD_U_E7");
     }
 }

@@ -1,4 +1,4 @@
-package com.mcreater.amcl.api.githubrest.models;
+package com.mcreater.amcl.api.githubApi.models;
 
 public class AssetsModel {
     public String name;

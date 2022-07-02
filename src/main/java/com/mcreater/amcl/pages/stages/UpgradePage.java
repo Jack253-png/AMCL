@@ -1,17 +1,15 @@
 package com.mcreater.amcl.pages.stages;
 
-import com.jfoenix.controls.JFXCheckBox;
 import com.mcreater.amcl.Application;
-import com.mcreater.amcl.api.githubrest.GithubReleases;
-import com.mcreater.amcl.api.githubrest.models.AssetsModel;
-import com.mcreater.amcl.api.githubrest.models.ReleaseModel;
+import com.mcreater.amcl.api.githubApi.GithubReleases;
+import com.mcreater.amcl.api.githubApi.models.AssetsModel;
+import com.mcreater.amcl.api.githubApi.models.ReleaseModel;
 import com.mcreater.amcl.controls.UpdateItem;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.SetSize;
 import javafx.scene.Scene;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.VBox;

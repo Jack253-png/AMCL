@@ -31,7 +31,7 @@ public class ConfigWriter{
             fileWriter.close();
         }
         catch (IOException e){
-            throw new IllegalStateException("Failed to Write File : "+file.getPath());
+            e.printStackTrace();
         }
     }
     public void check_and_write(){

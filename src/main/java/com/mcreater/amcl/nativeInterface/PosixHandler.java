@@ -7,6 +7,7 @@ import jnr.posix.POSIXHandler;
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.management.ManagementFactory;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
@@ -65,7 +66,9 @@ public class PosixHandler implements POSIXHandler {
 
     @Override
     public int getPID() {
-        return 0;
+        String name = ManagementFactory.getRuntimeMXBean().getName();
+        System.out.println(name);
+        return Integer.parseInt(name.split("@")[0]);
     }
 
     @Override

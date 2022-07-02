@@ -1,18 +1,16 @@
 package com.mcreater.amcl;
 
 import com.jfoenix.controls.JFXButton;
-import com.mcreater.amcl.api.githubrest.GithubReleases;
+import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
-import com.mcreater.amcl.pages.ConfigPage;
-import com.mcreater.amcl.pages.MainPage;
-import com.mcreater.amcl.pages.VersionInfoPage;
-import com.mcreater.amcl.pages.VersionSelectPage;
+import com.mcreater.amcl.pages.*;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
+import com.mcreater.amcl.util.ChangeDir;
 import com.mcreater.amcl.util.SVG;
 import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.multiThread.Run;
@@ -47,23 +45,28 @@ public class Application extends javafx.application.Application {
     public static ConfigPage CONFIGPAGE;
     public static VersionSelectPage VERSIONSELECTPAGE;
     public static VersionInfoPage VERSIONINFOPAGE;
+    public static AddModsPage ADDMODSPAGE;
+    public static ModDownloadPage MODDOWNLOADPAGE;
     public static ConfigWriter configReader;
     public static LanguageManager languageManager;
     public static ThemeManager themeManager;
     static Background bg;
     static BackgroundSize bs;
     public static double barSize = 45;
+    public static int width = 800;
+    public static int height = 480;
     @Override
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException {
         if (is_t) {
             languageManager = new LanguageManager(null);
             themeManager = new ThemeManager();
             stage = new Stage();
-            setGeometry(stage, 800, 480);
+            setGeometry(stage, width, height);
             bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true);
             logger.info("Launcher Version : " + Vars.launcher_version);
             try {
-                File f = new File("AMCL");
+                ChangeDir.saveNowDir();
+                File f = new File(ChangeDir.dirs, "AMCL");
                 boolean b = true;
                 if (!f.exists()){
                     b = f.mkdirs();
@@ -71,17 +74,19 @@ public class Application extends javafx.application.Application {
                 if (!b){
                     throw new IllegalStateException("Failed to read config");
                 }
-                configReader = new ConfigWriter(new File("AMCL/config.json"));
+                configReader = new ConfigWriter(new File(ChangeDir.dirs, "AMCL/config.json"));
                 configReader.check_and_write();
             } catch (Exception e) {
                 logger.error("failed to read config", e);
             }
 
             languageManager.setLanguage(LanguageManager.valueOf(configReader.configModel.language));
-            MAINPAGE = new MainPage(800, 480);
-            CONFIGPAGE = new ConfigPage(800, 480);
-            VERSIONSELECTPAGE = new VersionSelectPage(800, 480);
-            VERSIONINFOPAGE = new VersionInfoPage(800, 480);
+            MAINPAGE = new MainPage(width, height);
+            CONFIGPAGE = new ConfigPage(width, height);
+            VERSIONSELECTPAGE = new VersionSelectPage(width, height);
+            VERSIONINFOPAGE = new VersionInfoPage(width, height);
+            ADDMODSPAGE = new AddModsPage(width, height);
+            MODDOWNLOADPAGE = new ModDownloadPage(width, height);
 
             themeManager.apply(this);
 
@@ -141,7 +146,7 @@ public class Application extends javafx.application.Application {
         double t_size = barSize;
         VBox top = new VBox();
         top.setId("top-bar");
-        top.setPrefSize(800, t_size);
+        top.setPrefSize(width, t_size);
 
         GridPane title = new GridPane();
         title.setAlignment(Pos.CENTER);
@@ -219,6 +224,8 @@ public class Application extends javafx.application.Application {
         VERSIONSELECTPAGE.name = languageManager.get("ui.versionselectpage.name");
         CONFIGPAGE.name = languageManager.get("ui.configpage.name");
         VERSIONINFOPAGE.name = languageManager.get("ui.versioninfopage.name");
+        ADDMODSPAGE.name = languageManager.get("ui.addmodspage.name");
+        MODDOWNLOADPAGE.name = languageManager.get("ui.moddownloadpage.name");
         setPageCore(n);
     }
     public static void setGeometry(Stage s, double width, double height){
@@ -253,5 +260,7 @@ public class Application extends javafx.application.Application {
         VERSIONSELECTPAGE.setBackground(bg);
         CONFIGPAGE.setBackground(bg);
         VERSIONINFOPAGE.setBackground(bg);
+        ADDMODSPAGE.setBackground(bg);
+        MODDOWNLOADPAGE.setBackground(bg);
     }
 }

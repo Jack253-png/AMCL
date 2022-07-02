@@ -1,4 +1,4 @@
-package com.mcreater.amcl.api.curseforge;
+package com.mcreater.amcl.api.curseApi;
 
 public class CurseSortType extends CurseAbstractType{
     public enum Types{

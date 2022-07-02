@@ -1,4 +1,4 @@
-package com.mcreater.amcl.api.curseforge.modFile;
+package com.mcreater.amcl.api.curseApi.modFile;
 
 public class CurseModFileHashModel {
     public String value;

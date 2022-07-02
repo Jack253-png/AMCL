@@ -1,4 +1,4 @@
-package com.mcreater.amcl.api.curseforge.mod;
+package com.mcreater.amcl.api.curseApi.mod;
 
 import java.util.Map;
 import java.util.Vector;
@@ -16,4 +16,6 @@ public class CurseModModel {
     public String dateModified;
     public String dateReleased;
     public Vector<Map<String, String>> latestFilesIndexes;
+    public CurseLogoModel logo;
+
 }

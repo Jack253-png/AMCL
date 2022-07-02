@@ -216,9 +216,6 @@ public class MainPage extends AbstractAnimationPage {
     public static void addLog(String line){
         log += line + "\n";
     }
-    public Color returnBlack(){
-        return Color.BLACK;
-    }
     public static class Spacer extends Label {
         public Spacer(){
             super();

@@ -31,6 +31,7 @@ public class ForgeVersionXMLHandler {
         reader.parse("./temp.xml");
         return result;
     }
+
 }
 class PHandler extends DefaultHandler {
     public String re;
@@ -59,4 +60,3 @@ class PHandler extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) {}
     public void endDocument() {}
 }
-

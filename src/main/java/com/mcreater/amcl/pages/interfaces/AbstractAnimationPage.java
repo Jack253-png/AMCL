@@ -7,7 +7,6 @@ import javafx.scene.paint.Color;
 
 public abstract class AbstractAnimationPage extends GridPane implements AnimationPage {
     public String name;
-    GridPane gpTitle;
     public AbstractAnimationPage l;
     public double width, height;
     public Color returnBlack() {

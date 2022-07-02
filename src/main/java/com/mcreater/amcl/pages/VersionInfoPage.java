@@ -7,6 +7,7 @@ import com.mcreater.amcl.Application;
 import com.mcreater.amcl.controls.RemoteMod;
 import com.mcreater.amcl.game.mods.ModHelper;
 import com.mcreater.amcl.game.versionTypeGetter;
+import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -23,6 +24,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.Vector;
 
 import static com.mcreater.amcl.util.FinalSVGs.*;
@@ -110,6 +112,7 @@ public class VersionInfoPage extends AbstractAnimationPage {
         addMod = new JFXButton();
         SetSize.set(addMod, t_size, t_size);
         addMod.setGraphic(addNode);
+        addMod.setOnAction(event -> Application.setPage(Application.ADDMODSPAGE, this));
 
         refresh = new JFXButton();
         SetSize.set(refresh, t_size, t_size);
@@ -169,14 +172,7 @@ public class VersionInfoPage extends AbstractAnimationPage {
         setted = b;
         b.setCursor(Cursor.HAND);
         for (Node bs : menu.getChildren()){
-            if (bs == b){
-                ((JFXButton) bs).setGraphic(InPage);
-                bs.setDisable(true);
-            }
-            else{
-                ((JFXButton) bs).setGraphic(OutPage);
-                bs.setDisable(false);
-            }
+            bs.setDisable(bs == b);
         }
     }
     public void setP1(SettingPage p){
@@ -203,9 +199,7 @@ public class VersionInfoPage extends AbstractAnimationPage {
             }
         }
     }
-    public void runLater(Runnable runnable){
-        Platform.runLater(runnable);
-    }
+
     public void setType(boolean b){
         modList.setDisable(b);
         addMod.setDisable(b);
@@ -218,11 +212,14 @@ public class VersionInfoPage extends AbstractAnimationPage {
         Platform.runLater(() -> setType(true));
         Vector<File> f = ModHelper.getMod(Application.configReader.configModel.selected_minecraft_dir_index,Application.configReader.configModel.selected_version_index);
         for (File file : f){
-            RemoteMod m = new RemoteMod(ModHelper.getModInfo(file.getPath()));
-            Platform.runLater(() -> modList.getItems().add(m));
-            double d = (double) modList.getItems().size() / (double) f.size();
-            Platform.runLater(() -> bar.setProgress(d));
-            sleep(100);
+            CommonModInfoModel model = ModHelper.getModInfo(file.getPath());
+            if (!Objects.equals(model.name, "")) {
+                RemoteMod m = new RemoteMod(model);
+                Platform.runLater(() -> modList.getItems().add(m));
+                double d = (double) modList.getItems().size() / (double) f.size();
+                Platform.runLater(() -> bar.setProgress(d));
+                sleep(100);
+            }
         }
         Platform.runLater(() -> bar.setProgress(1.0D));
         sleep(50);
@@ -231,7 +228,7 @@ public class VersionInfoPage extends AbstractAnimationPage {
     }
     public void sleep(long l){
         try {Thread.sleep(l);}
-        catch (InterruptedException e){}
+        catch (InterruptedException ignored){}
     }
     public void refresh() {
         Platform.runLater(this::setByview);

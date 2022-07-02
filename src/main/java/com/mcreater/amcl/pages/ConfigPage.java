@@ -18,6 +18,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -206,14 +207,7 @@ public class ConfigPage extends AbstractAnimationPage {
     public void setType(JFXButton b){
         setted = b;
         for (Node bs : menu.getChildren()){
-            if (bs == b){
-                ((JFXButton) bs).setGraphic(InPage);
-                bs.setDisable(true);
-            }
-            else{
-                ((JFXButton) bs).setGraphic(OutPage);
-                bs.setDisable(false);
-            }
+            bs.setDisable(bs == b);
         }
     }
     public void setP1(SettingPage p){

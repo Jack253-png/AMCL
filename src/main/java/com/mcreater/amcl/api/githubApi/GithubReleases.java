@@ -1,9 +1,8 @@
-package com.mcreater.amcl.api.githubrest;
+package com.mcreater.amcl.api.githubApi;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import com.mcreater.amcl.api.githubrest.models.AssetsModel;
-import com.mcreater.amcl.api.githubrest.models.ReleaseModel;
+import com.mcreater.amcl.api.githubApi.models.ReleaseModel;
 import com.mcreater.amcl.util.Vars;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -12,8 +11,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;

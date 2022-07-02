@@ -1,4 +1,4 @@
-package com.mcreater.amcl.api.curseforge;
+package com.mcreater.amcl.api.curseApi;
 
 public class CurseResourceType extends CurseAbstractType {
     public enum Types {
