@@ -6,7 +6,7 @@ import jnr.posix.POSIXFactory;
 
 public class ChangeDir {
     public static String dirs;
-    private static POSIX posix;
+
     public static void saveNowDir(){
         dirs = System.getProperty("user.dir");
     }
@@ -15,7 +15,9 @@ public class ChangeDir {
     }
     public static void changeTo(String dir){
         System.setProperty("user.dir", dir);
-        posix = POSIXFactory.getPOSIX(new PosixHandler(), true);
+        PosixHandler handler = new PosixHandler();
+        handler.setVerbose(true);
+        POSIX posix = POSIXFactory.getPOSIX(handler, true);
         posix.chdir(dir);
     }
 }

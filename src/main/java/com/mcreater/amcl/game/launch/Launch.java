@@ -238,7 +238,7 @@ public class Launch {
             String command = LinkCommands.link(java, jvm, String.valueOf(classpath), mem, forgevm,mainClass.replace(" ",""), arguments);
             MainPage.d.setV(0, 90, Application.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
-            logger.info(String.format("Command Line : %s", command));
+            logger.info(String.format("Getted Command Line : %s", command));
             MainPage.exit_code = null;
             MainPage.cleanLog();
             MainPage.d.setV(0, 95, Application.languageManager.get("ui.launch._08"));

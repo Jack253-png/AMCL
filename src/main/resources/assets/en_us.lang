@@ -86,3 +86,7 @@ ui.addmodspage.mod.authors.name=Authors :
 ui.addmodspage.loadmods.fail.title=Error
 ui.addmodspage.loadmods.fail.content=Error while getting mods : %s
 ui.moddownloadpage.name=Mod Download Page
+ui.moddownloadpage.installReq.name=install requires
+ui.moddownloadpage.install.name=install
+ui.moddownloadpage.loadversions.fail.title=Error
+ui.moddownloadpage.loadversions.fail.content=Error while getting mod files : %s

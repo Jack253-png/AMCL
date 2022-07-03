@@ -9,8 +9,8 @@ import java.util.Set;
 public class EnumWindow {
     public static Set<Long> getTaskPID() {
         User32 user32 = User32.INSTANCE;
-        Set<Long> set= new HashSet<>();
-        IntByReference i=new IntByReference();//放PID
+        Set<Long> set = new HashSet<>();
+        IntByReference i = new IntByReference();
         user32.EnumWindows((h, p) -> {
             user32.GetWindowThreadProcessId(h, i);
             if(user32.IsWindow(h)&&user32.IsWindowEnabled(h)&&user32.IsWindowVisible(h)){
@@ -18,6 +18,6 @@ public class EnumWindow {
             }
             return true;
         }, null);
-        return set;//获得到的窗口PID集合
+        return set;
     }
 }

@@ -86,3 +86,7 @@ ui.addmodspage.mod.authors.name=作者 :
 ui.addmodspage.loadmods.fail.title=出错
 ui.addmodspage.loadmods.fail.content=在获取模组列表时出错了 : %s
 ui.moddownloadpage.name=模组下载页
+ui.moddownloadpage.installReq.name=安装前置模组
+ui.moddownloadpage.install.name=安装
+ui.moddownloadpage.loadversions.fail.title=错误
+ui.moddownloadpage.loadversions.fail.content=在获取模组文件时出错了 : %s

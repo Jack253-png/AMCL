@@ -12,4 +12,5 @@ public class CurseModFileModel {
     public String downloadUrl;
     public Vector<String> gameVersions;
     public Vector<CurseModRequireModel> dependencies;
+    public int modId;
 }

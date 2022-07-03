@@ -29,7 +29,7 @@ public class AddModsPage extends AbstractAnimationPage {
     JFXButton submit;
     JFXListView<CurseMod> modlist;
     JFXProgressBar bar;
-    Thread searchThread;
+    Thread searchThread = new Thread(() -> {});
     public AddModsPage(double width, double height) {
         super(width, height);
         l = Application.VERSIONINFOPAGE;
@@ -58,18 +58,22 @@ public class AddModsPage extends AbstractAnimationPage {
             }
         });
         SetSize.setHeight(modlist, this.height - 45 - 45 - 2);
-        searchThread = new Thread(() -> {
-            submit.setDisable(true);
-            try {
-                this.searchMods();
-            } catch (IOException e) {
-                Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.addmodspage.loadmods.fail.title"), String.format(Application.languageManager.get("ui.addmodspage.loadmods.fail.content"), e), ""));
-            }
-            finally {
-                submit.setDisable(false);
-            }
+
+        submit.setOnAction(event -> {
+            searchThread.stop();
+            searchThread = new Thread(() -> {
+                submit.setDisable(true);
+                try {
+                    this.searchMods();
+                } catch (IOException e) {
+                    Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.addmodspage.loadmods.fail.title"), String.format(Application.languageManager.get("ui.addmodspage.loadmods.fail.content"), e), ""));
+                }
+                finally {
+                    submit.setDisable(false);
+                }
+            });
+            searchThread.start();
         });
-        submit.setOnAction(event -> searchThread.start());
 
         pane.setAlignment(Pos.TOP_CENTER);
         pane.add(in, 0, 0, 1, 1);

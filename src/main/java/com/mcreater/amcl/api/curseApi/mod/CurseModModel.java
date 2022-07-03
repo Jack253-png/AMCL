@@ -1,5 +1,7 @@
 package com.mcreater.amcl.api.curseApi.mod;
 
+import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
+
 import java.util.Map;
 import java.util.Vector;
 
@@ -16,6 +18,7 @@ public class CurseModModel {
     public String dateModified;
     public String dateReleased;
     public Vector<Map<String, String>> latestFilesIndexes;
+    public Vector<CurseModFileModel> latestFiles;
     public CurseLogoModel logo;
 
 }

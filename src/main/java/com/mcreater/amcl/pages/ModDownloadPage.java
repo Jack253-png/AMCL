@@ -1,20 +1,29 @@
 package com.mcreater.amcl.pages;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXCheckBox;
 import com.mcreater.amcl.Application;
 import com.mcreater.amcl.api.curseApi.CurseAPI;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
 import com.mcreater.amcl.controls.ModFile;
+import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
+import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.SetSize;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.Vector;
 
@@ -26,8 +35,10 @@ public class ModDownloadPage extends AbstractAnimationPage {
     boolean coreSelected = false;
     ModFile last;
     Thread loadThread;
-    String selectedVersion;
     GridPane p;
+    JFXCheckBox installRequires;
+    JFXButton install;
+    CurseModModel content;
     public ModDownloadPage(double width, double height) {
         super(width, height);
         reqMods = new Vector<>();
@@ -36,10 +47,31 @@ public class ModDownloadPage extends AbstractAnimationPage {
         p = new GridPane();
         v = new VBox();
         SetSize.set(p, width, height);
-        p.add(new SettingPage(800, 480 - 45, v), 0, 0, 1, 1);
+        p.add(new SettingPage(800, 480 - 45 - 70, v), 0, 0, 1, 1);
+        installRequires = new JFXCheckBox();
+        install = new JFXButton();
+        install.setButtonType(JFXButton.ButtonType.RAISED);
+        install.setFont(Fonts.t_f);
+        install.setOnAction(event -> {
+            try {
+                if (coreSelected) {
+                    System.out.println(CurseAPI.getModFileRequiredMods(last.model, last.version, last.model.fileName));
+                }
+            }
+            catch (IOException ignored) {}
+            System.out.println("-".repeat(50));
+        });
+        VBox box = new VBox(installRequires, install);
+        box.setSpacing(10);
+        box.setAlignment(Pos.CENTER_LEFT);
+        HBox t = new HBox(new Label("    "), box);
+        t.setId("modinstall");
+        SetSize.set(t, this.width, 70);
+        p.add(t, 0, 1, 1, 1);
         this.add(p, 0, 0, 1, 1);
     }
     public void setModContent(CurseModModel model){
+        this.content = model;
         this.setDisable(true);
         do {
             try {
@@ -48,53 +80,60 @@ public class ModDownloadPage extends AbstractAnimationPage {
             }
         } while (this.v.getChildren().size() != 0);
         loadThread = new Thread(() -> {
-            Vector<String> versions = new Vector<>();
-            Vector<CurseModFileModel> files = CurseAPI.getModFiles(model);
-            for (CurseModFileModel m : files){
-                for (String s : ModFile.getModLoaders(m.gameVersions, false)){
-                    if (!versions.contains(s)){
-                        versions.add(s);
-                    }
-                }
-            }
-            versions.sort(new VersionConparsion());
-            for (String s1 : versions){
-                TitledPane pane = new TitledPane();
-                pane.setText(s1);
-                pane.setExpanded(false);
-                SetSize.setWidth(pane, 800);
-                VBox b = new VBox();
-                for (CurseModFileModel u : files){
-                    if (u.gameVersions.contains(s1)){
-                        b.getChildren().add(new ModFile(u, s1));
-                    }
-                }
-                pane.setContent(b);
-                for (Node n : b.getChildren()){
-                    ModFile file = (ModFile) n;
-                    uis.add(file);
-                    changeListener = (observable, oldValue, newValue) -> {
-                        if (last == file || last == null){
-                            coreSelected = newValue;
+            try {
+                Vector<String> versions = new Vector<>();
+                Vector<CurseModFileModel> files = CurseAPI.getModFiles(model);
+                for (CurseModFileModel m : files) {
+                    for (String s : ModFile.getModLoaders(m.gameVersions, false)) {
+                        if (!versions.contains(s)) {
+                            versions.add(s);
                         }
-                        if (newValue) {
-                            last = file;
-                            selectedVersion = file.version;
-                            int temp = uis.indexOf(file);
-                            for (int i = 0; i < uis.size(); i++) {
-                                if (i != temp) {
-                                    uis.get(i).checkBox.selectedProperty().set(false);
+                    }
+                }
+                versions.sort(new VersionConparsion());
+                for (String s1 : versions) {
+                    TitledPane pane = new TitledPane();
+                    pane.setText(s1);
+                    pane.setExpanded(false);
+                    SetSize.setWidth(pane, 800);
+                    VBox b = new VBox();
+                    for (CurseModFileModel u : files) {
+                        if (u.gameVersions.contains(s1)) {
+                            b.getChildren().add(new ModFile(u, s1));
+                        }
+                    }
+                    pane.setContent(b);
+                    for (Node n : b.getChildren()) {
+                        ModFile file = (ModFile) n;
+                        uis.add(file);
+                        changeListener = (observable, oldValue, newValue) -> {
+                            if (last == file || last == null) {
+                                coreSelected = newValue;
+                            }
+                            if (newValue) {
+                                last = file;
+                                int temp = uis.indexOf(file);
+                                for (int i = 0; i < uis.size(); i++) {
+                                    if (i != temp) {
+                                        uis.get(i).checkBox.selectedProperty().set(false);
+                                    }
                                 }
                             }
-                        }
-                        System.out.println(coreSelected);
-                    };
-                    file.checkBox.selectedProperty().addListener(this.changeListener);
+                        };
+                        file.checkBox.selectedProperty().addListener(this.changeListener);
+                    }
+                    Platform.runLater(() -> v.getChildren().add(pane));
                 }
-                Platform.runLater(() -> v.getChildren().add(pane));
+                this.setDisable(false);
             }
-            this.setDisable(false);
-        });
+            catch (IOException e){
+                Platform.runLater(() -> {
+                    FastInfomation.create(Application.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Application.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), "");
+                    Application.setPage(Application.ADDMODSPAGE, this);
+                });
+            }
+        }
+        );
         loadThread.start();
     }
     public void refresh() {
@@ -102,6 +141,8 @@ public class ModDownloadPage extends AbstractAnimationPage {
     }
     public void refreshLanguage() {
         this.name = Application.languageManager.get("ui.moddownloadpage.name");
+        installRequires.setText(Application.languageManager.get("ui.moddownloadpage.installReq.name"));
+        install.setText(Application.languageManager.get("ui.moddownloadpage.install.name"));
     }
     public void refreshType() {
 

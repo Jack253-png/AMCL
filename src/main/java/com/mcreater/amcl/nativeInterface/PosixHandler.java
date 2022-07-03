@@ -13,7 +13,7 @@ import java.util.Map;
 import static java.util.stream.Collectors.toList;
 
 public class PosixHandler implements POSIXHandler {
-
+    private boolean verbose = false;
     @Override
     public void error(Errno error, String extraData) {
         System.err.printf("%s %s\n", error, extraData);
@@ -36,7 +36,10 @@ public class PosixHandler implements POSIXHandler {
 
     @Override
     public boolean isVerbose() {
-        return false;
+        return verbose;
+    }
+    public void setVerbose(boolean value){
+        verbose = value;
     }
 
     @Override
@@ -50,8 +53,7 @@ public class PosixHandler implements POSIXHandler {
                 .entrySet()
                 .stream()
                 .map(Map.Entry::toString)
-                .collect(toList())
-                .toArray(new String[0]);
+                .toArray(String[]::new);
     }
 
     @Override
