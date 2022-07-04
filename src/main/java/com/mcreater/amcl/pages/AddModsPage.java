@@ -114,6 +114,9 @@ public class AddModsPage extends AbstractAnimationPage {
     public void refreshLanguage() {
         this.name = Application.languageManager.get("ui.addmodspage.name");
         submit.setText(Application.languageManager.get("ui.addmodspage.search.name"));
+        for (CurseMod m : modlist.getItems()){
+            m.refreshLang();
+        }
     }
     public void refreshType() {
 

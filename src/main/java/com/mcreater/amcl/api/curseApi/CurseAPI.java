@@ -116,11 +116,18 @@ public class CurseAPI {
                             try {
                                 CurseModFileModel model1 = getFromFileId(m.modId, (int) Double.parseDouble(map.get("fileId")));
                                 if (modLoaderCanRunTogether(model1, model)) {
+                                    Vector<CurseModFileModel> removeList = new Vector<>();
                                     for (CurseModFileModel v : requires){
                                         if (v.modId == model1.modId){
-                                            return;
+                                            if (getTimeFromString(model1.fileDate) >= getTimeFromString(v.fileDate)){
+                                                removeList.add(v);
+                                            }
+                                            else {
+                                                return;
+                                            }
                                         }
                                     }
+                                    requires.removeAll(removeList);
                                     requires.add(model1);
                                     if (model1.dependencies.size() >= 1){
                                         logger.info(String.format("mod %s has more requires, loading...", model1.fileName));
@@ -139,7 +146,7 @@ public class CurseAPI {
             }
         }
         for (Thread t : requestingThreads){
-            t.start();
+            t.run();
         }
         while (true){
             if (finished.get() == requestingThreads.size()){
@@ -149,6 +156,9 @@ public class CurseAPI {
         logger.info(String.format("Mod %s loaded success, find %d required mods", model.fileName, requires.size()));
         if (Objects.equals(model.fileName, firstname)){
             logger.info("require mod loaded success");
+        }
+        for (CurseModFileModel file : requires){
+            System.out.println(file.fileName);
         }
         return requires;
     }
@@ -172,9 +182,9 @@ public class CurseAPI {
         return size != c1.size();
     }
     public static void main(String[] args) throws IOException, ParseException {
-//        CurseModModel mod = search("Create", CurseResourceType.Types.MOD, CurseSortType.Types.DESCENDING, 20).get(0);
-//        CurseModFileModel file = getModFiles(mod).get(0);
-//        System.out.println(getModFileRequiredMods(file, "1.18.1", file.fileName));
+        Vector<CurseModModel> mod = search("tinker", CurseResourceType.Types.MOD, CurseSortType.Types.DESCENDING, 20);
+        CurseModFileModel file = getModFiles(mod.get(0)).get(0);
+        System.out.println(getModFileRequiredMods(file, "1.12.2", file.fileName));
     }
     public static CurseModModel getFromModId(int id) throws IOException {
         String url = String.format("/v1/mods/%d", id);

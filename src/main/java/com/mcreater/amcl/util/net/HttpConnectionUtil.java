@@ -27,8 +27,7 @@ public class HttpConnectionUtil {
             connection.setRequestMethod("GET");
             connection.setReadTimeout(15000);
             connection.connect();
-            boolean t = connection.getResponseCode() == 200;
-            if (t) {
+            if (connection.getResponseCode() == 200) {
                 is = connection.getInputStream();
                 if (null != is) {
                     br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
@@ -55,7 +54,6 @@ public class HttpConnectionUtil {
                     e.printStackTrace();
                 }
             }
-            //关闭远程连接
             connection.disconnect();
         }
         return result.toString();

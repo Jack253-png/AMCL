@@ -61,10 +61,4 @@ public class ModFile extends HBox {
         }
         return loaders;
     }
-    public boolean getChecked(){
-        return checkBox.isSelected();
-    }
-    public void setChecked(boolean b){
-        checkBox.selectedProperty().set(b);
-    }
 }

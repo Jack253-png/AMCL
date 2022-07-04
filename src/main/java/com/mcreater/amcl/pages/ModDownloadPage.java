@@ -7,14 +7,16 @@ import com.mcreater.amcl.api.curseApi.CurseAPI;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
 import com.mcreater.amcl.controls.ModFile;
+import com.mcreater.amcl.download.tasks.DownloadTask;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
+import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.util.LinkPath;
 import com.mcreater.amcl.util.SetSize;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -26,6 +28,8 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ModDownloadPage extends AbstractAnimationPage {
     public Vector<CurseModModel> reqMods;
@@ -49,17 +53,67 @@ public class ModDownloadPage extends AbstractAnimationPage {
         SetSize.set(p, width, height);
         p.add(new SettingPage(800, 480 - 45 - 70, v), 0, 0, 1, 1);
         installRequires = new JFXCheckBox();
+        installRequires.selectedProperty().set(true);
         install = new JFXButton();
         install.setButtonType(JFXButton.ButtonType.RAISED);
         install.setFont(Fonts.t_f);
         install.setOnAction(event -> {
-            try {
-                if (coreSelected) {
-                    System.out.println(CurseAPI.getModFileRequiredMods(last.model, last.version, last.model.fileName));
-                }
+            if (coreSelected) {
+                AtomicReference<Vector<CurseModFileModel>> requireMods = new AtomicReference<>();
+                ProcessDialog dialog = new ProcessDialog(1, Application.languageManager.get("ui.moddownloadpage.downloadingMods.title"));
+                dialog.setV(0, 5, Application.languageManager.get("ui.downloadmod._01"));
+                Thread t = new Thread(() -> {
+                    try {
+                        dialog.Create();
+                        dialog.setV(0, 7, Application.languageManager.get("ui.downloadmod._02"));
+                        if (installRequires.isSelected()) {
+                            requireMods.set(CurseAPI.getModFileRequiredMods(last.model, last.version, last.model.fileName));
+                        }
+                        requireMods.get().add(last.model);
+                        dialog.setV(0, 10, Application.languageManager.get("ui.downloadmod._03"));
+                        Vector<DownloadTask> tasks = new Vector<>();
+                        for (CurseModFileModel model : requireMods.get()){
+                            String modPath;
+                            if (Application.configReader.configModel.change_game_dir){
+                                modPath = LinkPath.link(Application.configReader.configModel.selected_minecraft_dir_index, "versions\\" + Application.configReader.configModel.selected_version_index + "\\mods");
+                            }
+                            else {
+                                modPath = LinkPath.link(Application.configReader.configModel.selected_minecraft_dir_index, "mods");
+                            }
+                            tasks.add(new DownloadTask(model.downloadUrl, LinkPath.link(modPath, model.fileName), 2048));
+                        }
+                        AtomicInteger downloaded = new AtomicInteger();
+                        for (DownloadTask task : tasks){
+                            new Thread(() -> {
+                                while (true) {
+                                    try {
+                                        task.execute();
+                                        downloaded.addAndGet(1);
+                                        break;
+                                    } catch (IOException ignored) {}
+                                }
+                            }).start();
+                        }
+                        do {
+                            Thread.sleep(500);
+                            double processTemp = (double) downloaded.get() / (double)  tasks.size();
+                            dialog.setV(0, (int) (10 + 90 * processTemp), String.format(Application.languageManager.get("ui.downloadmod._04"), downloaded.get(), tasks.size()));
+                        } while (downloaded.get() != tasks.size());
+                    }
+                    catch (IOException e) {
+                        Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Application.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), ""));
+                    } catch (InterruptedException ignored) {
+                        ignored.printStackTrace();
+                    }
+                    finally {
+                        Platform.runLater(dialog::close);
+                    }
+                });
+                t.start();
             }
-            catch (IOException ignored) {}
-            System.out.println("-".repeat(50));
+            else{
+                FastInfomation.create(Application.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Application.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
+            }
         });
         VBox box = new VBox(installRequires, install);
         box.setSpacing(10);

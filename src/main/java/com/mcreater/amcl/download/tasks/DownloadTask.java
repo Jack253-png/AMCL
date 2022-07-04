@@ -94,6 +94,7 @@ public class DownloadTask extends AbstractTask{
             if (hash == null){
                 while (true){
                     try {
+                        clean();
                         d();
                         break;
                     }
@@ -106,6 +107,7 @@ public class DownloadTask extends AbstractTask{
                 execute();
             }
         }
+        System.out.printf("%s -> %s\n", this.server, this.local);
         return null;
     }
 }

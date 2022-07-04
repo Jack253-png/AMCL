@@ -17,6 +17,7 @@ import javafx.scene.layout.HBox;
 
 public class CurseMod extends GridPane {
     public CurseModModel model;
+    Label base;
     public CurseMod(CurseModModel model){
         this.model = model;
         String logo_url = model.logo.thumbnailUrl;
@@ -42,7 +43,7 @@ public class CurseMod extends GridPane {
             new Thread(() -> v.setImage(new Image(m.iconUrl))).start();
         }
         HBox authors = new HBox();
-        Label base = new Label(Application.languageManager.get("ui.addmodspage.mod.authors.name"));
+        base = new Label(Application.languageManager.get("ui.addmodspage.mod.authors.name"));
         authors.getChildren().add(base);
         for (CurseModAuthorModel m : model.authors){
             Hyperlink link = new Hyperlink(m.name);
@@ -59,5 +60,8 @@ public class CurseMod extends GridPane {
         this.add(desc, 1, 1, 1, 1);
         this.add(authors, 1, 2, 1, 1);
         this.add(b, 1, 3, 1, 1);
+    }
+    public void refreshLang(){
+        base.setText(Application.languageManager.get("ui.addmodspage.mod.authors.name"));
     }
 }

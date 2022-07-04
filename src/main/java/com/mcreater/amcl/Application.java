@@ -34,6 +34,7 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Application extends javafx.application.Application {
     static Logger logger = LogManager.getLogger(Application.class);
