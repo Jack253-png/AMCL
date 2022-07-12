@@ -9,13 +9,13 @@
 .scroll-bar:horizontal .decrement-button {
     -fx-background-color:transparent;
     -fx-background-radius: 0em;
-    -fx-padding:0 0 10 0;
+    -fx-padding:0 0 4 0;
 }
 .scroll-bar:vertical .increment-button ,
 .scroll-bar:vertical .decrement-button {
     -fx-background-color:transparent;
     -fx-background-radius: 0em;
-    -fx-padding:0 10 0 0;
+    -fx-padding:0 4 0 0;
     -fx-width: 0;
     -fx-height: 0;
 }

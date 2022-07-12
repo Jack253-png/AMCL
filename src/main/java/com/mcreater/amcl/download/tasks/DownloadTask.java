@@ -6,7 +6,6 @@ import com.mcreater.amcl.util.HashHelper;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class DownloadTask extends AbstractTask{
@@ -33,8 +32,8 @@ public class DownloadTask extends AbstractTask{
         this.hash = hash;
         return this;
     }
-    public boolean checkHash(){
-        return Objects.equals(hash, HashHelper.getFileSHA1(new File(local)));
+    public boolean checkHashReverted(){
+        return !Objects.equals(hash, HashHelper.getFileSHA1(new File(local)));
     }
     public HttpURLConnection getConnection() throws IOException {
         URL url = new URL(this.server);
@@ -74,7 +73,7 @@ public class DownloadTask extends AbstractTask{
         }
     }
     public Integer execute() throws IOException {
-        if ((hash != null) && (!checkHash())) {
+        if ((hash != null) && (checkHashReverted())) {
             clean();
             try {
                 d();
@@ -103,7 +102,7 @@ public class DownloadTask extends AbstractTask{
                     }
                 }
             }
-            else if (!checkHash()){
+            else if (checkHashReverted()){
                 execute();
             }
         }

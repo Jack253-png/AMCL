@@ -97,3 +97,5 @@ ui.downloadmod._01=初始化中
 ui.downloadmod._02=获取前置模组中
 ui.downloadmod._03=获取链接中
 ui.downloadmod._04=已下载 %d / %d
+ui.mainpage.download.title=下载
+ui.mainpage.downloadMc.name=下载 MC

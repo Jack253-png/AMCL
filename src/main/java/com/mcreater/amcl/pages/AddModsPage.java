@@ -15,8 +15,11 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.SetSize;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
@@ -59,22 +62,7 @@ public class AddModsPage extends AbstractAnimationPage {
         });
         SetSize.setHeight(modlist, this.height - 45 - 45 - 2);
 
-        submit.setOnAction(event -> {
-            searchThread.stop();
-            searchThread = new Thread(() -> {
-                submit.setDisable(true);
-                try {
-                    this.searchMods();
-                } catch (IOException e) {
-                    Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.addmodspage.loadmods.fail.title"), String.format(Application.languageManager.get("ui.addmodspage.loadmods.fail.content"), e), ""));
-                }
-                finally {
-                    submit.setDisable(false);
-                }
-            });
-            searchThread.start();
-        });
-
+        submit.setOnAction(event -> search());
         pane.setAlignment(Pos.TOP_CENTER);
         pane.add(in, 0, 0, 1, 1);
         pane.add(submit, 1, 0, 1, 1);
@@ -82,6 +70,21 @@ public class AddModsPage extends AbstractAnimationPage {
         pane.add(modlist, 0, 3, 2, 1);
         pane.setStyle("-fx-background-color : rgba(255, 255, 255, 0.75)");
         this.add(pane, 0, 0, 1, 1);
+    }
+    public void search(){
+        searchThread.stop();
+        searchThread = new Thread(() -> {
+            submit.setDisable(true);
+            try {
+                this.searchMods();
+            } catch (IOException e) {
+                Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.addmodspage.loadmods.fail.title"), String.format(Application.languageManager.get("ui.addmodspage.loadmods.fail.content"), e), ""));
+            }
+            finally {
+                submit.setDisable(false);
+            }
+        });
+        searchThread.start();
     }
     public void searchMods() throws IOException {
         Platform.runLater(modlist.getItems()::clear);

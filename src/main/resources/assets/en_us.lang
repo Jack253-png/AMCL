@@ -97,3 +97,5 @@ ui.downloadmod._01=Initlazing
 ui.downloadmod._02=Getting Required Mods
 ui.downloadmod._03=Getting Urls
 ui.downloadmod._04=Downloaded %d / %d
+ui.mainpage.download.title=Download
+ui.mainpage.downloadMc.name=Download Minecraft

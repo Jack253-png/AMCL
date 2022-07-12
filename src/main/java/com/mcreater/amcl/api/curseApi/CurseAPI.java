@@ -206,7 +206,7 @@ public class CurseAPI {
         Vector<CurseModFileModel> files = new Vector<>();
         for (String v : versions_list) {
             new Thread(() -> {
-                Thread.currentThread().setUncaughtExceptionHandler(new CurseAPI.UncaughtExceptionsCaughter());
+                Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionsCaughter());
                 String url = String.format("/v1/mods/%s/files?gameVersion=%s", mod.id, v);
                 Map<?, ?> m;
                 Gson g = new Gson();
@@ -219,7 +219,20 @@ public class CurseAPI {
                 if (m != null) {
                     ArrayList<?> a = (ArrayList<?>) m.get("data");
                     for (Object o : a) {
-                        files.add(g.fromJson(g.toJson(o), CurseModFileModel.class));
+                        CurseModFileModel model = g.fromJson(g.toJson(o), CurseModFileModel.class);
+                        boolean contained = false;
+                        while (true) {
+                            try {
+                                for (CurseModFileModel m1 : files) {
+                                    if (m1.id == model.id) {
+                                        contained = true;
+                                    }
+                                }
+                                break;
+                            }
+                            catch (ConcurrentModificationException ignored){}
+                        }
+                        if (!contained) files.add(model);
                     }
                 }
                 latch.countDown();
@@ -237,6 +250,7 @@ public class CurseAPI {
         public void uncaughtException(Thread thread, Throwable throwable) {
             logger.info(String.format("%s throws an exception %s", thread, throwable));
             CurseAPI.errored = true;
+            throwable.printStackTrace();
         }
     }
 }

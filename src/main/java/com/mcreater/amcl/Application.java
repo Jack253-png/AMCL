@@ -11,7 +11,8 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.ChangeDir;
-import com.mcreater.amcl.util.SVG;
+import com.mcreater.amcl.util.svg.AbstractSVGIcons;
+import com.mcreater.amcl.util.svg.SVGIcons;
 import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.multiThread.Run;
 import javafx.application.Platform;
@@ -34,7 +35,7 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.io.PrintStream;
 
 public class Application extends javafx.application.Application {
     static Logger logger = LogManager.getLogger(Application.class);
@@ -57,7 +58,7 @@ public class Application extends javafx.application.Application {
     public static int width = 800;
     public static int height = 480;
     @Override
-    public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException {
+    public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException {
         if (is_t) {
             languageManager = new LanguageManager(null);
             themeManager = new ThemeManager();
@@ -143,6 +144,10 @@ public class Application extends javafx.application.Application {
             setPageCore(n);
         }
     }
+    public static AbstractSVGIcons getSVGManager(){
+        return new SVGIcons();
+    }
+
     public static void setPageCore(AbstractAnimationPage n){
         double t_size = barSize;
         VBox top = new VBox();
@@ -154,19 +159,9 @@ public class Application extends javafx.application.Application {
         JFXButton close = new JFXButton();
         JFXButton min = new JFXButton();
         JFXButton back = new JFXButton();
-        StackPane graphic = new StackPane();
-        Node svg = SVG.close(Bindings.createObjectBinding(() -> Paint.valueOf("#000000")), t_size / 3 * 2, t_size / 3 * 2);
-        StackPane graphic1 = new StackPane();
-        Node svg1 = new Rectangle(t_size / 2.5, t_size / 15, Color.BLACK);
-        StackPane graphic2 = new StackPane();
-        Node svg2 = SVG.back(Bindings.createObjectBinding(() -> Paint.valueOf("#000000")), t_size / 3 * 2, t_size / 3 * 2);
-        graphic.getChildren().setAll(svg);
-        graphic1.getChildren().setAll(svg1);
-        graphic2.getChildren().setAll(svg2);
-
         close.setPrefWidth(t_size / 6 * 5);
         close.setPrefHeight(t_size / 6 * 5);
-        close.setGraphic(graphic);
+        close.setGraphic(getSVGManager().close(Bindings.createObjectBinding(() -> Paint.valueOf("#000000")), t_size / 3 * 2, t_size / 3 * 2));
         close.setButtonType(JFXButton.ButtonType.RAISED);
         close.setOnAction(event -> {
             last.setOut();
@@ -176,13 +171,13 @@ public class Application extends javafx.application.Application {
         });
         min.setPrefWidth(t_size / 2.5);
         min.setPrefHeight(t_size / 2.5);
-        min.setGraphic(graphic1);
+        min.setGraphic(new Rectangle(t_size / 2.5, t_size / 15, Color.BLACK));
         min.setButtonType(JFXButton.ButtonType.RAISED);
         min.setOnAction(event -> Application.stage.setIconified(true));
 
         back.setPrefWidth(t_size / 2.5);
         back.setPrefHeight(t_size / 2.5);
-        back.setGraphic(graphic2);
+        back.setGraphic(getSVGManager().back(Bindings.createObjectBinding(() -> Paint.valueOf("#000000")), t_size / 3 * 2, t_size / 3 * 2));
         back.setButtonType(JFXButton.ButtonType.RAISED);
         AbstractAnimationPage lpa = last.l;
         Label ln = new Label();
@@ -245,6 +240,7 @@ public class Application extends javafx.application.Application {
 
     public static void startApplication(String[] args, boolean is_true) {
         is_t = is_true;
+        StdOutErrRedirect.redirectSystemOutAndErrToLog();
         launch(args);
     }
     public static void setBackground(){

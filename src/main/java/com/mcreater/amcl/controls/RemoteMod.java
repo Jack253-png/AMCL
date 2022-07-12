@@ -20,7 +20,8 @@ public class RemoteMod extends VBox {
         desc = new Label(model.description);
         desc.setFont(Fonts.t_f);
         desc.setStyle("word-break:break-all;word-wrap:break-word;");
-        authors = new Label(model.authorList.toString());
+        authors = new Label();
+        if (model.authorList != null) authors.setText(model.authorList.toString());
         authors.setFont(Fonts.t_f);
         authors.setStyle("word-break:break-all;word-wrap:break-word;");
         this.getChildren().addAll(name, version, desc, authors);

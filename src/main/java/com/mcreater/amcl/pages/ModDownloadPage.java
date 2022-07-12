@@ -20,14 +20,16 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.Vector;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -80,6 +82,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                             else {
                                 modPath = LinkPath.link(Application.configReader.configModel.selected_minecraft_dir_index, "mods");
                             }
+                            System.err.println(modPath);
                             tasks.add(new DownloadTask(model.downloadUrl, LinkPath.link(modPath, model.fileName), 2048));
                         }
                         AtomicInteger downloaded = new AtomicInteger();
@@ -115,6 +118,8 @@ public class ModDownloadPage extends AbstractAnimationPage {
                 FastInfomation.create(Application.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Application.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
             }
         });
+        SplitPane pane = new SplitPane();
+        SetSize.setHeight(pane, Application.width);
         VBox box = new VBox(installRequires, install);
         box.setSpacing(10);
         box.setAlignment(Pos.CENTER_LEFT);
@@ -144,7 +149,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         }
                     }
                 }
-                versions.sort(new VersionConparsion());
+                versions.sort(new VersionComparsion());
                 for (String s1 : versions) {
                     TitledPane pane = new TitledPane();
                     pane.setText(s1);
@@ -152,10 +157,15 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     SetSize.setWidth(pane, 800);
                     VBox b = new VBox();
                     for (CurseModFileModel u : files) {
+                        getTimeTick(u.fileDate);
                         if (u.gameVersions.contains(s1)) {
                             b.getChildren().add(new ModFile(u, s1));
                         }
                     }
+                    List<Node> list = new Vector<>(b.getChildren());
+                    list.sort(Comparator.comparing(node -> ((ModFile) node)));
+                    b.getChildren().clear();
+                    b.getChildren().addAll(list);
                     pane.setContent(b);
                     for (Node n : b.getChildren()) {
                         ModFile file = (ModFile) n;
@@ -185,6 +195,8 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     FastInfomation.create(Application.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Application.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), "");
                     Application.setPage(Application.ADDMODSPAGE, this);
                 });
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
             }
         }
         );
@@ -208,7 +220,12 @@ public class ModDownloadPage extends AbstractAnimationPage {
         this.uis.clear();
         this.v.getChildren().clear();
     }
-    public static class VersionConparsion implements Comparator<String> {
+    public static Date getTimeTick(String time) throws ParseException {
+        SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = simpleDateFormat1.parse(List.of(time.split("\\.")).get(0).replace("T", " "));
+        return date;
+    }
+    public static class VersionComparsion implements Comparator<String> {
         public int compare(String compareValue1, String compareValue2) {
             compareValue1 = clearSnapShotVersion(compareValue1);
             compareValue2 = clearSnapShotVersion(compareValue2);

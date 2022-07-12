@@ -10,4 +10,9 @@ public class ReflectHelper {
     public static Field[] getFields(Object instance){
         return instance.getClass().getDeclaredFields();
     }
+    public static void setField(Object instance, String fieldName, Object value) throws NoSuchFieldException, IllegalAccessException {
+        Field field = instance.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(instance, value);
+    }
 }

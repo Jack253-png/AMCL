@@ -111,7 +111,7 @@ public class Launch {
         }
         StringBuilder classpath = new StringBuilder("-cp \"");
         for (String s : libs){
-            classpath.append(s).append(";");
+            classpath.append(s).append(System.getProperty("path.separator", ";"));
         }
         classpath.append(jar_file).append("\"");
 
@@ -178,7 +178,7 @@ public class Launch {
         else{
             gamedir = f;
         }
-        arguments = arguments.replace("${game_directory}", gamedir.getPath());
+        arguments = arguments.replace("${game_directory}", String.format("\"%s\"", gamedir.getPath()));
         arguments = arguments.replace("${user_properties}","{}");
         arguments = arguments.replace("${auth_uuid}","8".repeat(18));
         arguments = arguments.replace("${auth_access_token}","8".repeat(18));
@@ -186,8 +186,8 @@ public class Launch {
         arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
 
         jvm = "-Dfile.encoding=GB18030 -Dminecraft.client.jar=${jar_path} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16m -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -XX:-DontCompileHugeMethods -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false -Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false -Dlog4j2.formatMsgNoLookups=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Djava.library.path=${native_path} -Dminecraft.launcher.brand=${launcher_brand} -Dminecraft.launcher.version=${launcher_version}";
-        jvm = jvm.replace("${jar_path}",jar_file.getPath());
-        jvm = jvm.replace("${native_path}",nativef.getPath());
+        jvm = jvm.replace("${jar_path}", String.format("\"%s\"", jar_file.getPath()));
+        jvm = jvm.replace("${native_path}",String.format("\"%s\"", nativef.getPath()));
         jvm = jvm.replace("${launcher_brand}",Vars.launcher_name);
         jvm = jvm.replace("${launcher_version}",Vars.launcher_version);
 

@@ -1,5 +1,6 @@
 package com.mcreater.amcl.game.mods;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.mcreater.amcl.Application;
@@ -13,8 +14,7 @@ import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.LinkPath;
 import com.mcreater.amcl.util.ZipUtil;
 
-import java.io.*;
-import java.util.Arrays;
+import java.io.File;
 import java.util.Vector;
 
 public class ModHelper {
@@ -66,9 +66,20 @@ public class ModHelper {
             SimpleModInfoModel model = new Gson().fromJson(j, SimpleModInfoModel.class);
             description = model.pack.get("description");
         }
-        if (new File("modTemp/fabric.mod.json").exists()){
+        if (new File("modTemp/fabric.mod.json").exists()) {
             String j = FileStringReader.read("modTemp/fabric.mod.json");
-            FabricModInfoModel model = new Gson().fromJson(j, FabricModInfoModel.class);
+            FabricModInfoModel model = null;
+            try {
+                model = new Gson().fromJson(j, FabricModInfoModel.class);
+            } catch (Exception e) {
+                e.printStackTrace();
+                CommonModInfoModel mode = new CommonModInfoModel();
+                JSONObject ob = JSON.parseObject(j);
+                mode.name = ob.getString("name");
+                mode.description = ob.getString("description");
+                mode.version = ob.getString("version");
+                return mode;
+            }
             version = model.version;
             name = model.name;
             description = model.description;
@@ -79,6 +90,7 @@ public class ModHelper {
         m1.name = name;
         m1.description = description;
         m1.authorList = authorList;
+        FileUtils.del("modTemp");
         return m1;
     }
 }

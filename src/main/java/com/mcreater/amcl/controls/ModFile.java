@@ -10,10 +10,15 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.jetbrains.annotations.NotNull;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.Vector;
 
-public class ModFile extends HBox {
+import static com.mcreater.amcl.pages.ModDownloadPage.getTimeTick;
+
+public class ModFile extends HBox implements Comparable<ModFile>{
     public JFXCheckBox checkBox;
     public CurseModFileModel model;
     public String version;
@@ -60,5 +65,20 @@ public class ModFile extends HBox {
             }
         }
         return loaders;
+    }
+    public int compareTo(@NotNull ModFile aLong) {
+        Date time1, time2;
+        try {
+            time1 = getTimeTick(this.model.fileDate);
+            time2 = getTimeTick(aLong.model.fileDate);
+        } catch (ParseException e) {
+            return 0;
+        }
+        if (time1.after(time2)){
+            return -1;
+        }
+        else{
+            return 1;
+        }
     }
 }

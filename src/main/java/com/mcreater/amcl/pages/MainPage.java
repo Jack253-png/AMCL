@@ -9,19 +9,20 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.stages.BrowserPage;
 import com.mcreater.amcl.util.ChangeDir;
-import com.mcreater.amcl.util.SVG;
-import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.SetSize;
+import com.mcreater.amcl.util.Vars;
+import com.mcreater.amcl.util.svg.SVGIcons;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -37,6 +38,8 @@ public class MainPage extends AbstractAnimationPage {
     HBox SetTitle;
     Label set;
     JFXButton settings;
+    JFXButton downloadMc;
+    Label downloadTitle;
     public static JFXButton launchButton;
     VBox launchBox;
     public static boolean minecraft_running = false;
@@ -74,7 +77,6 @@ public class MainPage extends AbstractAnimationPage {
                     try {
                         launchButton.setDisable(true);
                         if (new File(Application.configReader.configModel.selected_java_index).exists()) {
-                            ChangeDir.changeTo(Application.configReader.configModel.selected_minecraft_dir_index);
                             g.launch(Application.configReader.configModel.selected_java_index, Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index, Application.configReader.configModel.change_game_dir, Application.configReader.configModel.max_memory);
                             logger.info("started launch thread");
                         }
@@ -116,6 +118,8 @@ public class MainPage extends AbstractAnimationPage {
         choose_version = new JFXButton();
         version_settings = new JFXButton();
         settings = new JFXButton();
+        downloadMc = new JFXButton();
+        downloadTitle = new Label();
 
         title.setFont(Fonts.b_f);
         launch.setFont(Fonts.t_f);
@@ -123,6 +127,8 @@ public class MainPage extends AbstractAnimationPage {
         choose_version.setFont(Fonts.s_f);
         version_settings.setFont(Fonts.s_f);
         settings.setFont(Fonts.s_f);
+        downloadMc.setFont(Fonts.s_f);
+        downloadTitle.setFont(Fonts.t_f);
 
         settings.setOnAction(event -> Application.setPage(Application.CONFIGPAGE, this));
         version_settings.setOnAction(event -> Application.setPage(Application.VERSIONINFOPAGE, this));
@@ -135,18 +141,9 @@ public class MainPage extends AbstractAnimationPage {
             Application.setPage(Application.VERSIONSELECTPAGE, this);
         });
 
-        StackPane graphic = new StackPane();
-        Node svg = SVG.gear(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D);
-
-        StackPane graphic1 = new StackPane();
-        Node svg1 = SVG.gear(Bindings.createObjectBinding(this::returnBlack),25.0D,25.0D);
-
-        StackPane.setAlignment(svg, Pos.CENTER_RIGHT);
-        graphic.getChildren().setAll(svg);
-        graphic1.getChildren().setAll(svg1);
-
-        version_settings.setGraphic(graphic);
-        settings.setGraphic(graphic1);
+        version_settings.setGraphic(Application.getSVGManager().gear(Bindings.createObjectBinding(this::returnBlack),25.0D,25.0D));
+        settings.setGraphic(Application.getSVGManager().gear(Bindings.createObjectBinding(this::returnBlack),25.0D,25.0D));
+        downloadMc.setGraphic(Application.getSVGManager().downloadOutline(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
 
         LaunchTitle = new HBox();
         LaunchTitle.setAlignment(Pos.BOTTOM_CENTER);
@@ -160,12 +157,12 @@ public class MainPage extends AbstractAnimationPage {
         version_settings.setButtonType(JFXButton.ButtonType.RAISED);
         settings.setButtonType(JFXButton.ButtonType.RAISED);
         launchButton.setButtonType(JFXButton.ButtonType.RAISED);
+        downloadMc.setButtonType(JFXButton.ButtonType.RAISED);
 
         choose_version.setMaxWidth(width / 4);
-
         version_settings.setMaxWidth(width / 4);
-
         settings.setMaxWidth(width / 4);
+        downloadMc.setMaxWidth(width / 4);
 
         GameMenu = new VBox();
         GameMenu.setId("game-menu");
@@ -183,7 +180,11 @@ public class MainPage extends AbstractAnimationPage {
                 new Spacer(),
                 version_settings,
                 settings,
-                new Spacer()
+                new Spacer(),
+                downloadTitle,
+                SetSize.setSplit(new SplitPane(), width / 4 - 20),
+                new Spacer(),
+                downloadMc
         );
 
         HBox hBox1 = new HBox();
@@ -228,6 +229,7 @@ public class MainPage extends AbstractAnimationPage {
         Application.configReader.configModel.selected_version_index = "";
         Application.configReader.write();
         version_settings.setDisable(true);
+        downloadMc.setDisable(true);
     }
     public void flush(){
         if (new File(Application.configReader.configModel.selected_minecraft_dir_index).exists()) {
@@ -237,6 +239,7 @@ public class MainPage extends AbstractAnimationPage {
                         version_settings.setText(" " + Application.configReader.configModel.selected_version_index);
                         launchButton.setText(Application.languageManager.get("ui.mainpage.launchButton.hasVersion"));
                         version_settings.setDisable(false);
+                        downloadMc.setDisable(false);
                     } else {
                         clean_null_version();
                     }
@@ -268,5 +271,7 @@ public class MainPage extends AbstractAnimationPage {
         set.setText(Application.languageManager.get("ui.mainpage.settings.name"));
         choose_version.setText(Application.languageManager.get("ui.mainpage.choose_version.name"));
         settings.setText(" "+ Application.languageManager.get("ui.mainpage.settings.name"));
+        downloadTitle.setText(Application.languageManager.get("ui.mainpage.download.title"));
+        downloadMc.setText(Application.languageManager.get("ui.mainpage.downloadMc.name"));
     }
 }

@@ -18,7 +18,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -29,9 +28,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
-
-import static com.mcreater.amcl.util.FinalSVGs.InPage;
-import static com.mcreater.amcl.util.FinalSVGs.OutPage;
 
 public class ConfigPage extends AbstractAnimationPage {
     VBox mainBox;

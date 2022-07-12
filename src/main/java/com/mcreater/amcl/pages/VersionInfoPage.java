@@ -14,6 +14,8 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.SetSize;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -24,10 +26,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.Vector;
-
-import static com.mcreater.amcl.util.FinalSVGs.*;
 import static com.mcreater.amcl.util.Images.*;
 
 public class VersionInfoPage extends AbstractAnimationPage {
@@ -111,12 +112,12 @@ public class VersionInfoPage extends AbstractAnimationPage {
 
         addMod = new JFXButton();
         SetSize.set(addMod, t_size, t_size);
-        addMod.setGraphic(addNode);
+        addMod.setGraphic(Application.getSVGManager().plus(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         addMod.setOnAction(event -> Application.setPage(Application.ADDMODSPAGE, this));
 
         refresh = new JFXButton();
         SetSize.set(refresh, t_size, t_size);
-        refresh.setGraphic(refreshNode);
+        refresh.setGraphic(Application.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         refresh.setOnAction(actionEvent -> new Thread(this::loadMods).start());
 
         bar = new JFXProgressBar(-1.0D);
@@ -217,8 +218,12 @@ public class VersionInfoPage extends AbstractAnimationPage {
                 RemoteMod m = new RemoteMod(model);
                 Platform.runLater(() -> modList.getItems().add(m));
                 double d = (double) modList.getItems().size() / (double) f.size();
+                double lat = bar.getProgress();
+                for (int i = 0;i < 100;i++){
+                    int finalI = i;
+                    Platform.runLater(() -> bar.setProgress(lat + (d - lat) / 100 * finalI));
+                }
                 Platform.runLater(() -> bar.setProgress(d));
-                sleep(100);
             }
         }
         Platform.runLater(() -> bar.setProgress(1.0D));
