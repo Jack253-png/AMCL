@@ -15,7 +15,7 @@ public class GetJarMainClass {
         Attributes attrs = jarFile1.getManifest().getMainAttributes();
         for (Iterator<Object> it = attrs.keySet().iterator(); it.hasNext();){
             Name attrName = (Name) it.next();
-            if (Objects.equals(attrName.toString(), Name.MAIN_CLASS)){
+            if (Objects.equals(attrName.toString(), "Main-Class")){
                 return attrs.getValue(attrName);
             }
         }

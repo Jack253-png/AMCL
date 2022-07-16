@@ -12,4 +12,6 @@ public class VersionJsonModel {
     public Vector<LibModel> libraries;
     public Map<String , String> javaVersion;
     public Map<String , JarModel> downloads;
+    public String type;
+    public String releaseTime;
 }

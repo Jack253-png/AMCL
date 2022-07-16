@@ -1,5 +1,6 @@
 package com.mcreater.amcl.download;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mcreater.amcl.download.tasks.*;
@@ -14,10 +15,7 @@ import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,6 +57,9 @@ public class OriginalDownload {
 
         String version_json = HttpConnectionUtil.doGet(FasterUrls.fast(version_url, faster));
         vj = version_json;
+
+
+
         BufferedWriter bw = new BufferedWriter(new FileWriter(LinkPath.link(version_dir, version_name + ".json")));
         bw.write(version_json);
         bw.close();
@@ -72,8 +73,8 @@ public class OriginalDownload {
         downloadAssets(ver_j, faster, minecraft_dir);
         runTasks();
     }
-    private static void downloadCoreJar(VersionJsonModel model, boolean faster, String minecraft_dir, String version_dir, String version_name){
-        String url = model.downloads.get("client").url;
+    private static void downloadCoreJar(VersionJsonModel model, boolean faster, String minecraft_dir, String version_dir, String version_name) throws FileNotFoundException {
+        String url = FasterUrls.fast(model.downloads.get("client").url, faster);
         String path = LinkPath.link(version_dir, version_name + ".jar");
         String hash = model.downloads.get("client").sha1;
         tasks.add(new LibDownloadTask(url, path, chunkSize).setHash(hash));
@@ -88,7 +89,6 @@ public class OriginalDownload {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                latch.countDown();
             } while (tasks.size() - latch.getCount() != tasks.size());
         }).start();
         for (AbstractTask task : tasks){
@@ -98,7 +98,8 @@ public class OriginalDownload {
                         task.execute();
                         latch.countDown();
                         break;
-                    } catch (Exception eignored) {
+                    }
+                    catch (Exception eignored) {
                         eignored.printStackTrace();
                     }
                 }
@@ -131,7 +132,7 @@ public class OriginalDownload {
         }
     }
 
-    private static void downloadLibs(VersionJsonModel model, boolean faster, String minecraft_dir, String version_dir, String version_name){
+    private static void downloadLibs(VersionJsonModel model, boolean faster, String minecraft_dir, String version_dir, String version_name) throws FileNotFoundException {
         String lib_base_path = LinkPath.link(minecraft_dir, "libraries");
         String native_base_path = LinkPath.link(version_dir, version_name + "-natives");
         new File(lib_base_path).mkdirs();

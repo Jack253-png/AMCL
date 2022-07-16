@@ -37,4 +37,5 @@ public abstract class AbstractSVGIcons {
     public abstract Node refresh(ObjectBinding<? extends Paint> fill, double width, double height);
     public abstract Node wrench(ObjectBinding<? extends Paint> fill, double width, double height);
     public abstract Node downloadOutline(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node delete(ObjectBinding<? extends Paint> fill, double width, double height);
 }

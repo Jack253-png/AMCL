@@ -11,14 +11,13 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.ChangeDir;
-import com.mcreater.amcl.util.svg.AbstractSVGIcons;
-import com.mcreater.amcl.util.svg.SVGIcons;
 import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.multiThread.Run;
+import com.mcreater.amcl.util.svg.AbstractSVGIcons;
+import com.mcreater.amcl.util.svg.SVGIcons;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
@@ -35,7 +34,6 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 
 public class Application extends javafx.application.Application {
     static Logger logger = LogManager.getLogger(Application.class);
@@ -49,6 +47,7 @@ public class Application extends javafx.application.Application {
     public static VersionInfoPage VERSIONINFOPAGE;
     public static AddModsPage ADDMODSPAGE;
     public static ModDownloadPage MODDOWNLOADPAGE;
+    public static DownloadMcPage DOWNLOADMCPAGE;
     public static ConfigWriter configReader;
     public static LanguageManager languageManager;
     public static ThemeManager themeManager;
@@ -57,8 +56,10 @@ public class Application extends javafx.application.Application {
     public static double barSize = 45;
     public static int width = 800;
     public static int height = 480;
+    public static Label ln;
     @Override
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException {
+        Fonts.loadFont();
         if (is_t) {
             languageManager = new LanguageManager(null);
             themeManager = new ThemeManager();
@@ -81,7 +82,6 @@ public class Application extends javafx.application.Application {
             } catch (Exception e) {
                 logger.error("failed to read config", e);
             }
-
             languageManager.setLanguage(LanguageManager.valueOf(configReader.configModel.language));
             MAINPAGE = new MainPage(width, height);
             CONFIGPAGE = new ConfigPage(width, height);
@@ -89,7 +89,9 @@ public class Application extends javafx.application.Application {
             VERSIONINFOPAGE = new VersionInfoPage(width, height);
             ADDMODSPAGE = new AddModsPage(width, height);
             MODDOWNLOADPAGE = new ModDownloadPage(width, height);
+            DOWNLOADMCPAGE = new DownloadMcPage(width, height);
 
+            languageManager.bindAll(MAINPAGE, CONFIGPAGE, VERSIONSELECTPAGE, VERSIONINFOPAGE, ADDMODSPAGE, MODDOWNLOADPAGE, DOWNLOADMCPAGE);
             themeManager.apply(this);
 
             setBackground();
@@ -141,14 +143,14 @@ public class Application extends javafx.application.Application {
             Run.run(last::refreshLanguage).start();
             Run.run(last::refreshType).start();
             refresh();
-            setPageCore(n);
+            setPageCore();
         }
     }
     public static AbstractSVGIcons getSVGManager(){
         return new SVGIcons();
     }
 
-    public static void setPageCore(AbstractAnimationPage n){
+    public static void setPageCore(){
         double t_size = barSize;
         VBox top = new VBox();
         top.setId("top-bar");
@@ -180,16 +182,16 @@ public class Application extends javafx.application.Application {
         back.setGraphic(getSVGManager().back(Bindings.createObjectBinding(() -> Paint.valueOf("#000000")), t_size / 3 * 2, t_size / 3 * 2));
         back.setButtonType(JFXButton.ButtonType.RAISED);
         AbstractAnimationPage lpa = last.l;
-        Label ln = new Label();
+        ln = new Label();
+        ln.setFont(Fonts.s_f);
         if (lpa == null) back.setDisable(true);
         else{
             back.setOnAction(event -> {
                 configReader.write();
                 setPage(lpa, lpa);
             });
-            ln.setText(lpa.name);
         }
-        ln.setFont(Fonts.s_f);
+        setTitle();
         set(back, t_size / 6 * 5);
         set(min, t_size / 6 * 5);
         set(close, t_size / 6 * 5);
@@ -215,14 +217,11 @@ public class Application extends javafx.application.Application {
         s.setFill(Color.TRANSPARENT);
         stage.setScene(s);
     }
-    public static void setAllPage(AbstractAnimationPage n){
-        MAINPAGE.name = languageManager.get("ui.mainpage.name");
-        VERSIONSELECTPAGE.name = languageManager.get("ui.versionselectpage.name");
-        CONFIGPAGE.name = languageManager.get("ui.configpage.name");
-        VERSIONINFOPAGE.name = languageManager.get("ui.versioninfopage.name");
-        ADDMODSPAGE.name = languageManager.get("ui.addmodspage.name");
-        MODDOWNLOADPAGE.name = languageManager.get("ui.moddownloadpage.name");
-        setPageCore(n);
+    public static void setTitle(){
+        AbstractAnimationPage lpa = last.l;
+        if (lpa != null){
+            ln.setText(lpa.name);
+        }
     }
     public static void setGeometry(Stage s, double width, double height){
         s.setWidth(width);
@@ -259,5 +258,6 @@ public class Application extends javafx.application.Application {
         VERSIONINFOPAGE.setBackground(bg);
         ADDMODSPAGE.setBackground(bg);
         MODDOWNLOADPAGE.setBackground(bg);
+        DOWNLOADMCPAGE.setBackground(bg);
     }
 }

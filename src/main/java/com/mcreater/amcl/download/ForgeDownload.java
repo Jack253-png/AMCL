@@ -1,14 +1,18 @@
 package com.mcreater.amcl.download;
 
+import com.alibaba.fastjson.JSON;
+import org.json.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.download.tasks.*;
 import com.mcreater.amcl.game.getPath;
 import com.mcreater.amcl.model.LibModel;
+import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.forge.*;
 import com.mcreater.amcl.util.*;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
-import org.json.JSONObject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -17,10 +21,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import static com.mcreater.amcl.util.ForgeMapplingsPathGetter.*;
 
@@ -28,6 +29,8 @@ public class ForgeDownload {
     static int chunkSize;
     static Vector<AbstractTask> tasks = new Vector<>();
     static Logger logger = LogManager.getLogger(ForgeDownload.class);
+    static String versiondir;
+    static String u;
     public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String forge_version) throws IOException, ParserConfigurationException, SAXException, InterruptedException {
         tasks.clear();
         ForgeDownload.chunkSize = chunkSize;
@@ -47,18 +50,25 @@ public class ForgeDownload {
         else{
             throw new IOException();
         }
+        String temp_path = "forgeTemp";
         OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
+        String versionPath = LinkPath.link(temp_path, "version.json");
+        versiondir = String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name);
+        VersionJsonModel model225 = new Gson().fromJson(FileStringReader.read(versiondir), VersionJsonModel.class);
+        try {
+            u = FasterUrls.fast(model225.downloads.get("client_mappings").url, faster);
+        }
+        catch (NullPointerException ignored){}
         String final_version = String.format("%s-%s", id, c);
         String installer_url = String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%s/forge-%s-installer.jar", final_version, final_version);
         installer_url = FasterUrls.fast(installer_url, faster);
-        String temp_path = "forgeTemp";
         String installer_path = LinkPath.link(temp_path, "installer.jar");
         logger.info(installer_url);
         deleteDirectory(new File(temp_path), temp_path);
         new File(temp_path).mkdirs();
         new ForgeInstallerDownloadTask(installer_url, installer_path, chunkSize).execute();
+//      int i = 0;
         ZipUtil.unzipAll(installer_path, temp_path);
-        String versionPath = LinkPath.link(temp_path, "version.json");
         String lib_base = LinkPath.link(minecraft_dir, "libraries");
         if (new File(versionPath).exists()){
             String t = FileStringReader.read(versionPath);
@@ -71,7 +81,7 @@ public class ForgeDownload {
                 if (Objects.equals(m.downloads.artifact.get("url"), "")){
                     String extract = GetPath.get(LinkPath.link(lib_base, m.downloads.artifact.get("path")));
                     String com = String.format("\"%s\" -jar %s --extract %s",LinkPath.link(System.getProperty("java.home"), "bin\\java.exe").replace("\\", "/"), installer_path.replace("\\", "/"), extract);
-                    if (new ForgeExtractTask(com).execute() != 0){
+                    if (new ForgeExtractTask(com, extract).execute() != 0){
                         throw new IOException("Install Failed");
                     }
                 }
@@ -87,8 +97,10 @@ public class ForgeDownload {
                 for (Object o : model.arguments.game){
                     ao.getJSONObject("arguments").getJSONArray("game").put(o.toString());
                 }
-                for (Object o1 : model.arguments.jvm){
-                    ao.getJSONObject("arguments").getJSONArray("jvm").put(o1.toString());
+                if (model.arguments.jvm != null) {
+                    for (Object o1 : model.arguments.jvm) {
+                        ao.getJSONObject("arguments").getJSONArray("jvm").put(o1.toString());
+                    }
                 }
             }
             BufferedWriter w = new BufferedWriter(new FileWriter(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)));
@@ -176,7 +188,7 @@ public class ForgeDownload {
                     logger.info(p);
                     ChangeDir.changeTo(p);
                     String com = String.format("\"%s\" -jar %s --extract",LinkPath.link(System.getProperty("java.home"), "bin\\java.exe").replace("\\", "/"), i);
-                    if (new ForgeExtractTask(com).execute() != 0){
+                    if (new ForgeExtractTask(com, p).execute() != 0){
                         throw new IOException("Install Failed");
                     }
                     ChangeDir.changeToDefault();
@@ -195,16 +207,12 @@ public class ForgeDownload {
                     String path = LinkPath.link(lib_base, getPath.get(model1.name));
                     String url;
                     url = "https://maven.minecraftforge.net/" + getPath.get(model1.name).replace("\\", "/");
+                    url = FasterUrls.fast(url, faster);
                     if (!GetFileExists.get(url)){
                         url = "https://libraries.minecraft.net/" + getPath.get(model1.name).replace("\\", "/");
+                        url = FasterUrls.fast(url, faster);
                     }
                     url = FasterUrls.fast(url, faster);
-                    ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
-                    LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, faster), path, chunkSize);
-                    if (model1.checksums != null){
-                        te.setHash(model1.checksums.get(0));
-                    }
-                    tasks.add(te);
                     if (model1.name.contains("guava")){
                         Iterator<Object> t = ao.getJSONArray("libraries").iterator();
                         while (t.hasNext()){
@@ -214,6 +222,12 @@ public class ForgeDownload {
                             }
                         }
                     }
+                    ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
+                    LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, faster), path, chunkSize);
+                    if (model1.checksums != null){
+                        te.setHash(model1.checksums.get(0));
+                    }
+                    tasks.add(te);
                 }
             }
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)));
@@ -265,5 +279,9 @@ public class ForgeDownload {
         else{
             return true;
         }
+    }
+    public static void download_mojmaps(String local) throws IOException {
+        System.err.println(u);
+        new DownloadTask(u, local, 1024).execute();
     }
 }

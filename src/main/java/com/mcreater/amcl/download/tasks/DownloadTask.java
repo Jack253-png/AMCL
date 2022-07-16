@@ -14,16 +14,14 @@ public class DownloadTask extends AbstractTask{
     HttpURLConnection conn;
     FileOutputStream fos = null;
     InputStream inputStream = null;
-    public DownloadTask(String server, String local) {
+    public DownloadTask(String server, String local) throws FileNotFoundException {
         super(server, local);
         this.server = this.server.replace("http:", "https:");
         this.server = this.server.replace("maven.modmuss50.me", "maven.fabricmc.net");
     }
-    public DownloadTask(String server, String local, int chunkSize) {
+    public DownloadTask(String server, String local, int chunkSize) throws FileNotFoundException {
         super(server, local);
-        if (!this.server.contains("https")){
-            this.server = this.server.replace("http", "https");
-        }
+        this.server = this.server.replace("http:", "https:");
         this.server = this.server.replace("maven.modmuss50.me", "maven.fabricmc.net");
         this.chunkSize = chunkSize;
     }
@@ -38,16 +36,16 @@ public class DownloadTask extends AbstractTask{
     public HttpURLConnection getConnection() throws IOException {
         URL url = new URL(this.server);
         HttpURLConnection c = (HttpURLConnection) url.openConnection();
-        c.setConnectTimeout(15000);
+        c.setConnectTimeout(20000);
         return c;
     }
     public void clean() throws IOException {
         new File(local).delete();
+        System.gc();
     }
     public void download() throws IOException {
         inputStream = conn.getInputStream();
 
-        //写入到文件
         fos = new FileOutputStream(this.local);
         byte[] buffer = new byte[chunkSize];
         int len;
@@ -65,7 +63,7 @@ public class DownloadTask extends AbstractTask{
                 download();
             }
             else{
-                throw new IOException();
+//                throw new IOException();
             }
         }
         else {
@@ -78,7 +76,13 @@ public class DownloadTask extends AbstractTask{
             try {
                 d();
             } catch (Exception e) {
+                e.printStackTrace();
+                fos.close();
                 clean();
+                try {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException e1){}
                 execute();
             } finally {
                 try {
@@ -86,6 +90,7 @@ public class DownloadTask extends AbstractTask{
                     inputStream.close();
                 }
                 catch (NullPointerException ignored){
+                    return null;
                 }
             }
         }
@@ -106,7 +111,6 @@ public class DownloadTask extends AbstractTask{
                 execute();
             }
         }
-        System.out.printf("%s -> %s\n", this.server, this.local);
         return null;
     }
 }

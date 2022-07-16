@@ -10,7 +10,9 @@ public class RemoteMod extends VBox {
     public Label version;
     public Label desc;
     public Label authors;
+    public String path;
     public RemoteMod(CommonModInfoModel model){
+        this.path = model.path;
         name = new Label(model.name);
         name.setFont(Fonts.s_f);
         name.setStyle("word-break:break-all;word-wrap:break-word;");

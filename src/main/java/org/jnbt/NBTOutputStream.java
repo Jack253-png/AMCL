@@ -37,6 +37,8 @@ package org.jnbt;
 
 //@formatter:on
 
+import org.jnbt.tags.*;
+
 import java.io.Closeable;
 import java.io.DataOutputStream;
 import java.io.IOException;

@@ -3,8 +3,10 @@ package com.mcreater.amcl.game.launch;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Application;
+import com.mcreater.amcl.download.tasks.DownloadTask;
 import com.mcreater.amcl.exceptions.*;
 import com.mcreater.amcl.game.getPath;
+import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.nativeInterface.EnumWindow;
@@ -30,7 +32,7 @@ public class Launch {
     public Process p;
     ProcessDialog d;
     Logger logger = LogManager.getLogger(this.getClass());
-    public void launch(String java_path, String dir, String version_name, boolean ie, int m) throws IllegalStateException, InterruptedException, LaunchException {
+    public void launch(String java_path, String dir, String version_name, boolean ie, int m) throws IllegalStateException, InterruptedException, LaunchException, IOException {
         MainPage.d.Create();
         MainPage.d.setV(0, 5, Application.languageManager.get("ui.launch._01"));
         java = java_path;
@@ -80,7 +82,25 @@ public class Launch {
                 }
                 if (new File(LinkPath.link(libf.getPath(), getPath.get(l.name))).exists()) {
                     if (!libs.contains(LinkPath.link(libf.getPath(), getPath.get(l.name)))) {
-                        libs.add(LinkPath.link(libf.getPath(), getPath.get(l.name)));
+                        if (l.name.contains("org.apache.logging.log4j:log4j-api:2.8.1") || l.name.contains("org.apache.logging.log4j:log4j-core:2.8.1")){
+                            if (versionTypeGetter.get(dir, version_name).contains("forge")) {
+                                String local = LinkPath.link(libf.getPath(), getPath.get(l.name)).replace("2.8.1", "2.15.0");
+                                new File(GetPath.get(local)).mkdirs();
+                                String server = FasterUrls.fast(l.downloads.artifact.get("url"), false).replace("2.8.1", "2.15.0");
+                                System.out.println(local);
+                                System.out.println(server);
+                                if (!Objects.equals(l.downloads.artifact.get("sha1"), HashHelper.getFileSHA1(new File(local)))) {
+                                    new DownloadTask(server, local, 1024).setHash(l.downloads.artifact.get("sha1")).execute();
+                                }
+                                libs.add(local);
+                            }
+                            else{
+                                libs.add(LinkPath.link(libf.getPath(), getPath.get(l.name)));
+                            }
+                        }
+                        else {
+                            libs.add(LinkPath.link(libf.getPath(), getPath.get(l.name)));
+                        }
                     }
                 }
             }
@@ -184,6 +204,7 @@ public class Launch {
         arguments = arguments.replace("${auth_access_token}","8".repeat(18));
         arguments = arguments.replace("${auth_session}","8".repeat(18));
         arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
+        arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", Vars.launcher_name, Vars.launcher_version));
 
         jvm = "-Dfile.encoding=GB18030 -Dminecraft.client.jar=${jar_path} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16m -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -XX:-DontCompileHugeMethods -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false -Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false -Dlog4j2.formatMsgNoLookups=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Djava.library.path=${native_path} -Dminecraft.launcher.brand=${launcher_brand} -Dminecraft.launcher.version=${launcher_version}";
         jvm = jvm.replace("${jar_path}", String.format("\"%s\"", jar_file.getPath()));

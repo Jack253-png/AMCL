@@ -6,9 +6,11 @@ import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXProgressBar;
 import com.mcreater.amcl.Application;
+import com.mcreater.amcl.pages.interfaces.Fonts;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Modality;
 
 import java.util.Vector;
@@ -25,7 +27,8 @@ public class ProcessDialog extends JFXAlert<String> {
         JFXDialogLayout layout = new JFXDialogLayout();
         progresses = new Vector<>();
         l = new Label();
-        p = new JFXListView<>();
+        l.setFont(Fonts.t_f);
+//        p = new JFXListView<>();
         VBox b = new VBox();
         b.setSpacing(10);
         for (int i = 0;i < process_num;i++){
@@ -34,7 +37,7 @@ public class ProcessDialog extends JFXAlert<String> {
             b.getChildren().add(bar);
         }
         b.getChildren().add(l);
-        layout.setHeading(new Label(title));
+        layout.setHeading(setFont(new Label(title), Fonts.s_f));
         layout.setBody(b);
         this.setOnHidden(event -> {});
         this.setOnHiding(event -> {});
@@ -49,5 +52,9 @@ public class ProcessDialog extends JFXAlert<String> {
     }
     public void Create(){
         Platform.runLater(this::show);
+    }
+    private static Label setFont(Label l, Font font){
+        l.setFont(font);
+        return l;
     }
 }

@@ -12,21 +12,18 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.ChangeDir;
 import com.mcreater.amcl.util.SetSize;
 import com.mcreater.amcl.util.Vars;
-import com.mcreater.amcl.util.svg.SVGIcons;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 public class MainPage extends AbstractAnimationPage {
     Label title;
@@ -93,6 +90,8 @@ public class MainPage extends AbstractAnimationPage {
                         logger.info("failed to launch", e);
                         launchButton.setDisable(false);
                         Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.mainpage.launch.launchFailed.name"), Application.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
                 });
                 la.setName("Launch Thread");
@@ -132,6 +131,7 @@ public class MainPage extends AbstractAnimationPage {
 
         settings.setOnAction(event -> Application.setPage(Application.CONFIGPAGE, this));
         version_settings.setOnAction(event -> Application.setPage(Application.VERSIONINFOPAGE, this));
+        downloadMc.setOnAction(event -> Application.setPage(Application.DOWNLOADMCPAGE, this));
 
         is_vaild_minecraft_dir = Application.configReader.configModel.selected_minecraft_dir.contains(Application.configReader.configModel.selected_minecraft_dir_index) && new File(Application.configReader.configModel.selected_minecraft_dir_index).exists();
 

@@ -1,8 +1,7 @@
 package com.mcreater.amcl.api.minecraftSaves;
 
-import org.jnbt.NBTHelper;
 import org.jnbt.NBTInputStream;
-import org.jnbt.Tag;
+import org.jnbt.tags.Tag;
 
 import java.io.FileInputStream;
 import java.io.IOException;

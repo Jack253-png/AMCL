@@ -56,6 +56,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
         p.add(new SettingPage(800, 480 - 45 - 70, v), 0, 0, 1, 1);
         installRequires = new JFXCheckBox();
         installRequires.selectedProperty().set(true);
+        installRequires.setFont(Fonts.t_f);
         install = new JFXButton();
         install.setButtonType(JFXButton.ButtonType.RAISED);
         install.setFont(Fonts.t_f);
@@ -154,6 +155,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     TitledPane pane = new TitledPane();
                     pane.setText(s1);
                     pane.setExpanded(false);
+                    pane.setFont(Fonts.t_f);
                     SetSize.setWidth(pane, 800);
                     VBox b = new VBox();
                     for (CurseModFileModel u : files) {

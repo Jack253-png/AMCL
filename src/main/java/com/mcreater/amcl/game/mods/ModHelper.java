@@ -15,6 +15,7 @@ import com.mcreater.amcl.util.LinkPath;
 import com.mcreater.amcl.util.ZipUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Vector;
 
 public class ModHelper {
@@ -43,7 +44,7 @@ public class ModHelper {
         String v = versionTypeGetter.get(dir, version_name);
         return v.contains("forge") || v.contains("fabric") || v.contains("liteloader");
     }
-    public static CommonModInfoModel getModInfo(String path){
+    public static CommonModInfoModel getModInfo(String path) throws IOException {
         FileUtils.del("modTemp");
         ZipUtil.unzipAll(path, "modTemp");
         String version = "";
@@ -64,11 +65,12 @@ public class ModHelper {
         else if (new File("modTemp/pack.mcmeta").exists()){
             String j = FileStringReader.read("modTemp/pack.mcmeta");
             SimpleModInfoModel model = new Gson().fromJson(j, SimpleModInfoModel.class);
+            name = model.pack.get("description");
             description = model.pack.get("description");
         }
         if (new File("modTemp/fabric.mod.json").exists()) {
             String j = FileStringReader.read("modTemp/fabric.mod.json");
-            FabricModInfoModel model = null;
+            FabricModInfoModel model;
             try {
                 model = new Gson().fromJson(j, FabricModInfoModel.class);
             } catch (Exception e) {
@@ -90,6 +92,7 @@ public class ModHelper {
         m1.name = name;
         m1.description = description;
         m1.authorList = authorList;
+        m1.path = path;
         FileUtils.del("modTemp");
         return m1;
     }

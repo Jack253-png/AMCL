@@ -1,8 +1,9 @@
 package org.jnbt;
 
+import org.jnbt.tags.Tag;
+
 import java.util.Collection;
 import java.util.Map;
-import java.util.Vector;
 
 public final class NBTHelper {
     public static Tag get(Tag tag, String s){

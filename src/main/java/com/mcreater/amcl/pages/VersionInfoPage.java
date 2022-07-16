@@ -9,13 +9,18 @@ import com.mcreater.amcl.game.mods.ModHelper;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
+import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.SetSize;
+import com.sun.jna.platform.FileUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
+import javafx.collections.ListChangeListener;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -26,6 +31,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.Vector;
@@ -54,6 +60,7 @@ public class VersionInfoPage extends AbstractAnimationPage {
     JFXButton setted;
     JFXProgressBar bar;
     JFXButton refresh;
+    JFXButton delete;
     SettingPage sett;
     public VersionInfoPage(double width, double height){
         super(width, height);
@@ -120,12 +127,42 @@ public class VersionInfoPage extends AbstractAnimationPage {
         refresh.setGraphic(Application.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         refresh.setOnAction(actionEvent -> new Thread(this::loadMods).start());
 
+        delete = new JFXButton();
+        SetSize.set(delete, t_size, t_size);
+        delete.setGraphic(Application.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
+        delete.setOnAction(event -> {
+            ProcessDialog dialog = new ProcessDialog(1, Application.languageManager.get("ui.versioninfopage.deletemod.deleteing.title"));
+            dialog.Create();
+            dialog.setV(0, 50, modList.getSelectionModel().getSelectedItem().name.getText());
+            new Thread(() -> {
+                String path = modList.getSelectionModel().getSelectedItem().path;
+                File f = new File(path);
+                FileUtils fu = FileUtils.getInstance();
+                if (fu.hasTrash()){
+                    try {
+                        fu.moveToTrash(f);
+                    } catch (IOException e) {
+                        f.delete();
+                    }
+                }
+                else{
+                    f.delete();
+                }
+                Platform.runLater(dialog::close);
+            }).start();
+            new Thread(this::loadMods).start();
+
+        });
+
+        modList.getSelectionModel().getSelectedItems().addListener((ListChangeListener<RemoteMod>) c -> delete.setDisable(modList.getSelectionModel().getSelectedItem() == null));
+
         bar = new JFXProgressBar(-1.0D);
         SetSize.setWidth(bar, this.width / 4 * 3);
         mods.add(addMod, 0, 0, 1, 1);
         mods.add(refresh, 1, 0, 1, 1);
-        mods.add(bar, 0, 1, 2, 1);
-        mods.add(modList, 0, 2, 2, 1);
+        mods.add(delete, 2, 0, 1, 1);
+        mods.add(bar, 0, 1, 3, 1);
+        mods.add(modList, 0, 2, 3, 1);
         b2.getChildren().addAll(mods);
 
         p2 = new SettingPage(this.width / 4 * 3, this.height - t_size, b2);
@@ -207,29 +244,37 @@ public class VersionInfoPage extends AbstractAnimationPage {
         refresh.setDisable(b);
     }
     public void loadMods(){
-        Platform.runLater(() -> setP1(sett));
-        Platform.runLater(() -> bar.setProgress(-1.0D));
-        Platform.runLater(modList.getItems()::clear);
-        Platform.runLater(() -> setType(true));
-        Vector<File> f = ModHelper.getMod(Application.configReader.configModel.selected_minecraft_dir_index,Application.configReader.configModel.selected_version_index);
-        for (File file : f){
-            CommonModInfoModel model = ModHelper.getModInfo(file.getPath());
-            if (!Objects.equals(model.name, "")) {
-                RemoteMod m = new RemoteMod(model);
-                Platform.runLater(() -> modList.getItems().add(m));
-                double d = (double) modList.getItems().size() / (double) f.size();
-                double lat = bar.getProgress();
-                for (int i = 0;i < 100;i++){
-                    int finalI = i;
-                    Platform.runLater(() -> bar.setProgress(lat + (d - lat) / 100 * finalI));
+        delete.setDisable(true);
+        try {
+            Platform.runLater(() -> setP1(sett));
+            Platform.runLater(() -> bar.setProgress(-1.0D));
+            Platform.runLater(modList.getItems()::clear);
+            Platform.runLater(() -> setType(true));
+            Vector<File> f = ModHelper.getMod(Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index);
+            for (File file : f) {
+                CommonModInfoModel model = ModHelper.getModInfo(file.getPath());
+                if (!Objects.equals(model.name, "")) {
+                    RemoteMod m = new RemoteMod(model);
+                    Platform.runLater(() -> modList.getItems().add(m));
+                    double d = (double) modList.getItems().size() / (double) f.size();
+                    double lat = bar.getProgress();
+                    for (int i = 0; i < 100; i++) {
+                        int finalI = i;
+                        Platform.runLater(() -> bar.setProgress(lat + (d - lat) / 100 * finalI));
+                    }
+                    Platform.runLater(() -> bar.setProgress(d));
                 }
-                Platform.runLater(() -> bar.setProgress(d));
             }
+            Platform.runLater(() -> bar.setProgress(1.0D));
+            sleep(50);
+            Platform.runLater(() -> setType(false));
         }
-        Platform.runLater(() -> bar.setProgress(1.0D));
-        sleep(50);
-        Platform.runLater(() -> setType(false));
-        setType(setted);
+        catch (IOException e){
+        }
+        finally {
+            setType(setted);
+            delete.setDisable(true);
+        }
     }
     public void sleep(long l){
         try {Thread.sleep(l);}

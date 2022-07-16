@@ -25,6 +25,7 @@ import javafx.stage.FileChooser;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
@@ -39,7 +40,7 @@ public class ConfigPage extends AbstractAnimationPage {
     VBox configs_box;
 
     Label java_label;
-    JFXComboBox<String> java_set;
+    JFXComboBox<Label> java_set;
     JFXButton java_add;
     JFXButton java_get;
     HBox java_box;
@@ -49,7 +50,7 @@ public class ConfigPage extends AbstractAnimationPage {
     GridPane mem_pane;
 
     Label lang_label;
-    JFXComboBox<String> lang_set;
+    JFXComboBox<Label> lang_set;
     HBox lang_box;
 
     Map<String, String> langs;
@@ -108,9 +109,7 @@ public class ConfigPage extends AbstractAnimationPage {
 
         java_set = new JFXComboBox<>();
         load_java_list();
-        java_set.setOnAction(event -> {
-            Application.configReader.configModel.selected_java_index = java_set.getValue();
-        });
+        java_set.setOnAction(event -> Application.configReader.configModel.selected_java_index = java_set.getValue().getText());
 
         java_add = new JFXButton();
         java_add.setDefaultButton(true);
@@ -155,14 +154,15 @@ public class ConfigPage extends AbstractAnimationPage {
 
         lang_set = new JFXComboBox<>();
         for (Map.Entry<String, String> entry : langs.entrySet()) {
-            lang_set.getItems().add(entry.getKey());
+            Label l = new Label(entry.getKey());
+            l.setFont(Fonts.t_f);
+            lang_set.getItems().add(l);
         }
-        lang_set.getSelectionModel().select(getKey(langs, Application.configReader.configModel.language));
+        lang_set.getSelectionModel().select(getKey(Application.configReader.configModel.language));
         lang_set.setOnAction(event -> {
-            Application.configReader.configModel.language = langs.get(lang_set.getValue());
+            Application.configReader.configModel.language = langs.get(lang_set.getValue().getText());
             Application.languageManager.setLanguage(LanguageManager.valueOf(Application.configReader.configModel.language));
-            refreshLanguage();
-            Application.setAllPage(this);
+            Application.setTitle();
         });
 
         lang_box = new HBox();
@@ -177,6 +177,7 @@ public class ConfigPage extends AbstractAnimationPage {
 
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
         java_add.setButtonType(JFXButton.ButtonType.RAISED);
+        SetSize.setWidth(java_set, width / 2);
 
         mainBox = new VBox();
 
@@ -227,12 +228,16 @@ public class ConfigPage extends AbstractAnimationPage {
     }
     public void load_java_list(){
         java_set.getItems().clear();
-        java_set.getItems().addAll(Application.configReader.configModel.selected_java);
+        for (String s : Application.configReader.configModel.selected_java) {
+            Label l = new Label(s);
+            l.setFont(Fonts.t_f);
+            java_set.getItems().add(l);
+        }
         if (Application.configReader.configModel.selected_java.contains(Application.configReader.configModel.selected_java_index) || new File(Application.configReader.configModel.selected_java_index).exists()){
             java_set.getSelectionModel().select(Application.configReader.configModel.selected_java.indexOf(Application.configReader.configModel.selected_java_index));
         }
         else{
-            java_set.getSelectionModel().select("");
+            java_set.getSelectionModel().clearSelection();
         }
     }
     public void refresh(){
@@ -262,13 +267,18 @@ public class ConfigPage extends AbstractAnimationPage {
 
     }
 
-    private static String getKey(Map<String,String> map,String value){
-        String key="";
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            if(value.equals(entry.getValue())){
-                key=entry.getKey();
+    private int getKey(String value){
+        for (Label l : lang_set.getItems()){
+            String key = "";
+            for (Map.Entry<String, String> entry : langs.entrySet()){
+                if (Objects.equals(entry.getValue(), value)){
+                    key = entry.getKey();
+                }
+            }
+            if (Objects.equals(l.getText(), key)){
+                return lang_set.getItems().indexOf(l);
             }
         }
-        return key;
+        return -1;
     }
 }

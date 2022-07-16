@@ -18,7 +18,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 public class OptifineDownload {
     public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version) throws IOException, InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
@@ -28,17 +31,20 @@ public class OptifineDownload {
         if (!model.versions.contains(id)){
             throw new IOException();
         }
-        OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
-        JSONObject ob = new JSONObject(new Gson().fromJson(OriginalDownload.getVJ(), Map.class));
         String opti = null;
         for (optifineJarModel m : model.files){
-            if (m.name.contains(id) && m.name.contains(optifine_version)) {
+            if (m.name.contains(id.replace("beta ", "beta_")) && m.name.contains(optifine_version)) {
                 opti = m.name;
             }
         }
         if (opti == null){
             throw new IOException();
         }
+        if (opti.contains("legacy")){
+            throw new IOException();
+        }
+        OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
+        JSONObject ob = new JSONObject(new Gson().fromJson(OriginalDownload.getVJ(), Map.class));
         new OptiFineInstallerDownloadTask(opti, "opti.jar").execute();
         ChangeDir.saveNowDir();
         ReflectedJar jar = ReflectHelper.getReflectedJar("opti.jar");
@@ -46,13 +52,25 @@ public class OptifineDownload {
         String ofVer = (String) jar.invokeNoArgsMethod(installer, "getOptiFineVersion");
         String[] ofVers = (String[]) jar.invokeStaticMethod(jar.getJarClass("optifine.Utils"), "tokenize", new String[]{ofVer, "_"}, String.class, String.class);
         String ofEd = (String) jar.invokeMethod(installer, "getOptiFineEdition", new Object[]{ofVers}, String[].class);
-        jar.invokeMethod(installer, "installOptiFineLibrary", new Object[]{id, ofEd, new File(LinkPath.link(minecraft_dir, "libraries")), false}, String.class, String.class, File.class, boolean.class);
+        jar.invokeMethod(installer, "installOptiFineLibrary", new Object[]{version_name, ofEd, new File(LinkPath.link(minecraft_dir, "libraries")), false}, String.class, String.class, File.class, boolean.class);
         try{
             jar.invokeMethod(installer, "installLaunchwrapperLibrary", new Object[]{id, ofEd, new File(LinkPath.link(minecraft_dir, "libraries"))}, String.class, String.class, File.class);
         }
         catch (Exception ignored){}
         jar.invokeMethod(installer, "updateJson", new Object[]{new File(LinkPath.link(minecraft_dir, "versions")), version_name, new File(LinkPath.link(minecraft_dir, "libraries")), id, ofEd}, File.class, String.class, File.class, String.class, String.class);
         JSONObject f = new JSONObject(new Gson().fromJson(FileStringReader.read(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)), Map.class));
+        Vector<Map<String, String>> oflibs = new Vector<>();
+        for (Object o : f.getJSONArray("libraries")){
+            Map<String, String> s = (Map<String, String>) o;
+            if (s.get("name").contains("optifine:OptiFine")){
+                List<String> l = new ArrayList<>(List.of(s.get("name").split(":")));
+                l.set(2, String.format("%s_%s", version_name, ofEd));
+                s.put("name", String.join(":", l));
+            }
+            oflibs.add(s);
+        }
+        f.getJSONArray("libraries").clear();
+        f.getJSONArray("libraries").addAll(oflibs);
         for (Object o : ob.getJSONArray("libraries")){
             f.getJSONArray("libraries").add(o);
         }

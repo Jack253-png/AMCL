@@ -1,8 +1,6 @@
 package com.mcreater.amcl.api.minecraftSaves;
 
-import org.jnbt.DoubleTag;
-import org.jnbt.FloatTag;
-import org.jnbt.Tag;
+import org.jnbt.tags.FloatTag;
 
 import java.util.Collection;
 import java.util.List;

@@ -1,11 +1,13 @@
 package com.mcreater.amcl.download.tasks;
 
+import com.mcreater.amcl.download.ForgeDownload;
 import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.util.GetJarMainClass;
 import com.mcreater.amcl.util.GetPath;
 import com.mcreater.amcl.util.LinkPath;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Vector;
 
 public class ForgePatchTask extends AbstractTask{
@@ -24,20 +26,26 @@ public class ForgePatchTask extends AbstractTask{
             b.append(s1).append(";");
         }
         b.replace(b.length(), b.length(), "\"");
-        String com = String.format("%s %s %s %s", LinkPath.link(System.getProperty("java.home"), "bin\\java.exe"), b.toString(), mainClass, args);
-        this.command = com;
+        this.command = String.format("\"%s\" %s %s %s", LinkPath.link(System.getProperty("java.home"), "bin\\java.exe"), b, mainClass, args);
     }
     public Integer execute() throws IOException {
-        Process p = Runtime.getRuntime().exec(command);
-        while (true){
-            try{
-                System.out.println(Launch.ret(p.getInputStream()));
-                exit = p.exitValue();
-                return exit;
+        if (!command.contains("DOWNLOAD_MOJMAPS")) {
+            Process p = Runtime.getRuntime().exec(command);
+            while (true) {
+                try {
+                    System.out.println(Launch.ret(p.getInputStream()));
+                    System.err.println(Launch.ret(p.getErrorStream()));
+                    exit = p.exitValue();
+                    return exit;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-            catch (Exception e){
-                e.printStackTrace();
-            }
+        }
+        else{
+            List<String> l = List.of(command.split(" "));
+            ForgeDownload.download_mojmaps(l.get(l.size() - 1));
+            return 0;
         }
     }
 }

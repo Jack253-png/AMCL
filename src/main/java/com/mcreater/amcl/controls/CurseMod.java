@@ -44,10 +44,12 @@ public class CurseMod extends GridPane {
         }
         HBox authors = new HBox();
         base = new Label(Application.languageManager.get("ui.addmodspage.mod.authors.name"));
+        base.setFont(Fonts.t_f);
         authors.getChildren().add(base);
         for (CurseModAuthorModel m : model.authors){
             Hyperlink link = new Hyperlink(m.name);
             link.setOnAction(event -> BrowserHelper.open(m.url));
+            link.setFont(Fonts.t_f);
             Label comma = new Label(",");
             authors.getChildren().addAll(link, comma);
         }

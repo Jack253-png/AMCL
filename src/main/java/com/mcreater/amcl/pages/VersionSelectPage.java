@@ -3,6 +3,7 @@ package com.mcreater.amcl.pages;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
+import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.Application;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.versionTypeGetter;
@@ -150,6 +151,9 @@ public class VersionSelectPage extends AbstractAnimationPage {
         dot_minecraft_dir.getChildren().addAll(title,dirs,new MainPage.Spacer(),select_version,new MainPage.Spacer(),buttons);
 
         add_dir.setButtonType(JFXButton.ButtonType.RAISED);
+
+        JFXSmoothScroll.smoothScrollingListView(version_list, 0.5);
+        JFXSmoothScroll.smoothHScrollingListView(version_list, 0.5);
 
         this.add(dot_minecraft_dir, 0, 0, 1, 1);
         this.add(versionlist,1,0 ,1,1);
