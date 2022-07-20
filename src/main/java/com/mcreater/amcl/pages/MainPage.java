@@ -5,6 +5,7 @@ import com.mcreater.amcl.Application;
 import com.mcreater.amcl.exceptions.LaunchException;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
+import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
@@ -25,6 +26,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+
 public class MainPage extends AbstractAnimationPage {
     Label title;
     Label launch;
@@ -48,13 +50,13 @@ public class MainPage extends AbstractAnimationPage {
     public static boolean window_showed;
     public static ProcessDialog d;
     public static ProcessDialog l;
-    public MainPage(double width,double height){
+    public MainPage(double width,double height) {
         super(width, height);
         l = null;
         set();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (minecraft_running){
+            if (minecraft_running) {
                 g.p.destroy();
             }
         }));
@@ -76,16 +78,14 @@ public class MainPage extends AbstractAnimationPage {
                         if (new File(Application.configReader.configModel.selected_java_index).exists()) {
                             g.launch(Application.configReader.configModel.selected_java_index, Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index, Application.configReader.configModel.change_game_dir, Application.configReader.configModel.max_memory);
                             logger.info("started launch thread");
-                        }
-                        else{
+                        } else {
                             Application.configReader.configModel.selected_java.remove(Application.configReader.configModel.selected_java_index);
                             Application.configReader.configModel.selected_java_index = "";
                             Application.configReader.write();
                             Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.mainpage.launch.javaChecker.name"), Application.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), ""));
                             launchButton.setDisable(false);
                         }
-                    }
-                    catch (LaunchException | InterruptedException e){
+                    } catch (LaunchException | InterruptedException e) {
                         d.close();
                         logger.info("failed to launch", e);
                         launchButton.setDisable(false);
@@ -96,19 +96,18 @@ public class MainPage extends AbstractAnimationPage {
                 });
                 la.setName("Launch Thread");
                 la.start();
-            }
-            else{
+            } else {
                 if (d != null) d.close();
                 FastInfomation.create(Application.languageManager.get("ui.mainpage.launch.noVersion.name"), Application.languageManager.get("ui.mainpage.launch.noVersion.Headcontent"), Application.languageManager.get("ui.mainpage.launch.noVersion.content"));
             }
         });
-        if (minecraft_running){
+        if (minecraft_running) {
             launchButton.setDisable(true);
         }
 
         launchBox = new VBox();
         launchBox.setAlignment(Pos.BOTTOM_LEFT);
-        launchBox.setMaxSize(width / 2,height - 185);
+        launchBox.setMaxSize(width / 2, height - 185);
         launchBox.getChildren().add(launchButton);
 
         title = new Label();
@@ -141,8 +140,8 @@ public class MainPage extends AbstractAnimationPage {
             Application.setPage(Application.VERSIONSELECTPAGE, this);
         });
 
-        version_settings.setGraphic(Application.getSVGManager().gear(Bindings.createObjectBinding(this::returnBlack),25.0D,25.0D));
-        settings.setGraphic(Application.getSVGManager().gear(Bindings.createObjectBinding(this::returnBlack),25.0D,25.0D));
+        version_settings.setGraphic(Application.getSVGManager().gear(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
+        settings.setGraphic(Application.getSVGManager().gear(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
         downloadMc.setGraphic(Application.getSVGManager().downloadOutline(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
 
         LaunchTitle = new HBox();
@@ -168,6 +167,14 @@ public class MainPage extends AbstractAnimationPage {
         GameMenu.setId("game-menu");
         SetSize.set(GameMenu, width / 4, height);
         GameMenu.setAlignment(Pos.TOP_CENTER);
+
+        HBox hBox1 = new HBox();
+        SetSize.set(hBox1, width / 5, height);
+        HBox hBox2 = new HBox();
+        SetSize.set(hBox2, width / 5, height);
+
+
+
         GameMenu.getChildren().addAll(
                 title,
                 LaunchTitle,
@@ -187,15 +194,13 @@ public class MainPage extends AbstractAnimationPage {
                 downloadMc
         );
 
-        HBox hBox1 = new HBox();
-        SetSize.set(hBox1,width / 5,height);
-        HBox hBox2 = new HBox();
-        SetSize.set(hBox2,width / 5,height);
-
-        this.add(GameMenu,0,1,1,1);
-        this.add(hBox1,1,1,1,1);
-        this.add(hBox2,2,1,1,1);
-        this.add(launchBox,3,1,1,1);
+        this.add(GameMenu, 0, 1, 1, 1);
+        this.add(hBox1, 1, 1, 1, 1);
+        this.add(hBox2, 2, 1, 1, 1);
+        this.add(launchBox, 3, 1, 1, 1);
+//        this.getChildren().add(text);
+//        this.add(text, 1, 2, 1, 1);
+//        this.getChildren().add(text);
     }
     public static void check(){
         launchButton.setDisable(minecraft_running);
@@ -208,6 +213,7 @@ public class MainPage extends AbstractAnimationPage {
                 }
                 exit_code = null;
                 window_showed = false;
+                BGMManager.start();
             }
         }
     }

@@ -61,6 +61,17 @@ public class ThemeManager {
             }
         }
     }
+    public static void apply(SettingPage o1){
+        String theme_base_path = "assets/themes/%s/%s.css";
+        o1.getStylesheets().add(String.format(theme_base_path, themeName, o1.getClass().getSimpleName()));
+        for (Node n : GetAllNodes(o1.content)){
+            System.out.println(n.getClass().getSimpleName());
+            String sheetPath = String.format(theme_base_path, themeName, n.getClass().getSimpleName());
+            if (!(new ResourceGetter().get(sheetPath) == null)){
+                ((Parent) n).getStylesheets().add(sheetPath);
+            }
+        }
+    }
     public static String getPath(){
         return "assets/themes/" + ThemeManager.themeName + "/%s.css";
     }

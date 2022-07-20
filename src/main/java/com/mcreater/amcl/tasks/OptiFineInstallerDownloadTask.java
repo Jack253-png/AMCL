@@ -1,4 +1,4 @@
-package com.mcreater.amcl.download.tasks;
+package com.mcreater.amcl.tasks;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

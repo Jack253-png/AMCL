@@ -8,7 +8,8 @@ import javafx.scene.paint.Color;
 public abstract class AbstractAnimationPage extends GridPane implements AnimationPage {
     public String name;
     public AbstractAnimationPage l;
-    public double width, height;
+    public static double width;
+    public double height;
     public Color returnBlack() {
         return Color.BLACK;
     }

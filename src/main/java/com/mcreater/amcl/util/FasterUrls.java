@@ -19,7 +19,7 @@ public class FasterUrls {
         s.put("https://launchermeta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json", "https://bmclapi2.bangbang93.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json");
         s.put("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", "https://bmclapi2.bangbang93.com/maven/net/minecraftforge/forge/maven-metadata.xml");
         s.put("https://files.minecraftforge.net/maven", "https://bmclapi2.bangbang93.com/maven");
-        s.put("https://maven.minecraftforge.net/", "https://bmclapi2.bangbang93.com/maven");
+        s.put("https://maven.minecraftforge.net", "https://bmclapi2.bangbang93.com/maven");
 //        s.put("http://dl.liteloader.com/versions/versions.json", "https://bmclapi.bangbang93.com/maven/com/mumfrey/liteloader/versions.json");
         s.put("https://authlib-injector.yushi.moe", "https://bmclapi2.bangbang93.com/mirrors/authlib-injector");
         s.put("https://meta.fabricmc.net", "https://bmclapi2.bangbang93.com/fabric-meta");
@@ -54,7 +54,7 @@ public class FasterUrls {
         if (t) {
             for (String sr : s.keySet()) {
                 if (raw.contains(sr)) {
-                    return raw.replace(sr, s.get(sr));
+                    return raw.replace(sr, s.get(sr)).replace("https://bmclapi2.bangbang93.com/", "https://download.mcbbs.net/");
                 }
             }
         }

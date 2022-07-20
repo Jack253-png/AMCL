@@ -1,4 +1,4 @@
-package com.mcreater.amcl.download.tasks;
+package com.mcreater.amcl.tasks;
 
 import com.mcreater.amcl.util.ZipUtil;
 

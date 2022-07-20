@@ -1,18 +1,18 @@
 package com.mcreater.amcl.download;
 
-import com.alibaba.fastjson.JSON;
-import org.json.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import com.mcreater.amcl.download.tasks.*;
 import com.mcreater.amcl.game.getPath;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.forge.*;
+import com.mcreater.amcl.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.*;
 import com.mcreater.amcl.util.*;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,13 +21,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.mcreater.amcl.util.ForgeMapplingsPathGetter.*;
 
 public class ForgeDownload {
     static int chunkSize;
-    static Vector<AbstractTask> tasks = new Vector<>();
+    static Vector<Task> tasks = new Vector<>();
     static Logger logger = LogManager.getLogger(ForgeDownload.class);
     static String versiondir;
     static String u;
@@ -38,7 +37,7 @@ public class ForgeDownload {
         String c = null;
         if (vectorMap.get(id) != null){
             for (String version : vectorMap.get(id)){
-                if (version.contains(forge_version)){
+                if (Objects.equals(List.of(version.split("-")).get(0), forge_version)){
                     c = version;
                     break;
                 }
@@ -63,8 +62,9 @@ public class ForgeDownload {
         String installer_url = String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%s/forge-%s-installer.jar", final_version, final_version);
         installer_url = FasterUrls.fast(installer_url, faster);
         String installer_path = LinkPath.link(temp_path, "installer.jar");
-        logger.info(installer_url);
+        logger.info(String.format("finded forge installer url : %s", installer_url));
         deleteDirectory(new File(temp_path), temp_path);
+//        int i = 0;
         new File(temp_path).mkdirs();
         new ForgeInstallerDownloadTask(installer_url, installer_path, chunkSize).execute();
 //      int i = 0;
@@ -81,7 +81,8 @@ public class ForgeDownload {
                 if (Objects.equals(m.downloads.artifact.get("url"), "")){
                     String extract = GetPath.get(LinkPath.link(lib_base, m.downloads.artifact.get("path")));
                     String com = String.format("\"%s\" -jar %s --extract %s",LinkPath.link(System.getProperty("java.home"), "bin\\java.exe").replace("\\", "/"), installer_path.replace("\\", "/"), extract);
-                    if (new ForgeExtractTask(com, extract).execute() != 0){
+                    int returnCode = new ForgeExtractTask(com, extract, installer_path.replace("\\", "/"), new String[]{"--extract", extract}).execute();
+                    if (returnCode != 0){
                         throw new IOException("Install Failed");
                     }
                 }
@@ -112,29 +113,8 @@ public class ForgeDownload {
                 new File(GetPath.get(LinkPath.link(lib_base, m1.downloads.artifact.get("path").replace("/", "\\")))).mkdirs();
                 tasks.add(new LibDownloadTask(FasterUrls.fast(m1.downloads.artifact.get("url"), faster), LinkPath.link(lib_base, m1.downloads.artifact.get("path").replace("/", "\\")), chunkSize).setHash(m1.downloads.artifact.get("sha1")));
             }
-            AtomicInteger i = new AtomicInteger();
-            for (AbstractTask tse : tasks){
-                new Thread(() -> {
-                    while (true) {
-                        try {
-                            tse.execute();
-                            i.addAndGet(1);
-                            break;
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
-
-            }
-            do {
-                logger.info(String.format("%s / %s", i.get(), tasks.size()));
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            } while (i.get() != tasks.size());
+            TaskManager.addTasks(tasks);
+            TaskManager.execute("<forge>");
             Map<String, String> mapplings = new LinkedTreeMap<>();
             if (model1.data != null){
                 for (String key : model1.data.keySet()){
@@ -153,18 +133,22 @@ public class ForgeDownload {
             for (ForgeProcessorModel model2 : model1.processors){
                 if (model2.sides == null || model2.sides.contains("client")) {
                     StringBuilder argstr = new StringBuilder();
+                    Vector<String> args = new Vector<>();
                     for (String a : model2.args) {
                         if (checkIsForgePath(a)){
                             argstr.append(" ").append(LinkPath.link(lib_base, get(a)).replace("\\", "/"));
+                            args.add(LinkPath.link(lib_base, get(a)).replace("\\", "/"));
                         }
                         else if (checkIsMapKey(a)){
                             argstr.append(" ").append(mapplings.get(a));
+                            args.add(mapplings.get(a));
                         }
                         else{
                             argstr.append(" ").append(a);
+                            args.add(a);
                         }
                     }
-                    new ForgePatchTask(lib_base, model2.jar, model2.classpath, argstr.toString()).execute();
+                    new ForgePatchTask(lib_base, model2.jar, model2.classpath, argstr.toString(), args.toArray(new String[0])).execute();
                 }
             }
         }
@@ -188,7 +172,7 @@ public class ForgeDownload {
                     logger.info(p);
                     ChangeDir.changeTo(p);
                     String com = String.format("\"%s\" -jar %s --extract",LinkPath.link(System.getProperty("java.home"), "bin\\java.exe").replace("\\", "/"), i);
-                    if (new ForgeExtractTask(com, p).execute() != 0){
+                    if (new ForgeExtractTask(com, p, i, new String[]{"--extract"}).execute() != 0){
                         throw new IOException("Install Failed");
                     }
                     ChangeDir.changeToDefault();
@@ -233,31 +217,8 @@ public class ForgeDownload {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)));
             bufferedWriter.write(ao.toString());
             bufferedWriter.close();
-            AtomicInteger d = new AtomicInteger();
-            Vector<AbstractTask> tasks1 = new Vector<>();
-            for (AbstractTask task : tasks){
-                new Thread(() -> {
-                    try{
-                        task.execute();
-                        tasks1.add(task);
-                        d.addAndGet(1);
-                    }
-                    catch (IOException ignored){}
-                }).start();
-            }
-            do {
-                logger.info(String.format("%s / %s", d.get(), tasks.size()));
-                for (AbstractTask t2 : tasks){
-                    if (!tasks1.contains(t2)){
-                        logger.info(t2.server);
-                    }
-                }
-                try {
-                    Thread.sleep(1000);
-                }
-                catch (InterruptedException ignored){
-                }
-            } while (d.get() != tasks.size());
+            TaskManager.addTasks(tasks);
+            TaskManager.execute("<old forge>");
         }
         FileUtils.del(temp_path);
     }
@@ -281,7 +242,8 @@ public class ForgeDownload {
         }
     }
     public static void download_mojmaps(String local) throws IOException {
-        System.err.println(u);
-        new DownloadTask(u, local, 1024).execute();
+        logger.info(String.format("download mojmaps : %s", FasterUrls.fast(u, true)));
+        new File(GetPath.get(local)).mkdirs();
+        new DownloadTask(FasterUrls.fast(u, true), local, 1024).execute();
     }
 }

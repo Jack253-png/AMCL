@@ -3,7 +3,7 @@ package com.mcreater.amcl.game.launch;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Application;
-import com.mcreater.amcl.download.tasks.DownloadTask;
+import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.exceptions.*;
 import com.mcreater.amcl.game.getPath;
 import com.mcreater.amcl.game.versionTypeGetter;
@@ -11,6 +11,7 @@ import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.nativeInterface.EnumWindow;
 import com.mcreater.amcl.pages.MainPage;
+import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.util.*;
 import javafx.application.Platform;
@@ -87,8 +88,6 @@ public class Launch {
                                 String local = LinkPath.link(libf.getPath(), getPath.get(l.name)).replace("2.8.1", "2.15.0");
                                 new File(GetPath.get(local)).mkdirs();
                                 String server = FasterUrls.fast(l.downloads.artifact.get("url"), false).replace("2.8.1", "2.15.0");
-                                System.out.println(local);
-                                System.out.println(server);
                                 if (!Objects.equals(l.downloads.artifact.get("sha1"), HashHelper.getFileSHA1(new File(local)))) {
                                     new DownloadTask(server, local, 1024).setHash(l.downloads.artifact.get("sha1")).execute();
                                 }
@@ -222,11 +221,10 @@ public class Launch {
                               gt.contains("minecraft.launcher.version") ||
                               gt.contains("cp") ||
                               gt.contains("classpath")) ||
-                                (gt.contains("java.base/java.util.jar") ||
+                                gt.contains("java.base/java.util.jar") ||
                                  gt.contains("java.base/sun.security.util") ||
-                                 gt.contains("jdk.naming.dns/com.sun.jndi.dns")
-                                )
-                        ) {
+                                 gt.contains("jdk.naming.dns/com.sun.jndi.dns"))
+                        {
                             forge_jvm += gt + " ";
 
                         }
@@ -248,6 +246,10 @@ public class Launch {
                     forge_libs.append("\"");
                     forgevm = forgevm.replace("-p ", "-p " + "\"" + forge_libs);
                     forgevm = forgevm.replace("--add-modules ALL-MODULE-PATH", " --add-modules ALL-MODULE-PATH");
+                    if (forgevm.contains("-add-opens --add-exports")){
+                        forgevm += "--add-opens java.base/java.lang.invoke=cpw.mods.securejarhandler ";
+                    }
+                    forgevm = forgevm.replace("--add-opens --add-exports", "--add-exports");
                 }
                 else{
                     forge_jvm = "";
@@ -268,6 +270,7 @@ public class Launch {
             new Thread(() -> {
                 while (true) {
                     if (EnumWindow.getTaskPID().contains(p.pid())) {
+                        BGMManager.stop();
                         MainPage.logger.info("Window Showed");
                         MainPage.d.close();
                         latch.countDown();

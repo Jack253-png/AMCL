@@ -12,14 +12,18 @@ import com.mcreater.amcl.util.SetSize;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 
+import java.awt.*;
 import java.util.List;
 
 public class UpgradePage extends AbstractStage {
     public SettingPage content;
     public VBox c;
     public UpgradePage(){
+        this.setTitle(Application.languageManager.get("ui.upgradepage.title"));
+        this.getIcons().add(new Image("assets/grass.png"));
         c = new VBox();
         for (ReleaseModel model : GithubReleases.getReleases()) {
             VBox b = new VBox();

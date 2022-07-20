@@ -1,9 +1,9 @@
 package com.mcreater.amcl.download;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mcreater.amcl.download.tasks.*;
+import com.mcreater.amcl.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.*;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.original.AssetsModel;
@@ -24,7 +24,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class OriginalDownload {
     static GsonBuilder gb;
-    static Vector<AbstractTask> tasks = new Vector<>();
+    static Vector<Task> tasks = new Vector<>();
     static int chunkSize;
     static Logger logger = LogManager.getLogger(OriginalDownload.class);
     static String vj;
@@ -58,8 +58,6 @@ public class OriginalDownload {
         String version_json = HttpConnectionUtil.doGet(FasterUrls.fast(version_url, faster));
         vj = version_json;
 
-
-
         BufferedWriter bw = new BufferedWriter(new FileWriter(LinkPath.link(version_dir, version_name + ".json")));
         bw.write(version_json);
         bw.close();
@@ -80,32 +78,8 @@ public class OriginalDownload {
         tasks.add(new LibDownloadTask(url, path, chunkSize).setHash(hash));
     }
     public static void runTasks() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(tasks.size());
-        new Thread(() -> {
-            do {
-                logger.info(String.format("%d / %d\n", tasks.size() - latch.getCount(), tasks.size()));
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            } while (tasks.size() - latch.getCount() != tasks.size());
-        }).start();
-        for (AbstractTask task : tasks){
-            new Thread(() -> {
-                while (true) {
-                    try {
-                        task.execute();
-                        latch.countDown();
-                        break;
-                    }
-                    catch (Exception eignored) {
-                        eignored.printStackTrace();
-                    }
-                }
-            }).start();
-        }
-        latch.await();
+        TaskManager.addTasks(tasks);
+        TaskManager.execute("<vanilla>");
     }
     public static void createNewDir(String path){
         Vector<String> paths = new Vector<>(List.of(path.split("\\\\")));
@@ -170,7 +144,6 @@ public class OriginalDownload {
 
                 if (b0) {
                     if (model1.name.contains("natives-windows")) {
-                        // path, url;
                         tasks.add(new NativeDownloadTask(FasterUrls.fast(url, faster), path, native_base_path, chunkSize).setHash(hash));
                     } else {
                         tasks.add(new LibDownloadTask(FasterUrls.fast(url, faster), path, chunkSize).setHash(hash));

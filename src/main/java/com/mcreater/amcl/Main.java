@@ -1,7 +1,6 @@
 package com.mcreater.amcl;
 
 import com.sun.glass.utils.NativeLibLoader;
-import com.sun.jna.platform.win32.User32;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

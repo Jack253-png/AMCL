@@ -1,11 +1,10 @@
 package com.mcreater.amcl.install;
 
-import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.download.*;
-import com.mcreater.amcl.util.ForgeVersionXMLHandler;
-import com.mcreater.amcl.util.net.HttpConnectionUtil;
+import com.mcreater.amcl.game.launch.MinecraftFixer;
 import org.xml.sax.SAXException;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -13,13 +12,16 @@ import java.lang.reflect.InvocationTargetException;
 public class reflectTest {
     static boolean fast = true;
     public static void main(String[] args) throws IOException, NoSuchFieldException, InterruptedException, ClassNotFoundException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchMethodException, ParserConfigurationException, SAXException {
+        HttpsURLConnection.setDefaultHostnameVerifier((s, sslSession) -> true);
 //        OriginalDownload.download(fast, "inf-20100618", "D:\\mods\\s\\.minecraft", "inf-20100618", 512);
+//        ForgeDownload.download(fast, "1.19", "D:\\mods\\test2\\.minecraft", "1.19-forge-41.0.1", 2048, "41.0.1");
 //        ForgeDownload.download(fast, "1.18.2", "D:\\mods\\testDownload\\.minecraft", "1.18.2-forge-40.1.31", 4096, "40.1.0");
-//        ForgeDownload.download(fast, "1.16.5", "D:\\mods\\testDownload\\.minecraft", "1.16.5-forge-36.2.20", 4096, "36.2.20");
+        MinecraftFixer.fix(fast, 4096, "D:\\mods\\test2\\.minecraft", "1.16.5-forge-36.2.20");
+//        ForgeDownload.download(fast, "1.16.5", "D:\\mods\\test2\\.minecraft", "1.16.5-forge-36.2.20", 16384, "36.2.20");
 //        ForgeDownload.download(fast, "1.14.4", "D:\\mods\\testDownload\\.minecraft", "1.14.4-forge-28.2.26", 4096, "28.2.26");
 //        ForgeDownload.download(fast, "1.12.2", "D:\\mods\\testDownload\\.minecraft", "1.12.2-forge-14.23.5.2860", 2048, "14.23.5.2860");
 //        ForgeDownload.download(fast, "1.12.2", "D:\\mods\\testDownload\\.minecraft", "1.12.2-forge-old", 1024, "14.23.5.2812");
-        ForgeDownload.download(fast, "1.7.10", "D:\\mods\\testDownload\\.minecraft", "1.7.10-forge-10.13.4.1614", 1024, "10.13.4.1614");
+//        ForgeDownload.download(fast, "1.7.10", "D:\\mods\\testDownload\\.minecraft", "1.7.10-forge-10.13.4.1614", 1024, "10.13.4.1614");
 //        FabricDownload.download(fast, "1.16.5", "D:\\mods\\testDownload\\.minecraft", "1.16.5-fabric-0.11.6", 1024, "0.11.6");
 //        FabricDownload.download(fast, "1.16.5", "D:\\mods\\s\\.minecraft", "1.16.5-fabric-0.1.0.48", 1024, "0.1.0.48");
 //        FabricDownload.download(fast, "1.19", "D:\\mods\\s\\.minecraft", "1.19-fabric-0.14.7", 1024, "0.14.7");

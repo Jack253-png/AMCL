@@ -10,7 +10,7 @@ public class Run {
             protected Task<String> createTask() {
                 return new Task<>() {
                     @Override
-                    protected String call() throws Exception {
+                    protected String call() {
                         runnable.run();
                         return null;
                     }

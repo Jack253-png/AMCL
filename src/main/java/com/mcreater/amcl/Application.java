@@ -5,8 +5,10 @@ import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.*;
+import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
+import com.mcreater.amcl.pages.DownloadMcPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
@@ -34,6 +36,7 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class Application extends javafx.application.Application {
     static Logger logger = LogManager.getLogger(Application.class);
@@ -57,8 +60,9 @@ public class Application extends javafx.application.Application {
     public static int width = 800;
     public static int height = 480;
     public static Label ln;
+    public static Pane p = new Pane();
     @Override
-    public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException {
+    public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException {
         Fonts.loadFont();
         if (is_t) {
             languageManager = new LanguageManager(null);
@@ -92,6 +96,7 @@ public class Application extends javafx.application.Application {
             DOWNLOADMCPAGE = new DownloadMcPage(width, height);
 
             languageManager.bindAll(MAINPAGE, CONFIGPAGE, VERSIONSELECTPAGE, VERSIONINFOPAGE, ADDMODSPAGE, MODDOWNLOADPAGE, DOWNLOADMCPAGE);
+
             themeManager.apply(this);
 
             setBackground();
@@ -99,10 +104,12 @@ public class Application extends javafx.application.Application {
             last = MAINPAGE;
             setPage(last, last);
 
+            BGMManager.init();
+            BGMManager.start();
+
             stage.initStyle(StageStyle.UNIFIED);
             refresh();
             stage.setScene(s);
-
             stage.getIcons().add(new Image("assets/grass.png"));
 
             stage.initStyle(StageStyle.TRANSPARENT);
@@ -139,9 +146,13 @@ public class Application extends javafx.application.Application {
             last.setTypeAll(true);
             last.in.stop();
             last.setTypeAll(false);
+
             Run.run(last::refresh).start();
-            Run.run(last::refreshLanguage).start();
+            last.refreshLanguage();
             Run.run(last::refreshType).start();
+
+
+
             refresh();
             setPageCore();
         }
@@ -209,13 +220,16 @@ public class Application extends javafx.application.Application {
 
         themeManager.applyTopBar(top);
         VBox v = new VBox(top, last);
-        Pane p = new Pane();
-        p.getChildren().addAll(v);
+        p = new Pane();
+        p.getChildren().add(0, v);
         setBackground();
         s.setFill(null);
         s.setRoot(p);
         s.setFill(Color.TRANSPARENT);
         stage.setScene(s);
+        s.setOnKeyPressed(event -> {
+            System.out.println(event.getCode());
+        });
     }
     public static void setTitle(){
         AbstractAnimationPage lpa = last.l;

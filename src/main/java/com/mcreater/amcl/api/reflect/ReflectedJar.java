@@ -14,8 +14,13 @@ import java.util.Vector;
 public class ReflectedJar {
     URLClassLoader loader;
     Vector<Object> instances = new Vector<>();
-    public ReflectedJar(String path) throws MalformedURLException {
-        loader = new URLClassLoader(new URL[]{new File(path).toURL()});
+    public ReflectedJar(String... path) throws MalformedURLException {
+        URL[] urls = new URL[List.of(path).size()];
+        Vector<String> vs = new Vector<>(List.of(path));
+        for(int i = 0;i < vs.size();i++) {
+            urls[i] = new File(vs.get(i)).toURL();
+        }
+        loader = new URLClassLoader(urls);
     }
     public Class<?> getJarClass(String className) throws ClassNotFoundException {
         return loader.loadClass(className);

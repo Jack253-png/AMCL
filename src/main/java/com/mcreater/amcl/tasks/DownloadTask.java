@@ -1,11 +1,16 @@
-package com.mcreater.amcl.download.tasks;
+package com.mcreater.amcl.tasks;
 
+import com.mcreater.amcl.game.getPath;
 import com.mcreater.amcl.util.FasterUrls;
+import com.mcreater.amcl.util.GetPath;
 import com.mcreater.amcl.util.HashHelper;
 
+import javax.net.ssl.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Objects;
 
 public class DownloadTask extends AbstractTask{
@@ -37,6 +42,8 @@ public class DownloadTask extends AbstractTask{
         URL url = new URL(this.server);
         HttpURLConnection c = (HttpURLConnection) url.openConnection();
         c.setConnectTimeout(20000);
+        trustAllHosts((HttpsURLConnection) c);
+        ((HttpsURLConnection) c).setHostnameVerifier(DO_NOT_VERIFY);
         return c;
     }
     public void clean() throws IOException {
@@ -46,6 +53,7 @@ public class DownloadTask extends AbstractTask{
     public void download() throws IOException {
         inputStream = conn.getInputStream();
 
+        new File(GetPath.get(this.local)).mkdirs();
         fos = new FileOutputStream(this.local);
         byte[] buffer = new byte[chunkSize];
         int len;
@@ -63,7 +71,7 @@ public class DownloadTask extends AbstractTask{
                 download();
             }
             else{
-//                throw new IOException();
+                throw new IOException();
             }
         }
         else {
@@ -76,13 +84,8 @@ public class DownloadTask extends AbstractTask{
             try {
                 d();
             } catch (Exception e) {
-                e.printStackTrace();
                 fos.close();
                 clean();
-                try {
-                    Thread.sleep(1000);
-                }
-                catch (InterruptedException e1){}
                 execute();
             } finally {
                 try {
@@ -112,5 +115,49 @@ public class DownloadTask extends AbstractTask{
             }
         }
         return null;
+    }
+    private static final TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+        @Override
+        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+            return new java.security.cert.X509Certificate[]{};
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType)
+                throws CertificateException {
+        }
+    }};
+
+    /**
+     * 设置不验证主机
+     */
+    private static final HostnameVerifier DO_NOT_VERIFY = new HostnameVerifier() {
+        @Override
+        public boolean verify(String hostname, SSLSession session) {
+            return true;
+        }
+    };
+
+    /**
+     * 信任所有
+     * @param connection
+     * @return
+     */
+    private static SSLSocketFactory trustAllHosts(HttpsURLConnection connection) {
+        SSLSocketFactory oldFactory = connection.getSSLSocketFactory();
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            SSLSocketFactory newFactory = sc.getSocketFactory();
+            connection.setSSLSocketFactory(newFactory);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return oldFactory;
     }
 }

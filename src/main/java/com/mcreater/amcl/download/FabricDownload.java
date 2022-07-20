@@ -2,10 +2,11 @@ package com.mcreater.amcl.download;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.mcreater.amcl.download.tasks.AbstractTask;
-import com.mcreater.amcl.download.tasks.LibDownloadTask;
 import com.mcreater.amcl.game.getPath;
 import com.mcreater.amcl.model.fabric.*;
+import com.mcreater.amcl.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.LibDownloadTask;
+import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.FasterUrls;
 import com.mcreater.amcl.util.FileStringReader;
 import com.mcreater.amcl.util.GetPath;
@@ -22,11 +23,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class FabricDownload {
     static int chunkSize;
-    static Vector<AbstractTask> tasks = new Vector<>();
+    static Vector<Task> tasks = new Vector<>();
     static Logger logger = LogManager.getLogger(FabricDownload.class);
     public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String fabric_version) throws IOException, InterruptedException {
         tasks.clear();
@@ -92,27 +92,8 @@ public class FabricDownload {
             model1.url = "https://maven.fabricmc.net/";
             ao.getJSONArray("libraries").put(g.fromJson(g.toJson(model1), Map.class));
             tasks.add(new LibDownloadTask(url, path, chunkSize));
-
-            AtomicInteger d = new AtomicInteger();
-            for (AbstractTask t : tasks) {
-                new Thread(() -> {
-                    while (true) {
-                        try {
-                            t.execute();
-                            d.addAndGet(1);
-                            break;
-                        } catch (IOException ignored) {
-                        }
-                    }
-                }).start();
-            }
-            do {
-                logger.info(String.format("%s / %s", d.get(), tasks.size()));
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ignored) {
-                }
-            } while (d.get() != tasks.size());
+            TaskManager.addTasks(tasks);
+            TaskManager.execute("<fabric>");
             BufferedWriter bw = new BufferedWriter(new FileWriter(versionJson));
             bw.write(ao.toString());
             bw.close();
@@ -160,24 +141,8 @@ public class FabricDownload {
             model1.name = model.intermediary.maven;
             ao.getJSONArray("libraries").put(g.fromJson(g.toJson(model2), Map.class));
             tasks.add(new LibDownloadTask(url1, path1, chunkSize));
-
-            AtomicInteger d = new AtomicInteger();
-            for (AbstractTask t : tasks) {
-                new Thread(() -> {
-                    while (true){
-                        try {
-                            t.execute();
-                            d.addAndGet(1);
-                            break;
-                        }
-                        catch (Exception ignored){}
-                    }
-                }).start();
-            }
-            do {
-                logger.info(String.format("%s / %s", d.get(), tasks.size()));
-                Thread.sleep(1000);
-            } while (d.get() != tasks.size());
+            TaskManager.addTasks(tasks);
+            TaskManager.execute("<old fabric>");
             BufferedWriter w = new BufferedWriter(new FileWriter(versionJson));
             w.write(ao.toString());
             w.close();
