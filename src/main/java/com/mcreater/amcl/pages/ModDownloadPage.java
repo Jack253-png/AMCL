@@ -1,5 +1,6 @@
 package com.mcreater.amcl.pages;
 
+import com.google.gson.Gson;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.mcreater.amcl.Application;
@@ -83,8 +84,9 @@ public class ModDownloadPage extends AbstractAnimationPage {
                             else {
                                 modPath = LinkPath.link(Application.configReader.configModel.selected_minecraft_dir_index, "mods");
                             }
-                            System.err.println(modPath);
-                            tasks.add(new DownloadTask(model.downloadUrl, LinkPath.link(modPath, model.fileName), 2048));
+                            if (model.downloadUrl != null) {
+                                tasks.add(new DownloadTask(model.downloadUrl, LinkPath.link(modPath, model.fileName), 2048));
+                            }
                         }
                         AtomicInteger downloaded = new AtomicInteger();
                         for (DownloadTask task : tasks){

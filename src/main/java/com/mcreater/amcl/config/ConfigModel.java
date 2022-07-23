@@ -13,6 +13,8 @@ public class ConfigModel {
     public boolean change_game_dir;
     public int max_memory;
     public String language;
+    public boolean fastDownload;
+    public int downloadChunkSize;
     public ConfigModel getI(){
         selected_java = new Vector<>();
         selected_minecraft_dir = new Vector<>();
@@ -22,6 +24,8 @@ public class ConfigModel {
         change_game_dir = false;
         max_memory = 1024;
         language = "CHINESE";
+        fastDownload = true;
+        downloadChunkSize = 2048;
         return this;
     }
 }

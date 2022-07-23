@@ -15,7 +15,7 @@ import javafx.util.Duration;
 
 import java.awt.*;
 import java.util.Vector;
-//import sun.font.FontDesignMetrics;
+import sun.font.FontDesignMetrics;
 
 public class PopupMessage {
     static Pane screen;
@@ -45,11 +45,10 @@ public class PopupMessage {
         }
         MessageLabel circle = new MessageLabel(tempHeight);
         circle.setFont(Fonts.t_f);
-//        FontDesignMetrics fm = FontDesignMetrics.getMetrics(new Font(Fonts.t_f.getName(), Font.PLAIN, (int) Fonts.t_f.getSize()));
-//        char[] strcha = text.toCharArray();
-//        int strWidth = fm.charsWidth(strcha, 0, text.length());
-//        double doubled = strWidth;
-        double doubled = 0;
+        FontDesignMetrics fm = FontDesignMetrics.getMetrics(new Font(Fonts.t_f.getName(), Font.PLAIN, (int) Fonts.t_f.getSize()));
+        char[] strcha = text.toCharArray();
+        int strWidth = fm.charsWidth(strcha, 0, text.length());
+        double doubled = strWidth;
         mess.add(circle);
         usedHeights.add(tempHeight);
         path.getElements().add(new MoveTo(-245 + doubled / 2 / 100 * 101, tempHeight));

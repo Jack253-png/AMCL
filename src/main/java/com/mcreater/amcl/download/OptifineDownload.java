@@ -1,5 +1,6 @@
 package com.mcreater.amcl.download;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -32,6 +33,7 @@ public class OptifineDownload {
         for (optifineJarModel m : model.files){
             if (m.name.contains(id.replace("beta ", "beta_")) && m.name.contains(optifine_version)) {
                 opti = m.name;
+                break;
             }
         }
         if (opti == null){
@@ -77,6 +79,13 @@ public class OptifineDownload {
             f.getJSONArray("libraries").add(o);
         }
         f.put("assetIndex", ob.getJSONObject("assetIndex"));
+        f.put("downloads", ob.getJSONObject("downloads"));
+        if (ob.getJSONObject("arguments") != null){
+            Vector<Object> finalArgs = new Vector<Object>(ob.getJSONObject("arguments").getJSONArray("game"));
+            finalArgs.addAll(f.getJSONObject("arguments").getJSONArray("game"));
+            JSONArray array = new JSONArray(finalArgs);
+            f.getJSONObject("arguments").put("game", array);
+        }
         GsonBuilder gb = new GsonBuilder();
         gb.setPrettyPrinting();
         BufferedWriter writer = new BufferedWriter(new FileWriter(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)));

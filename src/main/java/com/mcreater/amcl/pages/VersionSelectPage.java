@@ -248,21 +248,24 @@ public class VersionSelectPage extends AbstractAnimationPage {
     }
 
     public void onExitPage() {
-        if (!checked){
-            if (!Objects.equals(dirs.getValue(), last_dir)) {
-                dirs.getSelectionModel().select(last_dir);
-            }
-            selected_version_name = last;
-            update_version_name();
-            Application.configReader.configModel.selected_version_index = last;
-            Application.configReader.configModel.selected_minecraft_dir_index = last_dir;
-            Application.configReader.write();
-        }
-        else {
-            Application.configReader.configModel.selected_version_index = selected_version_name;
-            Application.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
-            Application.configReader.write();
-        }
+//        if (!checked){
+//            if (!Objects.equals(dirs.getValue(), last_dir)) {
+//                dirs.getSelectionModel().select(last_dir);
+//            }
+//            selected_version_name = last;
+//            update_version_name();
+//            Application.configReader.configModel.selected_version_index = last;
+//            Application.configReader.configModel.selected_minecraft_dir_index = last_dir;
+//            Application.configReader.write();
+//        }
+//        else {
+//            Application.configReader.configModel.selected_version_index = selected_version_name;
+//            Application.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
+//            Application.configReader.write();
+//        }
+        Application.configReader.configModel.selected_version_index = selected_version_name;
+        Application.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
+        Application.configReader.write();
     }
 
     public void refreshLanguage(){

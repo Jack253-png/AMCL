@@ -3,6 +3,7 @@ package com.mcreater.amcl.game.launch;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Application;
+import com.mcreater.amcl.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.exceptions.*;
 import com.mcreater.amcl.game.getPath;
@@ -34,10 +35,13 @@ public class Launch {
     ProcessDialog d;
     Logger logger = LogManager.getLogger(this.getClass());
     public void launch(String java_path, String dir, String version_name, boolean ie, int m) throws IllegalStateException, InterruptedException, LaunchException, IOException {
+        TaskManager.bind(MainPage.d, 2);
         MainPage.d.Create();
         MainPage.d.setV(0, 5, Application.languageManager.get("ui.launch._01"));
         java = java_path;
         MainPage.d.setV(0, 10, Application.languageManager.get("ui.launch._02"));
+        MainPage.d.setV(2, 0, Application.languageManager.get("ui.fix._01"));
+        MinecraftFixer.fix(Application.configReader.configModel.fastDownload, Application.configReader.configModel.downloadChunkSize, dir, version_name);
 
         if (!new File(dir).exists()){
             throw new BadMinecraftDirException();
@@ -266,7 +270,7 @@ public class Launch {
             MainPage.cleanLog();
             MainPage.d.setV(0, 95, Application.languageManager.get("ui.launch._08"));
             p = Runtime.getRuntime().exec(command);
-            CountDownLatch latch = new CountDownLatch(2);
+            CountDownLatch latch = new CountDownLatch(3);
             new Thread(() -> {
                 while (true) {
                     if (EnumWindow.getTaskPID().contains(p.pid())) {
@@ -279,6 +283,7 @@ public class Launch {
                 }
             }).start();
             MainPage.minecraft_running = true;
+            MainPage.stop.setDisable(false);
             new Thread(() -> {
                 while (true){
                     try {

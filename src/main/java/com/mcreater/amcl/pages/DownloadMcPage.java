@@ -14,21 +14,19 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.SetSize;
 import com.mcreater.amcl.util.multiThread.Run;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.binding.Bindings;
 import javafx.concurrent.Service;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.Parent;
+import javafx.scene.control.Labeled;
 import javafx.scene.control.TitledPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import java.util.Comparator;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DownloadMcPage extends AbstractAnimationPage {
     VBox mainBox;
@@ -38,7 +36,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
     SettingPage last;
     SettingPage p1;
     SettingPage p2;
-    JFXButton setted;
+    Parent setted;
     Vector<TitledPane> panes = new Vector<>();
     JFXProgressBar bar;
     public DownloadMcPage(int width, int height){
@@ -71,12 +69,15 @@ public class DownloadMcPage extends AbstractAnimationPage {
             load.setDisable(true);
             loadVersions();
         });
-        SetSize.setWidth(setting, this.width / 4);
-        SetSize.setWidth(load, this.width / 4);
+        load.setGraphic(Application.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 20, 20));
+        SetSize.setWidth(setting, this.width / 4 / 4 * 3);
+        SetSize.setWidth(load, this.width / 4 / 4);
+
+        HBox box = new HBox(setting, load);
 
         menu = new VBox();
         menu.setId("config-menu");
-        menu.getChildren().addAll(setting, load);
+        menu.getChildren().addAll(box);
         SetSize.set(menu, this.width / 4,this.height - t_size);
         loadVersions();
         setP1(p1);
@@ -87,13 +88,15 @@ public class DownloadMcPage extends AbstractAnimationPage {
             Platform.runLater(mainBox.getChildren()::clear);
             Platform.runLater(() -> mainBox.getChildren().add(bar));
             mainBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.75)");
-            Vector<OriginalVersionModel> vs = GetVersionList.getOriginalList(true);
+            Vector<OriginalVersionModel> vs = GetVersionList.getOriginalList(Application.configReader.configModel.fastDownload);
             Vector<String> types = new Vector<>();
             for (OriginalVersionModel m : vs){
                 if (!types.contains(m.type)){
                     types.add(m.type);
                 }
             }
+            Platform.runLater(() -> bar.setProgress(-1.0D));
+            AtomicInteger loaded = new AtomicInteger();
             for (String t : types){
                 TitledPane pane = new TitledPane();
                 pane.getStylesheets().add(String.format(ThemeManager.getPath(), "TitledPane"));
@@ -105,7 +108,9 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 listv.getStylesheets().add(String.format(ThemeManager.getPath(), "JFXListView"));
                 vs.forEach(model -> {
                     if (Objects.equals(model.type, t)){
+                        loaded.addAndGet(1);
                         listv.getItems().add(new VanilaVersionContent(model));
+                        Platform.runLater(() -> bar.setProgress(((double) loaded.get()) * 100 / vs.size()));
                     }
                 });
                 SetSize.setWidth(listv, DownloadMcPage.width / 4 * 3);
@@ -121,6 +126,10 @@ public class DownloadMcPage extends AbstractAnimationPage {
                     }
                 });
                 listv.getItems().sort((node, t1) -> 0);
+                listv.setOnMouseReleased(event -> {
+                    Application.setPage(Application.DOWNLOADADDONSELECTPAGE, this);
+                    Application.DOWNLOADADDONSELECTPAGE.setVersionId(listv.getSelectionModel().getSelectedItem().model);
+                });
                 Platform.runLater(() -> mainBox.getChildren().add(pane));
             }
             load.setDisable(false);
@@ -128,14 +137,20 @@ public class DownloadMcPage extends AbstractAnimationPage {
         Service<String> service = Run.run(r);
         service.start();
     }
-    public void setType(JFXButton b){
+    public void setType(Parent b){
         setted = b;
         for (Node bs : menu.getChildren()){
+            if (bs instanceof HBox){
+                for (Node n : ((HBox) bs).getChildren()) {
+                    n.setDisable(n == b);
+                }
+            }
             bs.setDisable(bs == b);
         }
     }
     public void setP1(SettingPage p){
         if (p.CanMovePage() && last != p) {
+            load.setDisable(p != p1);
             if (last != null) {
                 last.setOut();
             }

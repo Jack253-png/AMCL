@@ -1,39 +1,57 @@
 package com.mcreater.amcl.taskmanager;
 
+import com.mcreater.amcl.Application;
+import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.Sleeper;
-import javafx.scene.effect.DropShadow;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.dialog.ProgressDialog;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
 public class TaskManager {
     public static Vector<Task> tasks = new Vector<>();
     public static Logger logger = LogManager.getLogger(TaskManager.class);
+    public static ProcessDialog dialog;
+    public static int index;
+    public static long downloadedBytes;
     public static void addTasks(Task... t){
         tasks.addAll(List.of(t));
     }
     public static void addTasks(Collection<Task> t){
         tasks.addAll(t);
     }
+    public static void bind(ProcessDialog dialog, int index){
+        TaskManager.dialog = dialog;
+        TaskManager.index = index;
+    }
     public synchronized static void execute(String reason) throws InterruptedException {
         int size = tasks.size();
         CountDownLatch latch = new CountDownLatch(size);
         logger.info(String.format("executing tasks in reason %s", reason));new Thread("Manager Counting Thread"){
             public void run(){
-                long downloaded = 0;
+                long downloaded;
                 do {
                     downloaded = latch.getCount();
                     logger.info(String.format("executed %d of %d", tasks.size() - downloaded, tasks.size()));
-                    Sleeper.sleep(100);
+                    logger.info("downloaded bytes speed : " + ((double) downloadedBytes) / 1024 / 1024 + "MB/s");
+                    if (dialog != null) {
+                        if (tasks.size() != 0) {
+                            dialog.setV(index, (int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(Application.languageManager.get("ui.fix._02"), tasks.size() - downloaded, tasks.size()));
+                        }
+                    }
+//                    Sleeper.sleep(1000);
+                    downloadedBytes = 0;
                 }
-                while (downloaded != 0);
+                while (tasks.size() != 0);
+                if (dialog != null) {
+                    dialog.setV(index, 100);
+                }
             }
         }.start();
         for (Task t : tasks){
@@ -54,6 +72,7 @@ public class TaskManager {
         }
         latch.await();
         tasks.clear();
+        downloadedBytes = 0;
     }
     public static Vector<Task> changeTasksPool(Vector<Task> tasks, String name){
         for (Task t : tasks){

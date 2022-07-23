@@ -37,7 +37,7 @@ public class ForgeDownload {
         String c = null;
         if (vectorMap.get(id) != null){
             for (String version : vectorMap.get(id)){
-                if (Objects.equals(List.of(version.split("-")).get(0), forge_version)){
+                if (forge_version.contains(version) || Objects.equals(List.of(version.split("-")).get(0), forge_version)){
                     c = version;
                     break;
                 }
@@ -58,17 +58,22 @@ public class ForgeDownload {
             u = FasterUrls.fast(model225.downloads.get("client_mappings").url, faster);
         }
         catch (NullPointerException ignored){}
+        String installer_path = LinkPath.link(temp_path, "installer.jar");
         String final_version = String.format("%s-%s", id, c);
         String installer_url = String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%s/forge-%s-installer.jar", final_version, final_version);
         installer_url = FasterUrls.fast(installer_url, faster);
-        String installer_path = LinkPath.link(temp_path, "installer.jar");
         logger.info(String.format("finded forge installer url : %s", installer_url));
         deleteDirectory(new File(temp_path), temp_path);
 //        int i = 0;
         new File(temp_path).mkdirs();
         new ForgeInstallerDownloadTask(installer_url, installer_path, chunkSize).execute();
 //      int i = 0;
-        ZipUtil.unzipAll(installer_path, temp_path);
+        if (new File(temp_path).exists()) {
+            ZipUtil.unzipAll(installer_path, temp_path);
+        }
+        else{
+            throw new IOException();
+        }
         String lib_base = LinkPath.link(minecraft_dir, "libraries");
         if (new File(versionPath).exists()){
             String t = FileStringReader.read(versionPath);
@@ -129,7 +134,6 @@ public class ForgeDownload {
             mapplings.put("{SIDE}", "client");
             mapplings.put("{MINECRAFT_JAR}", String.format("%s/versions/%s/%s.jar", minecraft_dir.replace("\\", "/"), version_name, version_name));
             mapplings.put("{BINPATCH}", "forgeTemp/data/client.lzma");
-            logger.info(mapplings);
             for (ForgeProcessorModel model2 : model1.processors){
                 if (model2.sides == null || model2.sides.contains("client")) {
                     StringBuilder argstr = new StringBuilder();
@@ -167,24 +171,51 @@ public class ForgeDownload {
                 String p = GetPath.get(LinkPath.link(lib_base, getPath.get(model1.name)));
                 new File(p).mkdirs();
                 if (model1.clientreq == null && model1.serverreq == null){
-                    ChangeDir.saveNowDir();
-                    String i = LinkPath.link(ChangeDir.dirs, installer_path).replace("\\", "/");
-                    logger.info(p);
-                    ChangeDir.changeTo(p);
-                    String com = String.format("\"%s\" -jar %s --extract",LinkPath.link(System.getProperty("java.home"), "bin\\java.exe").replace("\\", "/"), i);
-                    if (new ForgeExtractTask(com, p, i, new String[]{"--extract"}).execute() != 0){
-                        throw new IOException("Install Failed");
-                    }
-                    ChangeDir.changeToDefault();
-                    ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
-                    for (File f : new File(p).listFiles()){
-                        if (f.isFile()){
-                            if (f.getPath().endsWith(".jar")){
-                                if (f.getPath().replace("/", "\\").replace(".jar", "").contains(LinkPath.link(lib_base, getPath.get(model1.name)).replace(".jar", ""))) {
-                                    f.renameTo(new File(LinkPath.link(lib_base, getPath.get(model1.name))));
+                    if (model1.name.contains("net.minecraftforge:minecraftforge")) {
+                        ChangeDir.saveNowDir();
+                        String i = LinkPath.link(ChangeDir.dirs, installer_path).replace("\\", "/");
+                        ChangeDir.changeTo(p);
+                        String com = String.format("\"%s\" -jar %s --extract", LinkPath.link(System.getProperty("java.home"), "bin\\java.exe").replace("\\", "/"), i);
+                        System.out.println(new Gson().toJson(model1));
+                        if (new ForgeExtractTask(com, p, i, new String[]{"--extract"}).execute() != 0) {
+                            throw new IOException("Install Failed");
+                        }
+                        ChangeDir.changeToDefault();
+                        ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
+                        for (File f : new File(p).listFiles()) {
+                            if (f.isFile()) {
+                                if (f.getPath().endsWith(".jar")) {
+                                    if (f.getPath().replace("/", "\\").replace(".jar", "").contains(LinkPath.link(lib_base, getPath.get(model1.name)).replace(".jar", ""))) {
+                                        f.renameTo(new File(LinkPath.link(lib_base, getPath.get(model1.name))));
+                                    }
                                 }
                             }
                         }
+                    }
+                    else{
+                        String path = LinkPath.link(lib_base, getPath.get(model1.name));
+                        String url;
+                        url = "https://maven.minecraftforge.net/" + getPath.get(model1.name).replace("\\", "/");
+                        url = FasterUrls.fast(url, faster);
+                        if (!GetFileExists.get(url)){
+                            url = "https://libraries.minecraft.net/" + getPath.get(model1.name).replace("\\", "/");
+                            url = FasterUrls.fast(url, faster);
+                        }
+                        if (model1.name.contains("guava")){
+                            Iterator<Object> t = ao.getJSONArray("libraries").iterator();
+                            while (t.hasNext()){
+                                JSONObject jo = (JSONObject) t.next();
+                                if (jo.getString("name").contains("guava")){
+                                    t.remove();
+                                }
+                            }
+                        }
+                        ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
+                        LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, faster), path, chunkSize);
+                        if (model1.checksums != null){
+                            te.setHash(model1.checksums.get(0));
+                        }
+                        tasks.add(te);
                     }
                 }
                 else{

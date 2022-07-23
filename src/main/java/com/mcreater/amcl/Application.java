@@ -23,6 +23,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -53,6 +54,7 @@ public class Application extends javafx.application.Application {
     public static DownloadMcPage DOWNLOADMCPAGE;
     public static ConfigWriter configReader;
     public static LanguageManager languageManager;
+    public static DownloadAddonSelectPage DOWNLOADADDONSELECTPAGE;
     public static ThemeManager themeManager;
     static Background bg;
     static BackgroundSize bs;
@@ -94,8 +96,9 @@ public class Application extends javafx.application.Application {
             ADDMODSPAGE = new AddModsPage(width, height);
             MODDOWNLOADPAGE = new ModDownloadPage(width, height);
             DOWNLOADMCPAGE = new DownloadMcPage(width, height);
+            DOWNLOADADDONSELECTPAGE = new DownloadAddonSelectPage(width, height);
 
-            languageManager.bindAll(MAINPAGE, CONFIGPAGE, VERSIONSELECTPAGE, VERSIONINFOPAGE, ADDMODSPAGE, MODDOWNLOADPAGE, DOWNLOADMCPAGE);
+            languageManager.bindAll(MAINPAGE, CONFIGPAGE, VERSIONSELECTPAGE, VERSIONINFOPAGE, ADDMODSPAGE, MODDOWNLOADPAGE, DOWNLOADMCPAGE, DOWNLOADADDONSELECTPAGE);
 
             themeManager.apply(this);
 
@@ -150,8 +153,6 @@ public class Application extends javafx.application.Application {
             Run.run(last::refresh).start();
             last.refreshLanguage();
             Run.run(last::refreshType).start();
-
-
 
             refresh();
             setPageCore();
@@ -273,5 +274,6 @@ public class Application extends javafx.application.Application {
         ADDMODSPAGE.setBackground(bg);
         MODDOWNLOADPAGE.setBackground(bg);
         DOWNLOADMCPAGE.setBackground(bg);
+        DOWNLOADADDONSELECTPAGE.setBackground(bg);
     }
 }

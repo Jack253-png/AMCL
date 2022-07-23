@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public abstract class AbstractTask implements Task {
     public String server;
-    String local;
+    public String local;
     String command;
     public AbstractTask(String command){
         this.command = command;

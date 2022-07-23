@@ -131,7 +131,7 @@ public class VersionInfoPage extends AbstractAnimationPage {
         SetSize.set(delete, t_size, t_size);
         delete.setGraphic(Application.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         delete.setOnAction(event -> {
-            ProcessDialog dialog = new ProcessDialog(1, Application.languageManager.get("ui.versioninfopage.deletemod.deleteing.title"));
+            ProcessDialog dialog = new ProcessDialog(1, String.format(Application.languageManager.get("ui.versioninfopage.deletemod.deleteing.title"), modList.getSelectionModel().getSelectedItem().name.getText()));
             dialog.Create();
             dialog.setV(0, 50, modList.getSelectionModel().getSelectedItem().name.getText());
             new Thread(() -> {

@@ -20,6 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,6 +51,7 @@ public class MainPage extends AbstractAnimationPage {
     public static boolean window_showed;
     public static ProcessDialog d;
     public static ProcessDialog l;
+    public static JFXButton stop;
     public MainPage(double width,double height) {
         super(width, height);
         l = null;
@@ -64,13 +66,14 @@ public class MainPage extends AbstractAnimationPage {
         launchButton = new JFXButton();
         launchButton.setId("launch-button");
         launchButton.setFont(Fonts.s_f);
+        launchButton.setTextFill(Color.WHITE);
         launchButton.setOnAction(event -> {
             flush();
             ChangeDir.saveNowDir();
             if (!Objects.equals(launchButton.getText(), Application.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
                 Application.configReader.check_and_write();
                 g = new Launch();
-                d = new ProcessDialog(2, Application.languageManager.get("ui.mainpage.launch._01"));
+                d = new ProcessDialog(3, Application.languageManager.get("ui.mainpage.launch._01"));
                 d.setV(0, 1, Application.languageManager.get("ui.mainpage.launch._02"));
                 Thread la = new Thread(() -> {
                     try {
@@ -104,11 +107,20 @@ public class MainPage extends AbstractAnimationPage {
         if (minecraft_running) {
             launchButton.setDisable(true);
         }
+        stop = new JFXButton();
+        stop.setDisable(true);
+        stop.setId("launch-button");
+        stop.setFont(Fonts.s_f);
+        stop.setTextFill(Color.WHITE);
+        stop.setOnAction(event -> {
+            g.p.destroy();
+            stop.setDisable(true);
+        });
 
         launchBox = new VBox();
         launchBox.setAlignment(Pos.BOTTOM_LEFT);
         launchBox.setMaxSize(width / 2, height - 185);
-        launchBox.getChildren().add(launchButton);
+        launchBox.getChildren().addAll(stop, launchButton);
 
         title = new Label();
         launch = new Label();
@@ -213,6 +225,7 @@ public class MainPage extends AbstractAnimationPage {
                 }
                 exit_code = null;
                 window_showed = false;
+                stop.setDisable(true);
                 BGMManager.start();
             }
         }
@@ -235,7 +248,6 @@ public class MainPage extends AbstractAnimationPage {
         Application.configReader.configModel.selected_version_index = "";
         Application.configReader.write();
         version_settings.setDisable(true);
-        downloadMc.setDisable(true);
     }
     public void flush(){
         if (new File(Application.configReader.configModel.selected_minecraft_dir_index).exists()) {
@@ -248,15 +260,22 @@ public class MainPage extends AbstractAnimationPage {
                         downloadMc.setDisable(false);
                     } else {
                         clean_null_version();
+                        downloadMc.setDisable(false);
                     }
+                }
+                else{
+                    clean_null_version();
+                    downloadMc.setDisable(false);
                 }
             }
             else{
                 clean_null_version();
+                downloadMc.setDisable(true);
             }
         }
         else{
             clean_null_version();
+            downloadMc.setDisable(true);
         }
     }
     public void refresh(){
@@ -279,5 +298,6 @@ public class MainPage extends AbstractAnimationPage {
         settings.setText(" "+ Application.languageManager.get("ui.mainpage.settings.name"));
         downloadTitle.setText(Application.languageManager.get("ui.mainpage.download.title"));
         downloadMc.setText(Application.languageManager.get("ui.mainpage.downloadMc.name"));
+        stop.setText(Application.languageManager.get("ui.mainpage.stop"));
     }
 }

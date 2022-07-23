@@ -1,6 +1,7 @@
 package com.mcreater.amcl.tasks;
 
 import com.mcreater.amcl.game.getPath;
+import com.mcreater.amcl.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FasterUrls;
 import com.mcreater.amcl.util.GetPath;
 import com.mcreater.amcl.util.HashHelper;
@@ -19,6 +20,7 @@ public class DownloadTask extends AbstractTask{
     HttpURLConnection conn;
     FileOutputStream fos = null;
     InputStream inputStream = null;
+    public long downloadBytes;
     public DownloadTask(String server, String local) throws FileNotFoundException {
         super(server, local);
         this.server = this.server.replace("http:", "https:");
@@ -58,6 +60,7 @@ public class DownloadTask extends AbstractTask{
         byte[] buffer = new byte[chunkSize];
         int len;
         while ((len = inputStream.read(buffer)) != -1) {
+            TaskManager.downloadedBytes += chunkSize;
             fos.write(buffer, 0, len);
         }
         conn.disconnect();
@@ -106,7 +109,6 @@ public class DownloadTask extends AbstractTask{
                         break;
                     }
                     catch (IOException ignored){
-                        ignored.printStackTrace();
                     }
                 }
             }
@@ -123,13 +125,11 @@ public class DownloadTask extends AbstractTask{
         }
 
         @Override
-        public void checkClientTrusted(X509Certificate[] chain, String authType)
-                throws CertificateException {
+        public void checkClientTrusted(X509Certificate[] chain, String authType) {
         }
 
         @Override
-        public void checkServerTrusted(X509Certificate[] chain, String authType)
-                throws CertificateException {
+        public void checkServerTrusted(X509Certificate[] chain, String authType) {
         }
     }};
 

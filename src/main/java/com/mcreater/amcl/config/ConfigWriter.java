@@ -53,6 +53,9 @@ public class ConfigWriter{
         if (configModel.max_memory < 256 || configModel.max_memory > 4096){
             configModel.max_memory = 1024;
         }
+        if (configModel.downloadChunkSize < 512 || configModel.downloadChunkSize > 8192){
+            configModel.downloadChunkSize = 2048;
+        }
         if (!LanguageManager.vaild_languages.contains(configModel.language)){
             configModel.language = LocateHelper.get();
         }

@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class GetVersionList {
-    public static Vector<OriginalVersionModel> getOriginalList(boolean faster){
+    public static Vector<OriginalVersionModel> getOriginalList(boolean faster) {
         String url = FasterUrls.getVersionJsonv2WithFaster(faster);
         VersionsModel model = new Gson().fromJson(HttpConnectionUtil.doGet(url), VersionsModel.class);
         Vector<OriginalVersionModel> t = new Vector<>();
@@ -53,9 +53,14 @@ public class GetVersionList {
     }
     public static Vector<String> getForgeVersionList(boolean faster, String version) throws ParserConfigurationException, IOException, SAXException {
         Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", faster)));
-        return vectorMap.get(version);
+        if (vectorMap.get(version) != null) {
+            return vectorMap.get(version);
+        }
+        else{
+            return new Vector<>();
+        }
     }
-    public static Vector<String> getFabricVersionList(boolean faster, String version){
+    public static Vector<String> getFabricVersionList(boolean faster, String version) {
         String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/game", faster);
         String loaderVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", faster);
         Vector<Map<String, String>> s = new Vector<>();
@@ -74,10 +79,10 @@ public class GetVersionList {
             return result;
         }
         else{
-            return null;
+            return new Vector<>();
         }
     }
-    public static Object getOptifineVersionList(boolean faster, String version){
+    public static Vector<optifineJarModel> getOptifineVersionList(boolean faster, String version) {
         String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
         optifineAPIModel model = new Gson().fromJson(r, optifineAPIModel.class);
         if (model.versions.contains(version)){
@@ -123,15 +128,7 @@ public class GetVersionList {
                     }
                 }
                 public int getReturn(int i, int j){
-                    if (i > j){
-                        return -1;
-                    }
-                    else if (i < j){
-                        return 1;
-                    }
-                    else{
-                        return 0;
-                    }
+                    return Integer.compare(j, i);
                 }
                 public int getPreVersion(optifineJarModel model){
                     if (model.isPreview){
@@ -209,7 +206,7 @@ public class GetVersionList {
             return jars;
         }
         else{
-            return null;
+            return new Vector<>();
         }
     }
     public static Vector<CurseModFileModel> getFabricAPIVersionList(boolean faster, String version) throws IOException {
@@ -224,7 +221,7 @@ public class GetVersionList {
         });
         return result;
     }
-    private static String getSnapShotName(String raw_name, boolean faster){
+    private static String getSnapShotName(String raw_name, boolean faster) {
         OriginalVersionModel n = null;
         for (OriginalVersionModel model : getOriginalList(faster)){
             if (Objects.equals(raw_name, model.id)){

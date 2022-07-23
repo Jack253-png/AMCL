@@ -226,6 +226,7 @@ public class CurseAPI {
                                 for (CurseModFileModel m1 : files) {
                                     if (m1.id == model.id) {
                                         contained = true;
+                                        break;
                                     }
                                 }
                                 break;

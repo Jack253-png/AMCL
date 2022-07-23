@@ -2,9 +2,11 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXSlider;
-import com.jfoenix.controls.JFXToggleButton;
 import com.mcreater.amcl.Application;
+import com.mcreater.amcl.controls.items.BooleanItem;
+import com.mcreater.amcl.controls.items.IntItem;
+import com.mcreater.amcl.controls.items.ListItem;
+import com.mcreater.amcl.controls.items.MuiltButtonListItem;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
@@ -13,12 +15,13 @@ import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.JavaInfoGetter;
 import com.mcreater.amcl.util.SetSize;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
-import javafx.scene.layout.GridPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -33,34 +36,23 @@ import java.util.concurrent.ExecutionException;
 public class ConfigPage extends AbstractAnimationPage {
     VBox mainBox;
     Label title;
-    Label change_label;
-    JFXToggleButton change_set;
-    HBox change_box;
 
     VBox configs_box;
-
-    Label java_label;
-    JFXComboBox<Label> java_set;
     JFXButton java_add;
     JFXButton java_get;
-    HBox java_box;
-
-    Label mem_label;
-    Slider max_mem;
-    GridPane mem_pane;
-
-    Label lang_label;
-    JFXComboBox<Label> lang_set;
-    HBox lang_box;
-
     Map<String, String> langs;
-
     VBox menu;
     JFXButton setting;
     SettingPage last;
     SettingPage p1;
     SettingPage p2;
     JFXButton setted;
+    BooleanItem item;
+    IntItem item2;
+    ListItem<Label> item3;
+    MuiltButtonListItem<Label> item4;
+    BooleanItem item5;
+    IntItem item6;
     public ConfigPage(int width, int height){
         super(width, height);
         l = Application.MAINPAGE;
@@ -76,40 +68,16 @@ public class ConfigPage extends AbstractAnimationPage {
         title = new Label();
         title.setFont(Fonts.b_f);
 
-        change_set = new JFXToggleButton();
-        change_set.setSelected(Application.configReader.configModel.change_game_dir);
-        change_set.selectedProperty().addListener((observable, oldValue, newValue) -> Application.configReader.configModel.change_game_dir = newValue);
+        item = new BooleanItem("", this.width / 4 * 3);
+        item.cont.setSelected(Application.configReader.configModel.change_game_dir);
+        item.cont.selectedProperty().addListener((observable, oldValue, newValue) -> Application.configReader.configModel.change_game_dir = newValue);
 
-        change_label = new Label();
-        change_label.setFont(Fonts.t_f);
-
-        change_box = new HBox();
-        change_box.getChildren().addAll(change_label, new MainPage.Spacer(), change_set);
-        change_box.setAlignment(Pos.CENTER);
-
-        mem_label = new Label();
-        mem_label.setFont(Fonts.t_f);
-
-        max_mem = new JFXSlider(256, 4096, Application.configReader.configModel.max_memory);
-        max_mem.setShowTickLabels(true);
-        max_mem.setShowTickMarks(true);
-        max_mem.setMajorTickUnit(256);
-        max_mem.setMinorTickCount(256);
-        max_mem.setOrientation(Orientation.HORIZONTAL);
-        SetSize.set(max_mem, 400, 50);
-        max_mem.valueProperty().addListener((observable, oldValue, newValue) -> setMem(newValue));
-
-        mem_pane = new GridPane();
-        mem_pane.setAlignment(Pos.CENTER);
-        mem_pane.add(mem_label, 0, 0, 1, 1);
-        mem_pane.add(max_mem, 1, 0, 1, 1);
-
-        java_label = new Label();
-        java_label.setFont(Fonts.t_f);
-
-        java_set = new JFXComboBox<>();
-        load_java_list();
-        java_set.setOnAction(event -> Application.configReader.configModel.selected_java_index = java_set.getValue().getText());
+        item2 = new IntItem("", this.width / 4 * 3);
+        item2.cont.setMax(4096);
+        item2.cont.setMin(256);
+        item2.cont.setValue(Application.configReader.configModel.max_memory);
+        item2.cont.setOrientation(Orientation.HORIZONTAL);
+        item2.cont.valueProperty().addListener((observable, oldValue, newValue) -> Application.configReader.configModel.max_memory = newValue.intValue());
 
         java_add = new JFXButton();
         java_add.setDefaultButton(true);
@@ -120,8 +88,10 @@ public class ConfigPage extends AbstractAnimationPage {
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(Application.languageManager.get("ui.configpage.java_choose.filename.description"), "java.exe"));
             File choosed_path = fileChooser.showOpenDialog(Application.stage);
             if (choosed_path != null) {
-                Application.configReader.configModel.selected_java.add(choosed_path.getPath());
-                load_java_list();
+                if (!Application.configReader.configModel.selected_java.contains(choosed_path.getPath())) {
+                    Application.configReader.configModel.selected_java.add(choosed_path.getPath());
+                    load_java_list();
+                }
             }
         });
 
@@ -145,39 +115,57 @@ public class ConfigPage extends AbstractAnimationPage {
             java_get.setDisable(false);
         }).start());
 
-        java_box = new HBox();
-        java_box.setAlignment(Pos.TOP_CENTER);
-        java_box.getChildren().addAll(java_label, new MainPage.Spacer(), java_set, new MainPage.Spacer(), java_get, new MainPage.Spacer(), java_add);
+        item4 = new MuiltButtonListItem<>("", this.width / 4 * 3);
+        item4.addButtons(java_get, java_add);
+        item4.cont.setOnAction(event -> {
+            if (item4.cont.getValue() == null && item4.cont.getItems().size() > 0) {
+                item4.cont.getSelectionModel().select(0);
+            }
+            Application.configReader.configModel.selected_java_index = item4.cont.getValue().getText();
+            Application.configReader.write();
+        });
 
-        lang_label = new Label();
-        lang_label.setFont(Fonts.t_f);
+        load_java_list();
 
-        lang_set = new JFXComboBox<>();
+        item3 = new ListItem<>("", this.width / 4 * 3);
         for (Map.Entry<String, String> entry : langs.entrySet()) {
             Label l = new Label(entry.getKey());
             l.setFont(Fonts.t_f);
-            lang_set.getItems().add(l);
+            item3.cont.getItems().add(l);
         }
-        lang_set.getSelectionModel().select(getKey(Application.configReader.configModel.language));
-        lang_set.setOnAction(event -> {
-            Application.configReader.configModel.language = langs.get(lang_set.getValue().getText());
+        item3.cont.getSelectionModel().select(getKey(Application.configReader.configModel.language));
+        item3.cont.setOnAction(event -> {
+            Application.configReader.configModel.language = langs.get(item3.cont.getValue().getText());
             Application.languageManager.setLanguage(LanguageManager.valueOf(Application.configReader.configModel.language));
             Application.setTitle();
         });
 
-        lang_box = new HBox();
-        lang_box.setAlignment(Pos.TOP_CENTER);
-        lang_box.getChildren().addAll(lang_label, new MainPage.Spacer(), lang_set);
+        item5 = new BooleanItem("", this.width / 4 * 3);
+        item5.cont.selectedProperty().set(Application.configReader.configModel.fastDownload);
+        item5.cont.setOnAction(event -> Application.configReader.configModel.fastDownload = item5.cont.isSelected());
+
+        item6 = new IntItem("", this.width / 4 * 3);
+        item6.cont.setMax(8192);
+        item6.cont.setMin(512);
+        item6.cont.setValue(Application.configReader.configModel.downloadChunkSize);
+        item6.cont.setOrientation(Orientation.HORIZONTAL);
+        item6.cont.valueProperty().addListener((observable, oldValue, newValue) -> Application.configReader.configModel.downloadChunkSize = newValue.intValue());
+
+        SetSize.setHeight(item, 30);
+        SetSize.setHeight(item2, 30);
+        SetSize.setHeight(item2, 30);
+        SetSize.setHeight(item3, 30);
+        SetSize.setHeight(item4, 30);
+        SetSize.setHeight(item5, 30);
+        SetSize.setHeight(item6, 30);
 
         configs_box = new VBox();
         configs_box.setSpacing(10);
-        SetSize.setAll(this.width / 4 * 3, this.height / 14, change_box, java_box, mem_pane, lang_box);
-        configs_box.getChildren().addAll(change_box, java_box, mem_pane, lang_box);
+        configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6);
         configs_box.setId("config-box");
 
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
         java_add.setButtonType(JFXButton.ButtonType.RAISED);
-        SetSize.setWidth(java_set, width / 2);
 
         mainBox = new VBox();
 
@@ -227,17 +215,17 @@ public class ConfigPage extends AbstractAnimationPage {
         }
     }
     public void load_java_list(){
-        java_set.getItems().clear();
+        item4.cont.getItems().clear();
         for (String s : Application.configReader.configModel.selected_java) {
             Label l = new Label(s);
             l.setFont(Fonts.t_f);
-            java_set.getItems().add(l);
+            item4.cont.getItems().add(l);
         }
         if (Application.configReader.configModel.selected_java.contains(Application.configReader.configModel.selected_java_index) || new File(Application.configReader.configModel.selected_java_index).exists()){
-            java_set.getSelectionModel().select(Application.configReader.configModel.selected_java.indexOf(Application.configReader.configModel.selected_java_index));
+            item4.cont.getSelectionModel().select(Application.configReader.configModel.selected_java.indexOf(Application.configReader.configModel.selected_java_index));
         }
         else{
-            java_set.getSelectionModel().clearSelection();
+            item4.cont.getSelectionModel().clearSelection();
         }
     }
     public void refresh(){
@@ -248,17 +236,19 @@ public class ConfigPage extends AbstractAnimationPage {
     public void refreshLanguage(){
         name = Application.languageManager.get("ui.configpage.name");
         title.setText(Application.languageManager.get("ui.configpage.title.name"));
-        change_label.setText(Application.languageManager.get("ui.configpage.change_label.name"));
-        mem_label.setText(Application.languageManager.get("ui.configpage.mem_label.name"));
-        java_label.setText(Application.languageManager.get("ui.configpage.java_label.name"));
+
+        item.name.setText(Application.languageManager.get("ui.configpage.change_label.name"));
+        item2.name.setText(Application.languageManager.get("ui.configpage.mem_label.name"));
+        item3.name.setText(Application.languageManager.get("ui.configpage.lang_label.name"));
+        item4.name.setText(Application.languageManager.get("ui.configpage.java_label.name"));
+        item5.name.setText(Application.languageManager.get("ui.configpage.item5.name"));
+        item6.name.setText(Application.languageManager.get("ui.configpage.item6.name"));
+
         java_get.setText(Application.languageManager.get("ui.configpage.java_get.name"));
         java_add.setText(Application.languageManager.get("ui.configpage.java_add.name"));
-        lang_label.setText(Application.languageManager.get("ui.configpage.lang_label.name"));
         setting.setText(Application.languageManager.get("ui.configpage.menu._01"));
     }
-    public void setMem(Number mem){
-        Application.configReader.configModel.max_memory = mem.intValue();
-    }
+
     public void refreshType(){
 
     }
@@ -268,7 +258,7 @@ public class ConfigPage extends AbstractAnimationPage {
     }
 
     private int getKey(String value){
-        for (Label l : lang_set.getItems()){
+        for (Label l : item3.cont.getItems()){
             String key = "";
             for (Map.Entry<String, String> entry : langs.entrySet()){
                 if (Objects.equals(entry.getValue(), value)){
@@ -276,7 +266,7 @@ public class ConfigPage extends AbstractAnimationPage {
                 }
             }
             if (Objects.equals(l.getText(), key)){
-                return lang_set.getItems().indexOf(l);
+                return item3.cont.getItems().indexOf(l);
             }
         }
         return -1;

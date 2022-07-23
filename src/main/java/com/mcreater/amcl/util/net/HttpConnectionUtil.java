@@ -16,46 +16,49 @@ public class HttpConnectionUtil {
      * @return 响应数据
      */
     public static String doGet(String httpUrl){
-        //链接
         HttpURLConnection connection = null;
         InputStream is = null;
         BufferedReader br = null;
         StringBuilder result = new StringBuilder();
-        try {
-            URL url = new URL(httpUrl);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setReadTimeout(15000);
-            connection.connect();
-            if (connection.getResponseCode() == 200) {
-                is = connection.getInputStream();
-                if (null != is) {
-                    br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-                    String temp = null;
-                    while (null != (temp = br.readLine())) {
-                        result.append(temp);
+        while (true){
+            try {
+                URL url = new URL(httpUrl);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+                connection.setReadTimeout(15000);
+                connection.connect();
+                if (connection.getResponseCode() == 200) {
+                    is = connection.getInputStream();
+                    if (null != is) {
+                        br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+                        String temp = null;
+                        while (null != (temp = br.readLine())) {
+                            result.append(temp);
+                        }
                     }
                 }
+                break;
+            } catch (IOException e) {
+                e.printStackTrace();
+                connection.disconnect();
+                result = new StringBuilder();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (null != br) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (null != is) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            connection.disconnect();
         }
+        if (null != br) {
+            try {
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (null != is) {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        connection.disconnect();
         return result.toString();
     }
 }
