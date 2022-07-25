@@ -3,7 +3,7 @@ package com.mcreater.amcl.pages;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXProgressBar;
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.VanilaVersionContent;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
@@ -19,7 +19,6 @@ import javafx.concurrent.Service;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Labeled;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -41,11 +40,11 @@ public class DownloadMcPage extends AbstractAnimationPage {
     JFXProgressBar bar;
     public DownloadMcPage(int width, int height){
         super(width, height);
-        l = Application.MAINPAGE;
+        l = Launcher.MAINPAGE;
         set();
         this.setAlignment(Pos.TOP_CENTER);
 
-        double t_size = Application.barSize;
+        double t_size = Launcher.barSize;
 
         bar = new JFXProgressBar(-1.0D);
         SetSize.setWidth(bar, this.width / 4 * 3);
@@ -69,7 +68,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
             load.setDisable(true);
             loadVersions();
         });
-        load.setGraphic(Application.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 20, 20));
+        load.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 20, 20));
         SetSize.setWidth(setting, this.width / 4 / 4 * 3);
         SetSize.setWidth(load, this.width / 4 / 4);
 
@@ -88,7 +87,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
             Platform.runLater(mainBox.getChildren()::clear);
             Platform.runLater(() -> mainBox.getChildren().add(bar));
             mainBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.75)");
-            Vector<OriginalVersionModel> vs = GetVersionList.getOriginalList(Application.configReader.configModel.fastDownload);
+            Vector<OriginalVersionModel> vs = GetVersionList.getOriginalList(Launcher.configReader.configModel.fastDownload);
             Vector<String> types = new Vector<>();
             for (OriginalVersionModel m : vs){
                 if (!types.contains(m.type)){
@@ -101,7 +100,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 TitledPane pane = new TitledPane();
                 pane.getStylesheets().add(String.format(ThemeManager.getPath(), "TitledPane"));
                 panes.add(pane);
-                pane.setText(Application.languageManager.get("ui.downloadmcpage.types." + t));
+                pane.setText(Launcher.languageManager.get("ui.downloadmcpage.types." + t));
                 pane.setFont(Fonts.s_f);
                 SetSize.setWidth(pane, DownloadMcPage.width / 4 * 3);
                 JFXListView<VanilaVersionContent> listv = new JFXListView<>();
@@ -127,8 +126,8 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 });
                 listv.getItems().sort((node, t1) -> 0);
                 listv.setOnMouseReleased(event -> {
-                    Application.setPage(Application.DOWNLOADADDONSELECTPAGE, this);
-                    Application.DOWNLOADADDONSELECTPAGE.setVersionId(listv.getSelectionModel().getSelectedItem().model);
+                    Launcher.setPage(Launcher.DOWNLOADADDONSELECTPAGE, this);
+                    Launcher.DOWNLOADADDONSELECTPAGE.setVersionId(listv.getSelectionModel().getSelectedItem().model);
                 });
                 Platform.runLater(() -> mainBox.getChildren().add(pane));
             }
@@ -163,7 +162,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
             mainBox = new VBox();
             mainBox.setAlignment(Pos.TOP_CENTER);
             mainBox.getChildren().addAll(p);
-            SetSize.set(mainBox, this.width / 4 * 3, this.height - Application.barSize);
+            SetSize.set(mainBox, this.width / 4 * 3, this.height - Launcher.barSize);
             this.add(menu, 0, 0, 1, 1);
             this.add(mainBox, 1, 0, 1, 1);
         }
@@ -174,8 +173,8 @@ public class DownloadMcPage extends AbstractAnimationPage {
         setType(setted);
     }
     public void refreshLanguage(){
-        name = Application.languageManager.get("ui.downloadmcpage.name");
-        setting.setText(Application.languageManager.get("ui.downloadmcpage.menu._01"));
+        name = Launcher.languageManager.get("ui.downloadmcpage.name");
+        setting.setText(Launcher.languageManager.get("ui.downloadmcpage.menu._01"));
     }
     public void refreshType(){
 

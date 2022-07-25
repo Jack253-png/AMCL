@@ -1,11 +1,10 @@
 package com.mcreater.amcl.controls;
 
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.mod.CurseModAuthorModel;
 import com.mcreater.amcl.api.curseApi.mod.CurseModCategorieModel;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.stages.BrowserPage;
 import com.mcreater.amcl.util.BrowserHelper;
 import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
@@ -29,7 +28,7 @@ public class CurseMod extends GridPane {
         name.setFont(Fonts.s_f);
         Label desc = new Label(model.summary);
         desc.setFont(Fonts.t_f);
-        desc.setMaxWidth(Application.width - 20 * 4 - 35);
+        desc.setMaxWidth(Launcher.width - 20 * 4 - 35);
         HBox b = new HBox();
         for (int i = 0;i < model.categories.size();i++){
             ImageView view = new ImageView();
@@ -43,7 +42,7 @@ public class CurseMod extends GridPane {
             new Thread(() -> v.setImage(new Image(m.iconUrl))).start();
         }
         HBox authors = new HBox();
-        base = new Label(Application.languageManager.get("ui.addmodspage.mod.authors.name"));
+        base = new Label(Launcher.languageManager.get("ui.addmodspage.mod.authors.name"));
         base.setFont(Fonts.t_f);
         authors.getChildren().add(base);
         for (CurseModAuthorModel m : model.authors){
@@ -64,6 +63,6 @@ public class CurseMod extends GridPane {
         this.add(b, 1, 3, 1, 1);
     }
     public void refreshLang(){
-        base.setText(Application.languageManager.get("ui.addmodspage.mod.authors.name"));
+        base.setText(Launcher.languageManager.get("ui.addmodspage.mod.authors.name"));
     }
 }

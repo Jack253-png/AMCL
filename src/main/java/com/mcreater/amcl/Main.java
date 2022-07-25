@@ -1,12 +1,29 @@
 package com.mcreater.amcl;
 
+import com.mcreater.amcl.javafx.depenciesLoader;
+import com.mcreater.amcl.lang.PreLanguageManager;
+import com.mcreater.amcl.util.LocateHelper;
+import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
+import com.mcreater.amcl.util.xml.DepencyItem;
 import com.sun.glass.utils.NativeLibLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.xml.sax.SAXException;
 
 import javax.swing.*;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
+import java.io.IOException;
+import java.lang.module.ModuleDescriptor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Vector;
+
 public class Main{
     static String[] args;
     static {
@@ -14,17 +31,17 @@ public class Main{
         f.delete();
     }
     static Logger logger = LogManager.getLogger(Main.class);
-    public static void main(String[] args) {
-        Main.args = args;
-        new Main().start();
+    public static void main(String[] args) throws UnsupportedLookAndFeelException, ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, NoSuchFieldException {
+        start();
     }
-    public void start() {
+    public static void start() {
         try {
+            args = new String[]{};
             logger.info("initialize");
             logger.info("launching core with arguments : " + Arrays.toString(args));
             NativeLibLoader.loadLibrary("prism_d3d");
             NativeLibLoader.loadLibrary("prism_sw");
-            Application.startApplication(args, System.getProperty("os.name", "Unknow").contains("Windows"));
+            Launcher.startApplication(args, System.getProperty("os.name", "Unknow").contains("Windows"));
         }
         catch (Exception e) {
             logger.error("Error while launcher running", e);

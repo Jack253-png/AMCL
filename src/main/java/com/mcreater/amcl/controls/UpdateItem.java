@@ -1,7 +1,7 @@
 package com.mcreater.amcl.controls;
 
 import com.jfoenix.controls.JFXButton;
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
@@ -22,7 +22,7 @@ public class UpdateItem extends VBox {
         this.type.setFont(Fonts.t_f);
         this.url = new Label(url);
         this.url.setFont(Fonts.t_f);
-        copy = new JFXButton(Application.languageManager.get("ui.updateItem.copy.name"));
+        copy = new JFXButton(Launcher.languageManager.get("ui.updateItem.copy.name"));
         copy.setFont(Fonts.t_f);
         copy.setOnAction(event -> {
             Runnable runnable = () -> {

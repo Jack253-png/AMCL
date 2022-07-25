@@ -3,8 +3,10 @@ package com.mcreater.amcl.pages;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXProgressBar;
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.RemoteMod;
+import com.mcreater.amcl.controls.items.StringItem;
+import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.game.mods.ModHelper;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.model.mod.CommonModInfoModel;
@@ -13,14 +15,14 @@ import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.util.LinkPath;
+import com.mcreater.amcl.util.RemoveFileToTrash;
 import com.mcreater.amcl.util.SetSize;
 import com.sun.jna.platform.FileUtils;
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ObjectBinding;
 import javafx.collections.ListChangeListener;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -28,13 +30,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.Vector;
+
+import static com.mcreater.amcl.pages.DownloadAddonSelectPage.isValidFileName;
 import static com.mcreater.amcl.util.Images.*;
 
 public class VersionInfoPage extends AbstractAnimationPage {
@@ -62,12 +66,15 @@ public class VersionInfoPage extends AbstractAnimationPage {
     JFXButton refresh;
     JFXButton delete;
     SettingPage sett;
+    JFXButton delVer;
+    JFXButton changeName;
+    StringItem item;
     public VersionInfoPage(double width, double height){
         super(width, height);
-        l = Application.MAINPAGE;
+        l = Launcher.MAINPAGE;
         set();
 
-        double t_size = Application.barSize;
+        double t_size = Launcher.barSize;
 
         menu = new VBox();
         menu.setId("info-menu");
@@ -109,7 +116,45 @@ public class VersionInfoPage extends AbstractAnimationPage {
         info.add(forgeversion, 1, 2, 1, 1);
         info.add(liteversion, 1, 3, 1, 1);
         info.add(optiversion, 1, 4, 1, 1);
-        b.getChildren().addAll(info);
+        delVer = new JFXButton();
+        SetSize.set(delVer, t_size, t_size);
+        delVer.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
+        delVer.setOnAction(event -> {
+            RemoveFileToTrash.remove(LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", Launcher.configReader.configModel.selected_version_index)));
+            Launcher.setPage(Launcher.MAINPAGE, this);
+        });
+        item = new StringItem("", this.width / 4 * 3);
+        item.cont.setFont(Fonts.t_f);
+        changeName = new JFXButton();
+        changeName.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
+        SetSize.set(changeName, t_size, t_size);
+        changeName.setOnAction(event -> {
+            if (isValidFileName(item.cont.getText())) {
+                String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", item.cont.getText()));
+                if (new File(versionDir).exists()){
+                    FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.1"), "");
+                }
+                else {
+                    String temp = Launcher.configReader.configModel.selected_version_index;
+                    Launcher.configReader.configModel.selected_version_index = item.cont.getText();
+                    String dir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", temp));
+                    String newDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", item.cont.getText()));
+                    String jar = newDir + String.format("\\%s.jar", temp);
+                    String json = newDir + String.format("\\%s.json", temp);
+                    String newJar = newDir + String.format("\\%s.jar", item.cont.getText());
+                    String newJson = newDir + String.format("\\%s.json", item.cont.getText());
+                    new File(dir).renameTo(new File(newDir));
+                    new File(jar).renameTo(new File(newJar));
+                    new File(json).renameTo(new File(newJson));
+                    Launcher.setPage(Launcher.MAINPAGE, this);
+                }
+            }
+            else{
+                FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.2"), "");
+            }
+        });
+        HBox b1 = new HBox(delVer, changeName);
+        b.getChildren().addAll(info, item, b1);
         p1 = new SettingPage(this.width / 4 * 3, this.height - t_size, b);
 
         b2 = new VBox();
@@ -119,35 +164,24 @@ public class VersionInfoPage extends AbstractAnimationPage {
 
         addMod = new JFXButton();
         SetSize.set(addMod, t_size, t_size);
-        addMod.setGraphic(Application.getSVGManager().plus(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
-        addMod.setOnAction(event -> Application.setPage(Application.ADDMODSPAGE, this));
+        addMod.setGraphic(Launcher.getSVGManager().plus(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
+        addMod.setOnAction(event -> Launcher.setPage(Launcher.ADDMODSPAGE, this));
 
         refresh = new JFXButton();
         SetSize.set(refresh, t_size, t_size);
-        refresh.setGraphic(Application.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
+        refresh.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         refresh.setOnAction(actionEvent -> new Thread(this::loadMods).start());
 
         delete = new JFXButton();
         SetSize.set(delete, t_size, t_size);
-        delete.setGraphic(Application.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
+        delete.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         delete.setOnAction(event -> {
-            ProcessDialog dialog = new ProcessDialog(1, String.format(Application.languageManager.get("ui.versioninfopage.deletemod.deleteing.title"), modList.getSelectionModel().getSelectedItem().name.getText()));
+            ProcessDialog dialog = new ProcessDialog(1, String.format(Launcher.languageManager.get("ui.versioninfopage.deletemod.deleteing.title"), modList.getSelectionModel().getSelectedItem().name.getText()));
             dialog.Create();
             dialog.setV(0, 50, modList.getSelectionModel().getSelectedItem().name.getText());
             new Thread(() -> {
                 String path = modList.getSelectionModel().getSelectedItem().path;
-                File f = new File(path);
-                FileUtils fu = FileUtils.getInstance();
-                if (fu.hasTrash()){
-                    try {
-                        fu.moveToTrash(f);
-                    } catch (IOException e) {
-                        f.delete();
-                    }
-                }
-                else{
-                    f.delete();
-                }
+                RemoveFileToTrash.remove(path);
                 Platform.runLater(dialog::close);
             }).start();
             new Thread(this::loadMods).start();
@@ -174,13 +208,14 @@ public class VersionInfoPage extends AbstractAnimationPage {
     public void setByview(){
         String type;
         try {
-            type = versionTypeGetter.get(Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index);
+            type = versionTypeGetter.get(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
         }
         catch (Exception e){
             e.printStackTrace();
             return;
         }
-        versionname.setText(Application.configReader.configModel.selected_version_index);
+        versionname.setText(Launcher.configReader.configModel.selected_version_index);
+        item.cont.setText(Launcher.configReader.configModel.selected_version_index);
         view.setFitWidth(40);
         view.setFitHeight(40);
         switch (type) {
@@ -201,10 +236,10 @@ public class VersionInfoPage extends AbstractAnimationPage {
                 view.setImage(optifine);
                 break;
         }
-        fabricversion.setText(versionTypeGetter.getFabricVersion(Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index));
-        forgeversion.setText(versionTypeGetter.getForgeVersion(Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index));
-        optiversion.setText(versionTypeGetter.getOptifineVersion(Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index));
-        liteversion.setText(versionTypeGetter.getLiteLoaderVersion(Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index));
+        fabricversion.setText(versionTypeGetter.getFabricVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
+        forgeversion.setText(versionTypeGetter.getForgeVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
+        optiversion.setText(versionTypeGetter.getOptifineVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
+        liteversion.setText(versionTypeGetter.getLiteLoaderVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
     }
     public void setType(JFXButton b){
         setted = b;
@@ -227,13 +262,13 @@ public class VersionInfoPage extends AbstractAnimationPage {
         mainBox = new VBox();
         mainBox.setAlignment(Pos.TOP_CENTER);
         mainBox.getChildren().addAll(p);
-        SetSize.set(mainBox, this.width / 4 * 3, this.height - Application.barSize);
+        SetSize.set(mainBox, this.width / 4 * 3, this.height - Launcher.barSize);
         this.add(menu, 0, 0, 1, 1);
         this.add(mainBox, 1, 0, 1, 1);
         if (p == p2){
-            p.setDisable(!ModHelper.isModded(Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index));
+            p.setDisable(!ModHelper.isModded(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
             if (p.isDisabled()) {
-                FastInfomation.create(Application.languageManager.get("ui.versioninfopage.unModded.title"), Application.languageManager.get("ui.versioninfopage.unModded.content"), "");
+                FastInfomation.create(Launcher.languageManager.get("ui.versioninfopage.unModded.title"), Launcher.languageManager.get("ui.versioninfopage.unModded.content"), "");
             }
         }
     }
@@ -250,7 +285,7 @@ public class VersionInfoPage extends AbstractAnimationPage {
             Platform.runLater(() -> bar.setProgress(-1.0D));
             Platform.runLater(modList.getItems()::clear);
             Platform.runLater(() -> setType(true));
-            Vector<File> f = ModHelper.getMod(Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index);
+            Vector<File> f = ModHelper.getMod(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
             for (File file : f) {
                 CommonModInfoModel model = ModHelper.getModInfo(file.getPath());
                 if (!Objects.equals(model.name, "")) {
@@ -289,9 +324,10 @@ public class VersionInfoPage extends AbstractAnimationPage {
     }
 
     public void refreshLanguage() {
-        name = Application.languageManager.get("ui.versioninfopage.name");
-        mainInfoButton.setText(Application.languageManager.get("ui.versioninfopage.menu._01"));
-        modsMenu.setText(Application.languageManager.get("ui.versioninfopage.menu._02"));
+        name = Launcher.languageManager.get("ui.versioninfopage.name");
+        mainInfoButton.setText(Launcher.languageManager.get("ui.versioninfopage.menu._01"));
+        modsMenu.setText(Launcher.languageManager.get("ui.versioninfopage.menu._02"));
+        item.title.setText(Launcher.languageManager.get("ui.versioninfopage.item.name"));
     }
 
     public void refreshType() {

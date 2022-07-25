@@ -1,6 +1,6 @@
 package com.mcreater.amcl.audio;
 
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.dialogs.PopupMessage;
 import com.sun.media.jfxmedia.AudioClip;
 import javafx.application.Platform;
@@ -27,7 +27,7 @@ public class BGMManager {
                 names.add(file.getName());
             }
             else{
-                PopupMessage.createMessage(String.format(Application.languageManager.get("ui.bgmmanager.loadfailed"), file.getName()));
+                PopupMessage.createMessage(String.format(Launcher.languageManager.get("ui.bgmmanager.loadfailed"), file.getName()));
             }
         }
     }
@@ -46,7 +46,7 @@ public class BGMManager {
                 public void run() {
                     while (true) {
                         int index = r.nextInt(musics.size());
-                        Platform.runLater(() -> PopupMessage.createMessage(String.format(Application.languageManager.get("ui.bgmmanager.playing"), names.get(index))));
+                        Platform.runLater(() -> PopupMessage.createMessage(String.format(Launcher.languageManager.get("ui.bgmmanager.playing"), names.get(index))));
                         AudioClip clip = musics.get(index);
                         if (currentClip != clip) {
                             currentClip = clip;

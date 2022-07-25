@@ -10,6 +10,7 @@ import com.mcreater.amcl.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.*;
 import com.mcreater.amcl.util.*;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
+import com.mcreater.amcl.util.xml.ForgeVersionXMLHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -30,6 +31,15 @@ public class ForgeDownload {
     static Logger logger = LogManager.getLogger(ForgeDownload.class);
     static String versiondir;
     static String u;
+    private static int getCont(String raw){
+        int count = 0;
+        int index = 0;
+        while ((index = raw.indexOf("-", index)) != -1) {
+            index = index + 1;
+            count++;
+        }
+        return count;
+    }
     public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String forge_version) throws IOException, ParserConfigurationException, SAXException, InterruptedException {
         tasks.clear();
         ForgeDownload.chunkSize = chunkSize;
@@ -37,7 +47,8 @@ public class ForgeDownload {
         String c = null;
         if (vectorMap.get(id) != null){
             for (String version : vectorMap.get(id)){
-                if (forge_version.contains(version) || Objects.equals(List.of(version.split("-")).get(0), forge_version)){
+                System.out.println(version);
+                if (Objects.equals(version, forge_version)){
                     c = version;
                     break;
                 }
@@ -66,6 +77,9 @@ public class ForgeDownload {
         deleteDirectory(new File(temp_path), temp_path);
 //        int i = 0;
         new File(temp_path).mkdirs();
+        if (!GetFileExists.get(installer_url)){
+            throw new IOException("this version of forge cannot be automated");
+        }
         new ForgeInstallerDownloadTask(installer_url, installer_path, chunkSize).execute();
 //      int i = 0;
         if (new File(temp_path).exists()) {

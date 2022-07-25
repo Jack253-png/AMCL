@@ -2,7 +2,7 @@ package com.mcreater.amcl.pages.dialogs;
 
 import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.*;
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -18,7 +18,7 @@ public class LoadingDialog extends JFXAlert<String> {
     public Label l;
     public JFXSpinner spinner;
     public LoadingDialog(String title){
-        super(Application.stage);
+        super(Launcher.stage);
         this.setAnimation(JFXAlertAnimation.BOTTOM_ANIMATION);
         this.initModality(Modality.APPLICATION_MODAL);
         this.setOverlayClose(false);

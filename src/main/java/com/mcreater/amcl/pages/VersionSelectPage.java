@@ -4,7 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.utils.JFXSmoothScroll;
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
@@ -48,15 +48,15 @@ public class VersionSelectPage extends AbstractAnimationPage {
     String last_dir;
     public VersionSelectPage(double width,double height){
         super(width, height);
-        l = Application.MAINPAGE;
+        l = Launcher.MAINPAGE;
         set();
 
-        double t_size = Application.barSize;
+        double t_size = Launcher.barSize;
 
         checked = false;
 
-        last = Application.configReader.configModel.selected_version_index;
-        last_dir = Application.configReader.configModel.selected_minecraft_dir_index;
+        last = Launcher.configReader.configModel.selected_version_index;
+        last_dir = Launcher.configReader.configModel.selected_minecraft_dir_index;
 
         version_list = new JFXListView<>();
         version_list.getSelectionModel().getSelectedItems().addListener((ListChangeListener<HBox>) c -> {
@@ -81,15 +81,15 @@ public class VersionSelectPage extends AbstractAnimationPage {
         select_version.setFont(Fonts.s_f);
         select_version.setText(last);
 
-        if (Application.configReader.configModel.selected_minecraft_dir.contains(Application.configReader.configModel.selected_minecraft_dir_index)) {
-            dirs.getSelectionModel().select(Application.configReader.configModel.selected_minecraft_dir.indexOf(Application.configReader.configModel.selected_minecraft_dir_index));
+        if (Launcher.configReader.configModel.selected_minecraft_dir.contains(Launcher.configReader.configModel.selected_minecraft_dir_index)) {
+            dirs.getSelectionModel().select(Launcher.configReader.configModel.selected_minecraft_dir.indexOf(Launcher.configReader.configModel.selected_minecraft_dir_index));
         }
         else {
-            Application.configReader.configModel.selected_minecraft_dir_index = "";
-            Application.configReader.configModel.selected_version_index = "";
+            Launcher.configReader.configModel.selected_minecraft_dir_index = "";
+            Launcher.configReader.configModel.selected_version_index = "";
             select_version.setText("");
             try {
-                Application.configReader.write();
+                Launcher.configReader.write();
             }
             catch (Exception ignored){
             }
@@ -107,8 +107,8 @@ public class VersionSelectPage extends AbstractAnimationPage {
         add_dir.setDefaultButton(true);
         add_dir.setOnAction(event -> {
             DirectoryChooser directoryChooser=new DirectoryChooser();
-            Runnable setDialog = () -> FastInfomation.create(Application.languageManager.get("ui.versionselectpage.error_dir.title"), Application.languageManager.get("ui.versionselectpage.error_dir.Headercontent"),"");
-            File file = directoryChooser.showDialog(Application.stage);
+            Runnable setDialog = () -> FastInfomation.create(Launcher.languageManager.get("ui.versionselectpage.error_dir.title"), Launcher.languageManager.get("ui.versionselectpage.error_dir.Headercontent"),"");
+            File file = directoryChooser.showDialog(Launcher.stage);
             if (file == null){
                 setDialog.run();
             }
@@ -118,8 +118,8 @@ public class VersionSelectPage extends AbstractAnimationPage {
                 if (result == null) {
                     setDialog.run();
                 } else {
-                    Application.configReader.configModel.selected_minecraft_dir.add(path);
-                    Application.configReader.write();
+                    Launcher.configReader.configModel.selected_minecraft_dir.add(path);
+                    Launcher.configReader.write();
                     dirs.getSelectionModel().select(path);
                     load_minecraft_dir();
                     r = result;
@@ -161,7 +161,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
     public void load_minecraft_dir(){
         version_list.getItems().clear();
         dirs.getItems().clear();
-        for (String p : Application.configReader.configModel.selected_minecraft_dir) {
+        for (String p : Launcher.configReader.configModel.selected_minecraft_dir) {
             dirs.getItems().add(p);
         }
     }
@@ -170,10 +170,10 @@ public class VersionSelectPage extends AbstractAnimationPage {
             Platform.runLater(MainPage.l::show);
             setTypeAll(true);
             if (!Objects.equals(dirs.getValue(), null)) {
-                Application.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
-                Application.configReader.write();
+                Launcher.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
+                Launcher.configReader.write();
 
-                result = getMinecraftVersion.get(Application.configReader.configModel.selected_minecraft_dir_index);
+                result = getMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index);
                 Platform.runLater(version_list.getItems()::clear);
                 if (result != null) {
                     int dg = result.size();
@@ -181,12 +181,12 @@ public class VersionSelectPage extends AbstractAnimationPage {
                     for (String s : result) {
                         logger.info(String.format("loading version %s", s));
                         String f = "error";
-                        if (!new File(LinkPath.link(LinkPath.link(LinkPath.link(Application.configReader.configModel.selected_minecraft_dir_index, "versions"), s), s + ".json")).exists()) {
+                        if (!new File(LinkPath.link(LinkPath.link(LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "versions"), s), s + ".json")).exists()) {
                             logger.warn(String.format("Failed to load version name %s !", s));
                             continue;
                         }
                         try {
-                            f = versionTypeGetter.get(Application.configReader.configModel.selected_minecraft_dir_index, s);
+                            f = versionTypeGetter.get(Launcher.configReader.configModel.selected_minecraft_dir_index, s);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -223,7 +223,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
                             version_list.getItems().add(version);
                         });
                         ld += 1;
-                        MainPage.l.setV(0, ld * 100 / dg, String.format(Application.languageManager.get("ui.versionListLoad._01"), s));
+                        MainPage.l.setV(0, ld * 100 / dg, String.format(Launcher.languageManager.get("ui.versionListLoad._01"), s));
                     }
                 }
             }
@@ -236,15 +236,15 @@ public class VersionSelectPage extends AbstractAnimationPage {
     }
     public void update_version_name(){
         Platform.runLater(() -> select_version.setText(selected_version_name));
-        Application.configReader.configModel.selected_version_index = selected_version_name;
-        Application.configReader.write();
+        Launcher.configReader.configModel.selected_version_index = selected_version_name;
+        Launcher.configReader.write();
     }
     public void refresh(){
         load_list();
     }
     public void refreshType(){
-        last = Application.configReader.configModel.selected_version_index;
-        last_dir = Application.configReader.configModel.selected_minecraft_dir_index;
+        last = Launcher.configReader.configModel.selected_version_index;
+        last_dir = Launcher.configReader.configModel.selected_minecraft_dir_index;
     }
 
     public void onExitPage() {
@@ -254,23 +254,23 @@ public class VersionSelectPage extends AbstractAnimationPage {
 //            }
 //            selected_version_name = last;
 //            update_version_name();
-//            Application.configReader.configModel.selected_version_index = last;
-//            Application.configReader.configModel.selected_minecraft_dir_index = last_dir;
-//            Application.configReader.write();
+//            Launcher.configReader.configModel.selected_version_index = last;
+//            Launcher.configReader.configModel.selected_minecraft_dir_index = last_dir;
+//            Launcher.configReader.write();
 //        }
 //        else {
-//            Application.configReader.configModel.selected_version_index = selected_version_name;
-//            Application.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
-//            Application.configReader.write();
+//            Launcher.configReader.configModel.selected_version_index = selected_version_name;
+//            Launcher.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
+//            Launcher.configReader.write();
 //        }
-        Application.configReader.configModel.selected_version_index = selected_version_name;
-        Application.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
-        Application.configReader.write();
+        Launcher.configReader.configModel.selected_version_index = selected_version_name;
+        Launcher.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
+        Launcher.configReader.write();
     }
 
     public void refreshLanguage(){
-        name = Application.languageManager.get("ui.versionselectpage.name");
-        title.setText(Application.languageManager.get("ui.versionselectpage.title.name"));
-        add_dir.setText(Application.languageManager.get("ui.versionselectpage.add_dir.name"));
+        name = Launcher.languageManager.get("ui.versionselectpage.name");
+        title.setText(Launcher.languageManager.get("ui.versionselectpage.title.name"));
+        add_dir.setText(Launcher.languageManager.get("ui.versionselectpage.add_dir.name"));
     }
 }

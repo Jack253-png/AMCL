@@ -7,6 +7,7 @@ public class LinkPath {
         return rep(new File(p1, p2).getPath());
     }
     public static String rep(String p){
-        return p.replace("/","\\");
+        return p.replace("/",File.separator)
+                .replace("\\", File.separator);
     }
 }

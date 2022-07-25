@@ -50,7 +50,7 @@ public class DownloadTask extends AbstractTask{
     }
     public void clean() throws IOException {
         new File(local).delete();
-        System.gc();
+//        System.gc();
     }
     public void download() throws IOException {
         inputStream = conn.getInputStream();

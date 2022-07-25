@@ -22,12 +22,15 @@ sourceCompatibility = '11'
 targetCompatibility = '11'
 
 tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
+    options.encoding = "utf-8"
+}
+tasks.withType(Javadoc) {
+    options.encoding = "utf-8"
 }
 
 application {
     mainModule = 'com.mcreater.amcl'
-    mainClass = 'com.mcreater.amcl.HelloApplication'
+    mainClass = 'com.mcreater.amcl.Application'
 }
 
 javafx {

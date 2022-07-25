@@ -1,9 +1,8 @@
 package com.mcreater.amcl.pages.dialogs;
 
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.sun.javafx.tk.FontMetrics;
 import javafx.animation.PathTransition;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
@@ -53,7 +52,7 @@ public class PopupMessage {
         usedHeights.add(tempHeight);
         path.getElements().add(new MoveTo(-245 + doubled / 2 / 100 * 101, tempHeight));
         path.getElements().add(new LineTo(25 + doubled / 2 / 100 * 101, tempHeight));
-        Application.p.getChildren().add(circle);
+        Launcher.p.getChildren().add(circle);
         final PathTransition pathTransition = new PathTransition();
         pathTransition.setDuration(Duration.seconds(4.0));
         pathTransition.setDelay(Duration.seconds(.95));
@@ -64,7 +63,7 @@ public class PopupMessage {
         pathTransition.setAutoReverse(true);
         pathTransition.play();
         pathTransition.setOnFinished(event -> {
-            Application.p.getChildren().removeAll(circle);
+            Launcher.p.getChildren().removeAll(circle);
             mess.remove(circle);
             if (circle.Height != PopupMessage.contentHeight) {
                 useableHeights.add(circle.Height);

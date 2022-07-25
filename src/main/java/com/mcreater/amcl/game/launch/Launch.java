@@ -2,7 +2,8 @@ package com.mcreater.amcl.game.launch;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.exceptions.*;
@@ -37,11 +38,19 @@ public class Launch {
     public void launch(String java_path, String dir, String version_name, boolean ie, int m) throws IllegalStateException, InterruptedException, LaunchException, IOException {
         TaskManager.bind(MainPage.d, 2);
         MainPage.d.Create();
-        MainPage.d.setV(0, 5, Application.languageManager.get("ui.launch._01"));
+        MainPage.d.setV(0, 5, Launcher.languageManager.get("ui.launch._01"));
         java = java_path;
-        MainPage.d.setV(0, 10, Application.languageManager.get("ui.launch._02"));
-        MainPage.d.setV(2, 0, Application.languageManager.get("ui.fix._01"));
-        MinecraftFixer.fix(Application.configReader.configModel.fastDownload, Application.configReader.configModel.downloadChunkSize, dir, version_name);
+        MainPage.d.setV(0, 10, Launcher.languageManager.get("ui.launch._02"));
+        MainPage.d.setV(2, 0, Launcher.languageManager.get("ui.fix._01"));
+        try {
+            MinecraftFixer.fix(Launcher.configReader.configModel.fastDownload, Launcher.configReader.configModel.downloadChunkSize, dir, version_name);
+        }
+        catch (IOException e){
+            Platform.runLater(() -> {
+                MainPage.d.close();
+                FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString());
+            });
+        }
 
         if (!new File(dir).exists()){
             throw new BadMinecraftDirException();
@@ -55,7 +64,7 @@ public class Launch {
         if (!json_file.exists() || !jar_file.exists()){
             throw new BadMainFilesException();
         }
-        MainPage.d.setV(0, 75, Application.languageManager.get("ui.launch._03"));
+        MainPage.d.setV(0, 75, Launcher.languageManager.get("ui.launch._03"));
         String json_result = FileStringReader.read(json_file.getPath());
         Gson g = new Gson();
         VersionJsonModel r = g.fromJson(json_result, VersionJsonModel.class);
@@ -108,11 +117,11 @@ public class Launch {
                 }
             }
             s0 += 1;
-            MainPage.d.setV(0, 75 + 5 * s0 / r.libraries.size(), String.format(Application.languageManager.get("ui.launch._04"), l.name));
+            MainPage.d.setV(0, 75 + 5 * s0 / r.libraries.size(), String.format(Launcher.languageManager.get("ui.launch._04"), l.name));
             MainPage.d.setV(1, (int) ((double) s0 / r.libraries.size() * 100));
         }
         MainPage.d.setV(1, 100);
-        MainPage.d.setV(0, 80, String.format(Application.languageManager.get("ui.launch._05"), r.libraries.size()));
+        MainPage.d.setV(0, 80, String.format(Launcher.languageManager.get("ui.launch._05"), r.libraries.size()));
         File nativef = new File(LinkPath.link(f.getPath(),version_name + "-natives"));
         if (!nativef.exists()){
             boolean b = nativef.mkdirs();
@@ -130,11 +139,11 @@ public class Launch {
                 e.printStackTrace();
                 throw new BadUnzipException();
             }
-            MainPage.d.setV(0, 85, Application.languageManager.get("ui.launch._06"));
+            MainPage.d.setV(0, 85, Launcher.languageManager.get("ui.launch._06"));
         }
         StringBuilder classpath = new StringBuilder("-cp \"");
         for (String s : libs){
-            classpath.append(s).append(System.getProperty("path.separator", ";"));
+            classpath.append(s).append(File.pathSeparator);
         }
         classpath.append(jar_file).append("\"");
 
@@ -263,12 +272,12 @@ public class Launch {
 
         try {
             String command = LinkCommands.link(java, jvm, String.valueOf(classpath), mem, forgevm,mainClass.replace(" ",""), arguments);
-            MainPage.d.setV(0, 90, Application.languageManager.get("ui.launch._07"));
+            MainPage.d.setV(0, 90, Launcher.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
             logger.info(String.format("Getted Command Line : %s", command));
             MainPage.exit_code = null;
             MainPage.cleanLog();
-            MainPage.d.setV(0, 95, Application.languageManager.get("ui.launch._08"));
+            MainPage.d.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
             p = Runtime.getRuntime().exec(command);
             CountDownLatch latch = new CountDownLatch(3);
             new Thread(() -> {

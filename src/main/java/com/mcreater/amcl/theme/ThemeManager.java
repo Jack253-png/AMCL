@@ -1,6 +1,6 @@
 package com.mcreater.amcl.theme;
 
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
@@ -31,14 +31,14 @@ public class ThemeManager {
             topBar.getStylesheets().add(cssPath);
         }
     }
-    public void apply(Application application) throws IllegalAccessException{
+    public void apply(Launcher launcher) throws IllegalAccessException{
         Object o;
         Vector<AbstractAnimationPage> pages = new Vector<>();
         Vector<Node> controls = new Vector<>();
         String theme_base_path = "assets/themes/%s/%s.css";
-        for (Field f : ReflectHelper.getFields(application)) {
+        for (Field f : ReflectHelper.getFields(launcher)) {
             f.setAccessible(true);
-            o = f.get(application);
+            o = f.get(launcher);
             if (o instanceof AbstractAnimationPage) {
                 pages.add((AbstractAnimationPage) o);
             }

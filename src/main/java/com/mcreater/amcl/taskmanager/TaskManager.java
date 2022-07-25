@@ -1,12 +1,11 @@
 package com.mcreater.amcl.taskmanager;
 
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.javafx.depencyLoadingFrame;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.tasks.Task;
-import com.mcreater.amcl.util.Sleeper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.controlsfx.dialog.ProgressDialog;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -14,12 +13,14 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
-public class TaskManager {
+public abstract class TaskManager {
     public static Vector<Task> tasks = new Vector<>();
     public static Logger logger = LogManager.getLogger(TaskManager.class);
     public static ProcessDialog dialog;
+    public static depencyLoadingFrame frame;
     public static int index;
     public static long downloadedBytes;
+    private TaskManager(){}
     public static void addTasks(Task... t){
         tasks.addAll(List.of(t));
     }
@@ -29,6 +30,9 @@ public class TaskManager {
     public static void bind(ProcessDialog dialog, int index){
         TaskManager.dialog = dialog;
         TaskManager.index = index;
+    }
+    public static void bindSwing(depencyLoadingFrame frame){
+        TaskManager.frame = frame;
     }
     public synchronized static void execute(String reason) throws InterruptedException {
         int size = tasks.size();
@@ -42,15 +46,26 @@ public class TaskManager {
                     logger.info("downloaded bytes speed : " + ((double) downloadedBytes) / 1024 / 1024 + "MB/s");
                     if (dialog != null) {
                         if (tasks.size() != 0) {
-                            dialog.setV(index, (int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(Application.languageManager.get("ui.fix._02"), tasks.size() - downloaded, tasks.size()));
+                            dialog.setV(index, (int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._02"), tasks.size() - downloaded, tasks.size()));
                         }
                     }
-//                    Sleeper.sleep(1000);
+                    if (frame != null){
+                        if (tasks.size() != 0) {
+                            frame.progressBar.setValue((int) (((double) (tasks.size() - downloaded)) * 100 / tasks.size()));
+                            frame.progressBar.setIndeterminate(false);
+                            frame.progressBar.setString(String.format("下载依赖库中(%d/%d)", tasks.size() - downloaded, tasks.size()));
+                        }
+                    }
                     downloadedBytes = 0;
                 }
                 while (tasks.size() != 0);
                 if (dialog != null) {
                     dialog.setV(index, 100);
+                }
+                if (frame != null){
+                    frame.button.setEnabled(true);
+                    frame.progressBar.setString("下载完成");
+                    frame.progressBar.setValue(100);
                 }
             }
         }.start();

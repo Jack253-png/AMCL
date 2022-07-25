@@ -17,13 +17,13 @@ import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.multiThread.Run;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.SVGIcons;
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -39,8 +39,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-public class Application extends javafx.application.Application {
-    static Logger logger = LogManager.getLogger(Application.class);
+public class Launcher extends javafx.application.Application {
+    static Logger logger = LogManager.getLogger(Launcher.class);
     public static Scene s = new Scene(new Pane(), Color.TRANSPARENT);
     public static Stage stage;
     public static AbstractAnimationPage last;
@@ -187,7 +187,7 @@ public class Application extends javafx.application.Application {
         min.setPrefHeight(t_size / 2.5);
         min.setGraphic(new Rectangle(t_size / 2.5, t_size / 15, Color.BLACK));
         min.setButtonType(JFXButton.ButtonType.RAISED);
-        min.setOnAction(event -> Application.stage.setIconified(true));
+        min.setOnAction(event -> Launcher.stage.setIconified(true));
 
         back.setPrefWidth(t_size / 2.5);
         back.setPrefHeight(t_size / 2.5);
@@ -254,7 +254,7 @@ public class Application extends javafx.application.Application {
 
     public static void startApplication(String[] args, boolean is_true) {
         is_t = is_true;
-        StdOutErrRedirect.redirectSystemOutAndErrToLog();
+//        StdOutErrRedirect.redirectSystemOutAndErrToLog();
         launch(args);
     }
     public static void setBackground(){

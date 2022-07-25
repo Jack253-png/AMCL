@@ -1,6 +1,6 @@
 package com.mcreater.amcl.pages.interfaces;
 
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -26,7 +26,7 @@ public abstract class AbstractAnimationPage extends GridPane implements Animatio
         }
     }
     public boolean getCanMovePage() {
-        return Application.stage.opacityProperty().get() == 1;
+        return Launcher.stage.opacityProperty().get() == 1;
     }
     public abstract void refresh();
     public abstract void refreshLanguage();

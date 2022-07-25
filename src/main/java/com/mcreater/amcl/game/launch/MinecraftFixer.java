@@ -39,6 +39,9 @@ public class MinecraftFixer {
         builder.setPrettyPrinting();
         Gson gson = builder.create();
         VersionJsonModel model = gson.fromJson(FileStringReader.read(versionJson), VersionJsonModel.class);
+        if (model == null){
+            throw new IOException("failed to read version json");
+        }
         checkLibs(faster, chunkSize, dir, model.libraries, versionDir, versionName);
         checkCoreJar(faster, chunkSize, versionDir, versionName, model.downloads.get("client"));
         checkAssets(faster, chunkSize, assetsDir, model, dir);

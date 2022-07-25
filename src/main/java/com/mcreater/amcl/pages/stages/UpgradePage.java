@@ -1,6 +1,6 @@
 package com.mcreater.amcl.pages.stages;
 
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.api.githubApi.models.AssetsModel;
 import com.mcreater.amcl.api.githubApi.models.ReleaseModel;
@@ -15,14 +15,13 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 
-import java.awt.*;
 import java.util.List;
 
 public class UpgradePage extends AbstractStage {
     public SettingPage content;
     public VBox c;
     public UpgradePage(){
-        this.setTitle(Application.languageManager.get("ui.upgradepage.title"));
+        this.setTitle(Launcher.languageManager.get("ui.upgradepage.title"));
         this.getIcons().add(new Image("assets/grass.png"));
         c = new VBox();
         for (ReleaseModel model : GithubReleases.getReleases()) {
@@ -35,7 +34,7 @@ public class UpgradePage extends AbstractStage {
                 List<String> l = List.of(m.name.split("\\."));
                 b.getChildren().add(new UpdateItem(l.get(l.size() - 1), m.browser_download_url));
             }
-            TitledPane pane = new TitledPane(String.format("%s %s", model.tag_name, Application.languageManager.get(String.format("ui.mainpage.versionChecker.isCurrent.%s", model.iscurrent))), b);
+            TitledPane pane = new TitledPane(String.format("%s %s", model.tag_name, Launcher.languageManager.get(String.format("ui.mainpage.versionChecker.isCurrent.%s", model.iscurrent))), b);
             pane.setAnimated(true);
             pane.getStylesheets().add(String.format(ThemeManager.getPath(), String.format("TitledPane%s", model.prerelease)));
             SetSize.setWidth(pane, 800);

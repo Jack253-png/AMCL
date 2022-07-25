@@ -3,7 +3,7 @@ package com.mcreater.amcl.game.mods;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.model.mod.FabricModInfoModel;
@@ -21,7 +21,7 @@ import java.util.Vector;
 public class ModHelper {
     public static Vector<File> getMod(String dir, String version_name){
         Vector<File> result = new Vector<>();
-        boolean changed = Application.configReader.configModel.change_game_dir;
+        boolean changed = Launcher.configReader.configModel.change_game_dir;
         String modDir;
         if (changed){
             modDir = LinkPath.link(LinkPath.link(LinkPath.link(dir, "versions"), version_name), "mods");

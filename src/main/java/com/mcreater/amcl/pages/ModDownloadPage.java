@@ -1,9 +1,8 @@
 package com.mcreater.amcl.pages;
 
-import com.google.gson.Gson;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.CurseAPI;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
@@ -49,7 +48,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
     public ModDownloadPage(double width, double height) {
         super(width, height);
         reqMods = new Vector<>();
-        l = Application.ADDMODSPAGE;
+        l = Launcher.ADDMODSPAGE;
         set();
         p = new GridPane();
         v = new VBox();
@@ -64,25 +63,25 @@ public class ModDownloadPage extends AbstractAnimationPage {
         install.setOnAction(event -> {
             if (coreSelected) {
                 AtomicReference<Vector<CurseModFileModel>> requireMods = new AtomicReference<>();
-                ProcessDialog dialog = new ProcessDialog(1, Application.languageManager.get("ui.moddownloadpage.downloadingMods.title"));
-                dialog.setV(0, 5, Application.languageManager.get("ui.downloadmod._01"));
+                ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.moddownloadpage.downloadingMods.title"));
+                dialog.setV(0, 5, Launcher.languageManager.get("ui.downloadmod._01"));
                 Thread t = new Thread(() -> {
                     try {
                         dialog.Create();
-                        dialog.setV(0, 7, Application.languageManager.get("ui.downloadmod._02"));
+                        dialog.setV(0, 7, Launcher.languageManager.get("ui.downloadmod._02"));
                         if (installRequires.isSelected()) {
                             requireMods.set(CurseAPI.getModFileRequiredMods(last.model, last.version, last.model.fileName));
                         }
                         requireMods.get().add(last.model);
-                        dialog.setV(0, 10, Application.languageManager.get("ui.downloadmod._03"));
+                        dialog.setV(0, 10, Launcher.languageManager.get("ui.downloadmod._03"));
                         Vector<DownloadTask> tasks = new Vector<>();
                         for (CurseModFileModel model : requireMods.get()){
                             String modPath;
-                            if (Application.configReader.configModel.change_game_dir){
-                                modPath = LinkPath.link(Application.configReader.configModel.selected_minecraft_dir_index, "versions\\" + Application.configReader.configModel.selected_version_index + "\\mods");
+                            if (Launcher.configReader.configModel.change_game_dir){
+                                modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "versions\\" + Launcher.configReader.configModel.selected_version_index + "\\mods");
                             }
                             else {
-                                modPath = LinkPath.link(Application.configReader.configModel.selected_minecraft_dir_index, "mods");
+                                modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "mods");
                             }
                             if (model.downloadUrl != null) {
                                 tasks.add(new DownloadTask(model.downloadUrl, LinkPath.link(modPath, model.fileName), 2048));
@@ -103,11 +102,11 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         do {
                             Thread.sleep(500);
                             double processTemp = (double) downloaded.get() / (double)  tasks.size();
-                            dialog.setV(0, (int) (10 + 90 * processTemp), String.format(Application.languageManager.get("ui.downloadmod._04"), downloaded.get(), tasks.size()));
+                            dialog.setV(0, (int) (10 + 90 * processTemp), String.format(Launcher.languageManager.get("ui.downloadmod._04"), downloaded.get(), tasks.size()));
                         } while (downloaded.get() != tasks.size());
                     }
                     catch (IOException e) {
-                        Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Application.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), ""));
+                        Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), ""));
                     } catch (InterruptedException ignored) {
                         ignored.printStackTrace();
                     }
@@ -118,11 +117,11 @@ public class ModDownloadPage extends AbstractAnimationPage {
                 t.start();
             }
             else{
-                FastInfomation.create(Application.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Application.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
+                FastInfomation.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
             }
         });
         SplitPane pane = new SplitPane();
-        SetSize.setHeight(pane, Application.width);
+        SetSize.setHeight(pane, Launcher.width);
         VBox box = new VBox(installRequires, install);
         box.setSpacing(10);
         box.setAlignment(Pos.CENTER_LEFT);
@@ -196,8 +195,8 @@ public class ModDownloadPage extends AbstractAnimationPage {
             }
             catch (IOException e){
                 Platform.runLater(() -> {
-                    FastInfomation.create(Application.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Application.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), "");
-                    Application.setPage(Application.ADDMODSPAGE, this);
+                    FastInfomation.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), "");
+                    Launcher.setPage(Launcher.ADDMODSPAGE, this);
                 });
             } catch (ParseException e) {
                 throw new RuntimeException(e);
@@ -210,9 +209,9 @@ public class ModDownloadPage extends AbstractAnimationPage {
 
     }
     public void refreshLanguage() {
-        this.name = Application.languageManager.get("ui.moddownloadpage.name");
-        installRequires.setText(Application.languageManager.get("ui.moddownloadpage.installReq.name"));
-        install.setText(Application.languageManager.get("ui.moddownloadpage.install.name"));
+        this.name = Launcher.languageManager.get("ui.moddownloadpage.name");
+        installRequires.setText(Launcher.languageManager.get("ui.moddownloadpage.installReq.name"));
+        install.setText(Launcher.languageManager.get("ui.moddownloadpage.install.name"));
     }
     public void refreshType() {
 

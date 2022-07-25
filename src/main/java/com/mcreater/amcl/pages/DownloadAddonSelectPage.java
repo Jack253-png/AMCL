@@ -2,7 +2,7 @@ package com.mcreater.amcl.pages;
 
 import com.google.gson.Gson;
 import com.jfoenix.controls.JFXButton;
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
 import com.mcreater.amcl.controls.items.BooleanListItem;
 import com.mcreater.amcl.controls.items.StringItem;
@@ -35,8 +35,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
@@ -54,7 +52,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
     JFXButton install;
     public DownloadAddonSelectPage(double width, double height) {
         super(width, height);
-        l = Application.DOWNLOADMCPAGE;
+        l = Launcher.DOWNLOADMCPAGE;
         box = new GridPane();
         box.setStyle("-fx-background-color: rgba(255, 255, 255, 0.75)");
         box.setAlignment(Pos.TOP_CENTER);
@@ -143,23 +141,23 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             Label fabricItem = this.fabric.cont.getSelectionModel().getSelectedItem();
             CurseFileLabel optifabricItem = this.optifabric.cont.getSelectionModel().getSelectedItem();
             CurseFileLabel fabricapiItem = this.fabricapi.cont.getSelectionModel().getSelectedItem();
-            ProcessDialog dialog = new ProcessDialog(1, Application.languageManager.get("ui.install.title"));
+            ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.install.title"));
             CountDownLatch latch = new CountDownLatch(1);
             String rl = versionfinalName.cont.getText();
-            String versionDir = LinkPath.link(Application.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", rl));
+            String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", rl));
             if (new File(versionDir).exists()){
-                FastInfomation.create(Application.languageManager.get("ui.install.nameInvaild.title"), Application.languageManager.get("ui.install.nameInvaild.1"), "");
+                FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.1"), "");
                 install.setDisable(false);
                 return;
             }
             else if (!isValidFileName(rl)){
-                FastInfomation.create(Application.languageManager.get("ui.install.nameInvaild.title"), Application.languageManager.get("ui.install.nameInvaild.2"), "");
+                FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.2"), "");
                 install.setDisable(false);
                 return;
             }
-            String modDir = LinkPath.link(Application.configReader.configModel.selected_minecraft_dir_index, "mods");
-            if (Application.configReader.configModel.change_game_dir){
-                modDir = LinkPath.link(Application.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s\\mods", rl));
+            String modDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "mods");
+            if (Launcher.configReader.configModel.change_game_dir){
+                modDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s\\mods", rl));
             }
 
             if (!(forge || optifine || fabric || fabricapi || optifabric)){
@@ -167,13 +165,14 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 new Thread(() -> {
                     Platform.runLater(dialog::Create);
                     try {
-                        OriginalDownload.download(Application.configReader.configModel.fastDownload,
+                        OriginalDownload.download(Launcher.configReader.configModel.fastDownload,
                                 this.model.id,
-                                Application.configReader.configModel.selected_minecraft_dir_index,
+                                Launcher.configReader.configModel.selected_minecraft_dir_index,
                                 rl,
-                                Application.configReader.configModel.downloadChunkSize
+                                Launcher.configReader.configModel.downloadChunkSize
                                 );
                     } catch (IOException | InterruptedException e) {
+                        Platform.runLater(dialog::close);
                         throw new RuntimeException(e);
                     }
                     latch.countDown();
@@ -188,14 +187,15 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
                         try {
-                            ForgeDownload.download(Application.configReader.configModel.fastDownload,
+                            ForgeDownload.download(Launcher.configReader.configModel.fastDownload,
                                     this.model.id,
-                                    Application.configReader.configModel.selected_minecraft_dir_index,
+                                    Launcher.configReader.configModel.selected_minecraft_dir_index,
                                     rl,
-                                    Application.configReader.configModel.downloadChunkSize,
+                                    Launcher.configReader.configModel.downloadChunkSize,
                                     forgeItem.getText()
                             );
                         } catch (IOException | InterruptedException | ParserConfigurationException | SAXException e) {
+                            Platform.runLater(dialog::close);
                             throw new RuntimeException(e);
                         }
                         latch.countDown();
@@ -211,10 +211,11 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                         break;
                                     }
                                 }
-                                dialog.setV(0, 99, Application.languageManager.get("ui.install.optifine"));
+                                dialog.setV(0, 99, Launcher.languageManager.get("ui.install.optifine"));
                                 try {
                                     new OptiFineInstallerDownloadTask(opti, LinkPath.link(finalModDir, opti)).execute();
                                 } catch (IOException e) {
+                                    Platform.runLater(dialog::close);
                                     throw new RuntimeException(e);
                                 }
                                 Platform.runLater(() -> install.setDisable(false));
@@ -233,14 +234,15 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
                         try {
-                            FabricDownload.download(Application.configReader.configModel.fastDownload,
+                            FabricDownload.download(Launcher.configReader.configModel.fastDownload,
                                     this.model.id,
-                                    Application.configReader.configModel.selected_minecraft_dir_index,
+                                    Launcher.configReader.configModel.selected_minecraft_dir_index,
                                     rl,
-                                    Application.configReader.configModel.downloadChunkSize,
+                                    Launcher.configReader.configModel.downloadChunkSize,
                                     fabricItem.getText()
                             );
                         } catch (IOException | InterruptedException e) {
+                            Platform.runLater(dialog::close);
                             throw new RuntimeException(e);
                         }
                         Vector<Task> tasks = new Vector<>();
@@ -255,7 +257,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                         break;
                                     }
                                 }
-                                dialog.setV(0, 99, Application.languageManager.get("ui.install.optifine"));
+                                dialog.setV(0, 99, Launcher.languageManager.get("ui.install.optifine"));
                                 try {
                                     tasks.add(new OptiFineInstallerDownloadTask(opti, LinkPath.link(finalModDir1, opti)));
                                 } catch (FileNotFoundException e) {
@@ -275,6 +277,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 try {
                                     tasks.add(new DownloadTask(m1.downloadUrl, LinkPath.link(finalModDir1, m1.fileName)));
                                 } catch (FileNotFoundException e) {
+                                    Platform.runLater(dialog::close);
                                     throw new RuntimeException(e);
                                 }
                             }
@@ -297,16 +300,17 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
                         try {
-                            OptifineDownload.download(Application.configReader.configModel.fastDownload,
+                            OptifineDownload.download(Launcher.configReader.configModel.fastDownload,
                                     this.model.id,
-                                    Application.configReader.configModel.selected_minecraft_dir_index,
+                                    Launcher.configReader.configModel.selected_minecraft_dir_index,
                                     rl,
-                                    Application.configReader.configModel.downloadChunkSize,
+                                    Launcher.configReader.configModel.downloadChunkSize,
                                     optifineItem.getText()
                             );
                         } catch (IOException | InterruptedException | NoSuchMethodException | IllegalAccessException |
                                  InstantiationException | InvocationTargetException | ClassNotFoundException |
                                  NoSuchFieldException e) {
+                            Platform.runLater(dialog::close);
                             throw new RuntimeException(e);
                         }
                         latch.countDown();
@@ -340,7 +344,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             return false;
         }
         else {
-            Vector<String> invaildNames = new Vector<>(List.of("con", "aux", "com1", "com2", "com3", "com4", "lpt1", "lpt2", "lpt3", "prn", "nul"));
+            Vector<String> invaildNames = new Vector<>(List.of("con", "aux", "com1", "com2", "com3", "com4", "lpt1", "lpt2", "lpt3", "prn", "nul", ""));
             if (invaildNames.contains(fileName.toLowerCase())){
                 return false;
             }
@@ -350,7 +354,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
     public void setVersionId(OriginalVersionModel model){
         DownloadAddonSelectPage.model = model;
         id.setText(model.id);
-        LoadingDialog dialog = new LoadingDialog(Application.languageManager.get("ui.downloadaddonsselectpage.loading.title"));
+        LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.downloadaddonsselectpage.loading.title"));
         dialog.Create();
         new Thread(() -> {
             try {
@@ -359,10 +363,10 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             catch (ParserConfigurationException | IOException | SAXException e){
                 e.printStackTrace();
                 Platform.runLater(() -> {
-                    FastInfomation.create(Application.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Application.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Application.languageManager.get("ui.downloadaddonsselectpage.fail.content"));
+                    FastInfomation.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content"));
                     dialog.close();
                 });
-                Application.setPage(Application.DOWNLOADMCPAGE, this);
+                Launcher.setPage(Launcher.DOWNLOADMCPAGE, this);
             }
             Platform.runLater(dialog::close);
         }).start();
@@ -375,28 +379,28 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             optifabric.cont.getItems().clear();
             fabricapi.cont.getItems().clear();
         });
-        for (String forgev : GetVersionList.getForgeVersionList(Application.configReader.configModel.fastDownload, model.id)){
+        for (String forgev : GetVersionList.getForgeVersionList(Launcher.configReader.configModel.fastDownload, model.id)){
             Label l = new Label(forgev);
             l.setFont(Fonts.t_f);
             Platform.runLater(() -> forge.cont.getItems().add(l));
         }
-        for (optifineJarModel optiv : GetVersionList.getOptifineVersionList(Application.configReader.configModel.fastDownload, model.id)){
+        for (optifineJarModel optiv : GetVersionList.getOptifineVersionList(Launcher.configReader.configModel.fastDownload, model.id)){
             Label l = new Label(optiv.name);
             l.setFont(Fonts.t_f);
             Platform.runLater(() -> optifine.cont.getItems().add(l));
         }
-        for (String fabv : GetVersionList.getFabricVersionList(Application.configReader.configModel.fastDownload, model.id)){
+        for (String fabv : GetVersionList.getFabricVersionList(Launcher.configReader.configModel.fastDownload, model.id)){
             Label l = new Label(fabv);
             l.setFont(Fonts.t_f);
             Platform.runLater(() -> fabric.cont.getItems().add(l));
         }
-        for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(Application.configReader.configModel.fastDownload, model.id)){
+        for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(Launcher.configReader.configModel.fastDownload, model.id)){
             CurseFileLabel l = new CurseFileLabel(fabapav.fileName);
             l.setFont(Fonts.t_f);
             l.model = fabapav;
             Platform.runLater(() -> fabricapi.cont.getItems().add(l));
         }
-        for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(Application.configReader.configModel.fastDownload, model.id)){
+        for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(Launcher.configReader.configModel.fastDownload, model.id)){
             CurseFileLabel l = new CurseFileLabel(optfabv.fileName);
             l.setFont(Fonts.t_f);
             l.model = optfabv;
@@ -437,8 +441,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
     }
 
     public void refreshLanguage() {
-        install.setText(Application.languageManager.get("ui.moddownloadpage.install.name"));
-        versionfinalName.title.setText(Application.languageManager.get("ui.install.setname"));
+        install.setText(Launcher.languageManager.get("ui.moddownloadpage.install.name"));
+        versionfinalName.title.setText(Launcher.languageManager.get("ui.install.setname"));
     }
 
     public void refreshType() {

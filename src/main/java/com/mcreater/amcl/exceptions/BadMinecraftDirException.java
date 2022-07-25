@@ -1,11 +1,11 @@
 package com.mcreater.amcl.exceptions;
 
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 
 public class BadMinecraftDirException extends LaunchException{
     public BadMinecraftDirException(){}
     @Override
     public String toString(){
-        return Application.languageManager.get("exceptions.BadMinecraftDirException.name");
+        return Launcher.languageManager.get("exceptions.BadMinecraftDirException.name");
     }
 }

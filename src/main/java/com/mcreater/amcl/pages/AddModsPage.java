@@ -4,7 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXProgressBar;
 import com.jfoenix.controls.JFXTextField;
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.CurseAPI;
 import com.mcreater.amcl.api.curseApi.CurseResourceType;
 import com.mcreater.amcl.api.curseApi.CurseSortType;
@@ -15,11 +15,8 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.SetSize;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
@@ -35,7 +32,7 @@ public class AddModsPage extends AbstractAnimationPage {
     Thread searchThread = new Thread(() -> {});
     public AddModsPage(double width, double height) {
         super(width, height);
-        l = Application.VERSIONINFOPAGE;
+        l = Launcher.VERSIONINFOPAGE;
         set();
         pane = new GridPane();
         SetSize.set(pane, this.width, this.height);
@@ -78,7 +75,7 @@ public class AddModsPage extends AbstractAnimationPage {
             try {
                 this.searchMods();
             } catch (IOException e) {
-                Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.addmodspage.loadmods.fail.title"), String.format(Application.languageManager.get("ui.addmodspage.loadmods.fail.content"), e), ""));
+                Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.addmodspage.loadmods.fail.title"), String.format(Launcher.languageManager.get("ui.addmodspage.loadmods.fail.content"), e), ""));
             }
             finally {
                 submit.setDisable(false);
@@ -100,8 +97,8 @@ public class AddModsPage extends AbstractAnimationPage {
         }
     }
     public void showDownloads(CurseModModel model) throws InterruptedException {
-        Application.setPage(Application.MODDOWNLOADPAGE, this);
-        Application.MODDOWNLOADPAGE.setModContent(model);
+        Launcher.setPage(Launcher.MODDOWNLOADPAGE, this);
+        Launcher.MODDOWNLOADPAGE.setModContent(model);
         new Thread(() -> {
             try {
                 Thread.sleep(25);
@@ -115,8 +112,8 @@ public class AddModsPage extends AbstractAnimationPage {
 
     }
     public void refreshLanguage() {
-        this.name = Application.languageManager.get("ui.addmodspage.name");
-        submit.setText(Application.languageManager.get("ui.addmodspage.search.name"));
+        this.name = Launcher.languageManager.get("ui.addmodspage.name");
+        submit.setText(Launcher.languageManager.get("ui.addmodspage.search.name"));
         for (CurseMod m : modlist.getItems()){
             m.refreshLang();
         }

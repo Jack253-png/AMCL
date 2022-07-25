@@ -1,7 +1,7 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.exceptions.LaunchException;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
@@ -70,29 +70,29 @@ public class MainPage extends AbstractAnimationPage {
         launchButton.setOnAction(event -> {
             flush();
             ChangeDir.saveNowDir();
-            if (!Objects.equals(launchButton.getText(), Application.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
-                Application.configReader.check_and_write();
+            if (!Objects.equals(launchButton.getText(), Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
+                Launcher.configReader.check_and_write();
                 g = new Launch();
-                d = new ProcessDialog(3, Application.languageManager.get("ui.mainpage.launch._01"));
-                d.setV(0, 1, Application.languageManager.get("ui.mainpage.launch._02"));
+                d = new ProcessDialog(3, Launcher.languageManager.get("ui.mainpage.launch._01"));
+                d.setV(0, 1, Launcher.languageManager.get("ui.mainpage.launch._02"));
                 Thread la = new Thread(() -> {
                     try {
                         launchButton.setDisable(true);
-                        if (new File(Application.configReader.configModel.selected_java_index).exists()) {
-                            g.launch(Application.configReader.configModel.selected_java_index, Application.configReader.configModel.selected_minecraft_dir_index, Application.configReader.configModel.selected_version_index, Application.configReader.configModel.change_game_dir, Application.configReader.configModel.max_memory);
+                        if (new File(Launcher.configReader.configModel.selected_java_index).exists()) {
+                            g.launch(Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir, Launcher.configReader.configModel.max_memory);
                             logger.info("started launch thread");
                         } else {
-                            Application.configReader.configModel.selected_java.remove(Application.configReader.configModel.selected_java_index);
-                            Application.configReader.configModel.selected_java_index = "";
-                            Application.configReader.write();
-                            Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.mainpage.launch.javaChecker.name"), Application.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), ""));
+                            Launcher.configReader.configModel.selected_java.remove(Launcher.configReader.configModel.selected_java_index);
+                            Launcher.configReader.configModel.selected_java_index = "";
+                            Launcher.configReader.write();
+                            Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.javaChecker.name"), Launcher.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), ""));
                             launchButton.setDisable(false);
                         }
                     } catch (LaunchException | InterruptedException e) {
                         d.close();
                         logger.info("failed to launch", e);
                         launchButton.setDisable(false);
-                        Platform.runLater(() -> FastInfomation.create(Application.languageManager.get("ui.mainpage.launch.launchFailed.name"), Application.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
+                        Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -101,7 +101,7 @@ public class MainPage extends AbstractAnimationPage {
                 la.start();
             } else {
                 if (d != null) d.close();
-                FastInfomation.create(Application.languageManager.get("ui.mainpage.launch.noVersion.name"), Application.languageManager.get("ui.mainpage.launch.noVersion.Headcontent"), Application.languageManager.get("ui.mainpage.launch.noVersion.content"));
+                FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.noVersion.name"), Launcher.languageManager.get("ui.mainpage.launch.noVersion.Headcontent"), Launcher.languageManager.get("ui.mainpage.launch.noVersion.content"));
             }
         });
         if (minecraft_running) {
@@ -140,21 +140,21 @@ public class MainPage extends AbstractAnimationPage {
         downloadMc.setFont(Fonts.s_f);
         downloadTitle.setFont(Fonts.t_f);
 
-        settings.setOnAction(event -> Application.setPage(Application.CONFIGPAGE, this));
-        version_settings.setOnAction(event -> Application.setPage(Application.VERSIONINFOPAGE, this));
-        downloadMc.setOnAction(event -> Application.setPage(Application.DOWNLOADMCPAGE, this));
+        settings.setOnAction(event -> Launcher.setPage(Launcher.CONFIGPAGE, this));
+        version_settings.setOnAction(event -> Launcher.setPage(Launcher.VERSIONINFOPAGE, this));
+        downloadMc.setOnAction(event -> Launcher.setPage(Launcher.DOWNLOADMCPAGE, this));
 
-        is_vaild_minecraft_dir = Application.configReader.configModel.selected_minecraft_dir.contains(Application.configReader.configModel.selected_minecraft_dir_index) && new File(Application.configReader.configModel.selected_minecraft_dir_index).exists();
+        is_vaild_minecraft_dir = Launcher.configReader.configModel.selected_minecraft_dir.contains(Launcher.configReader.configModel.selected_minecraft_dir_index) && new File(Launcher.configReader.configModel.selected_minecraft_dir_index).exists();
 
         choose_version.setOnAction(event -> {
-            l = new ProcessDialog(1, Application.languageManager.get("ui.versionListLoad._02"));
-            l.setV(0, 0, Application.languageManager.get("ui.mainpage.loadlist.name"));
-            Application.setPage(Application.VERSIONSELECTPAGE, this);
+            l = new ProcessDialog(1, Launcher.languageManager.get("ui.versionListLoad._02"));
+            l.setV(0, 0, Launcher.languageManager.get("ui.mainpage.loadlist.name"));
+            Launcher.setPage(Launcher.VERSIONSELECTPAGE, this);
         });
 
-        version_settings.setGraphic(Application.getSVGManager().gear(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
-        settings.setGraphic(Application.getSVGManager().gear(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
-        downloadMc.setGraphic(Application.getSVGManager().downloadOutline(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
+        version_settings.setGraphic(Launcher.getSVGManager().gear(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
+        settings.setGraphic(Launcher.getSVGManager().gear(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
+        downloadMc.setGraphic(Launcher.getSVGManager().downloadOutline(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
 
         LaunchTitle = new HBox();
         LaunchTitle.setAlignment(Pos.BOTTOM_CENTER);
@@ -221,7 +221,7 @@ public class MainPage extends AbstractAnimationPage {
                 logger.info("Minecraft exited with code " + exit_code);
                 if (exit_code != 0){
 
-                    FastInfomation.create(Application.languageManager.get("ui.mainpage.minecraftExit.title"), Application.languageManager.get("ui.mainpage.minecraftExit.Headercontent"),String.format(Application.languageManager.get("ui.mainpage.minecraftExit.content"), exit_code));
+                    FastInfomation.create(Launcher.languageManager.get("ui.mainpage.minecraftExit.title"), Launcher.languageManager.get("ui.mainpage.minecraftExit.Headercontent"),String.format(Launcher.languageManager.get("ui.mainpage.minecraftExit.content"), exit_code));
                 }
                 exit_code = null;
                 window_showed = false;
@@ -243,19 +243,19 @@ public class MainPage extends AbstractAnimationPage {
         }
     }
     public void clean_null_version(){
-        version_settings.setText(Application.languageManager.get("ui.mainpage.launchButton.noVersion"));
-        launchButton.setText(Application.languageManager.get("ui.mainpage.launchButton.noVersion"));
-        Application.configReader.configModel.selected_version_index = "";
-        Application.configReader.write();
+        version_settings.setText(Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"));
+        launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"));
+        Launcher.configReader.configModel.selected_version_index = "";
+        Launcher.configReader.write();
         version_settings.setDisable(true);
     }
     public void flush(){
-        if (new File(Application.configReader.configModel.selected_minecraft_dir_index).exists()) {
-            if (Application.configReader.configModel.selected_minecraft_dir.contains(Application.configReader.configModel.selected_minecraft_dir_index)) {
-                if (Application.configReader.configModel.selected_version_index != null) {
-                    if (Objects.requireNonNull(getMinecraftVersion.get(Application.configReader.configModel.selected_minecraft_dir_index)).contains(Application.configReader.configModel.selected_version_index)) {
-                        version_settings.setText(" " + Application.configReader.configModel.selected_version_index);
-                        launchButton.setText(Application.languageManager.get("ui.mainpage.launchButton.hasVersion"));
+        if (new File(Launcher.configReader.configModel.selected_minecraft_dir_index).exists()) {
+            if (Launcher.configReader.configModel.selected_minecraft_dir.contains(Launcher.configReader.configModel.selected_minecraft_dir_index)) {
+                if (Launcher.configReader.configModel.selected_version_index != null) {
+                    if (Objects.requireNonNull(getMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index)).contains(Launcher.configReader.configModel.selected_version_index)) {
+                        version_settings.setText(" " + Launcher.configReader.configModel.selected_version_index);
+                        launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.hasVersion"));
                         version_settings.setDisable(false);
                         downloadMc.setDisable(false);
                     } else {
@@ -290,14 +290,14 @@ public class MainPage extends AbstractAnimationPage {
     }
 
     public void refreshLanguage(){
-        name = Application.languageManager.get("ui.mainpage.name");
-        title.setText(String.format(Application.languageManager.get("ui.title"), Vars.launcher_name, Vars.launcher_version));
-        launch.setText(Application.languageManager.get("ui.mainpage.launchTitle.launch.name"));
-        set.setText(Application.languageManager.get("ui.mainpage.settings.name"));
-        choose_version.setText(Application.languageManager.get("ui.mainpage.choose_version.name"));
-        settings.setText(" "+ Application.languageManager.get("ui.mainpage.settings.name"));
-        downloadTitle.setText(Application.languageManager.get("ui.mainpage.download.title"));
-        downloadMc.setText(Application.languageManager.get("ui.mainpage.downloadMc.name"));
-        stop.setText(Application.languageManager.get("ui.mainpage.stop"));
+        name = Launcher.languageManager.get("ui.mainpage.name");
+        title.setText(String.format(Launcher.languageManager.get("ui.title"), Vars.launcher_name, Vars.launcher_version));
+        launch.setText(Launcher.languageManager.get("ui.mainpage.launchTitle.launch.name"));
+        set.setText(Launcher.languageManager.get("ui.mainpage.settings.name"));
+        choose_version.setText(Launcher.languageManager.get("ui.mainpage.choose_version.name"));
+        settings.setText(" "+ Launcher.languageManager.get("ui.mainpage.settings.name"));
+        downloadTitle.setText(Launcher.languageManager.get("ui.mainpage.download.title"));
+        downloadMc.setText(Launcher.languageManager.get("ui.mainpage.downloadMc.name"));
+        stop.setText(Launcher.languageManager.get("ui.mainpage.stop"));
     }
 }

@@ -13,7 +13,7 @@ import com.mcreater.amcl.model.optifine.optifineAPIModel;
 import com.mcreater.amcl.model.optifine.optifineJarModel;
 import com.mcreater.amcl.model.original.VersionsModel;
 import com.mcreater.amcl.util.FasterUrls;
-import com.mcreater.amcl.util.ForgeVersionXMLHandler;
+import com.mcreater.amcl.util.xml.ForgeVersionXMLHandler;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import org.xml.sax.SAXException;
 

@@ -6,6 +6,7 @@ import com.mcreater.amcl.util.GetJarMainClass;
 import com.mcreater.amcl.util.GetPath;
 import com.mcreater.amcl.util.LinkPath;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
@@ -27,7 +28,7 @@ public class ForgePatchTask extends AbstractTask{
         this.classpath.addAll(jars);
         StringBuilder b = new StringBuilder("-cp \"");
         for (String s1 : jars){
-            b.append(s1).append(System.getProperty("path.separator", ";"));
+            b.append(s1).append(File.pathSeparator);
         }
         b.replace(b.length(), b.length(), "\"");
         this.command = String.format("\"%s\" %s %s %s", LinkPath.link(System.getProperty("java.home"), "bin\\java.exe"), b, mainClass, args);

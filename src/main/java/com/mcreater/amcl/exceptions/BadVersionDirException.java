@@ -1,11 +1,11 @@
 package com.mcreater.amcl.exceptions;
 
-import com.mcreater.amcl.Application;
+import com.mcreater.amcl.Launcher;
 
 public class BadVersionDirException extends LaunchException {
     public BadVersionDirException(){}
     @Override
     public String toString() {
-        return Application.languageManager.get("exceptions.BadVersionDirException.name");
+        return Launcher.languageManager.get("exceptions.BadVersionDirException.name");
     }
 }
