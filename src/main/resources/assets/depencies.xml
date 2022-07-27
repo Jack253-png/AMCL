@@ -175,5 +175,17 @@
         <depency>
             <name>org.openjfx:javafx-web:win:11.0.2</name>
         </depency>
+        <depency>
+            <name>com.github.oshi:oshi-core:3.5.0</name>
+        </depency>
+        <depency>
+            <name>org.threeten:threetenbp:1.3.6</name>
+        </depency>
+        <depency>
+            <name>org.slf4j:slf4j-api:1.7.25</name>
+        </depency>
+        <depency>
+            <name>org.slf4j:slf4j-nop:1.7.2</name>
+        </depency>
     </depencies>
 </root>

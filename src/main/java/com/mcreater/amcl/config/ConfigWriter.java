@@ -59,6 +59,12 @@ public class ConfigWriter{
         if (!LanguageManager.vaild_languages.contains(configModel.language)){
             configModel.language = LocateHelper.get();
         }
+        if (configModel.showingUpdateSpped < 500 || configModel.showingUpdateSpped > 1000){
+            configModel.showingUpdateSpped = 500;
+        }
+        if (configModel.swipeSpeed < 1 || configModel.swipeSpeed > 100){
+            configModel.swipeSpeed = 8;
+        }
         write();
     }
 }

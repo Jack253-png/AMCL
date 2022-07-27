@@ -1,10 +1,5 @@
 package com.mcreater.amcl;
 
-import com.mcreater.amcl.javafx.depenciesLoader;
-import com.mcreater.amcl.lang.PreLanguageManager;
-import com.mcreater.amcl.util.LocateHelper;
-import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
-import com.mcreater.amcl.util.xml.DepencyItem;
 import com.sun.glass.utils.NativeLibLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,15 +9,8 @@ import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
-import java.lang.module.ModuleDescriptor;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Vector;
 
 public class Main{
     static String[] args;

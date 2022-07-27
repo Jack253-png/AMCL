@@ -6,32 +6,26 @@ import com.jfoenix.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.RemoteMod;
 import com.mcreater.amcl.controls.items.StringItem;
-import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.game.mods.ModHelper;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
-import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
+import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.LinkPath;
 import com.mcreater.amcl.util.RemoveFileToTrash;
 import com.mcreater.amcl.util.SetSize;
-import com.sun.jna.platform.FileUtils;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
-import javafx.geometry.Pos;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,11 +35,9 @@ import java.util.Vector;
 import static com.mcreater.amcl.pages.DownloadAddonSelectPage.isValidFileName;
 import static com.mcreater.amcl.util.Images.*;
 
-public class VersionInfoPage extends AbstractAnimationPage {
+public class VersionInfoPage extends AbstractMenuBarPage {
     VBox menu;
     JFXButton mainInfoButton;
-    SettingPage last;
-    VBox mainBox;
     SettingPage p1;
     VBox b;
     GridPane info;
@@ -65,7 +57,6 @@ public class VersionInfoPage extends AbstractAnimationPage {
     JFXProgressBar bar;
     JFXButton refresh;
     JFXButton delete;
-    SettingPage sett;
     JFXButton delVer;
     JFXButton changeName;
     StringItem item;
@@ -76,24 +67,14 @@ public class VersionInfoPage extends AbstractAnimationPage {
 
         double t_size = Launcher.barSize;
 
-        menu = new VBox();
-        menu.setId("info-menu");
-        SetSize.set(menu, this.width / 4, this.height - t_size);
         mainInfoButton = new JFXButton();
         mainInfoButton.setFont(Fonts.s_f);
         SetSize.setWidth(mainInfoButton, this.width / 4);
-        mainInfoButton.setOnAction(event -> {
-            setP1(p1);
-            setType(mainInfoButton);
-        });
+        mainInfoButton.setOnAction(event -> this.setP1(0));
         modsMenu = new JFXButton();
         modsMenu.setFont(Fonts.s_f);
         SetSize.setWidth(modsMenu, this.width / 4);
-        modsMenu.setOnAction(event -> {
-            setP1(p2);
-            setType(modsMenu);
-        });
-        menu.getChildren().addAll(mainInfoButton, modsMenu);
+        modsMenu.setOnAction(event -> this.setP1(1));
 
         b = new VBox();
         info = new GridPane();
@@ -185,7 +166,6 @@ public class VersionInfoPage extends AbstractAnimationPage {
                 Platform.runLater(dialog::close);
             }).start();
             new Thread(this::loadMods).start();
-
         });
 
         modList.getSelectionModel().getSelectedItems().addListener((ListChangeListener<RemoteMod>) c -> delete.setDisable(modList.getSelectionModel().getSelectedItem() == null));
@@ -200,10 +180,22 @@ public class VersionInfoPage extends AbstractAnimationPage {
         b2.getChildren().addAll(mods);
 
         p2 = new SettingPage(this.width / 4 * 3, this.height - t_size, b2);
-        p2.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
-        setP1(p1);
-        setType(mainInfoButton);
+        super.addNewPair(new Pair<>(mainInfoButton, p1));
+        super.addNewPair(new Pair<>(modsMenu, p2));
+        super.setOnAction((i) -> {
+            setted = super.menubuttons.get(i);
+            SettingPage p = super.pages.get(i);
+            if (p == p2){
+                p.setDisable(!ModHelper.isModded(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
+                if (p.isDisabled()) {
+                    FastInfomation.create(Launcher.languageManager.get("ui.versioninfopage.unModded.title"), Launcher.languageManager.get("ui.versioninfopage.unModded.content"), "");
+                    super.setP1(0);
+                }
+            }
+        });
+        super.setP1(0);
+        super.setButtonType(JFXButton.ButtonType.RAISED);
     }
     public void setByview(){
         String type;
@@ -241,37 +233,6 @@ public class VersionInfoPage extends AbstractAnimationPage {
         optiversion.setText(versionTypeGetter.getOptifineVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
         liteversion.setText(versionTypeGetter.getLiteLoaderVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
     }
-    public void setType(JFXButton b){
-        setted = b;
-        b.setCursor(Cursor.HAND);
-        for (Node bs : menu.getChildren()){
-            bs.setDisable(bs == b);
-        }
-    }
-    public void setP1(SettingPage p){
-        sett = p;
-        if (last != null) {
-            last.setOut();
-        }
-        last = p;
-        last.setIn();
-        last.setTypeAll(true);
-        last.in.stop();
-        last.setTypeAll(false);
-        this.getChildren().clear();
-        mainBox = new VBox();
-        mainBox.setAlignment(Pos.TOP_CENTER);
-        mainBox.getChildren().addAll(p);
-        SetSize.set(mainBox, this.width / 4 * 3, this.height - Launcher.barSize);
-        this.add(menu, 0, 0, 1, 1);
-        this.add(mainBox, 1, 0, 1, 1);
-        if (p == p2){
-            p.setDisable(!ModHelper.isModded(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
-            if (p.isDisabled()) {
-                FastInfomation.create(Launcher.languageManager.get("ui.versioninfopage.unModded.title"), Launcher.languageManager.get("ui.versioninfopage.unModded.content"), "");
-            }
-        }
-    }
 
     public void setType(boolean b){
         modList.setDisable(b);
@@ -281,7 +242,6 @@ public class VersionInfoPage extends AbstractAnimationPage {
     public void loadMods(){
         delete.setDisable(true);
         try {
-            Platform.runLater(() -> setP1(sett));
             Platform.runLater(() -> bar.setProgress(-1.0D));
             Platform.runLater(modList.getItems()::clear);
             Platform.runLater(() -> setType(true));

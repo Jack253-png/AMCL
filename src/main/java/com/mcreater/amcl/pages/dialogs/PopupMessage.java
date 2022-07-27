@@ -13,8 +13,8 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Vector;
-import sun.font.FontDesignMetrics;
 
 public class PopupMessage {
     static Pane screen;
@@ -44,14 +44,22 @@ public class PopupMessage {
         }
         MessageLabel circle = new MessageLabel(tempHeight);
         circle.setFont(Fonts.t_f);
-        FontDesignMetrics fm = FontDesignMetrics.getMetrics(new Font(Fonts.t_f.getName(), Font.PLAIN, (int) Fonts.t_f.getSize()));
-        char[] strcha = text.toCharArray();
-        int strWidth = fm.charsWidth(strcha, 0, text.length());
-        double doubled = strWidth;
+
+        int strWidth = 0;
+        try {
+            Font f = new Font(Fonts.t_f.getName(), Font.PLAIN, (int) Fonts.t_f.getSize());
+            Object o = Class.forName("sun.font.FontDesignMetrics").getDeclaredMethod("getMetrics", Font.class).invoke(null, f);
+            strWidth = ((FontMetrics) o).stringWidth(text);
+        }
+        catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
+               IllegalAccessException exception){
+            exception.printStackTrace();
+        }
+
         mess.add(circle);
         usedHeights.add(tempHeight);
-        path.getElements().add(new MoveTo(-245 + doubled / 2 / 100 * 101, tempHeight));
-        path.getElements().add(new LineTo(25 + doubled / 2 / 100 * 101, tempHeight));
+        path.getElements().add(new MoveTo(-245 + (double) strWidth / 2 / 100 * 101, tempHeight));
+        path.getElements().add(new LineTo(25 + (double) strWidth / 2 / 100 * 101, tempHeight));
         Launcher.p.getChildren().add(circle);
         final PathTransition pathTransition = new PathTransition();
         pathTransition.setDuration(Duration.seconds(4.0));

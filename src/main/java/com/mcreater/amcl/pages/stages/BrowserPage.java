@@ -2,13 +2,10 @@ package com.mcreater.amcl.pages.stages;
 
 import com.mcreater.amcl.theme.ThemeManager;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebErrorEvent;
 import javafx.scene.web.WebView;
-import javafx.stage.Stage;
 
 import java.io.File;
 
@@ -26,7 +23,7 @@ public class BrowserPage extends AbstractStage {
         webEngine.setUserDataDirectory(new File("."));
         webEngine.setOnError(event -> event.getException().printStackTrace());
         w.getStylesheets().add(String.format(ThemeManager.getPath(), "BrowserPage"));
-        this.getIcons().add(new Image("assets/grass.png"));
+        this.getIcons().add(new Image("assets/icons/grass.png"));
         updateTitle = new Thread(() -> {
             while (true){
                 if (webEngine.getLocation().length() < 40){title = webEngine.getLocation();}

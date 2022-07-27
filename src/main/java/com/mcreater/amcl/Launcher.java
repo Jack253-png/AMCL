@@ -2,14 +2,14 @@ package com.mcreater.amcl;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
+import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.*;
-import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
-import com.mcreater.amcl.pages.DownloadMcPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.ChangeDir;
@@ -17,7 +17,7 @@ import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.multiThread.Run;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.SVGIcons;
-import javafx.application.Application;
+import com.mcreater.amcl.util.system.MemoryDataReader;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
@@ -38,6 +38,8 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Vector;
 
 public class Launcher extends javafx.application.Application {
     static Logger logger = LogManager.getLogger(Launcher.class);
@@ -63,9 +65,10 @@ public class Launcher extends javafx.application.Application {
     public static int height = 480;
     public static Label ln;
     public static Pane p = new Pane();
-    @Override
+    public static Vector<SettingPage> settingPages = new Vector<>();
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException {
         Fonts.loadFont();
+        MemoryDataReader.printMemsToOutPut();
         if (is_t) {
             languageManager = new LanguageManager(null);
             themeManager = new ThemeManager();
@@ -99,6 +102,10 @@ public class Launcher extends javafx.application.Application {
             DOWNLOADADDONSELECTPAGE = new DownloadAddonSelectPage(width, height);
 
             languageManager.bindAll(MAINPAGE, CONFIGPAGE, VERSIONSELECTPAGE, VERSIONINFOPAGE, ADDMODSPAGE, MODDOWNLOADPAGE, DOWNLOADMCPAGE, DOWNLOADADDONSELECTPAGE);
+            settingPages.addAll(new Vector<>(CONFIGPAGE.pages));
+            settingPages.addAll(new Vector<>(VERSIONINFOPAGE.pages));
+            settingPages.addAll(new Vector<>(List.of(DOWNLOADMCPAGE.p1)));
+
 
             themeManager.apply(this);
 
@@ -113,7 +120,7 @@ public class Launcher extends javafx.application.Application {
             stage.initStyle(StageStyle.UNIFIED);
             refresh();
             stage.setScene(s);
-            stage.getIcons().add(new Image("assets/grass.png"));
+            stage.getIcons().add(new Image("assets/icons/grass.png"));
 
             stage.initStyle(StageStyle.TRANSPARENT);
             WindowMovement windowMovement = new WindowMovement();
@@ -259,7 +266,7 @@ public class Launcher extends javafx.application.Application {
     }
     public static void setBackground(){
 
-        String wallpaper = "assets/background.jpg";
+        String wallpaper = "assets/imgs/background.jpg";
 
         bg = new Background(new BackgroundImage(new Image(wallpaper),
                 BackgroundRepeat.NO_REPEAT,

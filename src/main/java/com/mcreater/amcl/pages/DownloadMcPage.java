@@ -33,7 +33,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
     JFXButton setting;
     JFXButton load;
     SettingPage last;
-    SettingPage p1;
+    public SettingPage p1;
     SettingPage p2;
     Parent setted;
     Vector<TitledPane> panes = new Vector<>();
@@ -62,13 +62,15 @@ public class DownloadMcPage extends AbstractAnimationPage {
             setP1(p1);
             setType(setting);
         });
-        load = new JFXButton("test");
+        load = new JFXButton();
         load.setFont(Fonts.s_f);
         load.setOnAction(event -> {
             load.setDisable(true);
             loadVersions();
         });
         load.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 20, 20));
+        setting.setButtonType(JFXButton.ButtonType.RAISED);
+        load.setButtonType(JFXButton.ButtonType.RAISED);
         SetSize.setWidth(setting, this.width / 4 / 4 * 3);
         SetSize.setWidth(load, this.width / 4 / 4);
 

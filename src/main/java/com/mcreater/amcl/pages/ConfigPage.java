@@ -1,6 +1,8 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTreeView;
+import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.items.BooleanItem;
 import com.mcreater.amcl.controls.items.IntItem;
@@ -8,47 +10,75 @@ import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.controls.items.MuiltButtonListItem;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
-import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
+import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.JavaInfoGetter;
 import com.mcreater.amcl.util.SetSize;
+import com.mcreater.amcl.util.Sleeper;
+import com.mcreater.amcl.util.system.CpuReader;
+import com.mcreater.amcl.util.system.JavaHeapMemoryReader;
+import com.mcreater.amcl.util.system.MemoryReader;
+import com.mcreater.amcl.util.system.UsbDeviceReader;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
+import javafx.scene.chart.Chart;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.util.Pair;
+import oshi.hardware.UsbDevice;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
-public class ConfigPage extends AbstractAnimationPage {
-    VBox mainBox;
+public class ConfigPage extends AbstractMenuBarPage {
     Label title;
-
     VBox configs_box;
     JFXButton java_add;
     JFXButton java_get;
     Map<String, String> langs;
-    VBox menu;
     JFXButton setting;
-    SettingPage last;
     SettingPage p1;
     SettingPage p2;
-    JFXButton setted;
     BooleanItem item;
     IntItem item2;
     ListItem<Label> item3;
     MuiltButtonListItem<Label> item4;
     BooleanItem item5;
     IntItem item6;
-    public ConfigPage(int width, int height){
+    JFXButton system;
+    JFXTreeView<Label> view;
+    XYChart.Series<Number, Number> usedMemory;
+    XYChart.Series<Number, Number> totalMemory;
+    XYChart.Series<Number, Number> freeMemory;
+    int current = -5;
+    XYChart.Series<Number, Number> cpuUsed;
+    XYChart.Series<Number, Number> heapUsed;
+    XYChart.Series<Number, Number> heapMax;
+    IntItem item7;
+    JFXButton startListen;
+    Thread listenThread;
+    EventHandler<ActionEvent> start;
+    EventHandler<ActionEvent> end;
+    LineChart<Number, Number> memory;
+    LineChart<Number, Number> cpu;
+    LineChart<Number, Number> jvm;
+    public ConfigPage(int width, int height) throws NoSuchFieldException, IllegalAccessException {
         super(width, height);
         l = Launcher.MAINPAGE;
         set();
@@ -146,6 +176,13 @@ public class ConfigPage extends AbstractAnimationPage {
         item6.cont.setOrientation(Orientation.HORIZONTAL);
         item6.cont.valueProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.downloadChunkSize = newValue.intValue());
 
+        item7 = new IntItem("", this.width / 4 * 3);
+        item7.cont.setMax(1000);
+        item7.cont.setMin(500);
+        item7.cont.setValue(Launcher.configReader.configModel.showingUpdateSpped);
+        item7.cont.setOrientation(Orientation.HORIZONTAL);
+        item7.cont.valueProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.showingUpdateSpped = newValue.intValue());
+
         SetSize.setHeight(item, 30);
         SetSize.setHeight(item2, 30);
         SetSize.setHeight(item2, 30);
@@ -153,10 +190,11 @@ public class ConfigPage extends AbstractAnimationPage {
         SetSize.setHeight(item4, 30);
         SetSize.setHeight(item5, 30);
         SetSize.setHeight(item6, 30);
+        SetSize.setHeight(item7, 30);
 
         configs_box = new VBox();
         configs_box.setSpacing(10);
-        configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6);
+        configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6, item7);
         configs_box.setId("config-box");
 
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
@@ -164,49 +202,151 @@ public class ConfigPage extends AbstractAnimationPage {
 
         mainBox = new VBox();
 
-        p1 = new SettingPage(this.width / 4 * 3, this.height - t_size, configs_box);
+        view = new JFXTreeView<>();
+        TreeItem<Label> rootItem = new TreeItem<>(new Label("USB Devices"));
+//        loadAllDevice(rootItem);
+        view.setRoot(rootItem);
+        view.setShowRoot(false);
+        view.setStyle("-fx-vbar-policy: always");
 
-        last = null;
+        NumberAxis xAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis();
+        memory = new LineChart<>(xAxis, yAxis);
+        changeFont(memory);
+        memory.setHorizontalGridLinesVisible(false);
+        memory.setVerticalGridLinesVisible(false);
+        usedMemory = new XYChart.Series<>();
+        totalMemory = new XYChart.Series<>();
+        freeMemory = new XYChart.Series<>();
+        memory.getData().addAll(usedMemory, totalMemory, freeMemory);
+
+        NumberAxis xAxis2 = new NumberAxis();
+        NumberAxis yAxis2 = new NumberAxis();
+        cpu = new LineChart<>(xAxis2, yAxis2);
+        changeFont(cpu);
+        cpu.setHorizontalGridLinesVisible(false);
+        cpu.setVerticalGridLinesVisible(false);
+        cpuUsed = new XYChart.Series<>();
+        cpu.getData().addAll(cpuUsed);
+
+        NumberAxis x = new NumberAxis();
+        NumberAxis y = new NumberAxis();
+        jvm = new LineChart<>(x, y);
+        changeFont(jvm);
+        jvm.setHorizontalGridLinesVisible(false);
+        jvm.setVerticalGridLinesVisible(false);
+        heapUsed = new XYChart.Series<>();
+        heapMax = new XYChart.Series<>();
+        jvm.getData().addAll(heapUsed, heapMax);
+
+        start = event -> {
+            addMem();
+            startListen.setText(Launcher.languageManager.get("ui.configpage.systemInfo.listen.stop"));
+            startListen.setOnAction(end);
+        };
+        end = event -> {
+            listenThread.stop();
+            startListen.setText(Launcher.languageManager.get("ui.configpage.systemInfo.listen.start"));
+            startListen.setOnAction(start);
+        };
+
+        startListen = new JFXButton();
+        startListen.setFont(Fonts.t_f);
+        startListen.setOnAction(start);
+
+        SetSize.setWidth(memory, this.width / 4 * 3);
+        SetSize.setWidth(cpu, this.width / 4 * 3);
+        SetSize.setWidth(jvm, this.width / 4 * 3);
+
+        SetSize.set(view, this.width / 4 * 2.95, 400);
+        VBox v = new VBox(startListen, memory, cpu, jvm);
+        v.setAlignment(Pos.CENTER_LEFT);
+        SetSize.setWidth(v, this.width / 4 * 3);
+
+        p1 = new SettingPage(this.width / 4 * 3, this.height - t_size, configs_box);
+        p2 = new SettingPage(this.width / 4 * 3, this.height - t_size, v);
 
         setting = new JFXButton();
         setting.setFont(Fonts.s_f);
-        setting.setOnAction(event -> {
-            setP1(p1);
-            setType(setting);
-        });
+        setting.setOnAction(event -> super.setP1(0));
+        system = new JFXButton();
+        system.setFont(Fonts.s_f);
+        system.setOnAction(event -> super.setP1(1));
         SetSize.setWidth(setting, this.width / 4);
-
-        menu = new VBox();
-        menu.setId("config-menu");
-        menu.getChildren().addAll(setting);
-        SetSize.set(menu, this.width / 4,this.height - t_size);
-
-        setP1(p1);
-        setType(setting);
+        SetSize.setWidth(system, this.width / 4);
+        super.addNewPair(new Pair<>(setting, p1));
+        super.addNewPair(new Pair<>(system, p2));
+        super.setP1(0);
+        super.setButtonType(JFXButton.ButtonType.RAISED);
     }
-    public void setType(JFXButton b){
-        setted = b;
-        for (Node bs : menu.getChildren()){
-            bs.setDisable(bs == b);
+    public void changeFont(Chart c) throws NoSuchFieldException, IllegalAccessException {
+        Field f = Chart.class.getDeclaredField("titleLabel");
+        f.setAccessible(true);
+        ((Label) f.get(c)).setFont(Fonts.s_f);
+    }
+    public void addMem(){
+        new Thread(() -> {
+            listenThread = new Thread(() -> {
+                while (true){
+                    current += 1;
+                    if (current >= 0) {
+                        Runnable r = () -> {
+                            int curr = Launcher.configReader.configModel.showingUpdateSpped * current;
+                            usedMemory.getData().add(new XYChart.Data<>(curr, MemoryReader.getUsedMemory()));
+                            totalMemory.getData().add(new XYChart.Data<>(curr, MemoryReader.getTotalMemory()));
+                            freeMemory.getData().add(new XYChart.Data<>(curr, MemoryReader.getFreeMemory()));
+                            cpuUsed.getData().add(new XYChart.Data<>(curr, CpuReader.getCpuUsed() * 100));
+                            heapMax.getData().add(new XYChart.Data<>(curr, JavaHeapMemoryReader.getMaxMem()));
+                            heapUsed.getData().add(new XYChart.Data<>(curr, JavaHeapMemoryReader.getUsedMem()));
+                            check(usedMemory);
+                            check(totalMemory);
+                            check(freeMemory);
+                            check(cpuUsed);
+                            check(heapMax);
+                            check(heapUsed);
+                        };
+                        Platform.runLater(r);
+                        Sleeper.sleep(Launcher.configReader.configModel.showingUpdateSpped);
+                    }
+                }
+            });
+            listenThread.start();
+        }).start();
+    }
+    public void check(XYChart.Series<Number, Number> s){
+        Runnable r = () -> {
+            if (s.getData().size() > 100){
+                s.getData().remove(0);
+                if (s == usedMemory){
+                    current -= 1;
+                }
+                for (int index = 0;index < s.getData().size();index++){
+                    XYChart.Data<Number, Number> n = s.getData().get(index);
+                    n.setXValue(Launcher.configReader.configModel.showingUpdateSpped * index);
+                }
+            }
+        };
+        r.run();
+    }
+    public static void loadAllDevice(TreeItem<Label> root){
+        Vector<UsbDevice> devices = UsbDeviceReader.getDevices();
+        for (UsbDevice d : devices){
+            Label l = new Label(d.getName());
+            l.setFont(Fonts.t_f);
+            TreeItem<Label> child = new TreeItem<>(l);
+            root.getChildren().add(child);
+            loadNodeDevice(child, d);
         }
     }
-    public void setP1(SettingPage p){
-        if (p.CanMovePage() && last != p) {
-            if (last != null) {
-                last.setOut();
+    public static void loadNodeDevice(TreeItem<Label> root, UsbDevice device){
+        if (device.getConnectedDevices().length > 0){
+            for (UsbDevice d : device.getConnectedDevices()){
+                Label l = new Label(d.getName());
+                l.setFont(Fonts.t_f);
+                TreeItem<Label> child = new TreeItem<>(l);
+                root.getChildren().add(child);
+                loadNodeDevice(child, d);
             }
-            last = p;
-            last.setIn();
-            last.setTypeAll(true);
-            last.in.stop();
-            last.setTypeAll(false);
-            this.getChildren().clear();
-            mainBox = new VBox();
-            mainBox.setAlignment(Pos.TOP_CENTER);
-            mainBox.getChildren().addAll(p);
-            SetSize.set(mainBox, this.width / 4 * 3, this.height - Launcher.barSize);
-            this.add(menu, 0, 0, 1, 1);
-            this.add(mainBox, 1, 0, 1, 1);
         }
     }
     public void load_java_list(){
@@ -238,10 +378,17 @@ public class ConfigPage extends AbstractAnimationPage {
         item4.name.setText(Launcher.languageManager.get("ui.configpage.java_label.name"));
         item5.name.setText(Launcher.languageManager.get("ui.configpage.item5.name"));
         item6.name.setText(Launcher.languageManager.get("ui.configpage.item6.name"));
+        item7.name.setText(Launcher.languageManager.get("ui.configpage.item7.name"));
 
         java_get.setText(Launcher.languageManager.get("ui.configpage.java_get.name"));
         java_add.setText(Launcher.languageManager.get("ui.configpage.java_add.name"));
         setting.setText(Launcher.languageManager.get("ui.configpage.menu._01"));
+        system.setText(Launcher.languageManager.get("ui.configpage.menu._02"));
+        startListen.setText(Launcher.languageManager.get("ui.configpage.systemInfo.listen.start"));
+
+        memory.setTitle(Launcher.languageManager.get("ui.configpage.systemInfo.charts.1.title"));
+        cpu.setTitle(Launcher.languageManager.get("ui.configpage.systemInfo.charts.2.title"));
+        jvm.setTitle(Launcher.languageManager.get("ui.configpage.systemInfo.charts.3.title"));
     }
 
     public void refreshType(){

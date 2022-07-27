@@ -15,6 +15,8 @@ public class ConfigModel {
     public String language;
     public boolean fastDownload;
     public int downloadChunkSize;
+    public int swipeSpeed;
+    public int showingUpdateSpped;
     public ConfigModel getI(){
         selected_java = new Vector<>();
         selected_minecraft_dir = new Vector<>();
@@ -26,6 +28,8 @@ public class ConfigModel {
         language = "CHINESE";
         fastDownload = true;
         downloadChunkSize = 2048;
+        showingUpdateSpped = 500;
+        swipeSpeed = 8;
         return this;
     }
 }

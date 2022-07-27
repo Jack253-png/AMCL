@@ -22,7 +22,7 @@ public class UpgradePage extends AbstractStage {
     public VBox c;
     public UpgradePage(){
         this.setTitle(Launcher.languageManager.get("ui.upgradepage.title"));
-        this.getIcons().add(new Image("assets/grass.png"));
+        this.getIcons().add(new Image("assets/icons/grass.png"));
         c = new VBox();
         for (ReleaseModel model : GithubReleases.getReleases()) {
             VBox b = new VBox();

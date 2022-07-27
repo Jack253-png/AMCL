@@ -1,13 +1,11 @@
-package com.mcreater.amcl.javafx;
+package com.mcreater.amcl.patcher;
 
-import com.mcreater.amcl.Main;
 import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.GetPath;
-import com.mcreater.amcl.util.LinkPath;
 import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
 import com.mcreater.amcl.util.xml.DepencyItem;
 import org.xml.sax.SAXException;
@@ -15,10 +13,9 @@ import org.xml.sax.SAXException;
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.*;
+import java.net.InetAddress;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
@@ -52,7 +49,7 @@ public class depenciesLoader {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         frame = new depencyLoadingFrame();
         frame.setResizable(false);
-        frame.setIconImage(Toolkit.getDefaultToolkit().createImage(new ResourceGetter().getUrl("assets/grass.png")));
+        frame.setIconImage(Toolkit.getDefaultToolkit().createImage(new ResourceGetter().getUrl("assets/icons/grass.png")));
         if (tasks.size() > 0) {
             if (!isConnectable()){
                 JOptionPane.showMessageDialog(frame, StableMain.manager.get("ui.pre.depencies.network.fail.title"), StableMain.manager.get("ui.pre.depencies.network.fail.mess"), JOptionPane.ERROR_MESSAGE);

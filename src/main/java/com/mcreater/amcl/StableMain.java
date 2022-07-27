@@ -1,11 +1,17 @@
 package com.mcreater.amcl;
 
-import com.mcreater.amcl.javafx.depenciesLoader;
+import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXTreeView;
+import com.mcreater.amcl.patcher.depenciesLoader;
 import com.mcreater.amcl.lang.PreLanguageManager;
 import com.mcreater.amcl.util.LocateHelper;
+import com.mcreater.amcl.util.system.UsbDeviceReader;
 import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
 import com.mcreater.amcl.util.xml.DepencyItem;
+import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
 import org.xml.sax.SAXException;
+import oshi.hardware.UsbDevice;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,7 +21,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.Vector;
+import java.util.Arrays;
 
 public class StableMain {
     public static PreLanguageManager manager;
@@ -24,16 +30,13 @@ public class StableMain {
         manager.initlaze();
         depenciesLoader.checkAndDownload();
         depenciesLoader.frame.setVisible(false);
-        Vector<URL> jars = new Vector<>();
-        Field field = ClassLoader.getSystemClassLoader().getClass().getDeclaredField("ucp");
+        Field field = Class.forName("jdk.internal.loader.BuiltinClassLoader").getDeclaredField("ucp");
         field.setAccessible(true);
         Object ucp = field.get(ClassLoader.getSystemClassLoader());
         Method method = ucp.getClass().getDeclaredMethod("addURL", URL.class);
         method.setAccessible(true);
         for (DepencyItem item : DepenciesXMLHandler.load()){
-            URL u = new File(item.getLocal()).toURI().toURL();
-            jars.add(u);
-            method.invoke(ucp, u);
+            method.invoke(ucp, new File(item.getLocal()).toURI().toURL());
         }
         Main.main(args);
     }

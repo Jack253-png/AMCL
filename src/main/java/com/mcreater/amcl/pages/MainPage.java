@@ -1,6 +1,7 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTreeView;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.exceptions.LaunchException;
 import com.mcreater.amcl.game.getMinecraftVersion;
@@ -13,20 +14,24 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.ChangeDir;
 import com.mcreater.amcl.util.SetSize;
 import com.mcreater.amcl.util.Vars;
+import com.mcreater.amcl.util.system.UsbDeviceReader;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import oshi.hardware.UsbDevice;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Vector;
 
 public class MainPage extends AbstractAnimationPage {
     Label title;
@@ -185,8 +190,6 @@ public class MainPage extends AbstractAnimationPage {
         HBox hBox2 = new HBox();
         SetSize.set(hBox2, width / 5, height);
 
-
-
         GameMenu.getChildren().addAll(
                 title,
                 LaunchTitle,
@@ -210,9 +213,6 @@ public class MainPage extends AbstractAnimationPage {
         this.add(hBox1, 1, 1, 1, 1);
         this.add(hBox2, 2, 1, 1, 1);
         this.add(launchBox, 3, 1, 1, 1);
-//        this.getChildren().add(text);
-//        this.add(text, 1, 2, 1, 1);
-//        this.getChildren().add(text);
     }
     public static void check(){
         launchButton.setDisable(minecraft_running);

@@ -1,12 +1,9 @@
-package com.mcreater.amcl.javafx;
+package com.mcreater.amcl.patcher;
 
-import com.mcreater.amcl.Main;
 import com.mcreater.amcl.StableMain;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class depencyLoadingFrame extends JFrame {
     public final JProgressBar progressBar;
@@ -15,14 +12,13 @@ public class depencyLoadingFrame extends JFrame {
         super();
         getContentPane().setLayout(new GridBagLayout());
         setTitle(StableMain.manager.get("ui.pre.depencies.title"));
-        setBounds(100, 100, 500, 375);
         setBounds(100, 100, 300, 150);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-        progressBar = new JProgressBar();// 创建进度条对象
-        progressBar.setStringPainted(true);// 设置显示提示信息
-        progressBar.setIndeterminate(true);// 设置采用不确定进度条
-        progressBar.setString(StableMain.manager.get("ui.pre.depencies.progress.pre"));// 设置提示信息
+        progressBar = new JProgressBar();
+        progressBar.setStringPainted(true);
+        progressBar.setIndeterminate(true);
+        progressBar.setString(StableMain.manager.get("ui.pre.depencies.progress.pre"));
         final GridBagConstraints gridBagConstraints_1 = new GridBagConstraints();
         gridBagConstraints_1.insets = new Insets(0, 0, 0, 0);
         gridBagConstraints_1.gridy = 0;

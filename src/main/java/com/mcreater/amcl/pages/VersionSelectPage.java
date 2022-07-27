@@ -3,7 +3,6 @@ package com.mcreater.amcl.pages;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
-import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.versionTypeGetter;
@@ -14,8 +13,10 @@ import com.mcreater.amcl.util.LinkPath;
 import com.mcreater.amcl.util.SetSize;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollToEvent;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -44,8 +45,8 @@ public class VersionSelectPage extends AbstractAnimationPage {
     boolean checked;
     Vector<String> result;
     Logger logger = LogManager.getLogger(VersionSelectPage.class);
-    boolean first_load = true;
     String last_dir;
+
     public VersionSelectPage(double width,double height){
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -96,7 +97,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
         }
 
         dirs.setOnAction(event -> {
-            checked = false;
+            checked = true;
             selected_version_name = "";
             update_version_name();
             load_list();
@@ -127,8 +128,6 @@ public class VersionSelectPage extends AbstractAnimationPage {
             }
         });
 
-
-
         dot_minecraft_dir = new VBox();
         SetSize.set(dot_minecraft_dir, this.width / 4,this.height);
         dot_minecraft_dir.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
@@ -151,9 +150,6 @@ public class VersionSelectPage extends AbstractAnimationPage {
         dot_minecraft_dir.getChildren().addAll(title,dirs,new MainPage.Spacer(),select_version,new MainPage.Spacer(),buttons);
 
         add_dir.setButtonType(JFXButton.ButtonType.RAISED);
-
-        JFXSmoothScroll.smoothScrollingListView(version_list, 0.5);
-        JFXSmoothScroll.smoothHScrollingListView(version_list, 0.5);
 
         this.add(dot_minecraft_dir, 0, 0, 1, 1);
         this.add(versionlist,1,0 ,1,1);
@@ -248,24 +244,21 @@ public class VersionSelectPage extends AbstractAnimationPage {
     }
 
     public void onExitPage() {
-//        if (!checked){
-//            if (!Objects.equals(dirs.getValue(), last_dir)) {
-//                dirs.getSelectionModel().select(last_dir);
-//            }
-//            selected_version_name = last;
-//            update_version_name();
-//            Launcher.configReader.configModel.selected_version_index = last;
-//            Launcher.configReader.configModel.selected_minecraft_dir_index = last_dir;
-//            Launcher.configReader.write();
-//        }
-//        else {
-//            Launcher.configReader.configModel.selected_version_index = selected_version_name;
-//            Launcher.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
-//            Launcher.configReader.write();
-//        }
-        Launcher.configReader.configModel.selected_version_index = selected_version_name;
-        Launcher.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
-        Launcher.configReader.write();
+        if (!checked){
+            if (!Objects.equals(dirs.getValue(), last_dir)) {
+                dirs.getSelectionModel().select(last_dir);
+            }
+            selected_version_name = last;
+            update_version_name();
+            Launcher.configReader.configModel.selected_version_index = last;
+            Launcher.configReader.configModel.selected_minecraft_dir_index = last_dir;
+            Launcher.configReader.write();
+        }
+        else {
+            Launcher.configReader.configModel.selected_version_index = selected_version_name;
+            Launcher.configReader.configModel.selected_minecraft_dir_index = dirs.getValue();
+            Launcher.configReader.write();
+        }
     }
 
     public void refreshLanguage(){

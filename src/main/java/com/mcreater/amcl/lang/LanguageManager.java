@@ -48,10 +48,10 @@ public class LanguageManager {
     }
     public InputStream getPath(LanguageType type){
         if (type == LanguageType.ENGLISH) {
-            return this.getClass().getClassLoader().getResourceAsStream("assets/en_us.lang");
+            return this.getClass().getClassLoader().getResourceAsStream("assets/langs/en_us.lang");
         }
         else if (type == LanguageType.CHINESE){
-            return this.getClass().getClassLoader().getResourceAsStream("assets/zh_cn.lang");
+            return this.getClass().getClassLoader().getResourceAsStream("assets/langs/zh_cn.lang");
         }
         else{
             return null;

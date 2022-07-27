@@ -1,12 +1,9 @@
 package com.mcreater.amcl.lang;
 
-import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Vector;
@@ -40,10 +37,10 @@ public class PreLanguageManager {
     }
     public InputStream getPath(LanguageManager.LanguageType type){
         if (type == LanguageManager.LanguageType.ENGLISH) {
-            return this.getClass().getClassLoader().getResourceAsStream("assets/en_us.lang");
+            return this.getClass().getClassLoader().getResourceAsStream("assets/langs/en_us.lang");
         }
         else if (type == LanguageManager.LanguageType.CHINESE){
-            return this.getClass().getClassLoader().getResourceAsStream("assets/zh_cn.lang");
+            return this.getClass().getClassLoader().getResourceAsStream("assets/langs/zh_cn.lang");
         }
         else{
             return null;

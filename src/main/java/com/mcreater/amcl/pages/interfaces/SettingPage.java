@@ -1,40 +1,41 @@
 package com.mcreater.amcl.pages.interfaces;
 
+import com.jfoenix.utils.JFXSmoothScroll;
+import com.mcreater.amcl.Launcher;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.effect.GaussianBlur;
+import javafx.scene.control.Skinnable;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 
-public class SettingPage extends ScrollPane implements SettingsAnimationPage {
+public class SettingPage extends ScrollPane implements SettingsAnimationPage, Skinnable {
     public double width, height;
     public VBox content;
 
     private final Region shadow = new Region();
-    public SettingPage(double width, double height, VBox content){
+    public SettingPage(double width, double height, VBox content) {
+        super(content);
         this.setMinSize(width, height);
         this.setMaxSize(width, height);
         this.width = width;
         this.height = height;
-//        this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+        this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
-        this.setContent(content);
         this.content = content;
-//        init();
+        init();
+        JFXSmoothScroll.smoothScrolling(this, 0.8);
     }
     private void init() {
         skinProperty().addListener(it -> getChildren().addAll(shadow));
 
         setFitToWidth(true);
-        setVbarPolicy(ScrollBarPolicy.NEVER);
-        setHbarPolicy(ScrollBarPolicy.NEVER);
 
         shadow.setManaged(false);
-        shadow.setStyle("-fx-pref-height: 10;-fx-background-color: black;-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, .75), 20, 0.19, 0, 6);");
+        shadow.setStyle("-fx-pref-height: 10;-fx-background-color: rgba(0, 0, 0, .35);-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, .15), 20, 0.8, 0, 4);");
         shadow.getStyleClass().add("shadow");
         shadow.visibleProperty().bind(showShadowProperty());
         shadow.setMouseTransparent(true);
@@ -76,6 +77,7 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
         if (isShowShadow()) {
             Insets insets = getInsets();
             double w = getWidth();
+            double h = getHeight();
             double offset = computeOffset();
             shadow.resizeRelocate(-10, insets.getTop() - shadow.prefHeight(-1) - SHADOW_HEIGHT + offset, w + 20, shadow.prefHeight(-1) - 1);
             lastOffset = offset;
@@ -98,6 +100,8 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
         }
     }
     public boolean CanMovePage(){
-        return this.getOpacity() == 1;
+//        return this.getOpacity() == 1;
+        return true;
     }
+
 }

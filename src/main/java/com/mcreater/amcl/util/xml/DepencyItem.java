@@ -1,10 +1,8 @@
 package com.mcreater.amcl.util.xml;
 
-import com.mcreater.amcl.javafx.depenciesLoader;
+import com.mcreater.amcl.patcher.depenciesLoader;
 
-import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 
 public class DepencyItem {
