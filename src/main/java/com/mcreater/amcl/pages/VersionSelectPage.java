@@ -256,8 +256,10 @@ public class VersionSelectPage extends AbstractAnimationPage {
 
     public void onExitPage() {
         if (!checked){
-            if (!Objects.equals(dirs.getValue().getText(), last_dir)) {
-                dirs.getSelectionModel().select(findLabelFromName(last_dir));
+            if (dirs.getValue() != null) {
+                if (!Objects.equals(dirs.getValue().getText(), last_dir)) {
+                    dirs.getSelectionModel().select(findLabelFromName(last_dir));
+                }
             }
             selected_version_name = last;
             update_version_name();
