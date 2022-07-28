@@ -19,6 +19,7 @@ import javafx.concurrent.Service;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -34,7 +35,6 @@ public class DownloadMcPage extends AbstractAnimationPage {
     JFXButton load;
     SettingPage last;
     public SettingPage p1;
-    SettingPage p2;
     Parent setted;
     Vector<TitledPane> panes = new Vector<>();
     JFXProgressBar bar;
@@ -131,6 +131,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                     Launcher.DOWNLOADADDONSELECTPAGE.setVersionId(listv.getSelectionModel().getSelectedItem().model);
                 });
                 Platform.runLater(() -> mainBox.getChildren().add(pane));
+                Platform.runLater(() -> ThemeManager.loadButtonAnimates(pane));
             }
             load.setDisable(false);
         };

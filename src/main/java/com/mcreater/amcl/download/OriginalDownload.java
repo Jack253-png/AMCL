@@ -35,7 +35,7 @@ public class OriginalDownload {
     public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize) throws IOException, InterruptedException {
         tasks.clear();
         OriginalDownload.chunkSize = chunkSize;
-        String url = "http://launchermeta.mojang.com/mc/game/version_manifest_v2.json";
+        String url = FasterUrls.getVersionJsonv2WithFaster(faster);
         gb = new GsonBuilder();
         gb.setPrettyPrinting();
         Gson g = gb.create();
@@ -56,6 +56,7 @@ public class OriginalDownload {
         new File(version_dir).mkdirs();
 
         String version_json = HttpConnectionUtil.doGet(FasterUrls.fast(version_url, faster));
+        System.out.println(FasterUrls.fast(version_url, faster));
         vj = version_json;
 
         BufferedWriter bw = new BufferedWriter(new FileWriter(LinkPath.link(version_dir, version_name + ".json")));

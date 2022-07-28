@@ -54,7 +54,8 @@ public class FasterUrls {
         if (t) {
             for (String sr : s.keySet()) {
                 if (raw.contains(sr)) {
-                    return raw.replace(sr, s.get(sr)).replace("https://bmclapi2.bangbang93.com/", "https://download.mcbbs.net/");
+//                    return raw.replace(sr, s.get(sr)).replace("https://bmclapi2.bangbang93.com/", "https://download.mcbbs.net/");
+                    return raw.replace(sr, s.get(sr));
                 }
             }
         }

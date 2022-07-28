@@ -179,8 +179,6 @@ public class MainPage extends AbstractAnimationPage {
         settings.setMaxWidth(width / 4);
         downloadMc.setMaxWidth(width / 4);
 
-        settings.setOnDragEntered(event -> System.out.println(new Object()));
-
         GameMenu = new VBox();
         GameMenu.setId("game-menu");
         SetSize.set(GameMenu, width / 4, height);
@@ -257,10 +255,12 @@ public class MainPage extends AbstractAnimationPage {
             if (Launcher.configReader.configModel.selected_minecraft_dir.contains(Launcher.configReader.configModel.selected_minecraft_dir_index)) {
                 if (Launcher.configReader.configModel.selected_version_index != null) {
                     if (Objects.requireNonNull(getMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index)).contains(Launcher.configReader.configModel.selected_version_index)) {
-                        version_settings.setText(" " + Launcher.configReader.configModel.selected_version_index);
-                        launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.hasVersion"));
-                        version_settings.setDisable(false);
-                        downloadMc.setDisable(false);
+                        Platform.runLater(() -> {
+                            version_settings.setText(" " + Launcher.configReader.configModel.selected_version_index);
+                            launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.hasVersion"));
+                            version_settings.setDisable(false);
+                            downloadMc.setDisable(false);
+                        });
                     } else {
                         clean_null_version();
                         downloadMc.setDisable(false);
