@@ -2,35 +2,51 @@ package com.mcreater.amcl;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
+import com.mcreater.amcl.api.windows.MessageCenter;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.*;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
+import com.mcreater.amcl.pages.dialogs.PopupMessage;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.ChangeDir;
+import com.mcreater.amcl.util.SetSize;
+import com.mcreater.amcl.util.Sleeper;
 import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.multiThread.Run;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.SVGIcons;
-import com.mcreater.amcl.util.system.MemoryDataReader;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.effect.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -54,10 +70,10 @@ public class Launcher extends javafx.application.Application {
     public static AddModsPage ADDMODSPAGE;
     public static ModDownloadPage MODDOWNLOADPAGE;
     public static DownloadMcPage DOWNLOADMCPAGE;
-    public static ConfigWriter configReader;
-    public static LanguageManager languageManager;
     public static DownloadAddonSelectPage DOWNLOADADDONSELECTPAGE;
     public static ThemeManager themeManager;
+    public static ConfigWriter configReader;
+    public static LanguageManager languageManager;
     static Background bg;
     static BackgroundSize bs;
     public static double barSize = 45;
@@ -65,10 +81,8 @@ public class Launcher extends javafx.application.Application {
     public static int height = 480;
     public static Label ln;
     public static Pane p = new Pane();
-    public static Vector<SettingPage> settingPages = new Vector<>();
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException {
         Fonts.loadFont();
-        MemoryDataReader.printMemsToOutPut();
         if (is_t) {
             languageManager = new LanguageManager(null);
             themeManager = new ThemeManager();
@@ -102,10 +116,6 @@ public class Launcher extends javafx.application.Application {
             DOWNLOADADDONSELECTPAGE = new DownloadAddonSelectPage(width, height);
 
             languageManager.bindAll(MAINPAGE, CONFIGPAGE, VERSIONSELECTPAGE, VERSIONINFOPAGE, ADDMODSPAGE, MODDOWNLOADPAGE, DOWNLOADMCPAGE, DOWNLOADADDONSELECTPAGE);
-            settingPages.addAll(new Vector<>(CONFIGPAGE.pages));
-            settingPages.addAll(new Vector<>(VERSIONINFOPAGE.pages));
-            settingPages.addAll(new Vector<>(List.of(DOWNLOADMCPAGE.p1)));
-
 
             themeManager.apply(this);
 
@@ -117,7 +127,7 @@ public class Launcher extends javafx.application.Application {
             BGMManager.init();
             BGMManager.start();
 
-            stage.initStyle(StageStyle.UNIFIED);
+            stage.initStyle(StageStyle.TRANSPARENT);
             refresh();
             stage.setScene(s);
             stage.getIcons().add(new Image("assets/icons/grass.png"));
@@ -126,17 +136,27 @@ public class Launcher extends javafx.application.Application {
             WindowMovement windowMovement = new WindowMovement();
             windowMovement.windowMove(s, stage);
             stage.show();
+            stage.setOnHidden(event -> {
+                last.out.play();
+                last.out.setOnFinished(event1 -> System.exit(0));
+            });
             new Thread(() -> {
-                if (GithubReleases.isDevelop()){
-                    Platform.runLater(() -> FastInfomation.create(languageManager.get("ui.mainpage.versionChecker.title"), languageManager.get("ui.mainpage.versionChecker.inDevelope"), ""));
+                try {
+                    if (GithubReleases.isDevelop()) {
+                        PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.inDevelope"), PopupMessage.MessageTypes.LABEL, null);
+                    } else if (GithubReleases.outDated()) {
+                        Runnable show = () -> new UpgradePage().open();
+                        Platform.runLater(() -> {
+                            Hyperlink link = (Hyperlink) PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.outDated"), PopupMessage.MessageTypes.HYPERLINK, null);
+                            link.setOnAction(event -> show.run());
+                        });
+                    }
                 }
-                else if (GithubReleases.outDated()){
-                    Platform.runLater(() -> {
-                        FastInfomation.create(languageManager.get("ui.mainpage.versionChecker.title"), languageManager.get("ui.mainpage.versionChecker.outDated"), "");
-                        new UpgradePage().open();
-                    });
+                catch (IllegalStateException e){
+                    Platform.runLater(() -> PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.checkFailed.name"), PopupMessage.MessageTypes.LABEL, null));
                 }
             }).start();
+            ThemeManager.loadButtonAnimates();
         }
         else{
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -150,19 +170,23 @@ public class Launcher extends javafx.application.Application {
         if (caller.getCanMovePage()) {
             configReader.write();
             last.onExitPage();
-            last.setOut();
-            last = n;
-            last.setIn();
-            last.setTypeAll(true);
-            last.in.stop();
-            last.setTypeAll(false);
+            Runnable r = () -> {
+                last = n;
+                setPageCore();
+                last.in.play();
+//                last.setTypeAll(true);
+//                last.in.stop();
+//                last.setTypeAll(false);
 
-            Run.run(last::refresh).start();
-            last.refreshLanguage();
-            Run.run(last::refreshType).start();
+                Run.run(last::refresh).start();
+                last.refreshLanguage();
+                last.refreshType();
 
-            refresh();
-            setPageCore();
+                refresh();
+            };
+            last.out.setOnFinished(event -> r.run());
+            last.out.play();
+//            r.run();
         }
     }
     public static AbstractSVGIcons getSVGManager(){
@@ -184,12 +208,7 @@ public class Launcher extends javafx.application.Application {
         close.setPrefHeight(t_size / 6 * 5);
         close.setGraphic(getSVGManager().close(Bindings.createObjectBinding(() -> Paint.valueOf("#000000")), t_size / 3 * 2, t_size / 3 * 2));
         close.setButtonType(JFXButton.ButtonType.RAISED);
-        close.setOnAction(event -> {
-            last.setOut();
-            stage.close();
-            Platform.exit();
-            System.exit(0);
-        });
+        close.setOnAction(event -> stage.close());
         min.setPrefWidth(t_size / 2.5);
         min.setPrefHeight(t_size / 2.5);
         min.setGraphic(new Rectangle(t_size / 2.5, t_size / 15, Color.BLACK));
@@ -227,17 +246,18 @@ public class Launcher extends javafx.application.Application {
         top.getChildren().add(title);
 
         themeManager.applyTopBar(top);
-        VBox v = new VBox(top, last);
+        VBox v = new VBox();
+        v.getChildren().addAll(top, last);
+        v.setStyle("-fx-background-color: transparent");
         p = new Pane();
+        p.setStyle("-fx-background-color: transparent");
         p.getChildren().add(0, v);
         setBackground();
         s.setFill(null);
         s.setRoot(p);
-        s.setFill(Color.TRANSPARENT);
+        s.setFill(null);
         stage.setScene(s);
-        s.setOnKeyPressed(event -> {
-            System.out.println(event.getCode());
-        });
+        s.setOnKeyPressed(event -> System.out.println(event.getCode()));
     }
     public static void setTitle(){
         AbstractAnimationPage lpa = last.l;

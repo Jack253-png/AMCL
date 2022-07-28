@@ -17,19 +17,24 @@ import javafx.scene.layout.HBox;
 public class CurseMod extends GridPane {
     public CurseModModel model;
     Label base;
+    public Label name;
+    public Label desc;
+    public HBox b;
+    public HBox authors;
+    public ImageView image;
     public CurseMod(CurseModModel model){
         this.model = model;
         String logo_url = model.logo.thumbnailUrl;
-        ImageView image = new ImageView();
+        image = new ImageView();
         image.setFitWidth(40);
         image.setFitHeight(40);
         new Thread(() -> image.setImage(new Image(logo_url))).start();
-        Label name = new Label(model.name);
+        name = new Label(model.name);
         name.setFont(Fonts.s_f);
-        Label desc = new Label(model.summary);
+        desc = new Label(model.summary);
         desc.setFont(Fonts.t_f);
         desc.setMaxWidth(Launcher.width - 20 * 4 - 35);
-        HBox b = new HBox();
+        b = new HBox();
         for (int i = 0;i < model.categories.size();i++){
             ImageView view = new ImageView();
             view.setFitWidth(20);
@@ -41,7 +46,7 @@ public class CurseMod extends GridPane {
             CurseModCategorieModel m = model.categories.get(i);
             new Thread(() -> v.setImage(new Image(m.iconUrl))).start();
         }
-        HBox authors = new HBox();
+        authors = new HBox();
         base = new Label(Launcher.languageManager.get("ui.addmodspage.mod.authors.name"));
         base.setFont(Fonts.t_f);
         authors.getChildren().add(base);

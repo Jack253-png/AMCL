@@ -51,21 +51,24 @@ public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
     public void setP1(int i){
         SettingPage p = pages.get(i);
         if (p.CanMovePage() && last != p) {
+            Runnable r = () -> {
+                last = p;
+                this.getChildren().clear();
+                mainBox = new VBox();
+                mainBox.setAlignment(Pos.TOP_CENTER);
+                mainBox.getChildren().addAll(p);
+                SetSize.set(mainBox, this.width / 4 * 3, this.height - Launcher.barSize);
+                this.add(menu, 0, 0, 1, 1);
+                this.add(mainBox, 1, 0, 1, 1);
+                last.in.play();
+            };
             if (last != null) {
-                last.setOut();
+                last.out.setOnFinished(event -> r.run());
+                last.out.play();
             }
-            last = p;
-            last.setIn();
-            last.setTypeAll(true);
-            last.in.stop();
-            last.setTypeAll(false);
-            this.getChildren().clear();
-            mainBox = new VBox();
-            mainBox.setAlignment(Pos.TOP_CENTER);
-            mainBox.getChildren().addAll(p);
-            SetSize.set(mainBox, this.width / 4 * 3, this.height - Launcher.barSize);
-            this.add(menu, 0, 0, 1, 1);
-            this.add(mainBox, 1, 0, 1, 1);
+            else{
+                r.run();
+            }
         }
         setType(menubuttons.get(i));
         e.run(i);

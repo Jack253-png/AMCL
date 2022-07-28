@@ -4,6 +4,7 @@ import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.*;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.theme.ThemeManager;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -31,11 +32,13 @@ public class LoadingDialog extends JFXAlert<String> {
         b.setSpacing(10);
         b.setAlignment(Pos.CENTER);
         b.getChildren().add(spinner);
-        layout.setHeading(setFont(new Label(title), Fonts.s_f));
+        Label title1 = setFont(new Label(title), Fonts.s_f);
+        layout.setHeading(title1);
         layout.setBody(b);
         this.setOnHidden(event -> {});
         this.setOnHiding(event -> {});
         this.setContent(layout);
+        ThemeManager.loadButtonAnimates(title1, spinner);
     }
     public void Create(){
         Platform.runLater(this::show);

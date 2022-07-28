@@ -13,6 +13,7 @@ import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.LinkPath;
 import com.mcreater.amcl.util.SetSize;
 import javafx.application.Platform;
@@ -49,7 +50,6 @@ public class ModDownloadPage extends AbstractAnimationPage {
         super(width, height);
         reqMods = new Vector<>();
         l = Launcher.ADDMODSPAGE;
-        set();
         p = new GridPane();
         v = new VBox();
         SetSize.set(p, width, height);
@@ -120,8 +120,6 @@ public class ModDownloadPage extends AbstractAnimationPage {
                 FastInfomation.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
             }
         });
-        SplitPane pane = new SplitPane();
-        SetSize.setHeight(pane, Launcher.width);
         VBox box = new VBox(installRequires, install);
         box.setSpacing(10);
         box.setAlignment(Pos.CENTER_LEFT);
@@ -189,8 +187,12 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         };
                         file.checkBox.selectedProperty().addListener(this.changeListener);
                     }
+                    SetSize.setWidth(pane, this.width - 15);
+                    SetSize.setWidth(b, this.width - 15);
+                    SetSize.setWidth(v, this.width - 15);
                     Platform.runLater(() -> v.getChildren().add(pane));
                 }
+                ThemeManager.loadButtonAnimates(v.getChildren().toArray(new Node[0]));
                 this.setDisable(false);
             }
             catch (IOException e){

@@ -41,7 +41,6 @@ public class DownloadMcPage extends AbstractAnimationPage {
     public DownloadMcPage(int width, int height){
         super(width, height);
         l = Launcher.MAINPAGE;
-        set();
         this.setAlignment(Pos.TOP_CENTER);
 
         double t_size = Launcher.barSize;
@@ -171,7 +170,6 @@ public class DownloadMcPage extends AbstractAnimationPage {
     }
     public void refresh(){
         p1.set(this.opacityProperty());
-        p2.set(this.opacityProperty());
         setType(setted);
     }
     public void refreshLanguage(){

@@ -13,14 +13,17 @@ import com.mcreater.amcl.controls.CurseMod;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.SetSize;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Vector;
 
 public class AddModsPage extends AbstractAnimationPage {
@@ -33,7 +36,6 @@ public class AddModsPage extends AbstractAnimationPage {
     public AddModsPage(double width, double height) {
         super(width, height);
         l = Launcher.VERSIONINFOPAGE;
-        set();
         pane = new GridPane();
         SetSize.set(pane, this.width, this.height);
         in = new JFXTextField();
@@ -94,6 +96,7 @@ public class AddModsPage extends AbstractAnimationPage {
             Platform.runLater(() -> modlist.getItems().addAll(m));
             double finalLoaded = loaded;
             Platform.runLater(() -> bar.setProgress(finalLoaded / mods.size()));
+            ThemeManager.loadButtonAnimates(m);
         }
     }
     public void showDownloads(CurseModModel model) throws InterruptedException {

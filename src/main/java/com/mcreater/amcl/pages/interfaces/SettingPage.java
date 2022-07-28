@@ -2,6 +2,8 @@ package com.mcreater.amcl.pages.interfaces;
 
 import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.theme.ThemeManager;
+import com.mcreater.amcl.util.SetSize;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
@@ -12,19 +14,40 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 
-public class SettingPage extends ScrollPane implements SettingsAnimationPage, Skinnable {
+public class SettingPage extends ScrollPane implements SettingsAnimationPage {
     public double width, height;
     public VBox content;
 
     private final Region shadow = new Region();
-    public SettingPage(double width, double height, VBox content) {
+    public SettingPage(double width, double height, VBox content, Object flag){
         super(content);
-        this.setMinSize(width, height);
-        this.setMaxSize(width, height);
+        SetSize.set(this, width, height);
+        SetSize.set(content, width - 30, height - 30);
         this.width = width;
         this.height = height;
         this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
-        this.setHbarPolicy(ScrollBarPolicy.NEVER);
+        this.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+        this.content = content;
+        init();
+        JFXSmoothScroll.smoothScrolling(this, 0.8);
+        ThemeManager.loadButtonAnimates(this.content);
+    }
+    public SettingPage(double width, double height, VBox content) {
+        this (width, height, content, true);
+    }
+    public SettingPage(double width, double height, VBox content, boolean neededHeight) {
+        super(content);
+        SetSize.set(this, width, height);
+        if (neededHeight) {
+            SetSize.set(content, width - 10, height - 10);
+        }
+        else{
+            SetSize.setWidth(content, width - 10);
+        }
+        this.width = width;
+        this.height = height;
+        this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+        this.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
         this.content = content;
         init();
         JFXSmoothScroll.smoothScrolling(this, 0.8);

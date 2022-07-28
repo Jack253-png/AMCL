@@ -63,7 +63,6 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     public VersionInfoPage(double width, double height){
         super(width, height);
         l = Launcher.MAINPAGE;
-        set();
 
         double t_size = Launcher.barSize;
 

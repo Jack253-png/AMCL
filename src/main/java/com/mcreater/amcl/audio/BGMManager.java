@@ -27,7 +27,7 @@ public class BGMManager {
                 names.add(file.getName());
             }
             else{
-                PopupMessage.createMessage(String.format(Launcher.languageManager.get("ui.bgmmanager.loadfailed"), file.getName()));
+                PopupMessage.createMessage(String.format(Launcher.languageManager.get("ui.bgmmanager.loadfailed"), file.getName()), PopupMessage.MessageTypes.LABEL, null);
             }
         }
     }
@@ -46,7 +46,7 @@ public class BGMManager {
                 public void run() {
                     while (true) {
                         int index = r.nextInt(musics.size());
-                        Platform.runLater(() -> PopupMessage.createMessage(String.format(Launcher.languageManager.get("ui.bgmmanager.playing"), names.get(index))));
+                        PopupMessage.createMessage(String.format(Launcher.languageManager.get("ui.bgmmanager.playing"), names.get(index)), PopupMessage.MessageTypes.LABEL, null);
                         AudioClip clip = musics.get(index);
                         if (currentClip != clip) {
                             currentClip = clip;

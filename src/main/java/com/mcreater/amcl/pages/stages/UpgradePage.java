@@ -42,7 +42,7 @@ public class UpgradePage extends AbstractStage {
             pane.setDisable(model.outdated);
             c.getChildren().add(pane);
         }
-        content = new SettingPage(800, 600, c);
+        content = new SettingPage(800, 600, c, new Object());
         content.getStylesheets().add(String.format(ThemeManager.getPath(), "SettingPage"));
         this.setWidth(800);
         this.setHeight(600);

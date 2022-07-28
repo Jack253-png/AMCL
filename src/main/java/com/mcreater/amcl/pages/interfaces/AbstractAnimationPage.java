@@ -18,6 +18,7 @@ public abstract class AbstractAnimationPage extends GridPane implements Animatio
         this.setMaxSize(width, height);
         this.width = width;
         this.height = height;
+        set(Launcher.stage.opacityProperty());
     }
 
     public void setTypeAll(boolean t) {

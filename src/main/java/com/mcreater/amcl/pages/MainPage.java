@@ -60,7 +60,6 @@ public class MainPage extends AbstractAnimationPage {
     public MainPage(double width,double height) {
         super(width, height);
         l = null;
-        set();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (minecraft_running) {
@@ -180,6 +179,8 @@ public class MainPage extends AbstractAnimationPage {
         settings.setMaxWidth(width / 4);
         downloadMc.setMaxWidth(width / 4);
 
+        settings.setOnDragEntered(event -> System.out.println(new Object()));
+
         GameMenu = new VBox();
         GameMenu.setId("game-menu");
         SetSize.set(GameMenu, width / 4, height);
@@ -243,11 +244,13 @@ public class MainPage extends AbstractAnimationPage {
         }
     }
     public void clean_null_version(){
-        version_settings.setText(Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"));
-        launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"));
-        Launcher.configReader.configModel.selected_version_index = "";
-        Launcher.configReader.write();
-        version_settings.setDisable(true);
+        Platform.runLater(() -> {
+            version_settings.setText(Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"));
+            launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"));
+            Launcher.configReader.configModel.selected_version_index = "";
+            Launcher.configReader.write();
+            version_settings.setDisable(true);
+        });
     }
     public void flush(){
         if (new File(Launcher.configReader.configModel.selected_minecraft_dir_index).exists()) {

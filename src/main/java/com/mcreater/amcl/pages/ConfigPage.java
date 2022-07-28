@@ -81,7 +81,6 @@ public class ConfigPage extends AbstractMenuBarPage {
     public ConfigPage(int width, int height) throws NoSuchFieldException, IllegalAccessException {
         super(width, height);
         l = Launcher.MAINPAGE;
-        set();
         this.setAlignment(Pos.TOP_CENTER);
 
         double t_size = Launcher.barSize;
@@ -264,7 +263,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         SetSize.setWidth(v, this.width / 4 * 3);
 
         p1 = new SettingPage(this.width / 4 * 3, this.height - t_size, configs_box);
-        p2 = new SettingPage(this.width / 4 * 3, this.height - t_size, v);
+        p2 = new SettingPage(this.width / 4 * 3, this.height - t_size, v, false);
 
         setting = new JFXButton();
         setting.setFont(Fonts.s_f);
