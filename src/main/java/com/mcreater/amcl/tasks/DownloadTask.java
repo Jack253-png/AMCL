@@ -74,7 +74,7 @@ public class DownloadTask extends AbstractTask{
                 download();
             }
             else{
-                throw new IOException();
+//                throw new Error();
             }
         }
         else {
@@ -86,7 +86,11 @@ public class DownloadTask extends AbstractTask{
             clean();
             try {
                 d();
-            } catch (Exception e) {
+            }
+            catch (Error e1){
+                e1.printStackTrace();
+            }
+            catch (Exception e) {
                 fos.close();
                 clean();
                 execute();
@@ -136,17 +140,10 @@ public class DownloadTask extends AbstractTask{
     /**
      * 设置不验证主机
      */
-    private static final HostnameVerifier DO_NOT_VERIFY = new HostnameVerifier() {
-        @Override
-        public boolean verify(String hostname, SSLSession session) {
-            return true;
-        }
-    };
+    private static final HostnameVerifier DO_NOT_VERIFY = (hostname, session) -> true;
 
     /**
      * 信任所有
-     * @param connection
-     * @return
      */
     private static SSLSocketFactory trustAllHosts(HttpsURLConnection connection) {
         SSLSocketFactory oldFactory = connection.getSSLSocketFactory();

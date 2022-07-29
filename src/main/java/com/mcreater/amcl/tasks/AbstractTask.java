@@ -18,4 +18,7 @@ public abstract class AbstractTask implements Task {
         return true;
     }
     public abstract Integer execute() throws IOException;
+    public String toString(){
+        return this.server;
+    }
 }

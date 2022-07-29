@@ -67,6 +67,7 @@ public class OriginalDownload {
         if (!Objects.equals(id, ver_j.id)){
             throw new IOException();
         }
+
         downloadCoreJar(ver_j, faster, minecraft_dir, version_dir, version_name);
         downloadLibs(ver_j, faster, minecraft_dir, version_dir, version_name);
         downloadAssets(ver_j, faster, minecraft_dir);
