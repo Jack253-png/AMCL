@@ -22,4 +22,7 @@ public class DepencyItem {
     public String getURL() throws MalformedURLException {
         return this.maven + depenciesLoader.convertNameToUrl(this.name);
     }
+    public String toString(){
+        return this.name;
+    }
 }

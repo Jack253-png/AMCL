@@ -10,6 +10,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -17,7 +18,9 @@ import java.util.Vector;
 
 public class DepenciesXMLHandler {
     public static Vector<DepencyItem> load() throws ParserConfigurationException, SAXException, IOException {
-        InputStream is = new ResourceGetter().get("assets/depencies.xml");
+        return load(new ResourceGetter().get("assets/depencies.xml"));
+    }
+    public static Vector<DepencyItem> load(InputStream is) throws ParserConfigurationException, SAXException, IOException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parse = factory.newSAXParser();
         XMLReader reader=parse.getXMLReader();

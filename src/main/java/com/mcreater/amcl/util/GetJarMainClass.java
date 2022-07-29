@@ -13,12 +13,13 @@ public class GetJarMainClass {
         File f = new File(jarFile);
         JarFile jarFile1 = new JarFile(f);
         Attributes attrs = jarFile1.getManifest().getMainAttributes();
-        for (Iterator<Object> it = attrs.keySet().iterator(); it.hasNext();){
-            Name attrName = (Name) it.next();
-            if (Objects.equals(attrName.toString(), "Main-Class")){
+        for (Object o : attrs.keySet()) {
+            Name attrName = (Name) o;
+            if (Objects.equals(attrName.toString(), "Main-Class")) {
                 return attrs.getValue(attrName);
             }
         }
+        jarFile1.close();
         return null;
     }
 }

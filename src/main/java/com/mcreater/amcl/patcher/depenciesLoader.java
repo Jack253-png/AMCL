@@ -37,9 +37,11 @@ public class depenciesLoader {
     public static String convertNameToUrl(String name){
         return convertName(name).replace(File.separator, "/");
     }
-    public static void checkAndDownload() throws ParserConfigurationException, IOException, SAXException, InterruptedException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public static void checkAndDownload(DepencyItem... items) throws ParserConfigurationException, IOException, SAXException, InterruptedException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         Vector<Task> tasks = new Vector<>();
-        for (DepencyItem item : DepenciesXMLHandler.load()){
+        Vector<DepencyItem> items1 = new Vector<>(List.of(items));
+        items1.addAll(DepenciesXMLHandler.load());
+        for (DepencyItem item : items1){
             String local = item.getLocal();
             if (!new File(local).exists()) {
                 new File(GetPath.get(local)).mkdirs();

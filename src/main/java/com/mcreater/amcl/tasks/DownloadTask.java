@@ -68,14 +68,7 @@ public class DownloadTask extends AbstractTask{
     public void d() throws IOException {
         conn = getConnection();
         if (conn.getResponseCode() == 404){
-            server = FasterUrls.rev(server);
-            conn = getConnection();
-            if (!(conn.getResponseCode() == 404)) {
-                download();
-            }
-            else{
-//                throw new Error();
-            }
+//            throw new Error();
         }
         else {
             download();
