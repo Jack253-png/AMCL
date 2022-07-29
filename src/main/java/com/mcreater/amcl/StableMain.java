@@ -3,13 +3,19 @@ package com.mcreater.amcl;
 import com.mcreater.amcl.lang.PreLanguageManager;
 import com.mcreater.amcl.patcher.depenciesLoader;
 import com.mcreater.amcl.util.LocateHelper;
+import com.mcreater.amcl.util.Vars;
 import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
 import com.mcreater.amcl.util.xml.DepencyItem;
+import com.mcreater.amclAPI.Plugin;
+import com.mcreater.amclAPI.Version;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,18 +27,19 @@ import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 
 public class StableMain {
+    static Logger logger = LogManager.getLogger(StableMain.class);
     public static PreLanguageManager manager;
+    static Vector<String> intros;
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException {
         initPreLanguageManager();
         Object ucp = getUCP();
         Method method = getMethod(ucp);
         File plugins = getPluginDir();
-        Vector<String> intros = new Vector<>();
+        intros = new Vector<>();
         Vector<DepencyItem> addonItems = new Vector<>();
         handlePluginJar(plugins, method, ucp, intros, addonItems);
         downloadDepenciesJars(addonItems);
         injectDepencies(method, ucp);
-        initPlugins(intros);
         Main.main(args);
     }
     public static File getPluginDir(){
@@ -88,7 +95,21 @@ public class StableMain {
     }
     public static void initPlugins(Vector<String> mainClasses) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         for (String main : mainClasses){
-            Class.forName(main).getDeclaredMethod("main", String[].class).invoke(null, new Object[]{new String[]{}});
+            Class<?> clazz = Class.forName(main);
+            Version version = clazz.getAnnotation(Version.class);
+            Plugin name = clazz.getAnnotation(Plugin.class);
+            if (version != null){
+                String v = clazz.getAnnotation(Version.class).version();
+                if (Objects.equals(v, "ALL-VERSION") || Objects.equals(v, Vars.launcher_version)){
+                    clazz.getDeclaredMethod("main", String[].class).invoke(null, new Object[]{new String[]{}});
+                    logger.info(String.format("inited plugin \"%s\" version %s", name.name(), name.version()));
+                }
+                else{
+                    if (name != null) {
+                        logger.warn(String.format("plugin \"%s\" needed launcher version %s, but now it's %s", name.name(), version.version(), Vars.launcher_version));
+                    }
+                }
+            }
         }
     }
 }

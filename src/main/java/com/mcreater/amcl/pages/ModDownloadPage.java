@@ -37,14 +37,14 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ModDownloadPage extends AbstractAnimationPage {
     public Vector<CurseModModel> reqMods;
     VBox v;
-    Vector<ModFile> uis = new Vector<>();
+    public Vector<ModFile> uis = new Vector<>();
     ChangeListener<Boolean> changeListener = (observable, oldValue, newValue) -> {};
     boolean coreSelected = false;
     ModFile last;
     Thread loadThread;
     GridPane p;
-    JFXCheckBox installRequires;
-    JFXButton install;
+    public JFXCheckBox installRequires;
+    public JFXButton install;
     CurseModModel content;
     public ModDownloadPage(double width, double height) {
         super(width, height);

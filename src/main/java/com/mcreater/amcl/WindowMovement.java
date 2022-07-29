@@ -9,7 +9,7 @@ public class WindowMovement {
     double x_stage;
     double y_stage;
 
-    public void windowMove(Scene var1, Stage var2) {
+    void windowMove(Scene var1, Stage var2) {
         var1.setOnMouseDragged(var2x -> {
             var2.setX(this.x_stage + var2x.getScreenX() - this.x1);
             var2.setY(this.y_stage + var2x.getScreenY() - this.y1);

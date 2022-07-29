@@ -1,8 +1,6 @@
 package com.mcreater.amcl.tasks;
 
-import com.mcreater.amcl.game.getPath;
-import com.mcreater.amcl.taskmanager.TaskManager;
-import com.mcreater.amcl.util.FasterUrls;
+import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.GetPath;
 import com.mcreater.amcl.util.HashHelper;
 
@@ -10,7 +8,6 @@ import javax.net.ssl.*;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Objects;
 

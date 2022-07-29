@@ -6,7 +6,7 @@ import com.mcreater.amcl.model.JarModel;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.original.AssetsModel;
-import com.mcreater.amcl.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.*;
 import com.mcreater.amcl.util.FasterUrls;
 import com.mcreater.amcl.util.FileStringReader;

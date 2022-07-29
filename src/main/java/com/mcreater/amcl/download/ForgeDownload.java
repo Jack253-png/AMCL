@@ -6,7 +6,7 @@ import com.mcreater.amcl.game.getPath;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.forge.*;
-import com.mcreater.amcl.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.*;
 import com.mcreater.amcl.util.*;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;

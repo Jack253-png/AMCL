@@ -28,10 +28,10 @@ import java.util.Vector;
 
 public class AddModsPage extends AbstractAnimationPage {
     GridPane pane;
-    JFXTextField in;
-    JFXButton submit;
-    JFXListView<CurseMod> modlist;
-    JFXProgressBar bar;
+    public JFXTextField in;
+    public JFXButton submit;
+    public JFXListView<CurseMod> modlist;
+    public JFXProgressBar bar;
     Thread searchThread = new Thread(() -> {});
     public AddModsPage(double width, double height) {
         super(width, height);

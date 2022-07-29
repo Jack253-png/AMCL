@@ -36,7 +36,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
     SettingPage last;
     public SettingPage p1;
     Parent setted;
-    Vector<TitledPane> panes = new Vector<>();
+    public Vector<TitledPane> panes = new Vector<>();
     JFXProgressBar bar;
     public DownloadMcPage(int width, int height){
         super(width, height);

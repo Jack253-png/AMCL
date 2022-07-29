@@ -35,7 +35,7 @@ public class BGMManager {
         return AudioClip.load(p);
     }
     public static void start(){
-        start(new Random().nextInt(10000000));
+        start(new Random().nextInt(2147483647));
     }
     public static void start(long seed){
         if (musics.size() > 0) {

@@ -15,7 +15,7 @@ import com.mcreater.amcl.pages.dialogs.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.taskmanager.*;
 import com.mcreater.amcl.tasks.AbstractTask;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
@@ -43,13 +43,13 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
     static OriginalVersionModel model;
     static Label id;
     GridPane box;
-    BooleanListItem<Label> forge;
-    BooleanListItem<Label> optifine;
-    BooleanListItem<Label> fabric;
-    BooleanListItem<CurseFileLabel> optifabric;
-    BooleanListItem<CurseFileLabel> fabricapi;
+    public BooleanListItem<Label> forge;
+    public BooleanListItem<Label> optifine;
+    public BooleanListItem<Label> fabric;
+    public BooleanListItem<CurseFileLabel> optifabric;
+    public BooleanListItem<CurseFileLabel> fabricapi;
     StringItem versionfinalName;
-    JFXButton install;
+    public JFXButton install;
     public DownloadAddonSelectPage(double width, double height) {
         super(width, height);
         l = Launcher.DOWNLOADMCPAGE;

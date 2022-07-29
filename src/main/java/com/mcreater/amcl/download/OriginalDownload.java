@@ -2,7 +2,7 @@ package com.mcreater.amcl.download;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mcreater.amcl.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.*;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
 
 public class OriginalDownload {
     static GsonBuilder gb;

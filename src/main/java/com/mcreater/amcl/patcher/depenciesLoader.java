@@ -2,7 +2,7 @@ package com.mcreater.amcl.patcher;
 
 import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
-import com.mcreater.amcl.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.GetPath;

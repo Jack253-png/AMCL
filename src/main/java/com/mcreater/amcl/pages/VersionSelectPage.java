@@ -31,22 +31,21 @@ import java.util.Vector;
 import static com.mcreater.amcl.util.Images.*;
 
 public class VersionSelectPage extends AbstractAnimationPage {
-    VBox dot_minecraft_dir;
-    Label title;
-    JFXComboBox<Label> dirs;
-    JFXButton add_dir;
-    JFXListView<HBox> version_list;
-    HBox buttons;
-    VBox versionlist;
-    Vector<String> r;
-    String selected_version_name;
-    Label select_version;
-    String last;
+    public VBox dot_minecraft_dir;
+    public Label title;
+    public JFXComboBox<Label> dirs;
+    public JFXButton add_dir;
+    public JFXListView<HBox> version_list;
+    public HBox buttons;
+    public VBox versionlist;
+    public Vector<String> r;
+    public String selected_version_name;
+    public Label select_version;
+    public String last;
     boolean checked;
-    Vector<String> result;
-    Logger logger = LogManager.getLogger(VersionSelectPage.class);
-    String last_dir;
-
+    public Vector<String> result;
+    public Logger logger = LogManager.getLogger(VersionSelectPage.class);
+    public String last_dir;
     public VersionSelectPage(double width,double height){
         super(width, height);
         l = Launcher.MAINPAGE;

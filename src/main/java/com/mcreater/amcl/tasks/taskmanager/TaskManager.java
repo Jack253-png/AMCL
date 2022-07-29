@@ -1,9 +1,8 @@
-package com.mcreater.amcl.taskmanager;
+package com.mcreater.amcl.tasks.taskmanager;
 
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.patcher.depencyLoadingFrame;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
-import com.mcreater.amcl.tasks.AbstractTask;
 import com.mcreater.amcl.tasks.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
