@@ -120,7 +120,6 @@ public class Launcher extends javafx.application.Application {
             stage.initStyle(StageStyle.TRANSPARENT);
             WindowMovement windowMovement = new WindowMovement();
             windowMovement.windowMove(s, stage);
-            stage.show();
             new Thread(() -> {
                 try {
                     if (GithubReleases.isDevelop()) {
@@ -138,6 +137,7 @@ public class Launcher extends javafx.application.Application {
                 }
             }).start();
             StableMain.initPlugins(StableMain.intros, args);
+            stage.show();
         }
         else{
             Alert alert = new Alert(Alert.AlertType.ERROR);
