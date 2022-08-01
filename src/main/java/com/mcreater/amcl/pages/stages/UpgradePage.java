@@ -8,7 +8,7 @@ import com.mcreater.amcl.controls.UpdateItem;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
-import com.mcreater.amcl.util.SetSize;
+import com.mcreater.amcl.util.FXUtils;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
@@ -37,7 +37,7 @@ public class UpgradePage extends AbstractStage {
             TitledPane pane = new TitledPane(String.format("%s %s", model.tag_name, Launcher.languageManager.get(String.format("ui.mainpage.versionChecker.isCurrent.%s", model.iscurrent))), b);
             pane.setAnimated(true);
             pane.getStylesheets().add(String.format(ThemeManager.getPath(), String.format("TitledPane%s", model.prerelease)));
-            SetSize.setWidth(pane, 800);
+            FXUtils.ControlSize.setWidth(pane, 800);
             pane.setExpanded(false);
             pane.setDisable(model.outdated);
             c.getChildren().add(pane);

@@ -2,12 +2,13 @@ package com.mcreater.amcl;
 
 import com.mcreater.amcl.lang.PreLanguageManager;
 import com.mcreater.amcl.patcher.depenciesLoader;
-import com.mcreater.amcl.util.LocateHelper;
-import com.mcreater.amcl.util.Vars;
+import com.mcreater.amcl.util.operatingSystem.LocateHelper;
+import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
 import com.mcreater.amcl.util.xml.DepencyItem;
 import com.mcreater.amclAPI.Plugin;
 import com.mcreater.amclAPI.Version;
+import javafx.util.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -21,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.jar.Attributes;
@@ -30,6 +32,7 @@ public class StableMain {
     static Logger logger = LogManager.getLogger(StableMain.class);
     public static PreLanguageManager manager;
     static Vector<String> intros;
+    public static Vector<Pair<Plugin, Version>> plugins = new Vector<>();
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException {
         initPreLanguageManager();
         Object ucp = getUCP();
@@ -88,28 +91,55 @@ public class StableMain {
         depenciesLoader.checkAndDownload(addonItems.toArray(new DepencyItem[0]));
         depenciesLoader.frame.setVisible(false);
     }
-    public static void injectDepencies(Method method, Object ucp) throws ParserConfigurationException, IOException, SAXException, InvocationTargetException, IllegalAccessException {
+    public static void injectDepencies(Method method, Object ucp) throws ParserConfigurationException, IOException, SAXException, InvocationTargetException, IllegalAccessException, ClassNotFoundException {
         for (DepencyItem item : DepenciesXMLHandler.load()){
             method.invoke(ucp, new File(item.getLocal()).toURI().toURL());
         }
+        for (String main : intros){
+            Class<?> clazz = Class.forName(main);
+            Version version = clazz.getAnnotation(Version.class);
+            Plugin name = clazz.getAnnotation(Plugin.class);
+            plugins.add(new Pair<>(name, version));
+        }
     }
-    public static void initPlugins(Vector<String> mainClasses) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public static boolean checkVersionComptiable(String versions){
+        if (versions.equals("ALL-VERSION") || versions.equals(VersionInfo.launcher_version)){
+            return true;
+        }
+        List<String> vers = List.of(versions.split(";"));
+        return vers.contains(VersionInfo.launcher_version);
+    }
+    public static void initPlugins(Vector<String> mainClasses, String[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException {
         for (String main : mainClasses){
             Class<?> clazz = Class.forName(main);
             Version version = clazz.getAnnotation(Version.class);
             Plugin name = clazz.getAnnotation(Plugin.class);
-            if (version != null){
-                String v = clazz.getAnnotation(Version.class).version();
-                if (Objects.equals(v, "ALL-VERSION") || Objects.equals(v, Vars.launcher_version)){
-                    clazz.getDeclaredMethod("main", String[].class).invoke(null, new Object[]{new String[]{}});
-                    logger.info(String.format("inited plugin \"%s\" version %s", name.name(), name.version()));
-                }
-                else{
-                    if (name != null) {
-                        logger.warn(String.format("plugin \"%s\" needed launcher version %s, but now it's %s", name.name(), version.version(), Vars.launcher_version));
+            if (version != null && name != null){
+                if (checkVersionComptiable(version.version())){
+                    try {
+                        clazz.getDeclaredMethod("main", String[].class).invoke(null, new Object[]{args});
+                        logger.info(String.format("inited plugin \"%s\" version %s", name.name(), name.version()));
+                    }
+                    catch (InvocationTargetException e){
+                        logger.error(String.format("error to init plugin \"%s\" version %s", name.name(), name.version()), e);
+                        setFailed(name);
                     }
                 }
+                else{
+                    logger.warn(String.format("plugin \"%s\" needed launcher version %s, but now it's %s", name.name(), version.version(), VersionInfo.launcher_version));
+                    setFailed(name);
+                }
+            }
+            else{
+                logger.warn(String.format("plugin with mainClass %s with wrong format", main));
             }
         }
+    }
+    private static void setFailed(Plugin name){
+        plugins.forEach(e -> {
+            if (e.getKey() == name){
+                name.loadSuccessed.set(false);
+            }
+        });
     }
 }

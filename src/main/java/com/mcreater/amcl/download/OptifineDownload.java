@@ -9,9 +9,9 @@ import com.mcreater.amcl.api.reflect.ReflectedJar;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.model.optifine.optifineAPIModel;
 import com.mcreater.amcl.model.optifine.optifineJarModel;
-import com.mcreater.amcl.util.ChangeDir;
-import com.mcreater.amcl.util.FileStringReader;
-import com.mcreater.amcl.util.LinkPath;
+import com.mcreater.amcl.util.fileUtils.ChangeDir;
+import com.mcreater.amcl.util.fileUtils.FileStringReader;
+import com.mcreater.amcl.util.fileUtils.LinkPath;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 
 import java.io.BufferedWriter;

@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util;
+package com.mcreater.amcl.util.fileUtils;
 
 import java.io.*;
 import java.nio.charset.Charset;

@@ -14,16 +14,14 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
-import com.mcreater.amcl.util.SetSize;
+import com.mcreater.amcl.util.FXUtils;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Vector;
 
 public class AddModsPage extends AbstractAnimationPage {
@@ -37,7 +35,7 @@ public class AddModsPage extends AbstractAnimationPage {
         super(width, height);
         l = Launcher.VERSIONINFOPAGE;
         pane = new GridPane();
-        SetSize.set(pane, this.width, this.height);
+        FXUtils.ControlSize.set(pane, this.width, this.height);
         in = new JFXTextField();
         submit = new JFXButton();
         bar = new JFXProgressBar(0);
@@ -46,9 +44,9 @@ public class AddModsPage extends AbstractAnimationPage {
         BorderStroke borderStroke = new BorderStroke(null,null, Color.BLACK,null, null,null, BorderStrokeStyle.SOLID,null,null, BorderWidths.DEFAULT,new Insets(5));
         in.setBorder(new Border(borderStroke));
         submit.setButtonType(JFXButton.ButtonType.RAISED);
-        SetSize.set(in, this.width / 8 * 7, 45);
-        SetSize.set(submit, this.width / 8, 45);
-        SetSize.setWidth(bar, this.width);
+        FXUtils.ControlSize.set(in, this.width / 8 * 7, 45);
+        FXUtils.ControlSize.set(submit, this.width / 8, 45);
+        FXUtils.ControlSize.setWidth(bar, this.width);
         modlist = new JFXListView<>();
         modlist.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -59,7 +57,7 @@ public class AddModsPage extends AbstractAnimationPage {
                 }
             }
         });
-        SetSize.setHeight(modlist, this.height - 45 - 45 - 2);
+        FXUtils.ControlSize.setHeight(modlist, this.height - 45 - 45 - 2);
 
         submit.setOnAction(event -> search());
         pane.setAlignment(Pos.TOP_CENTER);

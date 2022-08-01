@@ -1,11 +1,11 @@
 package com.mcreater.amcl.game;
 
-import com.mcreater.amcl.util.LinkPath;
+import com.mcreater.amcl.util.fileUtils.LinkPath;
 
 import java.util.List;
 import java.util.Vector;
 
-public class getPath {
+public class MavenPathConverter {
     public static String get(String p){
         Vector<String> result = new Vector<>(List.of(p.split(":")));
         result.set(0,result.get(0).replace(".","\\"));

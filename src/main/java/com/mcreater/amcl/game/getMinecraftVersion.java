@@ -1,6 +1,6 @@
 package com.mcreater.amcl.game;
 
-import com.mcreater.amcl.util.LinkPath;
+import com.mcreater.amcl.util.fileUtils.LinkPath;
 
 import java.io.File;
 import java.util.Objects;

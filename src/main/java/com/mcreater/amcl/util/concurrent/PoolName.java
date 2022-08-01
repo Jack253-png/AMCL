@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util;
+package com.mcreater.amcl.util.concurrent;
 
 import com.mcreater.amcl.tasks.Task;
 

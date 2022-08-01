@@ -8,10 +8,10 @@ import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.original.AssetsModel;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.*;
-import com.mcreater.amcl.util.FasterUrls;
-import com.mcreater.amcl.util.FileStringReader;
-import com.mcreater.amcl.util.HashHelper;
-import com.mcreater.amcl.util.LinkPath;
+import com.mcreater.amcl.util.net.FasterUrls;
+import com.mcreater.amcl.util.fileUtils.FileStringReader;
+import com.mcreater.amcl.util.fileUtils.HashHelper;
+import com.mcreater.amcl.util.fileUtils.LinkPath;
 
 import java.io.File;
 import java.io.FileNotFoundException;

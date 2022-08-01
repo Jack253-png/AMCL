@@ -10,12 +10,11 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
-import com.mcreater.amcl.util.LinkPath;
-import com.mcreater.amcl.util.SetSize;
+import com.mcreater.amcl.util.fileUtils.LinkPath;
+import com.mcreater.amcl.util.FXUtils;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -28,7 +27,7 @@ import java.io.File;
 import java.util.Objects;
 import java.util.Vector;
 
-import static com.mcreater.amcl.util.Images.*;
+import static com.mcreater.amcl.util.svg.Images.*;
 
 public class VersionSelectPage extends AbstractAnimationPage {
     public VBox dot_minecraft_dir;
@@ -128,7 +127,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
         });
 
         dot_minecraft_dir = new VBox();
-        SetSize.set(dot_minecraft_dir, this.width / 4,this.height);
+        FXUtils.ControlSize.set(dot_minecraft_dir, this.width / 4,this.height);
         dot_minecraft_dir.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
         dot_minecraft_dir.setAlignment(Pos.TOP_CENTER);
 
@@ -143,7 +142,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
         versionlist.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
         versionlist.setAlignment(Pos.TOP_CENTER);
 
-        SetSize.set(version_list, this.width / 4 * 3,this.height - t_size);
+        FXUtils.ControlSize.set(version_list, this.width / 4 * 3,this.height - t_size);
         versionlist.getChildren().add(version_list);
 
         dot_minecraft_dir.getChildren().addAll(title,dirs,new MainPage.Spacer(),select_version,new MainPage.Spacer(),buttons);

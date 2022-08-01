@@ -2,12 +2,7 @@ package com.mcreater.amcl.pages.interfaces;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.util.SetSize;
-import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
+import com.mcreater.amcl.util.FXUtils;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
@@ -35,7 +30,7 @@ public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
         menubuttons = new Vector<>();
         menu = new VBox();
         menu.setId("config-menu");
-        SetSize.set(menu, this.width / 4,this.height - Launcher.barSize);
+        FXUtils.ControlSize.set(menu, this.width / 4,this.height - Launcher.barSize);
         totalMap = new HashMap<>();
         last = null;
     }
@@ -57,7 +52,7 @@ public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
                 mainBox = new VBox();
                 mainBox.setAlignment(Pos.TOP_CENTER);
                 mainBox.getChildren().addAll(p);
-                SetSize.set(mainBox, this.width / 4 * 3, this.height - Launcher.barSize);
+                FXUtils.ControlSize.set(mainBox, this.width / 4 * 3, this.height - Launcher.barSize);
                 this.add(menu, 0, 0, 1, 1);
                 this.add(mainBox, 1, 0, 1, 1);
                 last.in.play();

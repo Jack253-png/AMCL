@@ -11,7 +11,7 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
-import com.mcreater.amcl.util.SetSize;
+import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.multiThread.Run;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -19,7 +19,6 @@ import javafx.concurrent.Service;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -46,7 +45,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
         double t_size = Launcher.barSize;
 
         bar = new JFXProgressBar(-1.0D);
-        SetSize.setWidth(bar, this.width / 4 * 3);
+        FXUtils.ControlSize.setWidth(bar, this.width / 4 * 3);
 
         mainBox = new VBox();
         mainBox.getChildren().add(bar);
@@ -70,15 +69,15 @@ public class DownloadMcPage extends AbstractAnimationPage {
         load.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 20, 20));
         setting.setButtonType(JFXButton.ButtonType.RAISED);
         load.setButtonType(JFXButton.ButtonType.RAISED);
-        SetSize.setWidth(setting, this.width / 4 / 4 * 3);
-        SetSize.setWidth(load, this.width / 4 / 4);
+        FXUtils.ControlSize.setWidth(setting, this.width / 4 / 4 * 3);
+        FXUtils.ControlSize.setWidth(load, this.width / 4 / 4);
 
         HBox box = new HBox(setting, load);
 
         menu = new VBox();
         menu.setId("config-menu");
         menu.getChildren().addAll(box);
-        SetSize.set(menu, this.width / 4,this.height - t_size);
+        FXUtils.ControlSize.set(menu, this.width / 4,this.height - t_size);
         loadVersions();
         setP1(p1);
         setType(setting);
@@ -103,7 +102,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 panes.add(pane);
                 pane.setText(Launcher.languageManager.get("ui.downloadmcpage.types." + t));
                 pane.setFont(Fonts.s_f);
-                SetSize.setWidth(pane, DownloadMcPage.width / 4 * 3);
+                FXUtils.ControlSize.setWidth(pane, DownloadMcPage.width / 4 * 3);
                 JFXListView<VanilaVersionContent> listv = new JFXListView<>();
                 listv.getStylesheets().add(String.format(ThemeManager.getPath(), "JFXListView"));
                 vs.forEach(model -> {
@@ -113,7 +112,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                         Platform.runLater(() -> bar.setProgress(((double) loaded.get()) * 100 / vs.size()));
                     }
                 });
-                SetSize.setWidth(listv, DownloadMcPage.width / 4 * 3);
+                FXUtils.ControlSize.setWidth(listv, DownloadMcPage.width / 4 * 3);
                 Platform.runLater(() -> pane.setContent(listv));
                 pane.setExpanded(false);
                 pane.expandedProperty().addListener((observable, oldValue, newValue) -> {
@@ -164,7 +163,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
             mainBox = new VBox();
             mainBox.setAlignment(Pos.TOP_CENTER);
             mainBox.getChildren().addAll(p);
-            SetSize.set(mainBox, this.width / 4 * 3, this.height - Launcher.barSize);
+            FXUtils.ControlSize.set(mainBox, this.width / 4 * 3, this.height - Launcher.barSize);
             this.add(menu, 0, 0, 1, 1);
             this.add(mainBox, 1, 0, 1, 1);
         }

@@ -5,7 +5,7 @@ import com.mcreater.amcl.api.curseApi.mod.CurseModAuthorModel;
 import com.mcreater.amcl.api.curseApi.mod.CurseModCategorieModel;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.util.BrowserHelper;
+import com.mcreater.amcl.util.operatingSystem.BrowserHelper;
 import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;

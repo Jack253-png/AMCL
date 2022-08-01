@@ -12,8 +12,8 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
-import com.mcreater.amcl.util.JavaInfoGetter;
-import com.mcreater.amcl.util.SetSize;
+import com.mcreater.amcl.util.java.JavaInfoGetter;
+import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.Sleeper;
 import com.mcreater.amcl.util.system.CpuReader;
 import com.mcreater.amcl.util.system.JavaHeapMemoryReader;
@@ -179,14 +179,14 @@ public class ConfigPage extends AbstractMenuBarPage {
         item7.cont.setOrientation(Orientation.HORIZONTAL);
         item7.cont.valueProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.showingUpdateSpped = newValue.intValue());
 
-        SetSize.setHeight(item, 30);
-        SetSize.setHeight(item2, 30);
-        SetSize.setHeight(item2, 30);
-        SetSize.setHeight(item3, 30);
-        SetSize.setHeight(item4, 30);
-        SetSize.setHeight(item5, 30);
-        SetSize.setHeight(item6, 30);
-        SetSize.setHeight(item7, 30);
+        FXUtils.ControlSize.setHeight(item, 30);
+        FXUtils.ControlSize.setHeight(item2, 30);
+        FXUtils.ControlSize.setHeight(item2, 30);
+        FXUtils.ControlSize.setHeight(item3, 30);
+        FXUtils.ControlSize.setHeight(item4, 30);
+        FXUtils.ControlSize.setHeight(item5, 30);
+        FXUtils.ControlSize.setHeight(item6, 30);
+        FXUtils.ControlSize.setHeight(item7, 30);
 
         configs_box = new VBox();
         configs_box.setSpacing(10);
@@ -250,14 +250,14 @@ public class ConfigPage extends AbstractMenuBarPage {
         startListen.setFont(Fonts.t_f);
         startListen.setOnAction(start);
 
-        SetSize.setWidth(memory, this.width / 4 * 3);
-        SetSize.setWidth(cpu, this.width / 4 * 3);
-        SetSize.setWidth(jvm, this.width / 4 * 3);
+        FXUtils.ControlSize.setWidth(memory, this.width / 4 * 3);
+        FXUtils.ControlSize.setWidth(cpu, this.width / 4 * 3);
+        FXUtils.ControlSize.setWidth(jvm, this.width / 4 * 3);
 
-        SetSize.set(view, this.width / 4 * 2.95, 400);
+        FXUtils.ControlSize.set(view, this.width / 4 * 2.95, 400);
         VBox v = new VBox(startListen, memory, cpu, jvm);
         v.setAlignment(Pos.CENTER_LEFT);
-        SetSize.setWidth(v, this.width / 4 * 3);
+        FXUtils.ControlSize.setWidth(v, this.width / 4 * 3);
 
         p1 = new SettingPage(this.width / 4 * 3, this.height - t_size, configs_box);
         p2 = new SettingPage(this.width / 4 * 3, this.height - t_size, v, false);
@@ -268,8 +268,8 @@ public class ConfigPage extends AbstractMenuBarPage {
         system = new JFXButton();
         system.setFont(Fonts.s_f);
         system.setOnAction(event -> super.setP1(1));
-        SetSize.setWidth(setting, this.width / 4);
-        SetSize.setWidth(system, this.width / 4);
+        FXUtils.ControlSize.setWidth(setting, this.width / 4);
+        FXUtils.ControlSize.setWidth(system, this.width / 4);
         super.addNewPair(new Pair<>(setting, p1));
         super.addNewPair(new Pair<>(system, p2));
         super.setP1(0);

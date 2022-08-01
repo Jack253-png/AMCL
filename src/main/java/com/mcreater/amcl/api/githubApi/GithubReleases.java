@@ -3,7 +3,7 @@ package com.mcreater.amcl.api.githubApi;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.api.githubApi.models.ReleaseModel;
-import com.mcreater.amcl.util.Vars;
+import com.mcreater.amcl.util.VersionInfo;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -51,7 +51,7 @@ public class GithubReleases {
             for (Object o : res){
                 releases.add(g.fromJson(g.toJson(o), ReleaseModel.class));
             }
-            int h = getVersionsBehind(releases, Vars.launcher_version);
+            int h = getVersionsBehind(releases, VersionInfo.launcher_version);
             for (ReleaseModel model : releases){
                 int i = -1;
                 for (int index = 0;index < releases.size();index++){
@@ -69,7 +69,7 @@ public class GithubReleases {
         }
     }
     public static int getVersionsBehind(){
-        return getVersionsBehind(GithubReleases.getReleases(), Vars.launcher_version);
+        return getVersionsBehind(GithubReleases.getReleases(), VersionInfo.launcher_version);
     }
     public static int getVersionsBehind(Vector<ReleaseModel> result, String node_name){
         int i = -1;

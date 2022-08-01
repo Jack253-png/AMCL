@@ -1,6 +1,6 @@
 package com.mcreater.amcl.tasks;
 
-import com.mcreater.amcl.util.FasterUrls;
+import com.mcreater.amcl.util.net.FasterUrls;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

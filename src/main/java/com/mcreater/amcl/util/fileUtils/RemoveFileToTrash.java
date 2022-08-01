@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util;
+package com.mcreater.amcl.util.fileUtils;
 
 import com.sun.jna.platform.FileUtils;
 

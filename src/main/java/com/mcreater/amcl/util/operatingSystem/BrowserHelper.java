@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util;
+package com.mcreater.amcl.util.operatingSystem;
 
 import java.awt.*;
 import java.io.IOException;

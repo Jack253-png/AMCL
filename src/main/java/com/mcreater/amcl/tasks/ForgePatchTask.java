@@ -2,9 +2,9 @@ package com.mcreater.amcl.tasks;
 
 import com.mcreater.amcl.download.ForgeDownload;
 import com.mcreater.amcl.game.launch.Launch;
-import com.mcreater.amcl.util.GetJarMainClass;
-import com.mcreater.amcl.util.GetPath;
-import com.mcreater.amcl.util.LinkPath;
+import com.mcreater.amcl.util.StringUtils;
+import com.mcreater.amcl.util.fileUtils.LinkPath;
+import com.mcreater.amcl.util.java.GetJarMainClass;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,11 +19,11 @@ public class ForgePatchTask extends AbstractTask{
     public ForgePatchTask(String lib_base, String jar, Vector<String> classpath, String args, String[] args_array) throws IOException {
         super("");
         Vector<String> jars = new Vector<>();
-        String mainjar = LinkPath.link(lib_base, GetPath.forgeGet(jar));
+        String mainjar = LinkPath.link(lib_base, StringUtils.GetFileBaseDir.forgeGet(jar));
         String mainClass = GetJarMainClass.get(mainjar);
         jars.add(mainjar);
         for (String s : classpath){
-            jars.add(LinkPath.link(lib_base, GetPath.forgeGet(s)));
+            jars.add(LinkPath.link(lib_base, StringUtils.GetFileBaseDir.forgeGet(s)));
         }
         this.classpath.addAll(jars);
         StringBuilder b = new StringBuilder("-cp \"");

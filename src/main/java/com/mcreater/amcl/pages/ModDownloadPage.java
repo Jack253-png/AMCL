@@ -14,14 +14,13 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
-import com.mcreater.amcl.util.LinkPath;
-import com.mcreater.amcl.util.SetSize;
+import com.mcreater.amcl.util.fileUtils.LinkPath;
+import com.mcreater.amcl.util.FXUtils;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -52,7 +51,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
         l = Launcher.ADDMODSPAGE;
         p = new GridPane();
         v = new VBox();
-        SetSize.set(p, width, height);
+        FXUtils.ControlSize.set(p, width, height);
         p.add(new SettingPage(800, 480 - 45 - 70, v), 0, 0, 1, 1);
         installRequires = new JFXCheckBox();
         installRequires.selectedProperty().set(true);
@@ -125,7 +124,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
         box.setAlignment(Pos.CENTER_LEFT);
         HBox t = new HBox(new Label("    "), box);
         t.setId("modinstall");
-        SetSize.set(t, this.width, 70);
+        FXUtils.ControlSize.set(t, this.width, 70);
         p.add(t, 0, 1, 1, 1);
         this.add(p, 0, 0, 1, 1);
     }
@@ -155,7 +154,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     pane.setText(s1);
                     pane.setExpanded(false);
                     pane.setFont(Fonts.t_f);
-                    SetSize.setWidth(pane, 800);
+                    FXUtils.ControlSize.setWidth(pane, 800);
                     VBox b = new VBox();
                     for (CurseModFileModel u : files) {
                         getTimeTick(u.fileDate);
@@ -187,9 +186,9 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         };
                         file.checkBox.selectedProperty().addListener(this.changeListener);
                     }
-                    SetSize.setWidth(pane, this.width - 15);
-                    SetSize.setWidth(b, this.width - 15);
-                    SetSize.setWidth(v, this.width - 15);
+                    FXUtils.ControlSize.setWidth(pane, this.width - 15);
+                    FXUtils.ControlSize.setWidth(b, this.width - 15);
+                    FXUtils.ControlSize.setWidth(v, this.width - 15);
                     Platform.runLater(() -> v.getChildren().add(pane));
                 }
                 ThemeManager.loadButtonAnimates(v.getChildren().toArray(new Node[0]));

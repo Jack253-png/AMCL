@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util;
+package com.mcreater.amcl.util.net;
 
 import java.net.HttpURLConnection;
 import java.net.URI;

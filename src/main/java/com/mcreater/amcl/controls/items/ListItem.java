@@ -2,7 +2,7 @@ package com.mcreater.amcl.controls.items;
 
 import com.jfoenix.controls.JFXComboBox;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.util.SetSize;
+import com.mcreater.amcl.util.FXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -20,10 +20,10 @@ public class ListItem<T> extends HBox {
         cont.setBorder(new Border(borderStroke));
         HBox left = new HBox(this.name);
         left.setAlignment(Pos.CENTER_LEFT);
-        SetSize.setWidth(left, width / 2);
+        FXUtils.ControlSize.setWidth(left, width / 2);
         HBox right = new HBox(cont);
         right.setAlignment(Pos.CENTER_RIGHT);
-        SetSize.setWidth(right, width / 2);
+        FXUtils.ControlSize.setWidth(right, width / 2);
         this.getChildren().addAll(left, right);
     }
 }

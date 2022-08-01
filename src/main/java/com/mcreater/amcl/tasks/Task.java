@@ -1,6 +1,6 @@
 package com.mcreater.amcl.tasks;
 
-import com.mcreater.amcl.util.PoolName;
+import com.mcreater.amcl.util.concurrent.PoolName;
 import java.io.IOException;
 
 public interface Task{

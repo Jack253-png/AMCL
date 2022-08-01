@@ -1,15 +1,13 @@
 package com.mcreater.amcl.pages.interfaces;
 
 import com.jfoenix.utils.JFXSmoothScroll;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.theme.ThemeManager;
-import com.mcreater.amcl.util.SetSize;
+import com.mcreater.amcl.util.FXUtils;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Skinnable;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
@@ -21,8 +19,8 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
     private final Region shadow = new Region();
     public SettingPage(double width, double height, VBox content, Object flag){
         super(content);
-        SetSize.set(this, width, height);
-        SetSize.set(content, width - 30, height - 30);
+        FXUtils.ControlSize.set(this, width, height);
+        FXUtils.ControlSize.set(content, width - 30, height - 30);
         this.width = width;
         this.height = height;
         this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
@@ -37,12 +35,12 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
     }
     public SettingPage(double width, double height, VBox content, boolean neededHeight) {
         super(content);
-        SetSize.set(this, width, height);
+        FXUtils.ControlSize.set(this, width, height);
         if (neededHeight) {
-            SetSize.set(content, width - 10, height - 10);
+            FXUtils.ControlSize.set(content, width - 10, height - 10);
         }
         else{
-            SetSize.setWidth(content, width - 10);
+            FXUtils.ControlSize.setWidth(content, width - 10);
         }
         this.width = width;
         this.height = height;

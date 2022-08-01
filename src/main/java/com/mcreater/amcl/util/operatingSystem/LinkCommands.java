@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util;
+package com.mcreater.amcl.util.operatingSystem;
 
 public class LinkCommands {
     public static String link(String... coms){

@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util;
+package com.mcreater.amcl.util.svg;
 
 import javafx.scene.image.Image;
 

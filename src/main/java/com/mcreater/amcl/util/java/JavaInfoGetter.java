@@ -1,6 +1,7 @@
-package com.mcreater.amcl.util;
+package com.mcreater.amcl.util.java;
 
 import com.mcreater.amcl.game.launch.Launch;
+import com.mcreater.amcl.util.operatingSystem.LinkCommands;
 
 import java.io.File;
 import java.io.IOException;

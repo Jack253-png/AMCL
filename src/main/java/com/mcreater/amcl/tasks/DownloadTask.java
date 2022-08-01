@@ -1,8 +1,8 @@
 package com.mcreater.amcl.tasks;
 
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
-import com.mcreater.amcl.util.GetPath;
-import com.mcreater.amcl.util.HashHelper;
+import com.mcreater.amcl.util.StringUtils;
+import com.mcreater.amcl.util.fileUtils.HashHelper;
 
 import javax.net.ssl.*;
 import java.io.*;
@@ -52,7 +52,7 @@ public class DownloadTask extends AbstractTask{
     public void download() throws IOException {
         inputStream = conn.getInputStream();
 
-        new File(GetPath.get(this.local)).mkdirs();
+        new File(StringUtils.GetFileBaseDir.get(this.local)).mkdirs();
         fos = new FileOutputStream(this.local);
         byte[] buffer = new byte[chunkSize];
         int len;

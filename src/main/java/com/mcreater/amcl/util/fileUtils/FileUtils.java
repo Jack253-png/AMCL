@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util;
+package com.mcreater.amcl.util.fileUtils;
 
 import java.io.IOException;
 import java.nio.file.*;

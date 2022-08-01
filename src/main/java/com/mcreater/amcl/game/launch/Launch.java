@@ -7,7 +7,7 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.exceptions.*;
-import com.mcreater.amcl.game.getPath;
+import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
@@ -16,6 +16,9 @@ import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.util.*;
+import com.mcreater.amcl.util.fileUtils.*;
+import com.mcreater.amcl.util.net.FasterUrls;
+import com.mcreater.amcl.util.operatingSystem.LinkCommands;
 import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -94,12 +97,12 @@ public class Launch {
                         libs.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
                     }
                 }
-                if (new File(LinkPath.link(libf.getPath(), getPath.get(l.name))).exists()) {
-                    if (!libs.contains(LinkPath.link(libf.getPath(), getPath.get(l.name)))) {
+                if (new File(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name))).exists()) {
+                    if (!libs.contains(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)))) {
                         if (l.name.contains("org.apache.logging.log4j:log4j-api:2.8.1") || l.name.contains("org.apache.logging.log4j:log4j-core:2.8.1")){
                             if (versionTypeGetter.get(dir, version_name).contains("forge")) {
-                                String local = LinkPath.link(libf.getPath(), getPath.get(l.name)).replace("2.8.1", "2.15.0");
-                                new File(GetPath.get(local)).mkdirs();
+                                String local = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)).replace("2.8.1", "2.15.0");
+                                new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
                                 String server = FasterUrls.fast(l.downloads.artifact.get("url"), false).replace("2.8.1", "2.15.0");
                                 if (!Objects.equals(l.downloads.artifact.get("sha1"), HashHelper.getFileSHA1(new File(local)))) {
                                     new DownloadTask(server, local, 1024).setHash(l.downloads.artifact.get("sha1")).execute();
@@ -107,11 +110,11 @@ public class Launch {
                                 libs.add(local);
                             }
                             else{
-                                libs.add(LinkPath.link(libf.getPath(), getPath.get(l.name)));
+                                libs.add(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)));
                             }
                         }
                         else {
-                            libs.add(LinkPath.link(libf.getPath(), getPath.get(l.name)));
+                            libs.add(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)));
                         }
                     }
                 }
@@ -200,7 +203,7 @@ public class Launch {
         }
         arguments = arguments.replace("${auth_player_name}","123");
         arguments = arguments.replace("${user_type}","mojang");
-        arguments = arguments.replace("${version_type}", String.format("\"%s %s\"", Vars.launcher_name, Vars.launcher_version));
+        arguments = arguments.replace("${version_type}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
         arguments = arguments.replace("${resolution_width}","854");
         arguments = arguments.replace("${resolution_height}","480");
         File gamedir;
@@ -216,13 +219,13 @@ public class Launch {
         arguments = arguments.replace("${auth_access_token}","8".repeat(18));
         arguments = arguments.replace("${auth_session}","8".repeat(18));
         arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
-        arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", Vars.launcher_name, Vars.launcher_version));
+        arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
 
         jvm = "-Dfile.encoding=GB18030 -Dminecraft.client.jar=${jar_path} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16m -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -XX:-DontCompileHugeMethods -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false -Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false -Dlog4j2.formatMsgNoLookups=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Djava.library.path=${native_path} -Dminecraft.launcher.brand=${launcher_brand} -Dminecraft.launcher.version=${launcher_version}";
         jvm = jvm.replace("${jar_path}", String.format("\"%s\"", jar_file.getPath()));
         jvm = jvm.replace("${native_path}",String.format("\"%s\"", nativef.getPath()));
-        jvm = jvm.replace("${launcher_brand}",Vars.launcher_name);
-        jvm = jvm.replace("${launcher_version}",Vars.launcher_version);
+        jvm = jvm.replace("${launcher_brand}", VersionInfo.launcher_name);
+        jvm = jvm.replace("${launcher_version}", VersionInfo.launcher_version);
 
         if (r.arguments != null){
             if (r.arguments.jvm != null){
@@ -252,7 +255,7 @@ public class Launch {
                     StringBuilder forge_libs = new StringBuilder();
                     for (LibModel l : r.libraries) {
                         if ((l.name.contains("cpw.mods") || l.name.contains("org.ow2")) && !l.name.contains("modlauncher")) {
-                            forge_libs.append(LinkPath.link(libf.getPath(), getPath.get(l.name).replace("\\", "/"))).append(";");
+                            forge_libs.append(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name).replace("\\", "/"))).append(";");
                         }
                     }
                     forge_libs = new StringBuilder(forge_libs.substring(0, forge_libs.length() - 1));

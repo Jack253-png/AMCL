@@ -1,7 +1,6 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTreeView;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.exceptions.LaunchException;
 import com.mcreater.amcl.game.getMinecraftVersion;
@@ -11,47 +10,43 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.util.ChangeDir;
-import com.mcreater.amcl.util.SetSize;
-import com.mcreater.amcl.util.Vars;
-import com.mcreater.amcl.util.system.UsbDeviceReader;
+import com.mcreater.amcl.util.fileUtils.ChangeDir;
+import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.VersionInfo;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import oshi.hardware.UsbDevice;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.Vector;
 
 public class MainPage extends AbstractAnimationPage {
-    public Label title;
-    public Label launch;
-    public JFXButton choose_version;
-    public JFXButton version_settings;
-    public VBox GameMenu;
-    public HBox LaunchTitle;
-    public HBox SetTitle;
-    public Label set;
-    public JFXButton settings;
-    public JFXButton downloadMc;
-    public Label downloadTitle;
+    public static Label title;
+    public static Label launch;
+    public static JFXButton choose_version;
+    public static JFXButton version_settings;
+    public static VBox GameMenu;
+    public static HBox LaunchTitle;
+    public static HBox SetTitle;
+    public static Label set;
+    public static JFXButton settings;
+    public static JFXButton downloadMc;
+    public static Label downloadTitle;
     public static JFXButton launchButton;
-    public VBox launchBox;
+    public static VBox launchBox;
     public static boolean minecraft_running = false;
     public static String log = "";
     public static Long exit_code = null;
     public boolean is_vaild_minecraft_dir;
-    Launch g;
+    public static Launch g;
     public static Logger logger = LogManager.getLogger(MainPage.class);
     public static boolean window_showed;
     public static ProcessDialog d;
@@ -181,29 +176,29 @@ public class MainPage extends AbstractAnimationPage {
 
         GameMenu = new VBox();
         GameMenu.setId("game-menu");
-        SetSize.set(GameMenu, width / 4, height);
+        FXUtils.ControlSize.set(GameMenu, width / 4, height);
         GameMenu.setAlignment(Pos.TOP_CENTER);
 
         HBox hBox1 = new HBox();
-        SetSize.set(hBox1, width / 5, height);
+        FXUtils.ControlSize.set(hBox1, width / 5, height);
         HBox hBox2 = new HBox();
-        SetSize.set(hBox2, width / 5, height);
+        FXUtils.ControlSize.set(hBox2, width / 5, height);
 
         GameMenu.getChildren().addAll(
                 title,
                 LaunchTitle,
-                SetSize.setSplit(new SplitPane(), width / 4 - 20),
+                FXUtils.ControlSize.setSplit(new SplitPane(), width / 4 - 20),
                 new Spacer(),
                 choose_version,
                 new Spacer(),
                 SetTitle,
-                SetSize.setSplit(new SplitPane(), width / 4 - 20),
+                FXUtils.ControlSize.setSplit(new SplitPane(), width / 4 - 20),
                 new Spacer(),
                 version_settings,
                 settings,
                 new Spacer(),
                 downloadTitle,
-                SetSize.setSplit(new SplitPane(), width / 4 - 20),
+                FXUtils.ControlSize.setSplit(new SplitPane(), width / 4 - 20),
                 new Spacer(),
                 downloadMc
         );
@@ -294,7 +289,7 @@ public class MainPage extends AbstractAnimationPage {
 
     public void refreshLanguage(){
         name = Launcher.languageManager.get("ui.mainpage.name");
-        title.setText(String.format(Launcher.languageManager.get("ui.title"), Vars.launcher_name, Vars.launcher_version));
+        title.setText(String.format(Launcher.languageManager.get("ui.title"), VersionInfo.launcher_name, VersionInfo.launcher_version));
         launch.setText(Launcher.languageManager.get("ui.mainpage.launchTitle.launch.name"));
         set.setText(Launcher.languageManager.get("ui.mainpage.settings.name"));
         choose_version.setText(Launcher.languageManager.get("ui.mainpage.choose_version.name"));

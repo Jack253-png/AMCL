@@ -3,7 +3,7 @@ package com.mcreater.amcl.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mcreater.amcl.lang.LanguageManager;
-import com.mcreater.amcl.util.LocateHelper;
+import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -11,9 +11,9 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
-import com.mcreater.amcl.util.ChangeDir;
-import com.mcreater.amcl.util.SetSize;
-import com.mcreater.amcl.util.Vars;
+import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.VersionInfo;
+import com.mcreater.amcl.util.fileUtils.ChangeDir;
 import com.mcreater.amcl.util.multiThread.Run;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.SVGIcons;
@@ -39,6 +39,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+
+import static com.mcreater.amcl.Main.args;
 
 public class Launcher extends javafx.application.Application {
     static Logger logger = LogManager.getLogger(Launcher.class);
@@ -72,7 +74,7 @@ public class Launcher extends javafx.application.Application {
             stage = new Stage();
             setGeometry(stage, width, height);
             bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true);
-            logger.info("Launcher Version : " + Vars.launcher_version);
+            logger.info("Launcher Version : " + VersionInfo.launcher_version);
             try {
                 ChangeDir.saveNowDir();
                 File f = new File(ChangeDir.dirs, "AMCL");
@@ -119,10 +121,6 @@ public class Launcher extends javafx.application.Application {
             WindowMovement windowMovement = new WindowMovement();
             windowMovement.windowMove(s, stage);
             stage.show();
-            stage.setOnHidden(event -> {
-                last.out.play();
-                last.out.setOnFinished(event1 -> System.exit(0));
-            });
             new Thread(() -> {
                 try {
                     if (GithubReleases.isDevelop()) {
@@ -139,7 +137,7 @@ public class Launcher extends javafx.application.Application {
                     Platform.runLater(() -> PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.checkFailed.name"), PopupMessage.MessageTypes.LABEL, null));
                 }
             }).start();
-            StableMain.initPlugins(StableMain.intros);
+            StableMain.initPlugins(StableMain.intros, args);
         }
         else{
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -186,7 +184,10 @@ public class Launcher extends javafx.application.Application {
         close.setPrefHeight(t_size / 6 * 5);
         close.setGraphic(getSVGManager().close(Bindings.createObjectBinding(() -> Paint.valueOf("#000000")), t_size / 3 * 2, t_size / 3 * 2));
         close.setButtonType(JFXButton.ButtonType.RAISED);
-        close.setOnAction(event -> stage.close());
+        close.setOnAction(event -> {
+            stage.close();
+            System.exit(0);
+        });
         min.setPrefWidth(t_size / 2.5);
         min.setPrefHeight(t_size / 2.5);
         min.setGraphic(new Rectangle(t_size / 2.5, t_size / 15, Color.BLACK));
@@ -208,7 +209,7 @@ public class Launcher extends javafx.application.Application {
             });
         }
         setTitle();
-        SetSize.setAll(t_size / 6 * 5, t_size / 6 * 5, back, min, close);
+        FXUtils.ControlSize.setAll(t_size / 6 * 5, t_size / 6 * 5, back, min, close);
         HBox b = new HBox(back, ln);
         b.setAlignment(Pos.CENTER_LEFT);
         b.setMinSize(400, t_size);
@@ -248,7 +249,7 @@ public class Launcher extends javafx.application.Application {
         logger.info("setted size (" + width+", "+height+") for stage " + s);
     }
     public static void refresh(){
-        stage.setTitle(String.format(languageManager.get("ui.title"), Vars.launcher_name, Vars.launcher_version));
+        stage.setTitle(String.format(languageManager.get("ui.title"), VersionInfo.launcher_name, VersionInfo.launcher_version));
     }
     public static void startApplication(String[] args, boolean is_true) {
         is_t = is_true;

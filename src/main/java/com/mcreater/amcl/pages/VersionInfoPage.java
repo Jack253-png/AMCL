@@ -14,9 +14,9 @@ import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
-import com.mcreater.amcl.util.LinkPath;
-import com.mcreater.amcl.util.RemoveFileToTrash;
-import com.mcreater.amcl.util.SetSize;
+import com.mcreater.amcl.util.fileUtils.LinkPath;
+import com.mcreater.amcl.util.fileUtils.RemoveFileToTrash;
+import com.mcreater.amcl.util.FXUtils;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ListChangeListener;
@@ -33,7 +33,7 @@ import java.util.Objects;
 import java.util.Vector;
 
 import static com.mcreater.amcl.pages.DownloadAddonSelectPage.isValidFileName;
-import static com.mcreater.amcl.util.Images.*;
+import static com.mcreater.amcl.util.svg.Images.*;
 
 public class VersionInfoPage extends AbstractMenuBarPage {
     public JFXButton mainInfoButton;
@@ -67,11 +67,11 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
         mainInfoButton = new JFXButton();
         mainInfoButton.setFont(Fonts.s_f);
-        SetSize.setWidth(mainInfoButton, this.width / 4);
+        FXUtils.ControlSize.setWidth(mainInfoButton, this.width / 4);
         mainInfoButton.setOnAction(event -> this.setP1(0));
         modsMenu = new JFXButton();
         modsMenu.setFont(Fonts.s_f);
-        SetSize.setWidth(modsMenu, this.width / 4);
+        FXUtils.ControlSize.setWidth(modsMenu, this.width / 4);
         modsMenu.setOnAction(event -> this.setP1(1));
 
         b = new VBox();
@@ -96,7 +96,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         info.add(liteversion, 1, 3, 1, 1);
         info.add(optiversion, 1, 4, 1, 1);
         delVer = new JFXButton();
-        SetSize.set(delVer, t_size, t_size);
+        FXUtils.ControlSize.set(delVer, t_size, t_size);
         delVer.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         delVer.setOnAction(event -> {
             RemoveFileToTrash.remove(LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", Launcher.configReader.configModel.selected_version_index)));
@@ -106,7 +106,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         item.cont.setFont(Fonts.t_f);
         changeName = new JFXButton();
         changeName.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
-        SetSize.set(changeName, t_size, t_size);
+        FXUtils.ControlSize.set(changeName, t_size, t_size);
         changeName.setOnAction(event -> {
             if (isValidFileName(item.cont.getText())) {
                 String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", item.cont.getText()));
@@ -139,20 +139,20 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         b2 = new VBox();
         mods = new GridPane();
         modList = new JFXListView<>();
-        SetSize.set(modList, this.width / 4 * 3, this.height - t_size * 2 - 10);
+        FXUtils.ControlSize.set(modList, this.width / 4 * 3, this.height - t_size * 2 - 10);
 
         addMod = new JFXButton();
-        SetSize.set(addMod, t_size, t_size);
+        FXUtils.ControlSize.set(addMod, t_size, t_size);
         addMod.setGraphic(Launcher.getSVGManager().plus(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         addMod.setOnAction(event -> Launcher.setPage(Launcher.ADDMODSPAGE, this));
 
         refresh = new JFXButton();
-        SetSize.set(refresh, t_size, t_size);
+        FXUtils.ControlSize.set(refresh, t_size, t_size);
         refresh.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         refresh.setOnAction(actionEvent -> new Thread(this::loadMods).start());
 
         delete = new JFXButton();
-        SetSize.set(delete, t_size, t_size);
+        FXUtils.ControlSize.set(delete, t_size, t_size);
         delete.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         delete.setOnAction(event -> {
             ProcessDialog dialog = new ProcessDialog(1, String.format(Launcher.languageManager.get("ui.versioninfopage.deletemod.deleteing.title"), modList.getSelectionModel().getSelectedItem().name.getText()));
@@ -169,7 +169,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         modList.getSelectionModel().getSelectedItems().addListener((ListChangeListener<RemoteMod>) c -> delete.setDisable(modList.getSelectionModel().getSelectedItem() == null));
 
         bar = new JFXProgressBar(-1.0D);
-        SetSize.setWidth(bar, this.width / 4 * 3);
+        FXUtils.ControlSize.setWidth(bar, this.width / 4 * 3);
         mods.add(addMod, 0, 0, 1, 1);
         mods.add(refresh, 1, 0, 1, 1);
         mods.add(delete, 2, 0, 1, 1);

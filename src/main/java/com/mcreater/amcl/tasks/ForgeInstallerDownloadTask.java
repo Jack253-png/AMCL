@@ -1,6 +1,6 @@
 package com.mcreater.amcl.tasks;
 
-import com.mcreater.amcl.util.FasterUrls;
+import com.mcreater.amcl.util.net.FasterUrls;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,10 +46,9 @@ public class ForgeInstallerDownloadTask extends AbstractTask{
     public Integer execute() throws IOException {
         clean();
         try {
-            // 包含中文字符时需要转码
             conn = getConnection();
             if (conn.getResponseCode() == 404){
-                server = FasterUrls.rev(server);
+                server = FasterUrls.ReturnToOriginServer(server);
                 conn = getConnection();
                 if (!(conn.getResponseCode() == 404)) {
                     download();

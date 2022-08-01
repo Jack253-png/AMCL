@@ -2,10 +2,10 @@ package com.mcreater.amcl.patcher;
 
 import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
-import com.mcreater.amcl.util.GetPath;
+import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
 import com.mcreater.amcl.util.xml.DepencyItem;
 import org.xml.sax.SAXException;
@@ -44,7 +44,7 @@ public class depenciesLoader {
         for (DepencyItem item : items1){
             String local = item.getLocal();
             if (!new File(local).exists()) {
-                new File(GetPath.get(local)).mkdirs();
+                new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
                 tasks.add(new DownloadTask(item.getURL(), local, 2048));
             }
         }
