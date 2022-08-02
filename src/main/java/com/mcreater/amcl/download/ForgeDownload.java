@@ -43,7 +43,7 @@ public class ForgeDownload {
         }
         return count;
     }
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String forge_version) throws IOException, ParserConfigurationException, SAXException, InterruptedException {
+    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String forge_version, Runnable r, Runnable r2) throws IOException, ParserConfigurationException, SAXException, InterruptedException {
         tasks.clear();
         ForgeDownload.chunkSize = chunkSize;
         Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", faster)));
@@ -65,6 +65,7 @@ public class ForgeDownload {
         }
         String temp_path = "forgeTemp";
         OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
+        r.run();
         String versionPath = LinkPath.link(temp_path, "version.json");
         versiondir = String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name);
         VersionJsonModel model225 = new Gson().fromJson(FileStringReader.read(versiondir), VersionJsonModel.class);
@@ -151,6 +152,8 @@ public class ForgeDownload {
             mapplings.put("{SIDE}", "client");
             mapplings.put("{MINECRAFT_JAR}", String.format("%s/versions/%s/%s.jar", minecraft_dir.replace("\\", "/"), version_name, version_name));
             mapplings.put("{BINPATCH}", "forgeTemp/data/client.lzma");
+            r2.run();
+            Vector<Task> tasks2 = new Vector<>();
             for (ForgeProcessorModel model2 : model1.processors){
                 if (model2.sides == null || model2.sides.contains("client")) {
                     StringBuilder argstr = new StringBuilder();
@@ -169,9 +172,11 @@ public class ForgeDownload {
                             args.add(a);
                         }
                     }
-                    new ForgePatchTask(lib_base, model2.jar, model2.classpath, argstr.toString(), args.toArray(new String[0])).execute();
+                    tasks2.add(new ForgePatchTask(lib_base, model2.jar, model2.classpath, argstr.toString(), args.toArray(new String[0])));
                 }
             }
+            TaskManager.addTasks(tasks2);
+            TaskManager.execute1Thread("<forge build>");
         }
         else{
             String rr = LinkPath.link(temp_path, "install_profile.json");

@@ -66,6 +66,9 @@ public class StableMain {
     }
     public static void handlePluginJar(File plugins, Method method, Object ucp, final Vector<String> intros, final Vector<DepencyItem> addonItems) throws IOException, ParserConfigurationException, SAXException, InvocationTargetException, IllegalAccessException {
         for (File f : plugins.listFiles()){
+            if (!f.getPath().endsWith(".jar")){
+                continue;
+            }
             method.invoke(ucp, f.toURI().toURL());
             try (JarFile jarFile1 = new JarFile(f)) {
                 Attributes attrs = jarFile1.getManifest().getMainAttributes();

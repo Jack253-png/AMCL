@@ -20,6 +20,7 @@ import com.mcreater.amcl.tasks.AbstractTask;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.tasks.Task;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.fileUtils.LinkPath;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
@@ -141,7 +142,10 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             Label fabricItem = this.fabric.cont.getSelectionModel().getSelectedItem();
             CurseFileLabel optifabricItem = this.optifabric.cont.getSelectionModel().getSelectedItem();
             CurseFileLabel fabricapiItem = this.fabricapi.cont.getSelectionModel().getSelectedItem();
-            ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.install.title"));
+            ProcessDialog dialog = new ProcessDialog(3, Launcher.languageManager.get("ui.install.title"));
+            dialog.setV(0, 0);
+            dialog.setV(1, 0);
+            dialog.setV(2, 0);
             CountDownLatch latch = new CountDownLatch(1);
             String rl = versionfinalName.cont.getText();
             String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", rl));
@@ -172,11 +176,13 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 Launcher.configReader.configModel.downloadChunkSize
                                 );
                     } catch (IOException | InterruptedException e) {
+                        dialog.setAll(100);
                         Platform.runLater(dialog::close);
                         throw new RuntimeException(e);
                     }
                     latch.countDown();
                     Platform.runLater(() -> install.setDisable(false));
+                    dialog.setAll(100);
                     Platform.runLater(dialog::close);
                 }).start();
             }
@@ -192,9 +198,12 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                     Launcher.configReader.configModel.selected_minecraft_dir_index,
                                     rl,
                                     Launcher.configReader.configModel.downloadChunkSize,
-                                    forgeItem.getText()
+                                    forgeItem.getText(),
+                                    () -> TaskManager.bind(dialog, 1),
+                                    () -> TaskManager.bind(dialog, 2)
                             );
                         } catch (IOException | InterruptedException | ParserConfigurationException | SAXException e) {
+                            dialog.setAll(100);
                             Platform.runLater(dialog::close);
                             throw new RuntimeException(e);
                         }
@@ -215,15 +224,18 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 try {
                                     new OptiFineInstallerDownloadTask(opti, LinkPath.link(finalModDir, opti)).execute();
                                 } catch (IOException e) {
+                                    dialog.setAll(100);
                                     Platform.runLater(dialog::close);
                                     throw new RuntimeException(e);
                                 }
                                 Platform.runLater(() -> install.setDisable(false));
+                                dialog.setAll(100);
                                 Platform.runLater(dialog::close);
                             }).run();
                         }
                         else {
                             Platform.runLater(() -> install.setDisable(false));
+                            dialog.setAll(100);
                             Platform.runLater(dialog::close);
                         }
                     }).start();
@@ -239,9 +251,11 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                     Launcher.configReader.configModel.selected_minecraft_dir_index,
                                     rl,
                                     Launcher.configReader.configModel.downloadChunkSize,
-                                    fabricItem.getText()
+                                    fabricItem.getText(),
+                                    () -> TaskManager.bind(dialog, 1)
                             );
                         } catch (IOException | InterruptedException e) {
+                            dialog.setAll(100);
                             Platform.runLater(dialog::close);
                             throw new RuntimeException(e);
                         }
@@ -277,18 +291,21 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 try {
                                     tasks.add(new DownloadTask(m1.downloadUrl, LinkPath.link(finalModDir1, m1.fileName)));
                                 } catch (FileNotFoundException e) {
+                                    dialog.setAll(100);
                                     Platform.runLater(dialog::close);
                                     throw new RuntimeException(e);
                                 }
                             }
                         }).run();
                         TaskManager.addTasks(tasks);
+                        TaskManager.bind(dialog, 2);
                         try {
                             TaskManager.execute("<fabric addons>");
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
                         Platform.runLater(() -> install.setDisable(false));
+                        dialog.setAll(100);
                         Platform.runLater(dialog::close);
                         for (Task t : tasks){
                             System.out.println(((AbstractTask) t).server);
@@ -310,11 +327,13 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         } catch (IOException | InterruptedException | NoSuchMethodException | IllegalAccessException |
                                  InstantiationException | InvocationTargetException | ClassNotFoundException |
                                  NoSuchFieldException e) {
+                            dialog.setAll(100);
                             Platform.runLater(dialog::close);
                             throw new RuntimeException(e);
                         }
                         latch.countDown();
                         Platform.runLater(() -> install.setDisable(false));
+                        dialog.setAll(100);
                         Platform.runLater(dialog::close);
                     }).start();
                 }

@@ -45,6 +45,9 @@ public class ProcessDialog extends JFXAlert<String> {
         this.setOnHiding(event -> {});
         this.setContent(layout);
     }
+    public void setAll(int progress){
+        Platform.runLater(() -> progresses.forEach(bar -> bar.setProgress((double) progress / 100)));
+    }
     public void setV(int index, int progress){
         Platform.runLater(() -> this.progresses.get(index).setProgress((double) progress / 100));
     }

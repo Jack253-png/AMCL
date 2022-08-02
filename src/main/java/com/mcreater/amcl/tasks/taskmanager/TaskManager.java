@@ -34,10 +34,32 @@ public abstract class TaskManager {
     public static void bindSwing(depencyLoadingFrame frame){
         TaskManager.frame = frame;
     }
+    public synchronized static void execute1Thread(String reason) throws IOException {
+        int executed = 0;
+        logger.info(String.format("executing tasks in reason %s", reason));
+        for (Task t : tasks){
+            Integer exit = t.execute();
+            if (exit != null){
+                if (exit != 0){
+                    throw new IOException();
+                }
+            }
+            executed += 1;
+            logger.info(String.format("executed %d of %d", executed, tasks.size()));
+            logger.info("downloaded bytes speed : " + ((double) downloadedBytes) / 1024 / 1024 + "MB/s");
+            if (dialog != null) {
+                if (tasks.size() != 0) {
+                    dialog.setV(index, (int) ((double) executed) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._03"), executed, tasks.size()));
+                }
+            }
+        }
+        tasks.clear();
+    }
     public synchronized static void execute(String reason) throws InterruptedException {
         int size = tasks.size();
         CountDownLatch latch = new CountDownLatch(size);
-        logger.info(String.format("executing tasks in reason %s", reason));new Thread("Manager Counting Thread"){
+        logger.info(String.format("executing tasks in reason %s", reason));
+        new Thread("Manager Counting Thread"){
             public void run(){
                 long downloaded;
                 do {
@@ -46,7 +68,7 @@ public abstract class TaskManager {
                     logger.info("downloaded bytes speed : " + ((double) downloadedBytes) / 1024 / 1024 + "MB/s");
                     if (dialog != null) {
                         if (tasks.size() != 0) {
-                            dialog.setV(index, (int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._02"), tasks.size() - downloaded, tasks.size()));
+                            dialog.setV(index, (int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._02"), reason, tasks.size() - downloaded, tasks.size()));
                         }
                     }
                     if (frame != null){

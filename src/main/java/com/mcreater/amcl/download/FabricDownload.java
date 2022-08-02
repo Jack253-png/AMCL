@@ -28,7 +28,7 @@ public class FabricDownload {
     static int chunkSize;
     static Vector<Task> tasks = new Vector<>();
     static Logger logger = LogManager.getLogger(FabricDownload.class);
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String fabric_version) throws IOException, InterruptedException {
+    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String fabric_version, Runnable ru) throws IOException, InterruptedException {
         tasks.clear();
         FabricDownload.chunkSize = chunkSize;
         String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", faster);
@@ -47,6 +47,7 @@ public class FabricDownload {
             throw new IOException();
         }
         OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
+        ru.run();
         String fab = FasterUrls.fast(String.format("https://meta.fabricmc.net/v2/versions/loader/%s/%s", id, ver), faster);
         String r = HttpConnectionUtil.doGet(fab);
         try {
