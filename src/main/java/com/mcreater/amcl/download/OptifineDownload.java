@@ -9,9 +9,8 @@ import com.mcreater.amcl.api.reflect.ReflectedJar;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.model.optifine.optifineAPIModel;
 import com.mcreater.amcl.model.optifine.optifineJarModel;
-import com.mcreater.amcl.util.fileUtils.ChangeDir;
-import com.mcreater.amcl.util.fileUtils.FileStringReader;
-import com.mcreater.amcl.util.fileUtils.LinkPath;
+import com.mcreater.amcl.util.FileUtils;
+import static com.mcreater.amcl.util.FileUtils.*;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 
 import java.io.BufferedWriter;
@@ -45,7 +44,7 @@ public class OptifineDownload {
         OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
         JSONObject ob = new JSONObject(new Gson().fromJson(OriginalDownload.getVJ(), Map.class));
         new OptiFineInstallerDownloadTask(opti, "opti.jar").execute();
-        ChangeDir.saveNowDir();
+        FileUtils.ChangeDir.saveNowDir();
         ReflectedJar jar = ReflectHelper.getReflectedJar("opti.jar");
         int installer = jar.createNewInstance(jar.getJarClass("optifine.Installer"));
 

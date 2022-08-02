@@ -14,7 +14,7 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.java.JavaInfoGetter;
 import com.mcreater.amcl.util.FXUtils;
-import com.mcreater.amcl.util.Sleeper;
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.system.CpuReader;
 import com.mcreater.amcl.util.system.JavaHeapMemoryReader;
 import com.mcreater.amcl.util.system.MemoryReader;

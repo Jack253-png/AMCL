@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util;
+package com.mcreater;
 
 import java.io.IOException;
 import java.util.Calendar;

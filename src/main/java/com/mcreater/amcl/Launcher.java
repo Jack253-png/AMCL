@@ -12,11 +12,11 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.VersionInfo;
-import com.mcreater.amcl.util.fileUtils.ChangeDir;
-import com.mcreater.amcl.util.multiThread.Run;
+import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
-import com.mcreater.amcl.util.svg.SVGIcons;
+import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
@@ -76,8 +76,8 @@ public class Launcher extends javafx.application.Application {
             bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true);
             logger.info("Launcher Version : " + VersionInfo.launcher_version);
             try {
-                ChangeDir.saveNowDir();
-                File f = new File(ChangeDir.dirs, "AMCL");
+                FileUtils.ChangeDir.saveNowDir();
+                File f = new File(FileUtils.ChangeDir.dirs, "AMCL");
                 boolean b = true;
                 if (!f.exists()){
                     b = f.mkdirs();
@@ -85,7 +85,7 @@ public class Launcher extends javafx.application.Application {
                 if (!b){
                     throw new IllegalStateException("Failed to read config");
                 }
-                configReader = new ConfigWriter(new File(ChangeDir.dirs, "AMCL/config.json"));
+                configReader = new ConfigWriter(new File(FileUtils.ChangeDir.dirs, "AMCL/config.json"));
                 configReader.check_and_write();
             } catch (Exception e) {
                 logger.error("failed to read config", e);
@@ -155,7 +155,7 @@ public class Launcher extends javafx.application.Application {
                 last = n;
                 setPageCore();
                 last.in.play();
-                Run.run(last::refresh).start();
+                FXConcurrentPool.run(last::refresh).start();
                 last.refreshLanguage();
                 last.refreshType();
 
@@ -166,7 +166,7 @@ public class Launcher extends javafx.application.Application {
         }
     }
     public static AbstractSVGIcons getSVGManager(){
-        return new SVGIcons();
+        return new DefaultSVGIcons();
     }
 
     private static void setPageCore(){

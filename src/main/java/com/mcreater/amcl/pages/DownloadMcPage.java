@@ -12,7 +12,7 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
-import com.mcreater.amcl.util.multiThread.Run;
+import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.concurrent.Service;
@@ -134,7 +134,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
             }
             load.setDisable(false);
         };
-        Service<String> service = Run.run(r);
+        Service<String> service = FXConcurrentPool.run(r);
         service.start();
     }
     public void setType(Parent b){

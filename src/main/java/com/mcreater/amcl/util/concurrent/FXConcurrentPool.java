@@ -1,9 +1,9 @@
-package com.mcreater.amcl.util.multiThread;
+package com.mcreater.amcl.util.concurrent;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
-public class Run {
+public class FXConcurrentPool {
     public static Service<String> run(Runnable runnable){
         return new Service<>() {
             @Override

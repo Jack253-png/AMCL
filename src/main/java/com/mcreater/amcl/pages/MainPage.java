@@ -10,7 +10,7 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.util.fileUtils.ChangeDir;
+import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.VersionInfo;
 import javafx.application.Platform;
@@ -68,7 +68,7 @@ public class MainPage extends AbstractAnimationPage {
         launchButton.setTextFill(Color.WHITE);
         launchButton.setOnAction(event -> {
             flush();
-            ChangeDir.saveNowDir();
+            FileUtils.ChangeDir.saveNowDir();
             if (!Objects.equals(launchButton.getText(), Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
                 Launcher.configReader.check_and_write();
                 g = new Launch();

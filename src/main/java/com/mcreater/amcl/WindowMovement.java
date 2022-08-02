@@ -8,8 +8,7 @@ public class WindowMovement {
     double y1;
     double x_stage;
     double y_stage;
-
-    void windowMove(Scene var1, Stage var2) {
+    public void windowMove(Scene var1, Stage var2) {
         var1.setOnMouseDragged(var2x -> {
             var2.setX(this.x_stage + var2x.getScreenX() - this.x1);
             var2.setY(this.y_stage + var2x.getScreenY() - this.y1);

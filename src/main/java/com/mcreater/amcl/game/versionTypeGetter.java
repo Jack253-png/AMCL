@@ -4,8 +4,7 @@ import com.google.gson.Gson;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
-import com.mcreater.amcl.util.fileUtils.FileStringReader;
-import com.mcreater.amcl.util.fileUtils.LinkPath;
+import com.mcreater.amcl.util.FileUtils.*;
 
 import java.util.*;
 

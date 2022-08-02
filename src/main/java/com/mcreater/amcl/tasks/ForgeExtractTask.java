@@ -5,7 +5,7 @@ import com.mcreater.amcl.api.reflect.ReflectedJar;
 import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.nativeInterface.NoExitSecurityManager;
 import com.mcreater.amcl.util.java.GetJarMainClass;
-import com.mcreater.amcl.util.fileUtils.LinkPath;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;

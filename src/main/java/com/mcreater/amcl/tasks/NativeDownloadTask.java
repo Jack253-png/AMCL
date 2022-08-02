@@ -1,6 +1,6 @@
 package com.mcreater.amcl.tasks;
 
-import com.mcreater.amcl.util.fileUtils.ZipUtil;
+import com.mcreater.amcl.util.FileUtils.ZipUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;

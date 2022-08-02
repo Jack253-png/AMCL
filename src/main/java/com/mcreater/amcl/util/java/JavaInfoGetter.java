@@ -1,7 +1,6 @@
 package com.mcreater.amcl.util.java;
 
 import com.mcreater.amcl.game.launch.Launch;
-import com.mcreater.amcl.util.operatingSystem.LinkCommands;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +22,7 @@ public class JavaInfoGetter implements Callable<Vector<String>> {
     public static Vector<String> getCore(File f){
         try {
             String p = f.getPath();
-            Process proc = Runtime.getRuntime().exec(LinkCommands.link(p, "-version"));
+            Process proc = new ProcessBuilder(p, "-version").start();
             String resu;
             resu = Launch.ret(proc.getErrorStream());
             Vector<String> compled = fromArrayToVector(resu.split("\n"));

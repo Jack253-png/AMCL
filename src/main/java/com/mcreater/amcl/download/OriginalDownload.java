@@ -10,7 +10,7 @@ import com.mcreater.amcl.model.original.AssetsModel;
 import com.mcreater.amcl.model.original.VersionModel;
 import com.mcreater.amcl.model.original.VersionsModel;
 import com.mcreater.amcl.util.net.FasterUrls;
-import com.mcreater.amcl.util.fileUtils.LinkPath;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

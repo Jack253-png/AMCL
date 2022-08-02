@@ -38,4 +38,16 @@ public abstract class AbstractSVGIcons {
     public abstract Node wrench(ObjectBinding<? extends Paint> fill, double width, double height);
     public abstract Node downloadOutline(ObjectBinding<? extends Paint> fill, double width, double height);
     public abstract Node delete(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node gearOutline(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node cancel(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node copy(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node dotsVertical(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node dotsHorizontal(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node deleteOutline(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node accountEdit(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node expand(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node collapse(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node navigate(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node rocketLaunchOutline(ObjectBinding<? extends Paint> fill, double width, double height);
+    
 }

@@ -1,8 +1,8 @@
 package com.mcreater.amcl.tasks;
 
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.StringUtils;
-import com.mcreater.amcl.util.fileUtils.HashHelper;
 
 import javax.net.ssl.*;
 import java.io.*;
@@ -35,7 +35,7 @@ public class DownloadTask extends AbstractTask{
         return this;
     }
     public boolean checkHashReverted(){
-        return !Objects.equals(hash, HashHelper.getFileSHA1(new File(local)));
+        return !Objects.equals(hash, FileUtils.HashHelper.getFileSHA1(new File(local)));
     }
     public HttpURLConnection getConnection() throws IOException {
         URL url = new URL(this.server);

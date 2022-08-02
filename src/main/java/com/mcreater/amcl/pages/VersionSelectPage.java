@@ -10,7 +10,7 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
-import com.mcreater.amcl.util.fileUtils.LinkPath;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.application.Platform;
 import javafx.collections.ListChangeListener;

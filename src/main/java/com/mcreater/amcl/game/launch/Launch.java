@@ -16,9 +16,9 @@ import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.util.*;
-import com.mcreater.amcl.util.fileUtils.*;
+import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.FileUtils.*;
 import com.mcreater.amcl.util.net.FasterUrls;
-import com.mcreater.amcl.util.operatingSystem.LinkCommands;
 import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -68,7 +68,7 @@ public class Launch {
             throw new BadMainFilesException();
         }
         MainPage.d.setV(0, 75, Launcher.languageManager.get("ui.launch._03"));
-        String json_result = FileStringReader.read(json_file.getPath());
+        String json_result = FileUtils.FileStringReader.read(json_file.getPath());
         Gson g = new Gson();
         VersionJsonModel r = g.fromJson(json_result, VersionJsonModel.class);
 
@@ -104,7 +104,7 @@ public class Launch {
                                 String local = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)).replace("2.8.1", "2.15.0");
                                 new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
                                 String server = FasterUrls.fast(l.downloads.artifact.get("url"), false).replace("2.8.1", "2.15.0");
-                                if (!Objects.equals(l.downloads.artifact.get("sha1"), HashHelper.getFileSHA1(new File(local)))) {
+                                if (!Objects.equals(l.downloads.artifact.get("sha1"), FileUtils.HashHelper.getFileSHA1(new File(local)))) {
                                     new DownloadTask(server, local, 1024).setHash(l.downloads.artifact.get("sha1")).execute();
                                 }
                                 libs.add(local);
@@ -274,7 +274,7 @@ public class Launch {
         }
 
         try {
-            String command = LinkCommands.link(java, jvm, String.valueOf(classpath), mem, forgevm,mainClass.replace(" ",""), arguments);
+            String command = StringUtils.LinkCommands.link(java, jvm, String.valueOf(classpath), mem, forgevm,mainClass.replace(" ",""), arguments);
             MainPage.d.setV(0, 90, Launcher.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
             logger.info(String.format("Getted Command Line : %s", command));
@@ -305,7 +305,7 @@ public class Launch {
                         MainPage.exit_code = (long) ev;
                         Platform.runLater(MainPage::check);
                         MainPage.launchButton.setDisable(false);
-                        ChangeDir.changeToDefault();
+                        FileUtils.ChangeDir.changeToDefault();
                         break;
                     }
                     catch (IllegalThreadStateException e){

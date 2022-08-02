@@ -9,10 +9,8 @@ import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.model.mod.FabricModInfoModel;
 import com.mcreater.amcl.model.mod.ForgeModInfoModel;
 import com.mcreater.amcl.model.mod.SimpleModInfoModel;
-import com.mcreater.amcl.util.fileUtils.FileStringReader;
-import com.mcreater.amcl.util.fileUtils.FileUtils;
-import com.mcreater.amcl.util.fileUtils.LinkPath;
-import com.mcreater.amcl.util.fileUtils.ZipUtil;
+import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.FileUtils.*;
 
 import java.io.File;
 import java.io.IOException;

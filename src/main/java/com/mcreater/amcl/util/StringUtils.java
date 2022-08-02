@@ -52,4 +52,13 @@ public class StringUtils {
             }
         }
     }
+    public static class LinkCommands {
+        public static String link(String... coms){
+            StringBuilder res = new StringBuilder();
+            for (String s : coms){
+                res.append(s).append(" ");
+            }
+            return String.valueOf(res);
+        }
+    }
 }

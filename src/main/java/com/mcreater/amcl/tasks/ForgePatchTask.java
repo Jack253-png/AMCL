@@ -3,7 +3,7 @@ package com.mcreater.amcl.tasks;
 import com.mcreater.amcl.download.ForgeDownload;
 import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.util.StringUtils;
-import com.mcreater.amcl.util.fileUtils.LinkPath;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.java.GetJarMainClass;
 
 import java.io.File;

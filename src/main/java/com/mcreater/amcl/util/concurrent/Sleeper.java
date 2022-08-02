@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util;
+package com.mcreater.amcl.util.concurrent;
 
 public class Sleeper {
     public static void sleep(long millis){
