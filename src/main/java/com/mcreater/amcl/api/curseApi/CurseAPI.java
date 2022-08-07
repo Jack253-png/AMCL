@@ -7,6 +7,7 @@ import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModRequireModel;
 import com.mcreater.amcl.controls.ModFile;
+import com.mcreater.amcl.download.GetVersionList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -193,6 +194,44 @@ public class CurseAPI {
         Map<? , ?> m = g.fromJson(s, Map.class);
         LinkedTreeMap<?, ?> a = (LinkedTreeMap<?, ?>) m.get("data");
         return g.fromJson(g.toJson(a), CurseModModel.class);
+    }
+    public static Vector<CurseModFileModel> getModFiles(CurseModModel mod, String version){
+        Vector<CurseModFileModel> files = new Vector<>();
+        boolean cd = false;
+        for (Map<String, String> m : mod.latestFilesIndexes){
+            if (Objects.equals(m.get("gameVersion"), version)){
+                cd = true;
+                break;
+            }
+        }
+        if (cd){
+            String url = String.format("/v1/mods/%s/files?gameVersion=%s", mod.id, version);
+            Map<?, ?> m;
+            Gson g = new Gson();
+            try {
+                m = g.fromJson(response(url), Map.class);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            if (m != null) {
+                ArrayList<?> a = (ArrayList<?>) m.get("data");
+                for (Object o : a) {
+                    CurseModFileModel model = g.fromJson(g.toJson(o), CurseModFileModel.class);
+                    files.add(model);
+                }
+            }
+            Vector<CurseModFileModel> forRemoval = new Vector<>();
+            files.forEach(e -> {
+                if (!e.gameVersions.contains(GetVersionList.getSnapShotName(version))){
+                    forRemoval.add(e);
+                }
+            });
+            files.removeAll(forRemoval);
+            return files;
+        }
+        else {
+            return new Vector<>();
+        }
     }
     public static Vector<CurseModFileModel> getModFiles(CurseModModel mod) throws IOException{
         Vector<String> versions_list = new Vector<>();

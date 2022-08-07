@@ -84,10 +84,11 @@ public class DownloadMcPage extends AbstractAnimationPage {
     }
     public void loadVersions(){
         Runnable r = () -> {
+            mainBox.setDisable(true);
             Platform.runLater(mainBox.getChildren()::clear);
             Platform.runLater(() -> mainBox.getChildren().add(bar));
             mainBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.75)");
-            Vector<OriginalVersionModel> vs = GetVersionList.getOriginalList(Launcher.configReader.configModel.fastDownload);
+            Vector<OriginalVersionModel> vs = GetVersionList.getOriginalList();
             Vector<String> types = new Vector<>();
             for (OriginalVersionModel m : vs){
                 if (!types.contains(m.type)){
@@ -131,6 +132,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 });
                 Platform.runLater(() -> mainBox.getChildren().add(pane));
                 Platform.runLater(() -> ThemeManager.loadButtonAnimates(pane));
+                mainBox.setDisable(false);
             }
             load.setDisable(false);
         };
@@ -171,6 +173,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
     public void refresh(){
         p1.set(this.opacityProperty());
         setType(setted);
+        loadVersions();
     }
     public void refreshLanguage(){
         name = Launcher.languageManager.get("ui.downloadmcpage.name");

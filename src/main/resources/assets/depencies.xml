@@ -68,9 +68,6 @@
             <name>com.gluonhq.attach:util:4.0.9</name>
         </depency>
         <depency>
-            <name>com.google.code.gson:gson:2.9.0</name>
-        </depency>
-        <depency>
             <name>com.jfoenix:jfoenix:9.0.9</name>
         </depency>
         <depency>
@@ -173,7 +170,7 @@
             <name>org.openjfx:javafx-media:win:11.0.2</name>
         </depency>
         <depency>
-            <name>org.openjfx:javafx-web:win:11.0.2</name>
+            <name>org.openjfx:javafx-web:win:14.0.1</name>
         </depency>
         <depency>
             <name>com.github.oshi:oshi-core:3.5.0</name>

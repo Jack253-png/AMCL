@@ -103,7 +103,7 @@ public class Launch {
                             if (versionTypeGetter.get(dir, version_name).contains("forge")) {
                                 String local = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)).replace("2.8.1", "2.15.0");
                                 new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
-                                String server = FasterUrls.fast(l.downloads.artifact.get("url"), false).replace("2.8.1", "2.15.0");
+                                String server = FasterUrls.fast(l.downloads.artifact.get("url"), Launcher.server).replace("2.8.1", "2.15.0");
                                 if (!Objects.equals(l.downloads.artifact.get("sha1"), FileUtils.HashHelper.getFileSHA1(new File(local)))) {
                                     new DownloadTask(server, local, 1024).setHash(l.downloads.artifact.get("sha1")).execute();
                                 }
@@ -201,7 +201,7 @@ public class Launch {
                 arguments = arguments.replace("${assets_index_name}", r.assetIndex.get("id"));
             }
         }
-        arguments = arguments.replace("${auth_player_name}","123");
+        arguments = arguments.replace("${auth_player_name}","Starcloudsea");
         arguments = arguments.replace("${user_type}","mojang");
         arguments = arguments.replace("${version_type}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
         arguments = arguments.replace("${resolution_width}","854");
@@ -215,8 +215,8 @@ public class Launch {
         }
         arguments = arguments.replace("${game_directory}", String.format("\"%s\"", gamedir.getPath()));
         arguments = arguments.replace("${user_properties}","{}");
-        arguments = arguments.replace("${auth_uuid}","8".repeat(18));
-        arguments = arguments.replace("${auth_access_token}","8".repeat(18));
+        arguments = arguments.replace("${auth_uuid}","95883f77eef84bc6b7274f9c754a5a2c");
+        arguments = arguments.replace("${auth_access_token}","eyJhbGciOiJIUzI1NiJ9.eyJ4dWlkIjoiMjUzNTQxNTIxNTg1NDAxMiIsImFnZyI6IkFkdWx0Iiwic3ViIjoiYmVjOGYyN2ItYjBhNi00ZTIxLWJiZTItYjU3OTRkZjAyMWYxIiwibmJmIjoxNjU5NTg2NjkyLCJhdXRoIjoiWEJPWCIsInJvbGVzIjpbXSwiaXNzIjoiYXV0aGVudGljYXRpb24iLCJleHAiOjE2NTk2NzMwOTIsImlhdCI6MTY1OTU4NjY5MiwicGxhdGZvcm0iOiJVTktOT1dOIiwieXVpZCI6ImY4NGExOWE5NmM5MDk0YjNkZmNiNGZjZWRiNzgyYzVhIn0.r9BWTvRg-T9jtK7epFvCnnIc3N9fHfBkP-OYPc0z71I");
         arguments = arguments.replace("${auth_session}","8".repeat(18));
         arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
         arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));

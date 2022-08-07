@@ -2,17 +2,20 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.api.auth.MSAuth;
+import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.exceptions.LaunchException;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
-import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.pages.stages.FXBrowserPage;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.VersionInfo;
+import com.teamdev.jxbrowser.chromium.az;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
@@ -26,6 +29,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.math.BigInteger;
 import java.util.Objects;
 
 public class MainPage extends AbstractAnimationPage {
@@ -52,6 +58,22 @@ public class MainPage extends AbstractAnimationPage {
     public static ProcessDialog d;
     public static ProcessDialog l;
     public static JFXButton stop;
+    static {
+        try {
+            Field e = az.class.getDeclaredField("e");
+            e.setAccessible(true);
+            Field f = az.class.getDeclaredField("f");
+            f.setAccessible(true);
+            Field modifiers = Field.class.getDeclaredField("modifiers");
+            modifiers.setAccessible(true);
+            modifiers.setInt(e, e.getModifiers() & ~Modifier.FINAL);
+            modifiers.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+            e.set(null, new BigInteger("1"));
+            f.set(null, new BigInteger("1"));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
     public MainPage(double width,double height) {
         super(width, height);
         l = null;
@@ -183,6 +205,9 @@ public class MainPage extends AbstractAnimationPage {
         FXUtils.ControlSize.set(hBox1, width / 5, height);
         HBox hBox2 = new HBox();
         FXUtils.ControlSize.set(hBox2, width / 5, height);
+
+        JFXButton b = new JFXButton("test");
+        new FXBrowserPage(MSAuth.loginUrl).open();
 
         GameMenu.getChildren().addAll(
                 title,

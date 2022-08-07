@@ -1,7 +1,15 @@
 package com.mcreater.amcl;
 
+import com.google.gson.Gson;
 import com.mcreater.amcl.lang.PreLanguageManager;
+import com.mcreater.amcl.nativeInterface.ResourceGetter;
+import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.patcher.depenciesLoader;
+import com.mcreater.amcl.tasks.AbstractTask;
+import com.mcreater.amcl.tasks.DownloadTask;
+import com.mcreater.amcl.tasks.Task;
+import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
@@ -15,8 +23,7 @@ import org.xml.sax.SAXException;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,18 +38,16 @@ import java.util.jar.JarFile;
 public class StableMain {
     static Logger logger = LogManager.getLogger(StableMain.class);
     public static PreLanguageManager manager;
-    static Vector<String> intros;
+    static Vector<String> intros = new Vector<>();
     public static Vector<Pair<Plugin, Version>> plugins = new Vector<>();
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException {
         initPreLanguageManager();
-        Object ucp = getUCP();
-        Method method = getMethod(ucp);
         File plugins = getPluginDir();
         intros = new Vector<>();
         Vector<DepencyItem> addonItems = new Vector<>();
-        handlePluginJar(plugins, method, ucp, intros, addonItems);
+        handlePluginJar(plugins, intros, addonItems);
         downloadDepenciesJars(addonItems);
-        injectDepencies(method, ucp);
+        injectDepencies();
         Main.main(args);
     }
     public static File getPluginDir(){
@@ -64,12 +69,12 @@ public class StableMain {
         field.setAccessible(true);
         return field.get(ClassLoader.getSystemClassLoader());
     }
-    public static void handlePluginJar(File plugins, Method method, Object ucp, final Vector<String> intros, final Vector<DepencyItem> addonItems) throws IOException, ParserConfigurationException, SAXException, InvocationTargetException, IllegalAccessException {
+    public static void handlePluginJar(File plugins, final Vector<String> intros, final Vector<DepencyItem> addonItems) throws IOException, ParserConfigurationException, SAXException, InvocationTargetException, IllegalAccessException {
         for (File f : plugins.listFiles()){
             if (!f.getPath().endsWith(".jar")){
                 continue;
             }
-            method.invoke(ucp, f.toURI().toURL());
+            ClassPathInjector.addJarUrl(f.toURI().toURL());
             try (JarFile jarFile1 = new JarFile(f)) {
                 Attributes attrs = jarFile1.getManifest().getMainAttributes();
                 for (Object o : attrs.keySet()) {
@@ -91,12 +96,43 @@ public class StableMain {
         }
     }
     public static void downloadDepenciesJars(Vector<DepencyItem> addonItems) throws UnsupportedLookAndFeelException, ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException {
-        depenciesLoader.checkAndDownload(addonItems.toArray(new DepencyItem[0]));
+        addonItems.addAll(DepenciesXMLHandler.load());
+        Vector<Task> tasks = new Vector<>();
+        for (DepencyItem item : addonItems){
+            String local = item.getLocal();
+            if (!new File(local).exists()) {
+                new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
+                tasks.add(new DownloadTask(item.getURL(), local, 2048));
+            }
+        }
+        InputStream s = new ResourceGetter().get("assets/JXBrowserDepency.json");
+        BufferedReader r = new BufferedReader(new InputStreamReader(s));
+        JXBrowserModel model = new Gson().fromJson(r, JXBrowserModel.class);
+        String dir = "AMCL/depencies/JXBrowser";
+        new File(dir).mkdirs();
+        boolean t = true;
+        for (String p : model.extracted_files){
+            if (!new File(dir, p).exists()){
+                t = false;
+                break;
+            }
+        }
+        if (!t){
+            tasks.add(new JXBrowserDownloadTask(model.url, FileUtils.LinkPath.link(dir, "JXBrowser.zip"), model.extracted_files));
+        }
+        depenciesLoader.checkAndDownload(tasks.toArray(new Task[0]));
         depenciesLoader.frame.setVisible(false);
     }
-    public static void injectDepencies(Method method, Object ucp) throws ParserConfigurationException, IOException, SAXException, InvocationTargetException, IllegalAccessException, ClassNotFoundException {
+    public static void injectDepencies() throws ParserConfigurationException, IOException, SAXException, InvocationTargetException, IllegalAccessException, ClassNotFoundException {
         for (DepencyItem item : DepenciesXMLHandler.load()){
-            method.invoke(ucp, new File(item.getLocal()).toURI().toURL());
+            ClassPathInjector.addJarUrl(new File(item.getLocal()).toURI().toURL());
+        }
+        InputStream s = new ResourceGetter().get("assets/JXBrowserDepency.json");
+        BufferedReader r = new BufferedReader(new InputStreamReader(s));
+        JXBrowserModel model = new Gson().fromJson(r, JXBrowserModel.class);
+        String dir = "AMCL/depencies/JXBrowser";
+        for (String p : model.extracted_files){
+            ClassPathInjector.addJarUrl(new File(dir, p).toURI().toURL());
         }
         for (String main : intros){
             Class<?> clazz = Class.forName(main);
@@ -144,5 +180,23 @@ public class StableMain {
                 name.loadSuccessed.set(false);
             }
         });
+    }
+    public static class JXBrowserModel {
+        public String url;
+        public Vector<String> extracted_files;
+    }
+    public static class JXBrowserDownloadTask extends DownloadTask {
+        Vector<String> extractFiles;
+        public JXBrowserDownloadTask(String server, String local, Vector<String> extractFiles) throws FileNotFoundException {
+            super(server, local);
+            this.extractFiles = extractFiles;
+        }
+        public Integer execute() throws IOException {
+            super.execute();
+            String dir = "AMCL/depencies/JXBrowser";
+            new File(dir).mkdirs();
+            FileUtils.ZipUtil.unzipAll(local, dir);
+            return null;
+        }
     }
 }

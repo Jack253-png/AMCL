@@ -28,27 +28,39 @@ public class FasterUrls {
         s.forEach((k, v) -> rs.put(v, k));
     }
 
-    public static String getVersionJsonv2WithFaster(boolean t){
+    public static String getVersionJsonv2WithFaster(Servers t){
         return fast("http://launchermeta.mojang.com/mc/game/version_manifest_v2.json", t);
     }
-
-    public static String fast(String raw, boolean t) {
-        if (t) {
-            for (String sr : s.keySet()) {
-                if (raw.contains(sr)) {
-                    return raw.replace(sr, s.get(sr)).replace("https://bmclapi2.bangbang93.com/", "https://download.mcbbs.net/");
-//                    return raw.replace(sr, s.get(sr));
-                }
+    public static String fast(String raw, Servers server){
+        switch (server) {
+            default:
+            case MOJANG:
+                return raw;
+            case BMCLAPI:
+                return rawFast(raw);
+            case MCBBS:
+                return rawFast(raw).replace("https://bmclapi2.bangbang93.com/", "https://download.mcbbs.net/");
+        }
+    }
+    private static String rawFast(String raw){
+        for (String sr : s.keySet()) {
+            if (raw.contains(sr)) {
+                return raw.replace(sr, s.get(sr));
             }
         }
         return raw;
     }
     public static String ReturnToOriginServer(String raw){
         for (String sr : rs.keySet()){
-            if (raw.contains(sr)){
-                return raw.replace(sr, rs.get(sr));
+            if (raw.replace("https://download.mcbbs.net/", "https://bmclapi2.bangbang93.com/").contains(sr)){
+                return raw.replace("https://download.mcbbs.net/", "https://bmclapi2.bangbang93.com/").replace(sr, rs.get(sr));
             }
         }
         return raw;
+    }
+    public enum Servers {
+        BMCLAPI,
+        MCBBS,
+        MOJANG
     }
 }

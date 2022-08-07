@@ -4,6 +4,7 @@ import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.patcher.depencyLoadingFrame;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.tasks.Task;
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,6 +31,7 @@ public abstract class TaskManager {
     public static void bind(ProcessDialog dialog, int index){
         TaskManager.dialog = dialog;
         TaskManager.index = index;
+        dialog.setV(index, 0);
     }
     public static void bindSwing(depencyLoadingFrame frame){
         TaskManager.frame = frame;
@@ -37,6 +39,7 @@ public abstract class TaskManager {
     public synchronized static void execute1Thread(String reason) throws IOException {
         int executed = 0;
         logger.info(String.format("executing tasks in reason %s", reason));
+        dialog.setV(index, 0);
         for (Task t : tasks){
             Integer exit = t.execute();
             if (exit != null){
@@ -61,11 +64,26 @@ public abstract class TaskManager {
         logger.info(String.format("executing tasks in reason %s", reason));
         new Thread("Manager Counting Thread"){
             public void run(){
+                if (dialog != null){
+                    dialog.setV(index, 0);
+                }
                 long downloaded;
+                String cc;
                 do {
                     downloaded = latch.getCount();
-                    logger.info(String.format("executed %d of %d", tasks.size() - downloaded, tasks.size()));
-                    logger.info("downloaded bytes speed : " + ((double) downloadedBytes) / 1024 / 1024 + "MB/s");
+                    if (tasks.size() > 1) {
+                        String dd = "█";
+                        String ed = " ";
+                        int c = (int) (((double) (tasks.size() - downloaded)) * 100 / tasks.size());
+                        cc = String.format("%d / %d [%s%s]", tasks.size() - downloaded, tasks.size(), dd.repeat(c), ed.repeat(100 - c));
+                        System.out.print("\b".repeat(cc.length()) + cc);
+                    }
+                    else {
+                        cc = String.format("%d / %d", tasks.size() - downloaded, tasks.size());
+                        System.out.print("\b".repeat(cc.length()) + cc);
+                    }
+//                    logger.info(String.format("executed %d of %d", tasks.size() - downloaded, tasks.size()));
+//                    logger.info("downloaded bytes speed : " + ((double) downloadedBytes) / 1024 / 1024 + "MB/s");
                     if (dialog != null) {
                         if (tasks.size() != 0) {
                             dialog.setV(index, (int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._02"), reason, tasks.size() - downloaded, tasks.size()));
@@ -89,6 +107,7 @@ public abstract class TaskManager {
                     frame.progressBar.setString("下载完成");
                     frame.progressBar.setValue(100);
                 }
+                System.out.println();
             }
         }.start();
         for (Task t : tasks){

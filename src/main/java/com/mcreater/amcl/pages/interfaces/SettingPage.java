@@ -20,11 +20,11 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
     public SettingPage(double width, double height, VBox content, Object flag){
         super(content);
         FXUtils.ControlSize.set(this, width, height);
-        FXUtils.ControlSize.set(content, width - 30, height - 30);
+        FXUtils.ControlSize.set(content, width - 30, height - 10);
         this.width = width;
         this.height = height;
         this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
-        this.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+        this.setHbarPolicy(ScrollBarPolicy.NEVER);
         this.content = content;
         init();
         JFXSmoothScroll.smoothScrolling(this, 0.8);
@@ -37,18 +37,19 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
         super(content);
         FXUtils.ControlSize.set(this, width, height);
         if (neededHeight) {
-            FXUtils.ControlSize.set(content, width - 10, height - 10);
+            FXUtils.ControlSize.set(content, width - 30, height - 10);
         }
         else{
-            FXUtils.ControlSize.setWidth(content, width - 10);
+            FXUtils.ControlSize.setWidth(content, width - 30);
         }
         this.width = width;
         this.height = height;
         this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
-        this.setHbarPolicy(ScrollBarPolicy.AS_NEEDED);
+        this.setHbarPolicy(ScrollBarPolicy.NEVER);
         this.content = content;
         init();
         JFXSmoothScroll.smoothScrolling(this, 0.8);
+        ThemeManager.loadButtonAnimates(this.content);
     }
     private void init() {
         skinProperty().addListener(it -> getChildren().addAll(shadow));

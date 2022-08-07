@@ -65,7 +65,6 @@ public class FileUtils {
     public static void del(String p){
         Path path = Paths.get(p);
         try {
-
             Files.walkFileTree(path, new SimpleFileVisitor<>() {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     Files.delete(file);
@@ -78,7 +77,9 @@ public class FileUtils {
                 }
             });
         }
-        catch (IOException ignored){}
+        catch (IOException e){
+
+        }
     }
     public static class HashHelper {
         public static String getFileSHA1(File file) {

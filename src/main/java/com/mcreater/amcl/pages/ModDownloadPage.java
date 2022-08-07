@@ -52,7 +52,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
         p = new GridPane();
         v = new VBox();
         FXUtils.ControlSize.set(p, width, height);
-        p.add(new SettingPage(800, 480 - 45 - 70, v), 0, 0, 1, 1);
+        p.add(new SettingPage(800, 480 - 45 - 70, v, false), 0, 0, 1, 1);
         installRequires = new JFXCheckBox();
         installRequires.selectedProperty().set(true);
         installRequires.setFont(Fonts.t_f);

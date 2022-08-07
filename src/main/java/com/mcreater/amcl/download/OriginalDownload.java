@@ -2,6 +2,7 @@ package com.mcreater.amcl.download;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.*;
 import com.mcreater.amcl.model.LibModel;
@@ -34,11 +35,11 @@ public class OriginalDownload {
     public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize) throws IOException, InterruptedException {
         tasks.clear();
         OriginalDownload.chunkSize = chunkSize;
-        String url = FasterUrls.getVersionJsonv2WithFaster(faster);
+        String url = FasterUrls.getVersionJsonv2WithFaster(Launcher.server);
         gb = new GsonBuilder();
         gb.setPrettyPrinting();
         Gson g = gb.create();
-        url = FasterUrls.fast(url, faster);
+        url = FasterUrls.fast(url, Launcher.server);
         String result = HttpConnectionUtil.doGet(url);
 
         VersionsModel model = g.fromJson(result, VersionsModel.class);
@@ -54,8 +55,8 @@ public class OriginalDownload {
         String version_dir = LinkPath.link(minecraft_dir, "versions\\" + version_name);
         new File(version_dir).mkdirs();
 
-        String version_json = HttpConnectionUtil.doGet(FasterUrls.fast(version_url, faster));
-        System.out.println(FasterUrls.fast(version_url, faster));
+        String version_json = HttpConnectionUtil.doGet(FasterUrls.fast(version_url, Launcher.server));
+        System.out.println(FasterUrls.fast(version_url, Launcher.server));
         vj = version_json;
 
         BufferedWriter bw = new BufferedWriter(new FileWriter(LinkPath.link(version_dir, version_name + ".json")));
@@ -69,11 +70,11 @@ public class OriginalDownload {
 
         downloadCoreJar(ver_j, faster, minecraft_dir, version_dir, version_name);
         downloadLibs(ver_j, faster, minecraft_dir, version_dir, version_name);
-        downloadAssets(ver_j, faster, minecraft_dir);
+        downloadAssets(ver_j, minecraft_dir);
         runTasks();
     }
     private static void downloadCoreJar(VersionJsonModel model, boolean faster, String minecraft_dir, String version_dir, String version_name) throws FileNotFoundException {
-        String url = FasterUrls.fast(model.downloads.get("client").url, faster);
+        String url = FasterUrls.fast(model.downloads.get("client").url, Launcher.server);
         String path = LinkPath.link(version_dir, version_name + ".jar");
         String hash = model.downloads.get("client").sha1;
         tasks.add(new LibDownloadTask(url, path, chunkSize).setHash(hash));
@@ -86,14 +87,14 @@ public class OriginalDownload {
         Vector<String> paths = new Vector<>(List.of(path.split("\\\\")));
         new File(path.replace(paths.get(paths.size() - 1), "")).mkdirs();
     }
-    private static void downloadAssets(VersionJsonModel model, boolean faster, String minecraft_dir) throws IOException {
+    private static void downloadAssets(VersionJsonModel model, String minecraft_dir) throws IOException {
         String assets_root = LinkPath.link(minecraft_dir, "assets");
         String assets_indexes = LinkPath.link(assets_root, "indexes");
         String assets_objects = LinkPath.link(assets_root, "objects");
         new File(assets_root).mkdirs();
         new File(assets_indexes).mkdirs();
         new File(assets_objects).mkdirs();
-        String result = HttpConnectionUtil.doGet(FasterUrls.fast(model.assetIndex.get("url"), faster));
+        String result = HttpConnectionUtil.doGet(FasterUrls.fast(model.assetIndex.get("url"), Launcher.server));
         String assets_index_path = LinkPath.link(assets_indexes, model.assetIndex.get("id") + ".json");
         BufferedWriter bw = new BufferedWriter(new FileWriter(assets_index_path));
         bw.write(result);
@@ -103,7 +104,7 @@ public class OriginalDownload {
         for (Map<String, String> h : model1.objects.values()){
             String hh = h.get("hash");
             new File(String.format("%s\\%s", assets_objects, hh.substring(0, 2))).mkdirs();
-            tasks.add(new AssetsDownloadTask(hh, assets_objects, faster, chunkSize).setHash(hh));
+            tasks.add(new AssetsDownloadTask(hh, assets_objects, chunkSize).setHash(hh));
         }
     }
 
@@ -133,7 +134,7 @@ public class OriginalDownload {
                         String nurl = model1.downloads.classifiers.get("natives-windows").url;
                         String nhash = model1.downloads.classifiers.get("natives-windows").sha1;
                         createNewDir(npath);
-                        tasks.add(new NativeDownloadTask(FasterUrls.fast(nurl, faster), npath, native_base_path, chunkSize).setHash(nhash));
+                        tasks.add(new NativeDownloadTask(FasterUrls.fast(nurl, Launcher.server), npath, native_base_path, chunkSize).setHash(nhash));
                     }
                 }
             }
@@ -145,9 +146,9 @@ public class OriginalDownload {
 
                 if (b0) {
                     if (model1.name.contains("natives-windows")) {
-                        tasks.add(new NativeDownloadTask(FasterUrls.fast(url, faster), path, native_base_path, chunkSize).setHash(hash));
+                        tasks.add(new NativeDownloadTask(FasterUrls.fast(url, Launcher.server), path, native_base_path, chunkSize).setHash(hash));
                     } else {
-                        tasks.add(new LibDownloadTask(FasterUrls.fast(url, faster), path, chunkSize).setHash(hash));
+                        tasks.add(new LibDownloadTask(FasterUrls.fast(url, Launcher.server), path, chunkSize).setHash(hash));
                     }
                 }
             }

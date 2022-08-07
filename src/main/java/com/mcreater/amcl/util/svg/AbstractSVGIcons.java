@@ -49,5 +49,7 @@ public abstract class AbstractSVGIcons {
     public abstract Node collapse(ObjectBinding<? extends Paint> fill, double width, double height);
     public abstract Node navigate(ObjectBinding<? extends Paint> fill, double width, double height);
     public abstract Node rocketLaunchOutline(ObjectBinding<? extends Paint> fill, double width, double height);
-    
+    public abstract Node launchOutline(ObjectBinding<? extends Paint> fill, double width, double height);
+    public abstract Node script(ObjectBinding<? extends Paint> fill, double width, double height);
+
 }

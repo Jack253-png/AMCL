@@ -11,6 +11,7 @@ import com.mcreater.amcl.util.xml.DepencyItem;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
+import javax.swing.plaf.synth.SynthLookAndFeel;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.io.File;
@@ -37,17 +38,8 @@ public class depenciesLoader {
     public static String convertNameToUrl(String name){
         return convertName(name).replace(File.separator, "/");
     }
-    public static void checkAndDownload(DepencyItem... items) throws ParserConfigurationException, IOException, SAXException, InterruptedException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Vector<Task> tasks = new Vector<>();
-        Vector<DepencyItem> items1 = new Vector<>(List.of(items));
-        items1.addAll(DepenciesXMLHandler.load());
-        for (DepencyItem item : items1){
-            String local = item.getLocal();
-            if (!new File(local).exists()) {
-                new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
-                tasks.add(new DownloadTask(item.getURL(), local, 2048));
-            }
-        }
+    public static void checkAndDownload(Task... items) throws ParserConfigurationException, IOException, SAXException, InterruptedException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        Vector<Task> tasks = new Vector<>(List.of(items));
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         frame = new depencyLoadingFrame();
         frame.setResizable(false);

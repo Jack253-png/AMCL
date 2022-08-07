@@ -1,6 +1,7 @@
 package com.mcreater.amcl.download;
 
 import com.google.gson.Gson;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.CurseAPI;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
@@ -24,8 +25,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class GetVersionList {
-    public static Vector<OriginalVersionModel> getOriginalList(boolean faster) {
-        String url = FasterUrls.getVersionJsonv2WithFaster(faster);
+    public static Vector<OriginalVersionModel> getOriginalList() {
+        String url = FasterUrls.getVersionJsonv2WithFaster(Launcher.server);
         VersionsModel model = new Gson().fromJson(HttpConnectionUtil.doGet(url), VersionsModel.class);
         Vector<OriginalVersionModel> t = new Vector<>();
         model.versions.forEach(s -> t.add(new OriginalVersionModel(s.id, s.type, s.releaseTime, s.url)));
@@ -51,8 +52,8 @@ public class GetVersionList {
         });
         return t;
     }
-    public static Vector<String> getForgeVersionList(boolean faster, String version) throws ParserConfigurationException, IOException, SAXException {
-        Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", faster)));
+    public static Vector<String> getForgeVersionList(String version) throws ParserConfigurationException, IOException, SAXException {
+        Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", Launcher.server)));
         if (vectorMap.get(version) != null) {
             return vectorMap.get(version);
         }
@@ -60,9 +61,9 @@ public class GetVersionList {
             return new Vector<>();
         }
     }
-    public static Vector<String> getFabricVersionList(boolean faster, String version) {
-        String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/game", faster);
-        String loaderVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", faster);
+    public static Vector<String> getFabricVersionList(String version) {
+        String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/game", Launcher.server);
+        String loaderVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", Launcher.server);
         Vector<Map<String, String>> s = new Vector<>();
         s = new Gson().fromJson(HttpConnectionUtil.doGet(fabricVersions), s.getClass());
         Vector<String> versions = new Vector<>();
@@ -82,7 +83,7 @@ public class GetVersionList {
             return new Vector<>();
         }
     }
-    public static Vector<optifineJarModel> getOptifineVersionList(boolean faster, String version) {
+    public static Vector<optifineJarModel> getOptifineVersionList(String version) {
         String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
         optifineAPIModel model = new Gson().fromJson(r, optifineAPIModel.class);
         if (model.versions.contains(version)){
@@ -209,21 +210,12 @@ public class GetVersionList {
             return new Vector<>();
         }
     }
-    public static Vector<CurseModFileModel> getFabricAPIVersionList(boolean faster, String version) throws IOException {
-        CurseModModel model = CurseAPI.getFromModId(306612);
-        Vector<CurseModFileModel> files = CurseAPI.getModFiles(model);
-        Vector<CurseModFileModel> result = new Vector<>();
-        String s = getSnapShotName(version, faster);
-        files.forEach(m -> {
-            if (ModFile.getModLoaders(m.gameVersions, false).contains(s)){
-                result.add(m);
-            }
-        });
-        return result;
+    public static Vector<CurseModFileModel> getFabricAPIVersionList(String version) throws IOException {
+        return CurseAPI.getModFiles(CurseAPI.getFromModId(306612), getSnap(version));
     }
-    private static String getSnapShotName(String raw_name, boolean faster) {
+    public static String getSnapShotName(String raw_name) {
         OriginalVersionModel n = null;
-        for (OriginalVersionModel model : getOriginalList(faster)){
+        for (OriginalVersionModel model : getOriginalList()){
             if (Objects.equals(raw_name, model.id)){
                 n = model;
             }
@@ -239,17 +231,25 @@ public class GetVersionList {
         }
         return raw_name;
     }
-    public static Vector<CurseModFileModel> getOptiFabricVersionList(boolean faster, String version) throws IOException {
-        CurseModModel mod = CurseAPI.getFromModId(322385);
-        Vector<CurseModFileModel> files = CurseAPI.getModFiles(mod);
-        Vector<CurseModFileModel> result = new Vector<>();
-        String s = getSnapShotName(version, faster);
-        files.forEach(m -> {
-            if (ModFile.getModLoaders(m.gameVersions, false).contains(s)){
-                result.add(m);
-                System.out.println(m.fileName);
+    public static String getSnap(String raw_name){
+        OriginalVersionModel n = null;
+        for (OriginalVersionModel model : getOriginalList()){
+            if (Objects.equals(raw_name, model.id)){
+                n = model;
             }
-        });
-        return result;
+        }
+        if (n == null){
+            return null;
+        }
+        else{
+            if (Objects.equals(n.type, "snapshot")) {
+                VersionJsonModel model = new Gson().fromJson(HttpConnectionUtil.doGet(n.url), VersionJsonModel.class);
+                return model.assetIndex.get("id");
+            }
+        }
+        return raw_name;
+    }
+    public static Vector<CurseModFileModel> getOptiFabricVersionList(String version) throws IOException {
+        return CurseAPI.getModFiles(CurseAPI.getFromModId(322385), getSnap(version));
     }
 }

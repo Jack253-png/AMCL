@@ -15,6 +15,7 @@ import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
+import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import javafx.application.Platform;
@@ -66,6 +67,7 @@ public class Launcher extends javafx.application.Application {
     public static int height = 480;
     public static Label ln;
     public static Pane p = new Pane();
+    public static FasterUrls.Servers server = FasterUrls.Servers.MCBBS;
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
         if (is_t) {

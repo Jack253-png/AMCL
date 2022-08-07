@@ -9,12 +9,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 public class HttpConnectionUtil {
-
-    /**
-     * Http get请求
-     * @param httpUrl 连接
-     * @return 响应数据
-     */
     public static String doGet(String httpUrl){
         HttpURLConnection connection = null;
         InputStream is = null;

@@ -10,6 +10,7 @@ import com.mcreater.amcl.api.curseApi.CurseResourceType;
 import com.mcreater.amcl.api.curseApi.CurseSortType;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.controls.CurseMod;
+import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -28,7 +29,7 @@ public class AddModsPage extends AbstractAnimationPage {
     GridPane pane;
     public JFXTextField in;
     public JFXButton submit;
-    public JFXListView<CurseMod> modlist;
+    public SmoothableListView<CurseMod> modlist;
     public JFXProgressBar bar;
     Thread searchThread = new Thread(() -> {});
     public AddModsPage(double width, double height) {
@@ -47,24 +48,24 @@ public class AddModsPage extends AbstractAnimationPage {
         FXUtils.ControlSize.set(in, this.width / 8 * 7, 45);
         FXUtils.ControlSize.set(submit, this.width / 8, 45);
         FXUtils.ControlSize.setWidth(bar, this.width);
-        modlist = new JFXListView<>();
-        modlist.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
+        modlist = new SmoothableListView<>(width, height - 45 - Launcher.barSize);
+        modlist.setOnAction(() -> {
+            if (modlist.selectedItem != null) {
                 try {
-                    showDownloads(newValue.model);
+                    showDownloads(modlist.selectedItem.model);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         });
-        FXUtils.ControlSize.setHeight(modlist, this.height - 45 - 45 - 2);
+        modlist.page.setStyle("-fx-background-color: transparent");
 
         submit.setOnAction(event -> search());
         pane.setAlignment(Pos.TOP_CENTER);
         pane.add(in, 0, 0, 1, 1);
         pane.add(submit, 1, 0, 1, 1);
         pane.add(bar, 0, 2, 2, 1);
-        pane.add(modlist, 0, 3, 2, 1);
+        pane.add(modlist.page, 0, 3, 2, 1);
         pane.setStyle("-fx-background-color : rgba(255, 255, 255, 0.75)");
         this.add(pane, 0, 0, 1, 1);
     }
@@ -84,14 +85,14 @@ public class AddModsPage extends AbstractAnimationPage {
         searchThread.start();
     }
     public void searchMods() throws IOException {
-        Platform.runLater(modlist.getItems()::clear);
+        Platform.runLater(modlist::clear);
         Platform.runLater(() -> bar.setProgress(0));
         Vector<CurseModModel> mods = CurseAPI.search(in.getText(), CurseResourceType.Types.MOD, CurseSortType.Types.DESCENDING, 20);
         double loaded = 0;
         for (CurseModModel model : mods){
             loaded += 1;
             CurseMod m = new CurseMod(model);
-            Platform.runLater(() -> modlist.getItems().addAll(m));
+            Platform.runLater(() -> modlist.addItem(m, m.onMouseReleasedProperty()));
             double finalLoaded = loaded;
             Platform.runLater(() -> bar.setProgress(finalLoaded / mods.size()));
             ThemeManager.loadButtonAnimates(m);
@@ -106,7 +107,6 @@ public class AddModsPage extends AbstractAnimationPage {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            modlist.getSelectionModel().clearSelection();
         }).start();
     }
     public void refresh() {
@@ -115,7 +115,7 @@ public class AddModsPage extends AbstractAnimationPage {
     public void refreshLanguage() {
         this.name = Launcher.languageManager.get("ui.addmodspage.name");
         submit.setText(Launcher.languageManager.get("ui.addmodspage.search.name"));
-        for (CurseMod m : modlist.getItems()){
+        for (CurseMod m : modlist.vecs){
             m.refreshLang();
         }
     }

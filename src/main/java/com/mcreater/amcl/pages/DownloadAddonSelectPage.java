@@ -397,28 +397,28 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             optifabric.cont.getItems().clear();
             fabricapi.cont.getItems().clear();
         });
-        for (String forgev : GetVersionList.getForgeVersionList(Launcher.configReader.configModel.fastDownload, model.id)){
+        for (String forgev : GetVersionList.getForgeVersionList(model.id)){
             Label l = new Label(forgev);
             l.setFont(Fonts.t_f);
             Platform.runLater(() -> forge.cont.getItems().add(l));
         }
-        for (optifineJarModel optiv : GetVersionList.getOptifineVersionList(Launcher.configReader.configModel.fastDownload, model.id)){
+        for (optifineJarModel optiv : GetVersionList.getOptifineVersionList(model.id)){
             Label l = new Label(optiv.name);
             l.setFont(Fonts.t_f);
             Platform.runLater(() -> optifine.cont.getItems().add(l));
         }
-        for (String fabv : GetVersionList.getFabricVersionList(Launcher.configReader.configModel.fastDownload, model.id)){
+        for (String fabv : GetVersionList.getFabricVersionList(model.id)){
             Label l = new Label(fabv);
             l.setFont(Fonts.t_f);
             Platform.runLater(() -> fabric.cont.getItems().add(l));
         }
-        for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(Launcher.configReader.configModel.fastDownload, model.id)){
+        for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(model.id)){
             CurseFileLabel l = new CurseFileLabel(fabapav.fileName);
             l.setFont(Fonts.t_f);
             l.model = fabapav;
             Platform.runLater(() -> fabricapi.cont.getItems().add(l));
         }
-        for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(Launcher.configReader.configModel.fastDownload, model.id)){
+        for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(model.id)){
             CurseFileLabel l = new CurseFileLabel(optfabv.fileName);
             l.setFont(Fonts.t_f);
             l.model = optfabv;

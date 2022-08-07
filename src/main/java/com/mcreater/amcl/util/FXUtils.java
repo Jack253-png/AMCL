@@ -1,11 +1,17 @@
 package com.mcreater.amcl.util;
 
+import javafx.scene.Parent;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.Region;
+import javafx.scene.web.WebView;
 
 public class FXUtils {
     public static class ControlSize {
         public static void set(Region n, double width, double height){
+            n.setMinSize(width, height);
+            n.setMaxSize(width, height);
+        }
+        public static void set(WebView n, double width, double height){
             n.setMinSize(width, height);
             n.setMaxSize(width, height);
         }

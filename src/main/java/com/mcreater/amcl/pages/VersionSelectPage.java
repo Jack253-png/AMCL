@@ -4,19 +4,24 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXListView;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.controls.SmoothableListView;
+import com.mcreater.amcl.controls.VersionItem;
+import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
-import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
 import javafx.application.Platform;
-import javafx.collections.ListChangeListener;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
@@ -27,14 +32,12 @@ import java.io.File;
 import java.util.Objects;
 import java.util.Vector;
 
-import static com.mcreater.amcl.util.svg.Images.*;
-
 public class VersionSelectPage extends AbstractAnimationPage {
     public VBox dot_minecraft_dir;
     public Label title;
     public JFXComboBox<Label> dirs;
     public JFXButton add_dir;
-    public JFXListView<HBox> version_list;
+    public SmoothableListView<VersionItem> version_list;
     public HBox buttons;
     public VBox versionlist;
     public Vector<String> r;
@@ -56,11 +59,11 @@ public class VersionSelectPage extends AbstractAnimationPage {
         last = Launcher.configReader.configModel.selected_version_index;
         last_dir = Launcher.configReader.configModel.selected_minecraft_dir_index;
 
-        version_list = new JFXListView<>();
-        version_list.getSelectionModel().getSelectedItems().addListener((ListChangeListener<HBox>) c -> {
+        version_list = new SmoothableListView<>(width / 4 * 3, height);
+        version_list.setOnAction(() -> {
             try {
                 checked = true;
-                selected_version_name = ((Label) ((HBox) c.getList().get(0).getChildren().get(1)).getChildren().get(0)).getText();
+                selected_version_name = version_list.selectedItem.getVersion();
                 update_version_name();
             }
             catch (IndexOutOfBoundsException e){
@@ -92,7 +95,6 @@ public class VersionSelectPage extends AbstractAnimationPage {
             catch (Exception ignored){
             }
         }
-
         dirs.setOnAction(event -> {
             checked = true;
             selected_version_name = "";
@@ -128,7 +130,6 @@ public class VersionSelectPage extends AbstractAnimationPage {
 
         dot_minecraft_dir = new VBox();
         FXUtils.ControlSize.set(dot_minecraft_dir, this.width / 4,this.height);
-        dot_minecraft_dir.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
         dot_minecraft_dir.setAlignment(Pos.TOP_CENTER);
 
         buttons = new HBox();
@@ -137,19 +138,21 @@ public class VersionSelectPage extends AbstractAnimationPage {
         buttons.setAlignment(Pos.TOP_CENTER);
 
         versionlist = new VBox();
-        version_list.setVerticalGap(0.0);
-//        setSize.set(versionlist, this.width / 4 * 3,this.height);
-        versionlist.setStyle("-fx-background-color: rgba(255,255,255,0.75);");
         versionlist.setAlignment(Pos.TOP_CENTER);
 
-        FXUtils.ControlSize.set(version_list, this.width / 4 * 3,this.height - t_size);
-        versionlist.getChildren().add(version_list);
+        FXUtils.ControlSize.set(version_list.page, this.width / 4 * 3,this.height - t_size);
+        FXUtils.ControlSize.setWidth(version_list, this.width / 4 * 3 - 25);
+        versionlist.getChildren().add(version_list.page);
 
         dot_minecraft_dir.getChildren().addAll(title,dirs,new MainPage.Spacer(),select_version,new MainPage.Spacer(),buttons);
+        dirs.setBorder(new Border(ListItem.borderStroke));
 
         add_dir.setButtonType(JFXButton.ButtonType.RAISED);
 
-        this.add(dot_minecraft_dir, 0, 0, 1, 1);
+        SettingPage p = new SettingPage(width / 4, height, dot_minecraft_dir);
+        ThemeManager.loadButtonAnimates(title, dirs, select_version, buttons);
+
+        this.add(p, 0, 0, 1, 1);
         this.add(versionlist,1,0 ,1,1);
     }
     public Label findLabelFromName(String name){
@@ -161,7 +164,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
         return null;
     }
     public void load_minecraft_dir(){
-        version_list.getItems().clear();
+        version_list.clear();
         dirs.getItems().clear();
         for (String p : Launcher.configReader.configModel.selected_minecraft_dir) {
             Label l = new Label(p);
@@ -178,7 +181,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
                 Launcher.configReader.write();
 
                 result = getMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index);
-                Platform.runLater(version_list.getItems()::clear);
+                Platform.runLater(version_list::clear);
                 if (result != null) {
                     int dg = result.size();
                     int ld = 0;
@@ -194,38 +197,11 @@ public class VersionSelectPage extends AbstractAnimationPage {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        HBox version = new HBox();
-                        ImageView versionType = new ImageView();
-                        versionType.setFitWidth(40);
-                        versionType.setFitHeight(40);
-                        switch (f) {
-                            case "original":
-                                versionType.setImage(original);
-                                break;
-                            case "forge":
-                            case "forge-optifine":
-                                versionType.setImage(forge);
-                                break;
-                            case "fabric":
-                                versionType.setImage(fabric);
-                                break;
-                            case "liteloader":
-                                versionType.setImage(liteloader);
-                                break;
-                            case "optifine":
-                                versionType.setImage(optifine);
-                                break;
-                        }
+                        String finalF = f;
                         Platform.runLater(() -> {
-                            HBox butt = new HBox();
-                            butt.setAlignment(Pos.CENTER_LEFT);
-                            Label v = new Label(s);
-                            v.setFont(Fonts.t_f);
-                            butt.getChildren().add(v);
-                            version.setSpacing(15);
-                            version.getChildren().addAll(versionType, butt);
-                            version_list.getItems().add(version);
-                            ThemeManager.loadButtonAnimates(versionType, v);
+                            VersionItem i = new VersionItem(s, finalF);
+                            version_list.addItem(i);
+                            ThemeManager.loadButtonAnimates(i);
                         });
                         ld += 1;
                         MainPage.l.setV(0, ld * 100 / dg, String.format(Launcher.languageManager.get("ui.versionListLoad._01"), s));
