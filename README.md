@@ -1,2 +1,2 @@
 # AMCL
-A JavaFX Minecraft Third-party Launcher
+A simple minecraft launcher
