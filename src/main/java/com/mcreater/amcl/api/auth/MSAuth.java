@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,13 +24,12 @@ public class MSAuth extends AbstractAuth<MicrosoftUser>{
     private static final String mcStoreUrl = "https://api.minecraftservices.com/entitlements/mcstore";
     private static final String mcProfileUrl = "https://api.minecraftservices.com/minecraft/profile";
     public String acquireAccessToken(String authcode) {
-        Map<Object, Object> data = Map.of(
-                "client_id", "00000000402b5328",
-                "code", authcode,
-                "grant_type", "authorization_code",
-                "redirect_uri", "https://login.live.com/oauth20_desktop.srf",
-                "scope", "service::user.auth.xboxlive.com::MBI_SSL"
-        );
+        Map<Object, Object> data = new HashMap<>();
+        data.put("client_id", "00000000402b5328");
+        data.put("code", authcode);
+        data.put("grant_type", "authorization_code");
+        data.put("redirect_uri", "https://login.live.com/oauth20_desktop.srf");
+        data.put("scope", "service::user.auth.xboxlive.com::MBI_SSL");
         try {
             HttpClient client = HttpClient.getInstance(authTokenUrl, data);
             client.openConnection();

@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.VanilaVersionContent;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
@@ -23,6 +24,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -104,17 +106,18 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 pane.setText(Launcher.languageManager.get("ui.downloadmcpage.types." + t));
                 pane.setFont(Fonts.s_f);
                 FXUtils.ControlSize.setWidth(pane, DownloadMcPage.width / 4 * 3);
-                JFXListView<VanilaVersionContent> listv = new JFXListView<>();
-                listv.getStylesheets().add(String.format(ThemeManager.getPath(), "JFXListView"));
+                SmoothableListView<VanilaVersionContent> listv = new SmoothableListView<>(DownloadMcPage.width / 4 * 3, 250);
+                listv.page.getStylesheets().add(String.format(ThemeManager.getPath(), "JFXListView"));
+                listv.setStyle("-fx-background-color: transparent");
                 vs.forEach(model -> {
                     if (Objects.equals(model.type, t)){
                         loaded.addAndGet(1);
-                        listv.getItems().add(new VanilaVersionContent(model));
+                        listv.addItem(new VanilaVersionContent(model));
                         Platform.runLater(() -> bar.setProgress(((double) loaded.get()) * 100 / vs.size()));
                     }
                 });
-                FXUtils.ControlSize.setWidth(listv, DownloadMcPage.width / 4 * 3);
-                Platform.runLater(() -> pane.setContent(listv));
+                FXUtils.ControlSize.setWidth(listv, DownloadMcPage.width / 3 * 2);
+                Platform.runLater(() -> pane.setContent(listv.page));
                 pane.setExpanded(false);
                 pane.expandedProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue){
@@ -125,10 +128,10 @@ public class DownloadMcPage extends AbstractAnimationPage {
                         }
                     }
                 });
-                listv.getItems().sort((node, t1) -> 0);
-                listv.setOnMouseReleased(event -> {
+                listv.getChildren().sort((o1, o2) -> 0);
+                listv.setOnAction(() -> {
                     Launcher.setPage(Launcher.DOWNLOADADDONSELECTPAGE, this);
-                    Launcher.DOWNLOADADDONSELECTPAGE.setVersionId(listv.getSelectionModel().getSelectedItem().model);
+                    Launcher.DOWNLOADADDONSELECTPAGE.setVersionId(listv.selectedItem.model);
                 });
                 Platform.runLater(() -> mainBox.getChildren().add(pane));
                 Platform.runLater(() -> ThemeManager.loadButtonAnimates(pane));

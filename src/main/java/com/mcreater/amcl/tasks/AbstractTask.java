@@ -6,12 +6,16 @@ public abstract class AbstractTask implements Task {
     public String server;
     public String local;
     String command;
+    Runnable runnable;
     public AbstractTask(String command){
         this.command = command;
     }
     public AbstractTask(String server, String local){
         this.server = server;
         this.local = local;
+    }
+    public AbstractTask(Runnable runnable){
+        this.runnable = runnable;
     }
 
     public boolean isFinished() {

@@ -67,6 +67,7 @@ public class ForgeExtractTask extends AbstractTask{
         List<String> files = getAllFile("forgeTemp/maven/net/minecraftforge");
         files.forEach(s -> {
             String loc = LinkPath.link(extractPath, getFileName(s));
+            new File(loc).mkdirs();
             try {
                 FileChannel output = new FileOutputStream(loc).getChannel();
                 try (FileChannel input = new FileInputStream(s).getChannel()){

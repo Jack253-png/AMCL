@@ -306,9 +306,6 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         Platform.runLater(() -> install.setDisable(false));
                         dialog.setAll(100);
                         Platform.runLater(dialog::close);
-                        for (Task t : tasks){
-                            System.out.println(((AbstractTask) t).server);
-                        }
                     }).start();
                 }
                 else if (optifine){

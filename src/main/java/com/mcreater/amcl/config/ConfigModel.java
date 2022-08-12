@@ -15,8 +15,8 @@ public class ConfigModel {
     public String language;
     public boolean fastDownload;
     public int downloadChunkSize;
-    public int swipeSpeed;
     public int showingUpdateSpped;
+    public String downloadServer;
     public ConfigModel getI(){
         selected_java = new Vector<>();
         selected_minecraft_dir = new Vector<>();
@@ -29,7 +29,7 @@ public class ConfigModel {
         fastDownload = true;
         downloadChunkSize = 2048;
         showingUpdateSpped = 500;
-        swipeSpeed = 8;
+        downloadServer = "MCBBS";
         return this;
     }
 }

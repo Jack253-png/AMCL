@@ -19,6 +19,7 @@ import com.mcreater.amcl.util.FXUtils;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
@@ -27,7 +28,7 @@ import java.util.Vector;
 
 public class AddModsPage extends AbstractAnimationPage {
     GridPane pane;
-    public JFXTextField in;
+    public TextField in;
     public JFXButton submit;
     public SmoothableListView<CurseMod> modlist;
     public JFXProgressBar bar;
@@ -37,7 +38,7 @@ public class AddModsPage extends AbstractAnimationPage {
         l = Launcher.VERSIONINFOPAGE;
         pane = new GridPane();
         FXUtils.ControlSize.set(pane, this.width, this.height);
-        in = new JFXTextField();
+        in = new TextField();
         submit = new JFXButton();
         bar = new JFXProgressBar(0);
         in.setFont(Fonts.t_f);

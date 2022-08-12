@@ -16,7 +16,6 @@ import java.util.concurrent.CountDownLatch;
 
 public abstract class TaskManager {
     public static Vector<Task> tasks = new Vector<>();
-    public static Logger logger = LogManager.getLogger(TaskManager.class);
     public static ProcessDialog dialog;
     public static depencyLoadingFrame frame;
     public static int index;
@@ -37,8 +36,9 @@ public abstract class TaskManager {
         TaskManager.frame = frame;
     }
     public synchronized static void execute1Thread(String reason) throws IOException {
+        Logger logger = LogManager.getLogger(TaskManager.class);
         int executed = 0;
-        logger.info(String.format("executing tasks in reason %s", reason));
+        logger.info(String.format("executing tasks %s", reason));
         dialog.setV(index, 0);
         for (Task t : tasks){
             Integer exit = t.execute();
@@ -49,7 +49,6 @@ public abstract class TaskManager {
             }
             executed += 1;
             logger.info(String.format("executed %d of %d", executed, tasks.size()));
-            logger.info("downloaded bytes speed : " + ((double) downloadedBytes) / 1024 / 1024 + "MB/s");
             if (dialog != null) {
                 if (tasks.size() != 0) {
                     dialog.setV(index, (int) ((double) executed) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._03"), executed, tasks.size()));
@@ -61,29 +60,19 @@ public abstract class TaskManager {
     public synchronized static void execute(String reason) throws InterruptedException {
         int size = tasks.size();
         CountDownLatch latch = new CountDownLatch(size);
-        logger.info(String.format("executing tasks in reason %s", reason));
+
         new Thread("Manager Counting Thread"){
             public void run(){
                 if (dialog != null){
                     dialog.setV(index, 0);
                 }
                 long downloaded;
+                long all = tasks.size();
                 String cc;
                 do {
                     downloaded = latch.getCount();
-                    if (tasks.size() > 1) {
-                        String dd = "█";
-                        String ed = " ";
-                        int c = (int) (((double) (tasks.size() - downloaded)) * 100 / tasks.size());
-                        cc = String.format("%d / %d [%s%s]", tasks.size() - downloaded, tasks.size(), dd.repeat(c), ed.repeat(100 - c));
-                        System.out.print("\b".repeat(cc.length()) + cc);
-                    }
-                    else {
-                        cc = String.format("%d / %d", tasks.size() - downloaded, tasks.size());
-                        System.out.print("\b".repeat(cc.length()) + cc);
-                    }
-//                    logger.info(String.format("executed %d of %d", tasks.size() - downloaded, tasks.size()));
-//                    logger.info("downloaded bytes speed : " + ((double) downloadedBytes) / 1024 / 1024 + "MB/s");
+                    cc = String.format("%s %d / %d", reason, tasks.size() - downloaded, tasks.size());
+                    System.out.print("\b".repeat(cc.length()) + cc);
                     if (dialog != null) {
                         if (tasks.size() != 0) {
                             dialog.setV(index, (int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._02"), reason, tasks.size() - downloaded, tasks.size()));
@@ -98,16 +87,13 @@ public abstract class TaskManager {
                     }
                     downloadedBytes = 0;
                 }
-                while (tasks.size() != 0);
-                if (dialog != null) {
-                    dialog.setV(index, 100);
-                }
+                while (downloaded != 0);
+                System.out.println("\b".repeat(cc.length()) + reason + String.format(" %d / %d", all, all));
                 if (frame != null){
                     frame.button.setEnabled(true);
                     frame.progressBar.setString("下载完成");
                     frame.progressBar.setValue(100);
                 }
-                System.out.println();
             }
         }.start();
         for (Task t : tasks){
@@ -123,7 +109,7 @@ public abstract class TaskManager {
                             break;
                         }
                         catch (IOException e){
-                            logger.error("Error while executing", e);
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -131,6 +117,9 @@ public abstract class TaskManager {
         }
         latch.await();
         tasks.clear();
+        if (dialog != null) {
+            dialog.setV(index, 100);
+        }
         downloadedBytes = 0;
     }
     public static Vector<Task> changeTasksPool(Vector<Task> tasks, String name){

@@ -22,8 +22,10 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +33,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VersionSelectPage extends AbstractAnimationPage {
     public VBox dot_minecraft_dir;
@@ -145,7 +148,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
         versionlist.getChildren().add(version_list.page);
 
         dot_minecraft_dir.getChildren().addAll(title,dirs,new MainPage.Spacer(),select_version,new MainPage.Spacer(),buttons);
-        dirs.setBorder(new Border(ListItem.borderStroke));
+        dirs.setBorder(FXUtils.generateBorder(Color.BLACK, BorderStrokeStyle.SOLID, false, false, true, false, 2));
 
         add_dir.setButtonType(JFXButton.ButtonType.RAISED);
 

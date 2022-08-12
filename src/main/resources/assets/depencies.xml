@@ -68,7 +68,7 @@
             <name>com.gluonhq.attach:util:4.0.9</name>
         </depency>
         <depency>
-            <name>com.jfoenix:jfoenix:9.0.9</name>
+            <name>com.jfoenix:jfoenix:9.0.10</name>
         </depency>
         <depency>
             <name>net.java.dev.jna:jna-platform:5.11.0</name>
@@ -183,6 +183,12 @@
         </depency>
         <depency>
             <name>org.slf4j:slf4j-nop:1.7.2</name>
+        </depency>
+        <depency>
+            <name>org.apache.logging.log4j:log4j-core:2.17.2</name>
+        </depency>
+        <depency>
+            <name>org.apache.logging.log4j:log4j-api:2.17.2</name>
         </depency>
     </depencies>
 </root>

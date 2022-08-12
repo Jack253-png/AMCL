@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.RemoteMod;
+import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.game.mods.ModHelper;
 import com.mcreater.amcl.game.versionTypeGetter;
@@ -49,7 +50,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     public VBox b2;
     public JFXButton modsMenu;
     public GridPane mods;
-    public JFXListView<RemoteMod> modList;
+    public SmoothableListView<RemoteMod> modList;
     public JFXButton addMod;
     public JFXButton setted;
     public JFXProgressBar bar;
@@ -137,8 +138,8 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
         b2 = new VBox();
         mods = new GridPane();
-        modList = new JFXListView<>();
-        FXUtils.ControlSize.set(modList, this.width / 4 * 3, this.height - t_size * 2 - 10);
+        modList = new SmoothableListView<>(this.width / 4 * 3, this.height - t_size * 2 - 10);
+        FXUtils.ControlSize.set(modList, this.width / 4 * 3 - 15, this.height - t_size * 2 - 10);
 
         addMod = new JFXButton();
         FXUtils.ControlSize.set(addMod, t_size, t_size);
@@ -154,18 +155,18 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         FXUtils.ControlSize.set(delete, t_size, t_size);
         delete.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         delete.setOnAction(event -> {
-            ProcessDialog dialog = new ProcessDialog(1, String.format(Launcher.languageManager.get("ui.versioninfopage.deletemod.deleteing.title"), modList.getSelectionModel().getSelectedItem().name.getText()));
+            ProcessDialog dialog = new ProcessDialog(1, String.format(Launcher.languageManager.get("ui.versioninfopage.deletemod.deleteing.title"), modList.selectedItem.name.getText()));
             dialog.Create();
-            dialog.setV(0, 50, modList.getSelectionModel().getSelectedItem().name.getText());
+            dialog.setV(0, 50, modList.selectedItem.name.getText());
             new Thread(() -> {
-                String path = modList.getSelectionModel().getSelectedItem().path;
+                String path = modList.selectedItem.path;
                 RemoveFileToTrash.remove(path);
                 Platform.runLater(dialog::close);
             }).start();
             new Thread(this::loadMods).start();
         });
 
-        modList.getSelectionModel().getSelectedItems().addListener((ListChangeListener<RemoteMod>) c -> delete.setDisable(modList.getSelectionModel().getSelectedItem() == null));
+        modList.setOnAction(() -> delete.setDisable(modList.selectedItem == null));
 
         bar = new JFXProgressBar(-1.0D);
         FXUtils.ControlSize.setWidth(bar, this.width / 4 * 3);
@@ -240,15 +241,15 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         delete.setDisable(true);
         try {
             Platform.runLater(() -> bar.setProgress(-1.0D));
-            Platform.runLater(modList.getItems()::clear);
+            Platform.runLater(modList::clear);
             Platform.runLater(() -> setType(true));
             Vector<File> f = ModHelper.getMod(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
             for (File file : f) {
                 CommonModInfoModel model = ModHelper.getModInfo(file.getPath());
                 if (!Objects.equals(model.name, "")) {
                     RemoteMod m = new RemoteMod(model);
-                    Platform.runLater(() -> modList.getItems().add(m));
-                    double d = (double) modList.getItems().size() / (double) f.size();
+                    Platform.runLater(() -> modList.addItem(m));
+                    double d = (double) modList.vecs.size() / (double) f.size();
                     double lat = bar.getProgress();
                     for (int i = 0; i < 100; i++) {
                         int finalI = i;

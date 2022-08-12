@@ -92,7 +92,8 @@ public class Launcher extends javafx.application.Application {
             } catch (Exception e) {
                 logger.error("failed to read config", e);
             }
-            languageManager.setLanguage(LanguageManager.valueOf(configReader.configModel.language));
+            languageManager.setLanguage(LanguageManager.LanguageType.valueOf(configReader.configModel.language));
+
             MAINPAGE = new MainPage(width, height);
             CONFIGPAGE = new ConfigPage(width, height);
             VERSIONSELECTPAGE = new VersionSelectPage(width, height);
@@ -138,7 +139,6 @@ public class Launcher extends javafx.application.Application {
                     Platform.runLater(() -> PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.checkFailed.name"), PopupMessage.MessageTypes.LABEL, null));
                 }
             }).start();
-            StableMain.initPlugins(StableMain.intros, args);
             stage.show();
         }
         else{

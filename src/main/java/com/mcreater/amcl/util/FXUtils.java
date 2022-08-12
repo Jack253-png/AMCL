@@ -1,8 +1,18 @@
 package com.mcreater.amcl.util;
 
+import com.mcreater.amcl.util.concurrent.Sleeper;
+import javafx.beans.NamedArg;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Control;
+import javafx.scene.control.Labeled;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.Region;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.web.WebView;
 
 public class FXUtils {
@@ -34,5 +44,19 @@ public class FXUtils {
             s.setMinWidth(width);
             return s;
         }
+    }
+    public static Border generateBorder(Paint topStroke, Paint rightStroke, Paint bottomStroke, Paint leftStroke, BorderStrokeStyle topStyle, BorderStrokeStyle rightStyle, BorderStrokeStyle bottomStyle, BorderStrokeStyle leftStyle, CornerRadii radii, BorderWidths widths, Insets insets){
+        return new Border(new BorderStroke(topStroke,rightStroke, bottomStroke,leftStroke, topStyle,rightStyle, bottomStyle, leftStyle, radii, widths, insets));
+    }
+    public static Border generateBorder(Paint color, BorderStrokeStyle style, boolean top, boolean right, boolean bottom, boolean left, int width){
+        return generateBorder(top ? color : null,
+                              right ? color : null,
+                              bottom ? color : null,
+                              left ? color : null,
+                              top ? style : null,
+                              right ? style : null,
+                              bottom ? style : null,
+                              left ? style : null,
+                              null, BorderWidths.DEFAULT, new Insets(width));
     }
 }

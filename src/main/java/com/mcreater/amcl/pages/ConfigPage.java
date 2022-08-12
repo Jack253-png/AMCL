@@ -157,7 +157,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         item3.cont.getSelectionModel().select(getKey(Launcher.configReader.configModel.language));
         item3.cont.setOnAction(event -> {
             Launcher.configReader.configModel.language = langs.get(item3.cont.getValue().getText());
-            Launcher.languageManager.setLanguage(LanguageManager.valueOf(Launcher.configReader.configModel.language));
+            Launcher.languageManager.setLanguage(LanguageManager.LanguageType.valueOf(Launcher.configReader.configModel.language));
             Launcher.setTitle();
         });
 

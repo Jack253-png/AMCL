@@ -72,15 +72,4 @@ public class LanguageManager {
             return null;
         }
     }
-    public static LanguageType valueOf(String s){
-        if (Objects.equals(s, "ENGLISH")){
-            return LanguageType.ENGLISH;
-        }
-        else if (Objects.equals(s, "CHINESE")){
-            return LanguageType.CHINESE;
-        }
-        else{
-            return null;
-        }
-    }
 }

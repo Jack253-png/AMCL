@@ -3,6 +3,7 @@ package com.mcreater.amcl.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mcreater.amcl.lang.LanguageManager;
+import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 
 import java.io.File;
@@ -62,8 +63,8 @@ public class ConfigWriter{
         if (configModel.showingUpdateSpped < 500 || configModel.showingUpdateSpped > 1000){
             configModel.showingUpdateSpped = 500;
         }
-        if (configModel.swipeSpeed < 1 || configModel.swipeSpeed > 100){
-            configModel.swipeSpeed = 8;
+        if (!FasterUrls.vaild_servers.contains(configModel.downloadServer)){
+            configModel.downloadServer = "MCBBS";
         }
         write();
     }

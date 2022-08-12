@@ -58,22 +58,6 @@ public class MainPage extends AbstractAnimationPage {
     public static ProcessDialog d;
     public static ProcessDialog l;
     public static JFXButton stop;
-    static {
-        try {
-            Field e = az.class.getDeclaredField("e");
-            e.setAccessible(true);
-            Field f = az.class.getDeclaredField("f");
-            f.setAccessible(true);
-            Field modifiers = Field.class.getDeclaredField("modifiers");
-            modifiers.setAccessible(true);
-            modifiers.setInt(e, e.getModifiers() & ~Modifier.FINAL);
-            modifiers.setInt(f, f.getModifiers() & ~Modifier.FINAL);
-            e.set(null, new BigInteger("1"));
-            f.set(null, new BigInteger("1"));
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
     public MainPage(double width,double height) {
         super(width, height);
         l = null;
@@ -207,7 +191,7 @@ public class MainPage extends AbstractAnimationPage {
         FXUtils.ControlSize.set(hBox2, width / 5, height);
 
         JFXButton b = new JFXButton("test");
-        new FXBrowserPage(MSAuth.loginUrl).open();
+//        new FXBrowserPage("https://html5test.com").open();
 
         GameMenu.getChildren().addAll(
                 title,

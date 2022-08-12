@@ -12,12 +12,11 @@ import javafx.scene.paint.Color;
 public class ListItem<T> extends HBox {
     public Label name;
     public JFXComboBox<T> cont;
-    public static BorderStroke borderStroke = new BorderStroke(null,null, Color.BLACK,null, null,null,BorderStrokeStyle.SOLID,null,null, BorderWidths.DEFAULT,new Insets(2));
     public ListItem (String name, double width){
         this.name = new Label(name);
         this.name.setFont(Fonts.t_f);
         cont = new JFXComboBox<>();
-        cont.setBorder(new Border(borderStroke));
+        cont.setBorder(FXUtils.generateBorder(Color.BLACK, BorderStrokeStyle.SOLID, false, false, true, false, 2));
         HBox left = new HBox(this.name);
         left.setAlignment(Pos.CENTER_LEFT);
         FXUtils.ControlSize.setWidth(left, width / 2);
