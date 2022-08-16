@@ -3,6 +3,7 @@ package com.mcreater.amcl.api.auth;
 import com.google.gson.Gson;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.concurrent.ValueSet3;
 import com.mcreater.amcl.util.net.HttpClient;
 import javafx.util.Pair;
 import org.json.JSONObject;
@@ -10,12 +11,9 @@ import org.json.JSONObject;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-public class MSAuth extends AbstractAuth<MicrosoftUser>{
+public class MSAuth implements AbstractAuth<MicrosoftUser>{
     public static final String loginUrl = "https://login.live.com/oauth20_authorize.srf?client_id=00000000402b5328&response_type=code&scope=service%3A%3Auser.auth.xboxlive.com%3A%3AMBI_SSL&redirect_uri=https%3A%2F%2Flogin.live.com%2Foauth20_desktop.srf";
     public static final String redirectUrlSuffix = "https://login.live.com/oauth20_desktop.srf?code=";
     private static final String authTokenUrl = "https://login.live.com/oauth20_token.srf";
@@ -40,9 +38,8 @@ public class MSAuth extends AbstractAuth<MicrosoftUser>{
             return ob.getString("access_token");
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return acquireAccessToken(authcode);
     }
 
     // first : Token
@@ -77,9 +74,8 @@ public class MSAuth extends AbstractAuth<MicrosoftUser>{
             }
             return new Pair<>(token, uhs);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return acquireXBLToken(accessToken);
     }
 
     public Pair<String, String> acquireXsts(String xblToken) {
@@ -113,12 +109,11 @@ public class MSAuth extends AbstractAuth<MicrosoftUser>{
             }
             return new Pair<>(ob.getString("Token"), uhs);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return acquireXsts(xblToken);
     }
 
-    public Pair<String, Pair<String, String>> acquireMinecraftToken(String xblUhs, String xblXsts) {
+    public ValueSet3<String, Pair<String, String>, Vector<McProfileModel.McSkinModel>> acquireMinecraftToken(String xblUhs, String xblXsts) {
         try {
             Map<Object, Object> data = J8Utils.createMap(
                     "identityToken", "XBL3.0 x=" + xblUhs + ";" + xblXsts
@@ -137,14 +132,16 @@ public class MSAuth extends AbstractAuth<MicrosoftUser>{
             wrt2.close();
             JSONObject ob = client.readJSON(false);
             String accessToken = ob.getString("access_token");
-            String[] contents = checkMcProfile(accessToken);
-            if (contents.length == 2 && checkMcStore(accessToken)){
-                return new Pair<>(accessToken, new Pair<>(contents[0], contents[1]));
+            McProfileModel contents = checkMcProfile(accessToken);
+            if (contents.checkProfile() && checkMcStore(accessToken)){
+                return new ValueSet3<>(accessToken, new Pair<>(contents.name, contents.id), contents.skins);
+            }
+            else {
+                throw new IOException("This user didn't had minecraft");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return acquireMinecraftToken(xblUhs, xblXsts);
     }
 
     private boolean checkMcStore(String mcAccessToken) {
@@ -165,39 +162,43 @@ public class MSAuth extends AbstractAuth<MicrosoftUser>{
             }
             return has_game && has_product;
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return checkMcStore(mcAccessToken);
     }
 
-    private String[] checkMcProfile(String mcAccessToken) {
-        String[] result = new String[2];
+    private McProfileModel checkMcProfile(String mcAccessToken) {
         try {
             HttpClient client = HttpClient.getInstance(mcProfileUrl);
             client.openConnection();
             client.conn.setRequestProperty("Authorization", String.format("Bearer %s", mcAccessToken));
-            JSONObject ob = client.readJSON();
-            result[0] = ob.getString("name");
-            result[1] = ob.getString("id");
-            return result;
+            McProfileModel model = new Gson().fromJson(client.read(), McProfileModel.class);
+            return model;
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return checkMcProfile(mcAccessToken);
     }
     public MicrosoftUser getUser(String... args){
         String token = acquireAccessToken(args[0]);
         Pair<String, String> xbl_token = acquireXBLToken(token);
         Pair<String, String> xsts = acquireXsts(xbl_token.getKey());
-        Pair<String, Pair<String, String>> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
-        return new MicrosoftUser(content.getKey(), content.getValue().getKey(), content.getValue().getValue());
+        ValueSet3<String, Pair<String, String>, Vector<McProfileModel.McSkinModel>> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
+        return new MicrosoftUser(content.getValue1(), content.getValue2().getKey(), content.getValue2().getValue(), content.getValue3());
     }
-    public static void main(String[] args){
-        MSAuth auth = new MSAuth();
-        String token = auth.acquireAccessToken("M.R3_BAY.af972917-d323-2a96-72d8-b9b1b363c197");
-        Pair<String, String> xbl_token = auth.acquireXBLToken(token);
-        Pair<String, String> xsts = auth.acquireXsts(xbl_token.getKey());
-        Pair<String, Pair<String, String>> content = auth.acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
-        System.out.println(content);
+    public static class McProfileModel {
+        public String id;
+        public String name;
+        public Vector<McSkinModel> skins;
+        public boolean checkProfile(){
+            return id != null && name != null;
+        }
+        public static class McSkinModel {
+            public String id;
+            public String state;
+            public String url;
+            public String variant;
+            public String toString(){
+                return url;
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ import com.mcreater.amcl.api.windows.MessageCenter;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
+import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.*;
 import com.mcreater.amcl.pages.dialogs.PopupMessage;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
@@ -223,6 +224,10 @@ public class Launcher extends javafx.application.Application {
         title.add(cl, 1, 0, 1, 1);
         top.getChildren().add(title);
 
+        min.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
+        close.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
+        back.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
+
         themeManager.applyTopBar(top);
         VBox v = new VBox();
         v.getChildren().addAll(top, last);
@@ -231,9 +236,8 @@ public class Launcher extends javafx.application.Application {
         p.setStyle("-fx-background-color: transparent");
         p.getChildren().add(0, v);
         refreshBackground();
-        s.setFill(null);
+        s.setFill(Color.TRANSPARENT);
         s.setRoot(p);
-        s.setFill(null);
         stage.setScene(s);
         s.setOnKeyPressed(event -> System.out.println(event.getCode()));
     }
@@ -259,11 +263,12 @@ public class Launcher extends javafx.application.Application {
     public static void refreshBackground(){
         String wallpaper = "assets/imgs/background.jpg";
 
-        bg = new Background(new BackgroundImage(new Image(wallpaper),
+        BackgroundImage im = new BackgroundImage(new Image(wallpaper),
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.DEFAULT,
-                bs));
+                bs);
+        bg = new Background(im);
 
         MAINPAGE.setBackground(bg);
         VERSIONSELECTPAGE.setBackground(bg);

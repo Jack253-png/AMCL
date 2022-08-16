@@ -20,11 +20,20 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 import java.util.Vector;
 
 public class StableMain {
     public static PreLanguageManager manager;
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException {
+        try {
+            for (File f : Objects.requireNonNull(new File(FileUtils.LinkPath.link(System.getProperty("user.home"), "AppData\\Local\\JxBrowser")).listFiles())) {
+                if (f.isFile()) {
+                    f.delete();
+                }
+            }
+        }
+        catch (Exception ignored){}
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         if (ClassPathInjector.version < 11 && !ClassPathInjector.javafx_useable){
             JOptionPane.showMessageDialog(null, "launcher cannot fix javafx environment in java 8-10", "javafx broken", JOptionPane.ERROR_MESSAGE);
@@ -55,7 +64,7 @@ public class StableMain {
                 }
             });
         }
-        catch (Throwable e){}
+        catch (Throwable ignored){}
     }
     public static void initPreLanguageManager(){
         manager = new PreLanguageManager(PreLanguageManager.valueOf(LocateHelper.get()));
