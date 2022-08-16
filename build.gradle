@@ -18,8 +18,8 @@ ext {
     junitVersion = '5.8.2'
 }
 
-sourceCompatibility = '11'
-targetCompatibility = '11'
+sourceCompatibility = '8'
+targetCompatibility = '8'
 
 tasks.withType(JavaCompile) {
     options.encoding = "utf-8"
@@ -35,29 +35,29 @@ application {
 
 javafx {
     version = '11.0.2'
-    modules = ['javafx.controls', 'javafx.fxml', 'javafx.web', 'javafx.media']
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.media', 'javafx.web']
 }
 
 dependencies {
-    implementation('org.controlsfx:controlsfx:11.1.1')
-    implementation('com.dlsc.formsfx:formsfx-core:11.3.2') {
-        exclude(group: 'org.openjfx')
-    }
-    implementation('net.synedra:validatorfx:0.2.1') {
-        exclude(group: 'org.openjfx')
-    }
-    implementation('org.kordamp.ikonli:ikonli-javafx:12.3.0')
-    implementation('org.kordamp.bootstrapfx:bootstrapfx-core:0.4.0')
-    implementation('eu.hansolo:tilesfx:11.48') {
-        exclude(group: 'org.openjfx')
-    }
-    implementation('com.github.almasb:fxgl:11.17') {
-        exclude(group: 'org.openjfx')
-    }
+//    implementation('org.controlsfx:controlsfx:11.1.1')
+//    implementation('com.dlsc.formsfx:formsfx-core:11.3.2') {
+//        exclude(group: 'org.openjfx')
+//    }
+//    implementation('net.synedra:validatorfx:0.2.1') {
+//        exclude(group: 'org.openjfx')
+//    }
+//    implementation('org.kordamp.ikonli:ikonli-javafx:12.3.0')
+//    implementation('org.kordamp.bootstrapfx:bootstrapfx-core:0.4.0')
+//    implementation('eu.hansolo:tilesfx:11.48') {
+//        exclude(group: 'org.openjfx')
+//    }
+//    implementation('com.github.almasb:fxgl:11.17') {
+//        exclude(group: 'org.openjfx')
+//    }
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
-    implementation('com.jfoenix:jfoenix:9.0.9')
+    implementation('com.jfoenix:jfoenix:9.0.10')
     implementation('com.google.code.gson:gson:2.9.0')
     implementation('com.alibaba:fastjson:2.0.3')
     implementation('org.apache.logging.log4j:log4j-core:2.17.2')
@@ -66,6 +66,8 @@ dependencies {
     implementation('net.java.dev.jna:jna-platform:5.11.0')
     implementation('com.github.jnr:jnr-posix:3.1.15')
     implementation('com.github.oshi:oshi-core:3.5.0')
+    implementation files('jxbrowser-6.18.jar')
+    implementation files('jxbrowser-win32-6.18.jar')
 }
 
 test {
