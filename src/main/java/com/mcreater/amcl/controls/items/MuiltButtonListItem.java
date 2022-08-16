@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.J8Utils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -36,7 +37,7 @@ public class MuiltButtonListItem<T> extends HBox{
         this.getChildren().addAll(left, right);
     }
     public void addButtons(JFXButton... buttons){
-        this.buttons.addAll(List.of(buttons));
+        this.buttons.addAll(J8Utils.createList(buttons));
         group.getChildren().clear();
         group.getChildren().addAll(this.buttons);
     }

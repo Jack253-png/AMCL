@@ -11,6 +11,8 @@ import com.mcreater.amcl.model.optifine.optifineAPIModel;
 import com.mcreater.amcl.model.optifine.optifineJarModel;
 import com.mcreater.amcl.util.FileUtils;
 import static com.mcreater.amcl.util.FileUtils.*;
+
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 
 import java.io.BufferedWriter;
@@ -41,6 +43,7 @@ public class OptifineDownload {
         if (opti.contains("legacy")){
             throw new IOException();
         }
+        System.err.println(opti);
         OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
         JSONObject ob = new JSONObject(new Gson().fromJson(OriginalDownload.getVJ(), Map.class));
         new OptiFineInstallerDownloadTask(opti, "opti.jar").execute();
@@ -66,7 +69,7 @@ public class OptifineDownload {
         for (Object o : f.getJSONArray("libraries")){
             Map<String, String> s = (Map<String, String>) o;
             if (s.get("name").contains("optifine:OptiFine")){
-                List<String> l = new ArrayList<>(List.of(s.get("name").split(":")));
+                List<String> l = new ArrayList<>(J8Utils.createList(s.get("name").split(":")));
                 l.set(2, String.format("%s_%s", version_name, ofEd));
                 s.put("name", String.join(":", l));
             }

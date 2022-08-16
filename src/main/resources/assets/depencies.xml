@@ -68,7 +68,7 @@
             <name>com.gluonhq.attach:util:4.0.9</name>
         </depency>
         <depency>
-            <name>com.jfoenix:jfoenix:9.0.10</name>
+            <name>com.jfoenix:jfoenix:8.0.9</name>
         </depency>
         <depency>
             <name>net.java.dev.jna:jna-platform:5.11.0</name>

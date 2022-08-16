@@ -1,6 +1,5 @@
 package com.mcreater.amcl;
 
-import com.sun.glass.utils.NativeLibLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -12,7 +11,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
-public class Main{
+public class Main {
     static String[] args;
     static {
         File f = new File("AMCL/logs/log.log");
@@ -27,8 +26,6 @@ public class Main{
             args = new String[]{};
             logger.info("initialize");
             logger.info("launching core with arguments : " + Arrays.toString(args));
-            NativeLibLoader.loadLibrary("prism_d3d");
-            NativeLibLoader.loadLibrary("prism_sw");
             Launcher.startApplication(args, System.getProperty("os.name", "Unknow").contains("Windows"));
         }
         catch (Exception e) {

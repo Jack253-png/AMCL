@@ -20,12 +20,14 @@ public class HttpConnectionUtil {
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setReadTimeout(15000);
+                connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.81 Mobile Safari/537.36 Edg/104.0.1293.54");
+                connection.setRequestProperty("content-type", "application/json");
                 connection.connect();
                 if (connection.getResponseCode() == 200) {
                     is = connection.getInputStream();
                     if (null != is) {
                         br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-                        String temp = null;
+                        String temp;
                         while (null != (temp = br.readLine())) {
                             result.append(temp);
                         }

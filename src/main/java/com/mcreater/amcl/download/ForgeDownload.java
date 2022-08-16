@@ -48,21 +48,15 @@ public class ForgeDownload {
     public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String forge_version, Runnable r, Runnable r2) throws IOException, ParserConfigurationException, SAXException, InterruptedException {
         tasks.clear();
         ForgeDownload.chunkSize = chunkSize;
-        Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", Launcher.server)));
         String c = null;
-        if (vectorMap.get(id) != null){
-            for (String version : vectorMap.get(id)){
-                System.out.println(version);
-                if (Objects.equals(version, forge_version)){
-                    c = version;
-                    break;
-                }
-            }
-            if (c == null){
-                throw new IOException();
+        for (String version : GetVersionList.getForgeVersionList(id)){
+            System.out.println(version);
+            if (Objects.equals(version, forge_version)){
+                c = version;
+                break;
             }
         }
-        else{
+        if (c == null){
             throw new IOException();
         }
         String temp_path = "forgeTemp";
@@ -72,13 +66,13 @@ public class ForgeDownload {
         versiondir = String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name);
         VersionJsonModel model225 = new Gson().fromJson(FileUtils.FileStringReader.read(versiondir), VersionJsonModel.class);
         try {
-            u = FasterUrls.fast(model225.downloads.get("client_mappings").url, Launcher.server);
+            u = FasterUrls.fast(model225.downloads.get("client_mappings").url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         }
         catch (NullPointerException ignored){}
         String installer_path = FileUtils.LinkPath.link(temp_path, "installer.jar");
         String final_version = String.format("%s-%s", id, c);
         String installer_url = String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%s/forge-%s-installer.jar", final_version, final_version);
-        installer_url = FasterUrls.fast(installer_url, Launcher.server);
+        installer_url = FasterUrls.fast(installer_url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         logger.info(String.format("finded forge installer url : %s", installer_url));
         deleteDirectory(new File(temp_path), temp_path);
 //        int i = 0;
@@ -113,7 +107,7 @@ public class ForgeDownload {
                 }
                 else {
                     new File(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path").replace("/", "\\"))).mkdirs();
-                    tasks.add(new LibDownloadTask(FasterUrls.fast(m.downloads.artifact.get("url"), Launcher.server), FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path").replace("/", "\\")), chunkSize).setHash(m.downloads.artifact.get("sha1")));
+                    tasks.add(new LibDownloadTask(FasterUrls.fast(m.downloads.artifact.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path").replace("/", "\\")), chunkSize).setHash(m.downloads.artifact.get("sha1")));
                 }
             }
             if (model.minecraftArguments != null){
@@ -136,7 +130,7 @@ public class ForgeDownload {
             ForgeInjectModel model1 = g.fromJson(FileUtils.FileStringReader.read(FileUtils.LinkPath.link(temp_path, "install_profile.json")), ForgeInjectModel.class);
             for (LibModel m1 : model1.libraries){
                 new File(StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path").replace("/", "\\")))).mkdirs();
-                tasks.add(new LibDownloadTask(FasterUrls.fast(m1.downloads.artifact.get("url"), Launcher.server), FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path").replace("/", "\\")), chunkSize).setHash(m1.downloads.artifact.get("sha1")));
+                tasks.add(new LibDownloadTask(FasterUrls.fast(m1.downloads.artifact.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path").replace("/", "\\")), chunkSize).setHash(m1.downloads.artifact.get("sha1")));
             }
             TaskManager.addTasks(tasks);
             TaskManager.execute("<forge>");
@@ -196,13 +190,13 @@ public class ForgeDownload {
                 new File(p).mkdirs();
                 if (model1.clientreq == null && model1.serverreq == null){
                     if (model1.name.contains("net.minecraftforge:minecraftforge")) {
-                        com.mcreater.amcl.util.FileUtils.ChangeDir.saveNowDir();
+                        FileUtils.ChangeDir.saveNowDir();
                         String i = FileUtils.LinkPath.link(FileUtils.ChangeDir.dirs, installer_path).replace("\\", "/");
-                        com.mcreater.amcl.util.FileUtils.ChangeDir.changeTo(p);
+                        FileUtils.ChangeDir.changeTo(p);
+                        System.out.println(p);
                         String com = String.format("\"%s\" -jar %s --extract", FileUtils.LinkPath.link(System.getProperty("java.home"), "bin\\java.exe").replace("\\", "/"), i);
-                        System.out.println(new Gson().toJson(model1));
                         if (new ForgeExtractTask(com, p, i, new String[]{"--extract"}).execute() != 0) {
-                            throw new IOException("Install Failed");
+                            throw new IOException("Forge Extract Failed");
                         }
                         FileUtils.ChangeDir.changeToDefault();
                         ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
@@ -220,10 +214,10 @@ public class ForgeDownload {
                         String path = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name));
                         String url;
                         url = "https://maven.minecraftforge.net/" + MavenPathConverter.get(model1.name).replace("\\", "/");
-                        url = FasterUrls.fast(url, Launcher.server);
+                        url = FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
                         if (!GetFileExists.get(url)){
                             url = "https://libraries.minecraft.net/" + MavenPathConverter.get(model1.name).replace("\\", "/");
-                            url = FasterUrls.fast(url, Launcher.server);
+                            url = FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
                         }
                         if (model1.name.contains("guava")){
                             Iterator<Object> t = ao.getJSONArray("libraries").iterator();
@@ -235,7 +229,7 @@ public class ForgeDownload {
                             }
                         }
                         ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
-                        LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, Launcher.server), path, chunkSize);
+                        LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), path, chunkSize);
                         if (model1.checksums != null){
                             te.setHash(model1.checksums.get(0));
                         }
@@ -246,12 +240,12 @@ public class ForgeDownload {
                     String path = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name));
                     String url;
                     url = "https://maven.minecraftforge.net/" + MavenPathConverter.get(model1.name).replace("\\", "/");
-                    url = FasterUrls.fast(url, Launcher.server);
+                    url = FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
                     if (!GetFileExists.get(url)){
                         url = "https://libraries.minecraft.net/" + MavenPathConverter.get(model1.name).replace("\\", "/");
-                        url = FasterUrls.fast(url, Launcher.server);
+                        url = FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
                     }
-                    url = FasterUrls.fast(url, Launcher.server);
+                    url = FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
                     if (model1.name.contains("guava")){
                         Iterator<Object> t = ao.getJSONArray("libraries").iterator();
                         while (t.hasNext()){
@@ -262,7 +256,7 @@ public class ForgeDownload {
                         }
                     }
                     ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
-                    LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, Launcher.server), path, chunkSize);
+                    LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), path, chunkSize);
                     if (model1.checksums != null){
                         te.setHash(model1.checksums.get(0));
                     }
@@ -277,12 +271,13 @@ public class ForgeDownload {
         }
         FileUtils.del(temp_path);
     }
-    public static boolean deleteDirectory(File f, String orgin){
+    public static void deleteDirectory(File f, String orgin){
         if (!f.exists()){
-            return false;
+            return;
         }
         if (f.isFile()){
-            return f.delete();
+            f.delete();
+            return;
         }
         else{
             for (File f1 : f.listFiles()){
@@ -290,15 +285,12 @@ public class ForgeDownload {
             }
         }
         if (!f.getPath().equals(orgin)) {
-            return f.delete();
-        }
-        else{
-            return true;
+            f.delete();
         }
     }
     public static void download_mojmaps(String local) throws IOException {
-        logger.info(String.format("download mojmaps : %s", FasterUrls.fast(u, Launcher.server)));
+        logger.info(String.format("download mojmaps : %s", FasterUrls.fast(u, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer))));
         new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
-        new DownloadTask(FasterUrls.fast(u, Launcher.server), local, 1024).execute();
+        new DownloadTask(FasterUrls.fast(u, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), local, 1024).execute();
     }
 }

@@ -15,7 +15,6 @@ import com.mcreater.amcl.pages.stages.FXBrowserPage;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.VersionInfo;
-import com.teamdev.jxbrowser.chromium.az;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
@@ -29,9 +28,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.math.BigInteger;
 import java.util.Objects;
 
 public class MainPage extends AbstractAnimationPage {
@@ -64,7 +60,7 @@ public class MainPage extends AbstractAnimationPage {
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if (minecraft_running) {
-                g.p.destroy();
+                g.stop_process();
             }
         }));
 
@@ -118,7 +114,7 @@ public class MainPage extends AbstractAnimationPage {
         stop.setFont(Fonts.s_f);
         stop.setTextFill(Color.WHITE);
         stop.setOnAction(event -> {
-            g.p.destroy();
+            g.stop_process();
             stop.setDisable(true);
         });
 
@@ -191,7 +187,7 @@ public class MainPage extends AbstractAnimationPage {
         FXUtils.ControlSize.set(hBox2, width / 5, height);
 
         JFXButton b = new JFXButton("test");
-//        new FXBrowserPage("https://html5test.com").open();
+        new FXBrowserPage(MSAuth.loginUrl).open();
 
         GameMenu.getChildren().addAll(
                 title,
@@ -220,6 +216,7 @@ public class MainPage extends AbstractAnimationPage {
     public static void check(){
         launchButton.setDisable(minecraft_running);
         if (!minecraft_running){
+            Platform.runLater(d::close);
             if (exit_code != null){
                 logger.info("Minecraft exited with code " + exit_code);
                 if (exit_code != 0){

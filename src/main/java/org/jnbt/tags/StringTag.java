@@ -72,7 +72,10 @@ public final class StringTag extends Tag {
 	
 	@Override
 	public String toString() {
-		return String.format("\"%s\" : \"%s\"", getName(), value);
+		return value;
+	}
+	public String toNativeType(){
+		return value;
 	}
 	
 	/*

@@ -1,6 +1,8 @@
 package org.jnbt.tags;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
 
 public class LongArrayTag extends Tag{
     private final long[] value;
@@ -25,7 +27,14 @@ public class LongArrayTag extends Tag{
 
     @Override
     public String toString() {
-        return String.format("\"%s\" : %s", getName(), Arrays.toString(value));
+        return Arrays.toString(value);
+    }
+    public Vector<Long> toNativeType(){
+        Vector<Long> ls = new Vector<>();
+        for (Long l : value){
+            ls.add(l);
+        }
+        return ls;
     }
 
     /*

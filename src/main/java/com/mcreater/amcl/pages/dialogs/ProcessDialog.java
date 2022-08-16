@@ -3,7 +3,6 @@ package com.mcreater.amcl.pages.dialogs;
 import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXDialogLayout;
-import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.interfaces.Fonts;

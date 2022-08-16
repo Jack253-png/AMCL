@@ -64,8 +64,7 @@ public class PopupMessage {
         final Path path = new Path();
         int strWidth = 0;
         try {
-            Font f = new Font(Fonts.t_f.getName(), Font.PLAIN, (int) Fonts.t_f.getSize());
-            Object o = Class.forName("sun.font.FontDesignMetrics").getDeclaredMethod("getMetrics", Font.class).invoke(null, f);
+            Object o = Class.forName("sun.font.FontDesignMetrics").getDeclaredMethod("getMetrics", Font.class).invoke(null, Fonts.awt_t_f);
             strWidth = ((FontMetrics) o).stringWidth(text);
         }
         catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |

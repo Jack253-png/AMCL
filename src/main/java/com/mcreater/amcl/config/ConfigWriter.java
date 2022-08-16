@@ -66,6 +66,13 @@ public class ConfigWriter{
         if (!FasterUrls.vaild_servers.contains(configModel.downloadServer)){
             configModel.downloadServer = "MCBBS";
         }
+        Vector<String> dirs = new Vector<>(configModel.selected_minecraft_dir);
+        configModel.selected_minecraft_dir.forEach(s -> {
+            if (!new File(s).exists()){
+                dirs.remove(s);
+            }
+        });
+        configModel.selected_minecraft_dir = dirs;
         write();
     }
 }

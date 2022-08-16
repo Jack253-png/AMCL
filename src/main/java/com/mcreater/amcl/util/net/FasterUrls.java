@@ -1,6 +1,7 @@
 package com.mcreater.amcl.util.net;
 
 import com.google.gson.internal.LinkedTreeMap;
+import com.mcreater.amcl.util.J8Utils;
 
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.function.BiConsumer;
 public class FasterUrls {
     public static Map<String, String> s = new LinkedTreeMap<>();
     public static Map<String, String> rs = new LinkedTreeMap<>();
-    public static Vector<String> vaild_servers = new Vector<>(List.of("MOJANG", "BMCLAPI", "MCBBS"));
+    public static Vector<String> vaild_servers = new Vector<>(J8Utils.createList("MOJANG", "BMCLAPI", "MCBBS"));
     static {
         s.put("http://launchermeta.mojang.com/mc/game/version_manifest.json", "https://bmclapi2.bangbang93.com/mc/game/version_manifest.json");
         s.put("http://launchermeta.mojang.com/mc/game/version_manifest_v2.json", "https://bmclapi2.bangbang93.com/mc/game/version_manifest_v2.json");

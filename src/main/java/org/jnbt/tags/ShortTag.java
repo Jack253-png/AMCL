@@ -72,7 +72,10 @@ public final class ShortTag extends Tag {
 	
 	@Override
 	public String toString() {
-		return String.format("\"%s\" : %d", getName(), value);
+		return String.valueOf(value);
+	}
+	public Short toNativeType(){
+		return value;
 	}
 	
 	/*

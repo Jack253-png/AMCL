@@ -1,55 +1,40 @@
 package com.mcreater.amcl.util.xml;
 
+import com.google.gson.Gson;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
+import com.mcreater.amcl.patcher.ClassPathInjector;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
+import java.io.InputStreamReader;
+import java.util.List;
 import java.util.Vector;
 
 public class DepenciesXMLHandler {
     public static Vector<DepencyItem> load() throws ParserConfigurationException, SAXException, IOException {
-        return load(new ResourceGetter().get("assets/depencies.xml"));
+        return load(new ResourceGetter().get("assets/depencies.json"));
     }
     public static Vector<DepencyItem> load(InputStream is) throws ParserConfigurationException, SAXException, IOException {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        SAXParser parse = factory.newSAXParser();
-        XMLReader reader=parse.getXMLReader();
-        PHandler handler = new PHandler();
-        reader.setContentHandler(handler);
-        reader.parse(new InputSource(is));
-        return handler.depencies;
-    }
-    static class PHandler extends DefaultHandler {
-        String maven;
-        Vector<DepencyItem> depencies = new Vector<>();
-        public void startDocument() {}
-        public void startElement(String uri, String localName, String qName, Attributes attributes) {
-            if (Objects.equals(qName, "maven")){
-                maven = "";
-            }
-        }
-        public void characters(char[] ch, int start, int length) {
-            String contents = new String(ch, start, length).trim();
-            if (Objects.equals(maven, "")){
-                maven = contents;
+        DepencyModel model = new Gson().fromJson(new InputStreamReader(is), DepencyModel.class);
+        Vector<DepencyItem> items = new Vector<>();
+        for (DepencyModel.ItemModel item : model.depencies){
+            if (ClassPathInjector.version < 9 && item.old != null) {
+                items.add(new DepencyItem(item.old, model.maven));
             }
             else {
-                if (!contents.equals("")) {
-                    depencies.add(new DepencyItem(contents, this.maven));
-                }
+                items.add(new DepencyItem(item.name, model.maven));
             }
         }
-        public void endElement(String uri, String localName, String qName) {}
-        public void endDocument() {}
+        return items;
+    }
+    public static class DepencyModel {
+        public String maven;
+        public List<ItemModel> depencies;
+        public static class ItemModel {
+            public String name;
+            public String old;
+        }
     }
 }

@@ -2,11 +2,9 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import com.jfoenix.controls.JFXListView;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.VersionItem;
-import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
@@ -17,11 +15,8 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -33,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.util.Objects;
 import java.util.Vector;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class VersionSelectPage extends AbstractAnimationPage {
     public VBox dot_minecraft_dir;
@@ -110,7 +104,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
         add_dir.setFont(Fonts.t_f);
         add_dir.setDefaultButton(true);
         add_dir.setOnAction(event -> {
-            DirectoryChooser directoryChooser=new DirectoryChooser();
+            DirectoryChooser directoryChooser = new DirectoryChooser();
             Runnable setDialog = () -> FastInfomation.create(Launcher.languageManager.get("ui.versionselectpage.error_dir.title"), Launcher.languageManager.get("ui.versionselectpage.error_dir.Headercontent"),"");
             File file = directoryChooser.showDialog(Launcher.stage);
             if (file == null){
@@ -124,8 +118,8 @@ public class VersionSelectPage extends AbstractAnimationPage {
                 } else {
                     Launcher.configReader.configModel.selected_minecraft_dir.add(path);
                     Launcher.configReader.write();
-                    dirs.getSelectionModel().select(findLabelFromName(path));
                     load_minecraft_dir();
+                    dirs.getSelectionModel().select(findLabelFromName(path));
                     r = result;
                 }
             }
@@ -158,13 +152,13 @@ public class VersionSelectPage extends AbstractAnimationPage {
         this.add(p, 0, 0, 1, 1);
         this.add(versionlist,1,0 ,1,1);
     }
-    public Label findLabelFromName(String name){
-        for (Label l : dirs.getItems()){
-            if (Objects.equals(l.getText(), name)){
-                return l;
+    public int findLabelFromName(String name){
+        for (int i = 0;i < dirs.getItems().size();i++){
+            if (Objects.equals(dirs.getItems().get(i).getText(), name)){
+                return i;
             }
         }
-        return null;
+        return -1;
     }
     public void load_minecraft_dir(){
         version_list.clear();

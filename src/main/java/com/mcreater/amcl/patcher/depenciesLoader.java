@@ -5,7 +5,10 @@ import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.StringUtils;
+import com.mcreater.amcl.util.svg.Images;
+import com.mcreater.amcl.util.svg.SwingIcons;
 import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
 import com.mcreater.amcl.util.xml.DepencyItem;
 import org.xml.sax.SAXException;
@@ -24,7 +27,7 @@ import java.util.concurrent.CountDownLatch;
 public class depenciesLoader {
     public static depencyLoadingFrame frame;
     public static String convertName(String name){
-        List<String> names = List.of(name.split(":"));
+        List<String> names = J8Utils.createList(name.split(":"));
         if (names.size() == 3){
             return String.format("%s\\%s\\%s\\%s-%s.jar", names.get(0).replace(".", File.separator), names.get(1), names.get(2), names.get(1), names.get(2));
         }
@@ -38,12 +41,11 @@ public class depenciesLoader {
     public static String convertNameToUrl(String name){
         return convertName(name).replace(File.separator, "/");
     }
-    public static void checkAndDownload(Task... items) throws ParserConfigurationException, IOException, SAXException, InterruptedException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        Vector<Task> tasks = new Vector<>(List.of(items));
-        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    public static void checkAndDownload(Task... items) throws IOException, InterruptedException {
+        Vector<Task> tasks = new Vector<>(J8Utils.createList(items));
         frame = new depencyLoadingFrame();
         frame.setResizable(false);
-        frame.setIconImage(Toolkit.getDefaultToolkit().createImage(new ResourceGetter().getUrl("assets/icons/grass.png")));
+        frame.setIconImage(SwingIcons.swingIcon);
         if (tasks.size() > 0) {
             if (!isConnectable()){
                 JOptionPane.showMessageDialog(frame, StableMain.manager.get("ui.pre.depencies.network.fail.title"), StableMain.manager.get("ui.pre.depencies.network.fail.mess"), JOptionPane.ERROR_MESSAGE);

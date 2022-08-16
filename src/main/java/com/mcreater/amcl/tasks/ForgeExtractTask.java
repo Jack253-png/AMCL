@@ -2,8 +2,10 @@ package com.mcreater.amcl.tasks;
 
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.api.reflect.ReflectedJar;
+import com.mcreater.amcl.download.OriginalDownload;
 import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.nativeInterface.NoExitSecurityManager;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.java.GetJarMainClass;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 
@@ -67,7 +69,7 @@ public class ForgeExtractTask extends AbstractTask{
         List<String> files = getAllFile("forgeTemp/maven/net/minecraftforge");
         files.forEach(s -> {
             String loc = LinkPath.link(extractPath, getFileName(s));
-            new File(loc).mkdirs();
+            OriginalDownload.createNewDir(loc);
             try {
                 FileChannel output = new FileOutputStream(loc).getChannel();
                 try (FileChannel input = new FileInputStream(s).getChannel()){
@@ -81,7 +83,7 @@ public class ForgeExtractTask extends AbstractTask{
         });
     }
     public String getFileName(String p){
-        List<String> f = List.of(p.split("\\\\"));
+        List<String> f = J8Utils.createList(p.split("\\\\"));
         return f.get(f.size() - 1);
     }
     public List<String> getAllFile(String p){

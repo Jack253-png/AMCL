@@ -54,6 +54,7 @@ public class Launch {
                 FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString());
             });
         }
+        Platform.runLater(() -> MainPage.d.setV(2, 100));
 
         if (!new File(dir).exists()){
             throw new BadMinecraftDirException();
@@ -97,13 +98,22 @@ public class Launch {
                         libs.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
                     }
                 }
+                if (l.name.contains("net.minecraftforge:minecraftforge")){
+                    String p = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name));
+                    System.out.println(new File(p).getParentFile());
+                    for (File f1 : new File(p).getParentFile().listFiles()){
+                        if (f1.getPath().endsWith(".jar")){
+                            libs.add(f1.getPath());
+                        }
+                    }
+                }
                 if (new File(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name))).exists()) {
                     if (!libs.contains(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)))) {
                         if (l.name.contains("org.apache.logging.log4j:log4j-api:2.8.1") || l.name.contains("org.apache.logging.log4j:log4j-core:2.8.1")){
                             if (versionTypeGetter.get(dir, version_name).contains("forge")) {
                                 String local = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)).replace("2.8.1", "2.15.0");
                                 new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
-                                String server = FasterUrls.fast(l.downloads.artifact.get("url"), Launcher.server).replace("2.8.1", "2.15.0");
+                                String server = FasterUrls.fast(l.downloads.artifact.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)).replace("2.8.1", "2.15.0");
                                 if (!Objects.equals(l.downloads.artifact.get("sha1"), FileUtils.HashHelper.getFileSHA1(new File(local)))) {
                                     new DownloadTask(server, local, 1024).setHash(l.downloads.artifact.get("sha1")).execute();
                                 }
@@ -201,7 +211,7 @@ public class Launch {
                 arguments = arguments.replace("${assets_index_name}", r.assetIndex.get("id"));
             }
         }
-        arguments = arguments.replace("${auth_player_name}","Starcloudsea");
+        arguments = arguments.replace("${auth_player_name}","123");
         arguments = arguments.replace("${user_type}","mojang");
         arguments = arguments.replace("${version_type}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
         arguments = arguments.replace("${resolution_width}","854");
@@ -215,9 +225,9 @@ public class Launch {
         }
         arguments = arguments.replace("${game_directory}", String.format("\"%s\"", gamedir.getPath()));
         arguments = arguments.replace("${user_properties}","{}");
-        arguments = arguments.replace("${auth_uuid}","95883f77eef84bc6b7274f9c754a5a2c");
-        arguments = arguments.replace("${auth_access_token}","eyJhbGciOiJIUzI1NiJ9.eyJ4dWlkIjoiMjUzNTQxNTIxNTg1NDAxMiIsImFnZyI6IkFkdWx0Iiwic3ViIjoiYmVjOGYyN2ItYjBhNi00ZTIxLWJiZTItYjU3OTRkZjAyMWYxIiwibmJmIjoxNjU5NTg2NjkyLCJhdXRoIjoiWEJPWCIsInJvbGVzIjpbXSwiaXNzIjoiYXV0aGVudGljYXRpb24iLCJleHAiOjE2NTk2NzMwOTIsImlhdCI6MTY1OTU4NjY5MiwicGxhdGZvcm0iOiJVTktOT1dOIiwieXVpZCI6ImY4NGExOWE5NmM5MDk0YjNkZmNiNGZjZWRiNzgyYzVhIn0.r9BWTvRg-T9jtK7epFvCnnIc3N9fHfBkP-OYPc0z71I");
-        arguments = arguments.replace("${auth_session}","8".repeat(18));
+        arguments = arguments.replace("${auth_uuid}","00000000eef84bc6b7274f9c754a5a2c");
+        arguments = arguments.replace("${auth_access_token}","00000000000000");
+        arguments = arguments.replace("${auth_session}","8888888888888");
         arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
         arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
 
@@ -281,16 +291,24 @@ public class Launch {
             MainPage.exit_code = null;
             MainPage.cleanLog();
             MainPage.d.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
-            p = Runtime.getRuntime().exec(command);
-            CountDownLatch latch = new CountDownLatch(3);
+            try {
+                p = Runtime.getRuntime().exec(command, null, new File(dir));
+            }
+            catch (IOException e){
+                MainPage.d.close();
+            }
             new Thread(() -> {
                 while (true) {
-                    if (EnumWindow.getTaskPID().contains(p.pid())) {
-                        BGMManager.stop();
-                        MainPage.logger.info("Window Showed");
-                        MainPage.d.close();
-                        latch.countDown();
-                        break;
+                    try {
+                        if (EnumWindow.getTaskPID().contains(J8Utils.getProcessPid(p))) {
+                            BGMManager.stop();
+                            MainPage.logger.info("Window Showed");
+                            MainPage.d.close();
+                            break;
+                        }
+                    }
+                    catch (Exception ignored){
+
                     }
                 }
             }).start();
@@ -299,13 +317,16 @@ public class Launch {
             new Thread(() -> {
                 while (true){
                     try {
-                        int ev = p.exitValue();
-                        MainPage.d.close();
+                        if (p != null) {
+                            MainPage.exit_code = (long) p.exitValue();
+                        }
+                        else {
+                            MainPage.exit_code = 1L;
+                        }
                         MainPage.minecraft_running = false;
-                        MainPage.exit_code = (long) ev;
                         Platform.runLater(MainPage::check);
                         MainPage.launchButton.setDisable(false);
-                        FileUtils.ChangeDir.changeToDefault();
+                        ChangeDir.changeToDefault();
                         break;
                     }
                     catch (IllegalThreadStateException e){
@@ -313,19 +334,18 @@ public class Launch {
                             MainPage.minecraft_running = true;
                         }
                     }
-                    finally {
-                        latch.countDown();
-                    }
                 }
             }).start();
             readProcessOutput(p);
-        } catch (IOException e){
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
     public static void readProcessOutput(final Process process) {
-        read(process.getInputStream(), System.out);
-        read(process.getErrorStream(), System.err);
+        if (process != null) {
+            read(process.getInputStream(), System.out);
+            read(process.getErrorStream(), System.err);
+        }
     }
     public static void read(InputStream inputStream, PrintStream out) {
         try {
@@ -364,5 +384,10 @@ public class Launch {
             }
         }
         return f.toString();
+    }
+    public void stop_process(){
+        if (p != null){
+            p.destroy();
+        }
     }
 }

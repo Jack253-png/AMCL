@@ -68,6 +68,9 @@ public final class EndTag extends Tag {
 	public String toString() {
 		return "";
 	}
+	public Object toNativeType(){
+		return "";
+	}
 	
 	/*
 	 * (non-Javadoc)

@@ -1,7 +1,6 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.RemoteMod;
@@ -15,11 +14,11 @@ import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
-import com.mcreater.amcl.util.FileUtils.*;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
+import com.mcreater.amcl.util.FileUtils.RemoveFileToTrash;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.collections.ListChangeListener;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;

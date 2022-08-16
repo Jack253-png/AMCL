@@ -37,7 +37,12 @@ package org.jnbt.tags;
 
 //@formatter:on
 
+import com.mcreater.amcl.util.J8Utils;
+
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * The <code>TAG_Byte_Array</code> tag.
@@ -71,26 +76,18 @@ public final class ByteArrayTag extends Tag {
 	
 		return value;
 	}
-	
+
+	public Vector<Byte> toNativeType() {
+		Vector<Byte> bys = new Vector<>();
+		for (Byte b : value){
+			bys.add(b);
+		}
+		return bys;
+	}
+
 	@Override
 	public String toString() {
-	
-		StringBuilder hex = new StringBuilder("[");
-		int index = 0;
-		for (final byte b : value) {
-			index++;
-			final String hexDigits = Integer.toHexString(b).toUpperCase();
-			if (hexDigits.length() < 8) {
-				hex.append("0".repeat(8 - hexDigits.length()));
-			}
-			hex.append(hexDigits).append(index == value.length ? "" : ",");
-		}
-		final String name = getName();
-		String append = "";
-		if ((name != null) && !name.equals("")) {
-			append = "\"" + getName() + "\"";
-		}
-		return append + " : " + hex + "]";
+		return Arrays.toString(value);
 	}
 	
 	/*

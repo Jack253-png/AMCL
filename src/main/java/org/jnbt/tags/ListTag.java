@@ -93,15 +93,10 @@ public final class ListTag extends Tag {
 	
 	@Override
 	public String toString() {
-		final StringBuilder bldr = new StringBuilder();
-		bldr.append(String.format("\"%s\" : \r\n[%s", getName(), value.size() == 0 ? "" : "\r\n"));
-		int index = 0;
-		for (final Tag t : value) {
-			index++;
-			bldr.append(String.format("   %s%s%s", t.toString().replaceAll("\r\n", "\r\n   ").replaceAll("\"\" : ", ""), index == value.size() ? "" : ",", index == value.size() ? "\r\n" : ""));
-		}
-		bldr.append("]");
-		return bldr.toString();
+		return value.toString();
+	}
+	public List<?> toNativeType(){
+		return value;
 	}
 	
 	/*

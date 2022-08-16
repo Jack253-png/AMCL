@@ -114,7 +114,6 @@ public final class NBTInputStream implements Closeable {
 	 *             if an I/O error occurs.
 	 */
 	public Tag readTag() throws IOException {
-	
 		return readTag(0);
 	}
 	

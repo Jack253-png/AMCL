@@ -24,7 +24,7 @@ public class GithubReleases {
     static {
         trustAllHosts();
     }
-    private static String api_url = "https://api.github.com";
+    private static final String api_url = "https://api.github.com";
     public static Vector<ReleaseModel> getReleases(){
         try{
             String url = String.format("%s/repos/Jack253-png/AMCL/releases", api_url);

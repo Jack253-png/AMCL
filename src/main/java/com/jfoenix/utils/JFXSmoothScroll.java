@@ -1,23 +1,11 @@
 package com.jfoenix.utils;
 
-import com.jfoenix.controls.JFXListView;
-import com.jfoenix.skins.JFXListViewSkin;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
-import javafx.css.CssMetaData;
-import javafx.css.Selector;
-import javafx.css.Styleable;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
-import javafx.geometry.Orientation;
-import javafx.scene.Node;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;

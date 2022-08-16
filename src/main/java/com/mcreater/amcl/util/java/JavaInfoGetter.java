@@ -1,6 +1,7 @@
 package com.mcreater.amcl.util.java;
 
 import com.mcreater.amcl.game.launch.Launch;
+import com.mcreater.amcl.util.J8Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +65,7 @@ public class JavaInfoGetter implements Callable<Vector<String>> {
         return r;
     }
     public static Vector<String> fromArrayToVector(String[] strings){
-        return new Vector<>(List.of(strings));
+        return new Vector<>(J8Utils.createList(strings));
     }
     public static String change_filename(String java, String filename){
         return java.replace("java.exe", filename);

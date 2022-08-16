@@ -1,17 +1,8 @@
 package com.mcreater.amcl.util;
 
-import com.mcreater.amcl.util.concurrent.Sleeper;
-import javafx.beans.NamedArg;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.control.Control;
-import javafx.scene.control.Labeled;
 import javafx.scene.control.SplitPane;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.web.WebView;
 

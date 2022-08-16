@@ -22,6 +22,7 @@ import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -166,6 +167,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             if (!(forge || optifine || fabric || fabricapi || optifabric)){
                 TaskManager.bind(dialog, 0);
                 new Thread(() -> {
+                    long millis = System.currentTimeMillis();
                     Platform.runLater(dialog::Create);
                     try {
                         OriginalDownload.download(Launcher.configReader.configModel.fastDownload,
@@ -183,6 +185,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     Platform.runLater(() -> install.setDisable(false));
                     dialog.setAll(100);
                     Platform.runLater(dialog::close);
+                    long end = System.currentTimeMillis();
+                    System.out.println((end - millis) / 1000);
                 }).start();
             }
             else{
@@ -220,6 +224,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                     }
                                 }
                                 dialog.setV(0, 99, Launcher.languageManager.get("ui.install.optifine"));
+                                new File(finalModDir).mkdirs();
                                 try {
                                     new OptiFineInstallerDownloadTask(opti, LinkPath.link(finalModDir, opti)).execute();
                                 } catch (IOException e) {
@@ -359,7 +364,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             return false;
         }
         else {
-            Vector<String> invaildNames = new Vector<>(List.of("con", "aux", "com1", "com2", "com3", "com4", "lpt1", "lpt2", "lpt3", "prn", "nul", ""));
+            Vector<String> invaildNames = new Vector<>(J8Utils.createList("con", "aux", "com1", "com2", "com3", "com4", "lpt1", "lpt2", "lpt3", "prn", "nul", ""));
             if (invaildNames.contains(fileName.toLowerCase())){
                 return false;
             }

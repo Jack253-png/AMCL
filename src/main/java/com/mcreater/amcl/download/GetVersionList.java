@@ -13,7 +13,9 @@ import com.mcreater.amcl.model.fabric.FabricLoaderVersionModel;
 import com.mcreater.amcl.model.optifine.optifineAPIModel;
 import com.mcreater.amcl.model.optifine.optifineJarModel;
 import com.mcreater.amcl.model.original.VersionsModel;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
+import com.mcreater.amcl.util.net.HttpClient;
 import com.mcreater.amcl.util.xml.ForgeVersionXMLHandler;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import org.xml.sax.SAXException;
@@ -26,15 +28,15 @@ import java.util.*;
 
 public class GetVersionList {
     public static Vector<OriginalVersionModel> getOriginalList() {
-        String url = FasterUrls.getVersionJsonv2WithFaster(Launcher.server);
+        String url = FasterUrls.getVersionJsonv2WithFaster(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         VersionsModel model = new Gson().fromJson(HttpConnectionUtil.doGet(url), VersionsModel.class);
         Vector<OriginalVersionModel> t = new Vector<>();
         model.versions.forEach(s -> t.add(new OriginalVersionModel(s.id, s.type, s.releaseTime, s.url)));
         t.sort((originalVersionModel, t1) -> {
             String a = originalVersionModel.time;
             String b = t1.time;
-            a = List.of(a.split("\\+")).get(0).replace("T", " ");
-            b = List.of(b.split("\\+")).get(1).replace("T", " ");
+            a = J8Utils.createList(a.split("\\+")).get(0).replace("T", " ");
+            b = J8Utils.createList(b.split("\\+")).get(1).replace("T", " ");
             SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
             Date d1, d2;
             try {
@@ -53,7 +55,23 @@ public class GetVersionList {
         return t;
     }
     public static Vector<String> getForgeVersionList(String version) throws ParserConfigurationException, IOException, SAXException {
-        Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", Launcher.server)));
+        String url = FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", FasterUrls.Servers.MOJANG);
+        Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(url));
+        vectorMap.remove("1.1");
+        vectorMap.remove("1.2.3");
+        vectorMap.remove("1.2.4");
+        vectorMap.remove("1.2.5");
+        vectorMap.remove("1.3.2");
+        vectorMap.remove("1.4.0");
+        vectorMap.remove("1.4.2");
+        vectorMap.remove("1.4.3");
+        vectorMap.remove("1.4.4");
+        vectorMap.remove("1.4.5");
+        vectorMap.remove("1.4.6");
+        vectorMap.remove("1.4.7");
+        vectorMap.remove("1.5");
+        vectorMap.remove("1.5.1");
+        vectorMap.remove("1.5.2");
         if (vectorMap.get(version) != null) {
             return vectorMap.get(version);
         }
@@ -62,8 +80,8 @@ public class GetVersionList {
         }
     }
     public static Vector<String> getFabricVersionList(String version) {
-        String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/game", Launcher.server);
-        String loaderVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", Launcher.server);
+        String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/game", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+        String loaderVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         Vector<Map<String, String>> s = new Vector<>();
         s = new Gson().fromJson(HttpConnectionUtil.doGet(fabricVersions), s.getClass());
         Vector<String> versions = new Vector<>();
@@ -133,7 +151,7 @@ public class GetVersionList {
                 }
                 public int getPreVersion(optifineJarModel model){
                     if (model.isPreview){
-                        String s = List.of(model.name.split("_")).get(3).replace("pre", "");
+                        String s = J8Utils.createList(model.name.split("_")).get(3).replace("pre", "");
                         return Integer.parseInt(s);
                     }
                     else{
@@ -141,11 +159,11 @@ public class GetVersionList {
                     }
                 }
                 public int getMajorVersion(optifineJarModel model){
-                    String s = List.of(model.name.split("_")).get(2).substring(1, 2);
+                    String s = J8Utils.createList(model.name.split("_")).get(2).substring(1, 2);
                     return Integer.parseInt(s);
                 }
                 public int getMainVersion(optifineJarModel model){
-                    String s = List.of(model.name.split("_")).get(2).substring(0, 1);
+                    String s = J8Utils.createList(model.name.split("_")).get(2).substring(0, 1);
                     switch (s){
                         case "A":
                             return 1;

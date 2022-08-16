@@ -4,6 +4,7 @@ import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.patcher.depencyLoadingFrame;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.tasks.Task;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,7 +23,7 @@ public abstract class TaskManager {
     public static long downloadedBytes;
     private TaskManager(){}
     public static void addTasks(Task... t){
-        tasks.addAll(List.of(t));
+        tasks.addAll(J8Utils.createList(t));
     }
     public static void addTasks(Collection<Task> t){
         tasks.addAll(t);
@@ -69,15 +70,19 @@ public abstract class TaskManager {
                 long downloaded;
                 long all = tasks.size();
                 String cc;
+                long temp = size;
                 do {
                     downloaded = latch.getCount();
                     cc = String.format("%s %d / %d", reason, tasks.size() - downloaded, tasks.size());
-                    System.out.print("\b".repeat(cc.length()) + cc);
-                    if (dialog != null) {
-                        if (tasks.size() != 0) {
-                            dialog.setV(index, (int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._02"), reason, tasks.size() - downloaded, tasks.size()));
+                    System.out.print(J8Utils.repeat("\b", cc.length()) + cc);
+                    if (temp != latch.getCount()) {
+                        if (dialog != null) {
+                            if (tasks.size() != 0) {
+                                dialog.setV(index, (int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._02"), reason, tasks.size() - downloaded, tasks.size()));
+                            }
                         }
                     }
+                    temp = downloaded;
                     if (frame != null){
                         if (tasks.size() != 0) {
                             frame.progressBar.setValue((int) (((double) (tasks.size() - downloaded)) * 100 / tasks.size()));
@@ -88,7 +93,7 @@ public abstract class TaskManager {
                     downloadedBytes = 0;
                 }
                 while (downloaded != 0);
-                System.out.println("\b".repeat(cc.length()) + reason + String.format(" %d / %d", all, all));
+                System.out.println(J8Utils.repeat("\b", cc.length()) + reason + String.format(" %d / %d", all, all));
                 if (frame != null){
                     frame.button.setEnabled(true);
                     frame.progressBar.setString("下载完成");

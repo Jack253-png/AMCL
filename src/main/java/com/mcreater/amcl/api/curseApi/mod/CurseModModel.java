@@ -20,5 +20,8 @@ public class CurseModModel {
     public Vector<Map<String, String>> latestFilesIndexes;
     public Vector<CurseModFileModel> latestFiles;
     public CurseLogoModel logo;
+    public String toString(){
+        return name;
+    }
 
 }

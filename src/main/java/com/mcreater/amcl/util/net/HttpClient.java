@@ -2,10 +2,7 @@ package com.mcreater.amcl.util.net;
 
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -19,15 +16,20 @@ public class HttpClient {
     private HttpClient(String u) throws MalformedURLException {
         finalUrl = new URL(u);
     }
-    public String ofFormData1(Map<Object, Object> data) {
+    public String ofFormData1(Map<Object, Object> data){
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<Object, Object> entry : data.entrySet()) {
             if (builder.length() > 0) {
                 builder.append("&");
             }
-            builder.append(URLEncoder.encode(entry.getKey().toString(), StandardCharsets.UTF_8));
-            builder.append("=");
-            builder.append(URLEncoder.encode(entry.getValue().toString(), StandardCharsets.UTF_8));
+            try {
+                builder.append(URLEncoder.encode(entry.getKey().toString(), "UTF-8"));
+                builder.append("=");
+                builder.append(URLEncoder.encode(entry.getValue().toString(), "UTF-8"));
+            }
+            catch (Exception ignored){
+
+            }
         }
         return builder.toString();
     }

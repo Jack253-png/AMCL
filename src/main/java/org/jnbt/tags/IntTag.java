@@ -72,7 +72,10 @@ public final class IntTag extends Tag {
 	
 	@Override
 	public String toString() {
-		return String.format("\"%s\" : %d", getName(), value);
+		return String.valueOf(value);
+	}
+	public Integer toNativeType(){
+		return value;
 	}
 	
 	/*

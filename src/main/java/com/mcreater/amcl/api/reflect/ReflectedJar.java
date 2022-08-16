@@ -1,5 +1,7 @@
 package com.mcreater.amcl.api.reflect;
 
+import com.mcreater.amcl.util.J8Utils;
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -15,8 +17,8 @@ public class ReflectedJar {
     URLClassLoader loader;
     Vector<Object> instances = new Vector<>();
     public ReflectedJar(String... path) throws MalformedURLException {
-        URL[] urls = new URL[List.of(path).size()];
-        Vector<String> vs = new Vector<>(List.of(path));
+        URL[] urls = new URL[path.length];
+        Vector<String> vs = new Vector<>(J8Utils.createList(path));
         for(int i = 0;i < vs.size();i++) {
             urls[i] = new File(vs.get(i)).toURL();
         }

@@ -1,4 +1,4 @@
-package com.mcreater.amcl.api.minecraftSaves.mca;
+package org.jnbt.mca;
 
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
+import java.util.zip.InflaterOutputStream;
 
 public class RegionFile {
     private static final int VERSION_GZIP = 1;
@@ -76,6 +78,7 @@ public class RegionFile {
             e.printStackTrace();
         }
     }
+
     public synchronized DataInputStream getChunkDataInputStream(int x, int z) {
         if (outOfBounds(x, z)) {
             return null;

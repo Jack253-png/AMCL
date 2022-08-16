@@ -65,7 +65,7 @@ public class FileUtils {
     public static void del(String p){
         Path path = Paths.get(p);
         try {
-            Files.walkFileTree(path, new SimpleFileVisitor<>() {
+            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     Files.delete(file);
                     return FileVisitResult.CONTINUE;
@@ -77,7 +77,7 @@ public class FileUtils {
                 }
             });
         }
-        catch (IOException e){
+        catch (IOException ignored){
 
         }
     }

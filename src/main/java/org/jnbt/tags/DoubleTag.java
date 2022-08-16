@@ -72,9 +72,12 @@ public final class DoubleTag extends Tag {
 	
 	@Override
 	public String toString() {
-		return String.format("\"%s\" : %f", getName(), value);
+		return String.valueOf(value);
 	}
-	
+	public Double toNativeType(){
+		return value;
+
+	}
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Object#hashCode()

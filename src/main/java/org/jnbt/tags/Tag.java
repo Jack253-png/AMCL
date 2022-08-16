@@ -61,6 +61,9 @@ public abstract class Tag {
 	
 		this.name = name;
 	}
+	public <T> T toTag(Class<T> type){
+		return (T) this;
+	}
 	
 	/**
 	 * Gets the name of this tag.
@@ -78,6 +81,7 @@ public abstract class Tag {
 	 * @return The value of this tag.
 	 */
 	public abstract Object getValue();
+	public abstract Object toNativeType();
 	
 	/*
 	 * (non-Javadoc)

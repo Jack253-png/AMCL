@@ -37,8 +37,17 @@ package org.jnbt.tags;
 
 //@formatter:on
 
-import java.util.Collections;
-import java.util.Map;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.*;
 
 /**
  * The <code>TAG_Compound</code> tag.
@@ -68,21 +77,52 @@ public final class CompoundTag extends Tag {
 	
 	@Override
 	public Map<String, Tag> getValue() {
-	
 		return value;
 	}
 	
 	@Override
 	public String toString() {
-		StringBuilder bldr = new StringBuilder();
-		bldr.append(String.format("\"%s\" : \r\n{\r\n", getName()));
-		int index = 0;
-		for (Map.Entry<String, Tag> entry : value.entrySet()) {
-			index++;
-			bldr.append(String.format("   %s%s \r\n", entry.getValue().toString().replaceAll("\r\n", "\r\n   "), index == value.size() ? "" : ","));
+		return new GsonBuilder()
+				.setPrettyPrinting()
+				.create()
+				.toJson(getMap());
+	}
+	public Map<String, Object> toNativeType(){
+		return getMap();
+	}
+
+	public Map<String, Object> getMap(){
+		Map<String, Object> result = new HashMap<>();
+		for (Map.Entry<String, Tag> entry : value.entrySet()){
+			if (entry.getValue() instanceof CompoundTag){
+				result.put(entry.getKey(), entry.getValue().toTag(CompoundTag.class).getMap());
+			}
+			else if (!(entry.getValue() instanceof EndTag)){
+				if (entry.getValue() instanceof ListTag){
+					result.put(entry.getKey(), handleListTag(entry.getValue()));
+				}
+				else {
+					result.put(entry.getKey(), entry.getValue().toNativeType());
+				}
+			}
 		}
-		bldr.append("}");
-		return bldr.toString();
+		return result;
+	}
+	public List<Object> handleListTag(Tag tag){
+		List<Tag> tags = tag.toTag(ListTag.class).getValue();
+		List<Object> result0 = new Vector<>();
+		tags.forEach(e -> {
+			if (e instanceof CompoundTag){
+				result0.add(e.toTag(CompoundTag.class).getMap());
+			}
+			else if (e instanceof ListTag){
+				result0.addAll(handleListTag(e));
+			}
+			else {
+				result0.add(e.toNativeType());
+			}
+		});
+		return result0;
 	}
 	
 	/*

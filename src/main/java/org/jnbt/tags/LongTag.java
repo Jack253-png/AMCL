@@ -72,7 +72,10 @@ public final class LongTag extends Tag {
 	
 	@Override
 	public String toString() {
-		return String.format("\"%s\" : %d", getName(), value);
+		return String.valueOf(value);
+	}
+	public Long toNativeType(){
+		return value;
 	}
 	
 	/*

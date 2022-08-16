@@ -2,6 +2,7 @@ package com.mcreater.amcl.tasks;
 
 import com.mcreater.amcl.download.ForgeDownload;
 import com.mcreater.amcl.game.launch.Launch;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.java.GetJarMainClass;
@@ -54,7 +55,7 @@ public class ForgePatchTask extends AbstractTask{
             return old_pa();
         }
         else{
-            List<String> l = List.of(command.split(" "));
+            List<String> l = J8Utils.createList(command.split(" "));
             ForgeDownload.download_mojmaps(l.get(l.size() - 1));
         }
         return 0;

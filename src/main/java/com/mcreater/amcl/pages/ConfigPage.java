@@ -12,6 +12,7 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.java.JavaInfoGetter;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
@@ -56,7 +57,7 @@ public class ConfigPage extends AbstractMenuBarPage {
     public IntItem item2;
     public ListItem<Label> item3;
     public MuiltButtonListItem<Label> item4;
-    public BooleanItem item5;
+    public ListItem<Label> item5;
     public IntItem item6;
     JFXButton system;
     JFXTreeView<Label> view;
@@ -75,6 +76,7 @@ public class ConfigPage extends AbstractMenuBarPage {
     LineChart<Number, Number> memory;
     LineChart<Number, Number> cpu;
     LineChart<Number, Number> jvm;
+    Map<String, String> servers;
     public ConfigPage(int width, int height) throws NoSuchFieldException, IllegalAccessException {
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -82,9 +84,14 @@ public class ConfigPage extends AbstractMenuBarPage {
 
         double t_size = Launcher.barSize;
 
-        langs = new TreeMap<>();
-        langs.put("简体中文", "CHINESE");
-        langs.put("English(US)", "ENGLISH");
+        langs = J8Utils.createMap(String.class, String.class,
+                "简体中文", "CHINESE",
+                "English(US)", "ENGLISH");
+
+        servers = J8Utils.createMap(String.class, String.class,
+                "mcbbs", "MCBBS",
+                "bmclAPI", "BMCLAPI",
+                "Mojang", "MOJANG");
 
         title = new Label();
         title.setFont(Fonts.b_f);
@@ -142,8 +149,10 @@ public class ConfigPage extends AbstractMenuBarPage {
             if (item4.cont.getValue() == null && item4.cont.getItems().size() > 0) {
                 item4.cont.getSelectionModel().select(0);
             }
-            Launcher.configReader.configModel.selected_java_index = item4.cont.getValue().getText();
-            Launcher.configReader.write();
+            if (item4.cont.getSelectionModel().getSelectedItem() != null) {
+                Launcher.configReader.configModel.selected_java_index = item4.cont.getSelectionModel().getSelectedItem().getText();
+                Launcher.configReader.write();
+            }
         });
 
         load_java_list();
@@ -161,9 +170,14 @@ public class ConfigPage extends AbstractMenuBarPage {
             Launcher.setTitle();
         });
 
-        item5 = new BooleanItem("", this.width / 4 * 3);
-        item5.cont.selectedProperty().set(Launcher.configReader.configModel.fastDownload);
-        item5.cont.setOnAction(event -> Launcher.configReader.configModel.fastDownload = item5.cont.isSelected());
+        item5 = new ListItem<>("", this.width / 4 * 3);
+        for (Map.Entry<String, String> entry : servers.entrySet()){
+            Label l = new Label(entry.getKey());
+            l.setFont(Fonts.t_f);
+            item5.cont.getItems().add(l);
+        }
+        item5.cont.getSelectionModel().select(getKey2(Launcher.configReader.configModel.downloadServer));
+        item5.cont.setOnAction(event -> Launcher.configReader.configModel.downloadServer = servers.get(item5.cont.getValue().getText()));
 
         item6 = new IntItem("", this.width / 4 * 3);
         item6.cont.setMax(8192);
@@ -405,6 +419,20 @@ public class ConfigPage extends AbstractMenuBarPage {
             }
             if (Objects.equals(l.getText(), key)){
                 return item3.cont.getItems().indexOf(l);
+            }
+        }
+        return -1;
+    }
+    private int getKey2(String value){
+        for (Label l : item5.cont.getItems()){
+            String key = "";
+            for (Map.Entry<String, String> entry : servers.entrySet()){
+                if (Objects.equals(entry.getValue(), value)){
+                    key = entry.getKey();
+                }
+            }
+            if (Objects.equals(l.getText(), key)){
+                return item5.cont.getItems().indexOf(l);
             }
         }
         return -1;

@@ -1,6 +1,7 @@
 package com.mcreater.amcl.lang;
 
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
+import com.mcreater.amcl.util.J8Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +24,7 @@ public class LanguageManager {
         bindedPages.add(page);
     }
     public void bindAll(AbstractAnimationPage... pages){
-        bindedPages.addAll(List.of(pages));
+        bindedPages.addAll(J8Utils.createList(pages));
     }
     public void initlaze(){
         vaild_languages.add("ENGLISH");

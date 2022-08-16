@@ -2,6 +2,7 @@ package com.mcreater.amcl.api.auth;
 
 import com.google.gson.Gson;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.HttpClient;
 import javafx.util.Pair;
 import org.json.JSONObject;
@@ -48,8 +49,8 @@ public class MSAuth extends AbstractAuth<MicrosoftUser>{
     // second : uhs
     public Pair<String, String> acquireXBLToken(String accessToken) {
         try {
-            Map<Object, Object> data = Map.of(
-                    "Properties", Map.of(
+            Map<Object, Object> data = J8Utils.createMap(
+                    "Properties", J8Utils.createMap(
                             "AuthMethod", "RPS",
                             "SiteName", "user.auth.xboxlive.com",
                             "RpsTicket", accessToken
@@ -84,10 +85,10 @@ public class MSAuth extends AbstractAuth<MicrosoftUser>{
     public Pair<String, String> acquireXsts(String xblToken) {
         try {
 
-            Map<Object, Object> data = Map.of(
-                    "Properties", Map.of(
+            Map<Object, Object> data = J8Utils.createMap(
+                    "Properties", J8Utils.createMap(
                             "SandboxId", "RETAIL",
-                            "UserTokens", List.of(xblToken)
+                            "UserTokens", J8Utils.createList(xblToken)
                     ),
                     "RelyingParty", "rp://api.minecraftservices.com/",
                     "TokenType", "JWT"
@@ -119,7 +120,7 @@ public class MSAuth extends AbstractAuth<MicrosoftUser>{
 
     public Pair<String, Pair<String, String>> acquireMinecraftToken(String xblUhs, String xblXsts) {
         try {
-            Map<Object, Object> data = Map.of(
+            Map<Object, Object> data = J8Utils.createMap(
                     "identityToken", "XBL3.0 x=" + xblUhs + ";" + xblXsts
             );
             HttpClient client = HttpClient.getInstance(mcLoginUrl);

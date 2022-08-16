@@ -2,6 +2,7 @@ package com.mcreater.amcl;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
+import com.mcreater.amcl.api.windows.MessageCenter;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
@@ -15,9 +16,10 @@ import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
-import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
+import com.sun.jna.platform.win32.Shell32Util;
+import com.sun.jna.platform.win32.User32;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
@@ -40,8 +42,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-
-import static com.mcreater.amcl.Main.args;
 
 public class Launcher extends javafx.application.Application {
     static Logger logger = LogManager.getLogger(Launcher.class);
@@ -67,7 +67,6 @@ public class Launcher extends javafx.application.Application {
     public static int height = 480;
     public static Label ln;
     public static Pane p = new Pane();
-    public static FasterUrls.Servers server = FasterUrls.Servers.MCBBS;
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
         if (is_t) {
@@ -93,7 +92,7 @@ public class Launcher extends javafx.application.Application {
                 logger.error("failed to read config", e);
             }
             languageManager.setLanguage(LanguageManager.LanguageType.valueOf(configReader.configModel.language));
-
+            MessageCenter.pushNewMessage("test", "test", TrayIcon.MessageType.WARNING);
             MAINPAGE = new MainPage(width, height);
             CONFIGPAGE = new ConfigPage(width, height);
             VERSIONSELECTPAGE = new VersionSelectPage(width, height);

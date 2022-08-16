@@ -16,6 +16,7 @@ import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.J8Utils;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
@@ -226,7 +227,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
     }
     public static Date getTimeTick(String time) throws ParseException {
         SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = simpleDateFormat1.parse(List.of(time.split("\\.")).get(0).replace("T", " "));
+        Date date = simpleDateFormat1.parse(J8Utils.createList(time.split("\\.")).get(0).replace("T", " "));
         return date;
     }
     public static class VersionComparsion implements Comparator<String> {

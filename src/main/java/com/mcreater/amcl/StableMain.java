@@ -12,8 +12,7 @@ import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
 import com.mcreater.amcl.util.xml.DepencyItem;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.sun.javafx.tk.quantum.QuantumToolkit;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
@@ -21,24 +20,48 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URL;
 import java.util.Vector;
 
 public class StableMain {
     public static PreLanguageManager manager;
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        if (ClassPathInjector.version < 11 && !ClassPathInjector.javafx_useable){
+            JOptionPane.showMessageDialog(null, "launcher cannot fix javafx environment in java 8-10", "javafx broken", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+        fixPulseTimer();
         initPreLanguageManager();
         Vector<DepencyItem> addonItems = new Vector<>();
         downloadDepenciesJars(addonItems);
         injectDepencies();
         Main.main(args);
     }
+    public static void fixPulseTimer(){
+        try {
+            Field f = QuantumToolkit.class.getDeclaredField("pulseTimer");
+            f.setAccessible(true);
+            f.set(QuantumToolkit.getToolkit(), new com.sun.glass.ui.Timer(() -> {}) {
+                protected long _start(Runnable runnable) {
+                    return 0;
+                }
+
+                protected long _start(Runnable runnable, int period) {
+                    return 0;
+                }
+
+                protected void _stop(long timer) {
+
+                }
+            });
+        }
+        catch (Throwable e){}
+    }
     public static void initPreLanguageManager(){
         manager = new PreLanguageManager(PreLanguageManager.valueOf(LocateHelper.get()));
         manager.initlaze();
     }
-    public static void downloadDepenciesJars(Vector<DepencyItem> addonItems) throws ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
+    public static void downloadDepenciesJars(Vector<DepencyItem> addonItems) throws ParserConfigurationException, IOException, InterruptedException, SAXException {
         addonItems.addAll(DepenciesXMLHandler.load());
         Vector<Task> tasks = new Vector<>();
         for (DepencyItem item : addonItems){
@@ -66,7 +89,7 @@ public class StableMain {
         depenciesLoader.checkAndDownload(tasks.toArray(new Task[0]));
         depenciesLoader.frame.setVisible(false);
     }
-    public static void injectDepencies() throws ParserConfigurationException, IOException, SAXException, InvocationTargetException, IllegalAccessException, ClassNotFoundException {
+    public static void injectDepencies() throws ParserConfigurationException, IOException, SAXException, InvocationTargetException, IllegalAccessException {
         for (DepencyItem item : DepenciesXMLHandler.load()){
             ClassPathInjector.addJarUrl(new File(item.getLocal()).toURI().toURL());
         }

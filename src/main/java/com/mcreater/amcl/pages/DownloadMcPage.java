@@ -1,7 +1,6 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.SmoothableListView;
@@ -13,10 +12,8 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
-import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
-import javafx.concurrent.Service;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -24,7 +21,6 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import java.util.Comparator;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -39,6 +35,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
     Parent setted;
     public Vector<TitledPane> panes = new Vector<>();
     JFXProgressBar bar;
+    Thread service;
     public DownloadMcPage(int width, int height){
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -64,10 +61,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
         });
         load = new JFXButton();
         load.setFont(Fonts.s_f);
-        load.setOnAction(event -> {
-            load.setDisable(true);
-            loadVersions();
-        });
+        load.setOnAction(event -> loadVersions());
         load.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 20, 20));
         setting.setButtonType(JFXButton.ButtonType.RAISED);
         load.setButtonType(JFXButton.ButtonType.RAISED);
@@ -85,7 +79,9 @@ public class DownloadMcPage extends AbstractAnimationPage {
         setType(setting);
     }
     public void loadVersions(){
+        if (service != null) service.stop();
         Runnable r = () -> {
+            load.setDisable(true);
             mainBox.setDisable(true);
             Platform.runLater(mainBox.getChildren()::clear);
             Platform.runLater(() -> mainBox.getChildren().add(bar));
@@ -133,13 +129,14 @@ public class DownloadMcPage extends AbstractAnimationPage {
                     Launcher.setPage(Launcher.DOWNLOADADDONSELECTPAGE, this);
                     Launcher.DOWNLOADADDONSELECTPAGE.setVersionId(listv.selectedItem.model);
                 });
+                pane.getStyleClass().clear();
                 Platform.runLater(() -> mainBox.getChildren().add(pane));
                 Platform.runLater(() -> ThemeManager.loadButtonAnimates(pane));
                 mainBox.setDisable(false);
             }
             load.setDisable(false);
         };
-        Service<String> service = FXConcurrentPool.run(r);
+        service = new Thread(r);
         service.start();
     }
     public void setType(Parent b){
@@ -187,6 +184,6 @@ public class DownloadMcPage extends AbstractAnimationPage {
     }
 
     public void onExitPage() {
-
+        service.stop();
     }
 }

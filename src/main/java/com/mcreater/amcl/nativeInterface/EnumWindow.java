@@ -13,7 +13,7 @@ public class EnumWindow {
         IntByReference i = new IntByReference();
         user32.EnumWindows((h, p) -> {
             user32.GetWindowThreadProcessId(h, i);
-            if(user32.IsWindow(h)&&user32.IsWindowEnabled(h)&&user32.IsWindowVisible(h)){
+            if(user32.IsWindow(h) && user32.IsWindowEnabled(h) && user32.IsWindowVisible(h)){
                 set.add((long) i.getValue());
             }
             return true;

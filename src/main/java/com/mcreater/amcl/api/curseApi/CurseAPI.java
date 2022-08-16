@@ -1,17 +1,21 @@
 package com.mcreater.amcl.api.curseApi;
 
-import com.almasb.fxgl.input.Input;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModRequireModel;
 import com.mcreater.amcl.controls.ModFile;
 import com.mcreater.amcl.download.GetVersionList;
+import com.mcreater.amcl.util.J8Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -40,13 +44,13 @@ public class CurseAPI {
                 logger.info(String.format("requesting curseApi with url %s", u));
                 HttpURLConnection conn = (HttpURLConnection) u.openConnection();
                 conn.setRequestProperty("x-api-key", apiKey);
-                conn.setRequestProperty("accept", "application/json");
+                conn.setRequestProperty("Accept", "application/json");
                 conn.setConnectTimeout(10000);
                 int respc = conn.getResponseCode();
                 StringBuilder f = new StringBuilder();
                 long endTime = System.currentTimeMillis();
                 logger.info(String.format("Url %s returned code %d in %d ms", u, respc, endTime - startTime));
-                if (respc == 200) {
+                if (respc <= 399) {
                     InputStream is = conn.getInputStream();
                     if (null != is) {
                         BufferedReader br = new BufferedReader(new InputStreamReader(is));
@@ -97,7 +101,7 @@ public class CurseAPI {
     public static long getTimeFromString(String time) {
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            return formatter.parse(List.of(time.split("\\.")).get(0).replace("T", " ")).getTime();
+            return formatter.parse(J8Utils.createList(time.split("\\.")).get(0).replace("T", " ")).getTime();
         }
         catch (ParseException e){
             return -1;
@@ -183,9 +187,9 @@ public class CurseAPI {
         return size != c1.size();
     }
     public static void main(String[] args) throws IOException, ParseException {
-        Vector<CurseModModel> mod = search("tinker", CurseResourceType.Types.MOD, CurseSortType.Types.DESCENDING, 20);
-        CurseModFileModel file = getModFiles(mod.get(0)).get(0);
-        System.out.println(getModFileRequiredMods(file, "1.12.2", file.fileName));
+        Vector<CurseModModel> mod = search("minecraft ", CurseResourceType.Types.MOD, CurseSortType.Types.DESCENDING, 20);
+        Vector<CurseModFileModel> files = getModFiles(mod.get(6));
+        files.forEach(e -> System.out.println(new Gson().toJson(e)));
     }
     public static CurseModModel getFromModId(int id) throws IOException {
         String url = String.format("/v1/mods/%d", id);
@@ -259,6 +263,9 @@ public class CurseAPI {
                     ArrayList<?> a = (ArrayList<?>) m.get("data");
                     for (Object o : a) {
                         CurseModFileModel model = g.fromJson(g.toJson(o), CurseModFileModel.class);
+                        if (model.downloadUrl == null){
+                            model.downloadUrl = String.format("https://edge.forgecdn.net/files/%d/%d/%s", model.id / 1000, model.id % 1000, model.fileName);
+                        }
                         boolean contained = false;
                         while (true) {
                             try {

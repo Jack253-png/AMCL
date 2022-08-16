@@ -1,6 +1,7 @@
 package com.mcreater.amcl.util.xml;
 
 import com.mcreater.amcl.patcher.depenciesLoader;
+import com.mcreater.amcl.util.J8Utils;
 
 import java.net.MalformedURLException;
 import java.util.List;
@@ -16,7 +17,7 @@ public class DepencyItem {
         return "AMCL\\depencies\\" + depenciesLoader.convertName(this.name);
     }
     public String getFileName(){
-        List<String> an = List.of(depenciesLoader.convertName(this.name).split("\\\\"));
+        List<String> an = J8Utils.createList(depenciesLoader.convertName(this.name).split("\\\\"));
         return an.get(an.size() - 1);
     }
     public String getURL() throws MalformedURLException {

@@ -69,10 +69,14 @@ public final class ByteTag extends Tag {
 	
 		return value;
 	}
-	
+
+	public Byte toNativeType() {
+		return value;
+	}
+
 	@Override
 	public String toString() {
-		return String.format("\"%s\" : %d", getName(), value);
+		return String.valueOf(value);
 	}
 	
 	/*

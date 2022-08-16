@@ -65,6 +65,11 @@ public class DownloadTask extends AbstractTask{
     }
     public void d() throws IOException {
         conn = getConnection();
+        if (server.contains("optifine.cn")) {
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.81 Mobile Safari/537.36 Edg/104.0.1293.54");
+            conn.setRequestProperty("Content-Type", "application/json");
+        }
+
         if (conn.getResponseCode() == 404){
 //            throw new Error();
         }
@@ -103,8 +108,7 @@ public class DownloadTask extends AbstractTask{
                         d();
                         break;
                     }
-                    catch (IOException ignored){
-                    }
+                    catch (IOException ignored){}
                 }
             }
             else if (checkHashReverted()){

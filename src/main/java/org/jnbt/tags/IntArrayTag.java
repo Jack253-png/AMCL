@@ -1,6 +1,7 @@
 package org.jnbt.tags;
 
 import java.util.Arrays;
+import java.util.Vector;
 
 //@formatter:off
 
@@ -71,10 +72,18 @@ public final class IntArrayTag extends Tag {
 	
 		return value;
 	}
-	
+
+	public Vector<Integer> toNativeType() {
+		Vector<Integer> itv = new Vector<>();
+		for (Integer i : value){
+			itv.add(i);
+		}
+		return itv;
+	}
+
 	@Override
 	public String toString() {
-		return String.format("\"%s\" : %s", getName(), Arrays.toString(value));
+		return Arrays.toString(value);
 	}
 	
 	/*

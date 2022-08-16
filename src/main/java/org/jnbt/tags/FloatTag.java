@@ -69,10 +69,14 @@ public final class FloatTag extends Tag {
 	
 		return value;
 	}
-	
+
+	public Float toNativeType() {
+		return value;
+	}
+
 	@Override
 	public String toString() {
-		return String.format("\"%s\" : %f", getName(), value);
+		return String.valueOf(value);
 	}
 	
 	/*
