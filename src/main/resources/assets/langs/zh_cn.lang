@@ -139,3 +139,5 @@ ui.configpage.systemInfo.charts.2.title=Cpu
 ui.configpage.systemInfo.charts.3.title=JVM 内存
 ui.mainpage.versionChecker.checkFailed.name=检查更新出错
 ui.fix._03=正在构建 Forge 客户端, 进程已执行 %d / %d
+ui.versioninfopage.modify.fail.title=操作失败
+ui.versioninfopage.modify.fail.content=Minecraft 正在运行

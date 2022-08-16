@@ -1,5 +1,7 @@
 package com.mcreater.amcl.util;
 
+import com.mcreater.amcl.util.system.MemoryReader;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -33,9 +35,6 @@ public class J8Utils {
         return obj;
     }
     public static long getProcessPid(Process process) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-//        Field f = Process.class.getDeclaredField("pid");
-//        f.setAccessible(true);
-//        return f.getLong(process);
         Method m = Process.class.getDeclaredMethod("pid");
         return (long) m.invoke(process);
     }
@@ -45,5 +44,14 @@ public class J8Utils {
             b.append(s);
         }
         return b.toString();
+    }
+    public static long getMcMaxMemory(){
+        long value = (long) (MemoryReader.getTotalMemory() * 0.75 / 1024 / 1024);
+        if (value < 1024) {
+            return 1024;
+        }
+        else {
+            return value;
+        }
     }
 }

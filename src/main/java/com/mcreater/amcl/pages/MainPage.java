@@ -68,6 +68,7 @@ public class MainPage extends AbstractAnimationPage {
         launchButton.setId("launch-button");
         launchButton.setFont(Fonts.s_f);
         launchButton.setTextFill(Color.WHITE);
+        launchButton.setOnMouseEntered(event -> flush());
         launchButton.setOnAction(event -> {
             flush();
             FileUtils.ChangeDir.saveNowDir();

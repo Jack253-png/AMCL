@@ -139,3 +139,5 @@ ui.configpage.systemInfo.charts.2.title=Cpu Usage
 ui.configpage.systemInfo.charts.3.title=JVM Memory Usage
 ui.mainpage.versionChecker.checkFailed.name=Check update failed
 ui.fix._03=Building Forge Client %d of %d
+ui.versioninfopage.modify.fail.title=Operation failed
+ui.versioninfopage.modify.fail.content=Minecraft is running

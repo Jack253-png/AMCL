@@ -101,7 +101,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         item.cont.selectedProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.change_game_dir = newValue);
 
         item2 = new IntItem("", this.width / 4 * 3);
-        item2.cont.setMax(4096);
+        item2.cont.setMax(J8Utils.getMcMaxMemory());
         item2.cont.setMin(256);
         item2.cont.setValue(Launcher.configReader.configModel.max_memory);
         item2.cont.setOrientation(Orientation.HORIZONTAL);

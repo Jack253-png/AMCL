@@ -3,6 +3,7 @@ package com.mcreater.amcl.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mcreater.amcl.lang.LanguageManager;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 
@@ -51,7 +52,7 @@ public class ConfigWriter{
         if (configModel.selected_version_index == null){
             configModel.selected_version_index = "";
         }
-        if (configModel.max_memory < 256 || configModel.max_memory > 4096){
+        if (configModel.max_memory < 256 || configModel.max_memory > J8Utils.getMcMaxMemory()){
             configModel.max_memory = 1024;
         }
         if (configModel.downloadChunkSize < 512 || configModel.downloadChunkSize > 8192){

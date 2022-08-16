@@ -218,6 +218,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
         Launcher.configReader.write();
     }
     public void refresh(){
+        update_version_name();
         load_list();
     }
     public void refreshType(){
