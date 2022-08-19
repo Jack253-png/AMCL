@@ -5,6 +5,7 @@ import com.mcreater.amcl.lang.PreLanguageManager;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.patcher.depenciesLoader;
+import com.mcreater.amcl.patcher.depencyLoadingFrame;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.FileUtils;
@@ -20,11 +21,22 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.net.*;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.Objects;
 import java.util.Vector;
 
 public class StableMain {
     public static PreLanguageManager manager;
+    public static void makeSingle() throws IOException {
+        File f = new File("C:\\TEMP.lock");
+        if (f.exists()){
+            throw new IOException("this application only can run once.");
+        }
+        f.deleteOnExit();
+        f.createNewFile();
+    }
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException {
         try {
             for (File f : Objects.requireNonNull(new File(FileUtils.LinkPath.link(System.getProperty("user.home"), "AppData\\Local\\JxBrowser")).listFiles())) {

@@ -18,6 +18,7 @@ public class StringItem extends HBox {
         this.title.setFont(Fonts.t_f);
         cont = new TextField();
         cont.setBorder(new Border(borderStroke));
+        cont.setFont(Fonts.t_f);
         HBox left = new HBox(this.title);
         left.setAlignment(Pos.CENTER_LEFT);
         FXUtils.ControlSize.setWidth(left, width / 2);

@@ -107,7 +107,6 @@ public class VersionInfoPage extends AbstractMenuBarPage {
             }
         });
         item = new StringItem("", this.width / 4 * 3);
-        item.cont.setFont(Fonts.t_f);
         changeName = new JFXButton();
         changeName.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         FXUtils.ControlSize.set(changeName, t_size, t_size);

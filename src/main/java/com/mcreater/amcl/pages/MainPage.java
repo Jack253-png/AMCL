@@ -3,7 +3,14 @@ package com.mcreater.amcl.pages;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.MSAuth;
+import com.mcreater.amcl.api.auth.OffLineAuth;
+import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.audio.BGMManager;
+import com.mcreater.amcl.controls.skin.FunctionHelper;
+import com.mcreater.amcl.controls.skin.SkinCanvasSupport;
+import com.mcreater.amcl.controls.skin.SkinView;
+import com.mcreater.amcl.controls.skin.animation.SkinAniRunning;
+import com.mcreater.amcl.controls.skin.animation.SkinAniWavingArms;
 import com.mcreater.amcl.exceptions.LaunchException;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
@@ -14,6 +21,7 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.stages.FXBrowserPage;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.VersionInfo;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -29,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class MainPage extends AbstractAnimationPage {
     public static Label title;
@@ -54,6 +63,7 @@ public class MainPage extends AbstractAnimationPage {
     public static ProcessDialog d;
     public static ProcessDialog l;
     public static JFXButton stop;
+    public static JFXButton users;
     public MainPage(double width,double height) {
         super(width, height);
         l = null;
@@ -81,7 +91,10 @@ public class MainPage extends AbstractAnimationPage {
                     try {
                         launchButton.setDisable(true);
                         if (new File(Launcher.configReader.configModel.selected_java_index).exists()) {
-                            g.launch(Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir, Launcher.configReader.configModel.max_memory);
+                            g.launch(
+                                    Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir,
+                                    Launcher.configReader.configModel.max_memory,
+                                    UserSelectPage.user_object.get());
                             logger.info("started launch thread");
                         } else {
                             Launcher.configReader.configModel.selected_java.remove(Launcher.configReader.configModel.selected_java_index);
@@ -90,13 +103,12 @@ public class MainPage extends AbstractAnimationPage {
                             Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.javaChecker.name"), Launcher.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), ""));
                             launchButton.setDisable(false);
                         }
-                    } catch (LaunchException | InterruptedException e) {
+                    }
+                    catch (Exception e) {
                         d.close();
                         logger.info("failed to launch", e);
                         launchButton.setDisable(false);
                         Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
                     }
                 });
                 la.setName("Launch Thread");
@@ -132,6 +144,7 @@ public class MainPage extends AbstractAnimationPage {
         settings = new JFXButton();
         downloadMc = new JFXButton();
         downloadTitle = new Label();
+        users = new JFXButton();
 
         title.setFont(Fonts.b_f);
         launch.setFont(Fonts.t_f);
@@ -141,10 +154,12 @@ public class MainPage extends AbstractAnimationPage {
         settings.setFont(Fonts.s_f);
         downloadMc.setFont(Fonts.s_f);
         downloadTitle.setFont(Fonts.t_f);
+        users.setFont(Fonts.s_f);
 
         settings.setOnAction(event -> Launcher.setPage(Launcher.CONFIGPAGE, this));
         version_settings.setOnAction(event -> Launcher.setPage(Launcher.VERSIONINFOPAGE, this));
         downloadMc.setOnAction(event -> Launcher.setPage(Launcher.DOWNLOADMCPAGE, this));
+        users.setOnAction(event -> Launcher.setPage(Launcher.USERSELECTPAGE, this));
 
         is_vaild_minecraft_dir = Launcher.configReader.configModel.selected_minecraft_dir.contains(Launcher.configReader.configModel.selected_minecraft_dir_index) && new File(Launcher.configReader.configModel.selected_minecraft_dir_index).exists();
 
@@ -171,11 +186,13 @@ public class MainPage extends AbstractAnimationPage {
         settings.setButtonType(JFXButton.ButtonType.RAISED);
         launchButton.setButtonType(JFXButton.ButtonType.RAISED);
         downloadMc.setButtonType(JFXButton.ButtonType.RAISED);
+        users.setButtonType(JFXButton.ButtonType.RAISED);
 
         choose_version.setMaxWidth(width / 4);
         version_settings.setMaxWidth(width / 4);
         settings.setMaxWidth(width / 4);
         downloadMc.setMaxWidth(width / 4);
+        users.setMaxWidth(width / 4);
 
         GameMenu = new VBox();
         GameMenu.setId("game-menu");
@@ -187,15 +204,13 @@ public class MainPage extends AbstractAnimationPage {
         HBox hBox2 = new HBox();
         FXUtils.ControlSize.set(hBox2, width / 5, height);
 
-        JFXButton b = new JFXButton("test");
-        new FXBrowserPage(MSAuth.loginUrl).open();
-
         GameMenu.getChildren().addAll(
                 title,
                 LaunchTitle,
                 FXUtils.ControlSize.setSplit(new SplitPane(), width / 4 - 20),
                 new Spacer(),
                 choose_version,
+                users,
                 new Spacer(),
                 SetTitle,
                 FXUtils.ControlSize.setSplit(new SplitPane(), width / 4 - 20),
@@ -304,5 +319,6 @@ public class MainPage extends AbstractAnimationPage {
         downloadTitle.setText(Launcher.languageManager.get("ui.mainpage.download.title"));
         downloadMc.setText(Launcher.languageManager.get("ui.mainpage.downloadMc.name"));
         stop.setText(Launcher.languageManager.get("ui.mainpage.stop"));
+        users.setText(Launcher.languageManager.get("ui.mainpage.users.name"));
     }
 }

@@ -94,6 +94,9 @@ public class ThemeManager {
     }
     public static void loadButtonAnimates(Node... nodes){
         for (Node button : nodes){
+            if (button instanceof JFXButton){
+                ((JFXButton) button).setButtonType(JFXButton.ButtonType.RAISED);
+            }
             if (!(button instanceof Pane) && !(button instanceof SettingPage)) {
                 generateAnimations(button, 0.6D, 1D, 200, button.opacityProperty());
             }

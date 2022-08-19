@@ -51,7 +51,7 @@ public class HttpClient {
     public String read(boolean autoConnect) throws IOException {
         if (autoConnect) conn.connect();
         if (conn.getResponseCode() > 399){
-            throw new RuntimeException(String.format("Server returned code %d", conn.getResponseCode()));
+            throw new IOException(String.format("Server returned code %d", conn.getResponseCode()));
         }
         InputStream stream = conn.getInputStream();
         StringBuilder builder = new StringBuilder();

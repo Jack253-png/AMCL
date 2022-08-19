@@ -60,6 +60,8 @@
                 {"name": "org.slf4j:slf4j-api:1.7.25"},
                 {"name": "org.slf4j:slf4j-nop:1.7.2"},
                 {"name": "org.apache.logging.log4j:log4j-core:2.17.2"},
-                {"name": "org.apache.logging.log4j:log4j-api:2.17.2"}
+                {"name": "org.apache.logging.log4j:log4j-api:2.17.2"},
+                {"name": "org.apache.commons:commons-lang3:3.5"},
+                {"name": "org.nanohttpd:nanohttpd:2.3.1"}
   ]
 }

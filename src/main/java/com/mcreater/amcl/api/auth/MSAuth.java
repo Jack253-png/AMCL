@@ -6,23 +6,26 @@ import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.ValueSet3;
 import com.mcreater.amcl.util.net.HttpClient;
 import javafx.util.Pair;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
 import java.util.*;
 
 public class MSAuth implements AbstractAuth<MicrosoftUser>{
     public static final String loginUrl = "https://login.live.com/oauth20_authorize.srf?client_id=00000000402b5328&response_type=code&scope=service%3A%3Auser.auth.xboxlive.com%3A%3AMBI_SSL&redirect_uri=https%3A%2F%2Flogin.live.com%2Foauth20_desktop.srf";
     public static final String redirectUrlSuffix = "https://login.live.com/oauth20_desktop.srf?code=";
-    private static final String authTokenUrl = "https://login.live.com/oauth20_token.srf";
+    public static final String authTokenUrl = "https://login.live.com/oauth20_token.srf";
     private static final String xblAuthUrl = "https://user.auth.xboxlive.com/user/authenticate";
     private static final String xstsAuthUrl = "https://xsts.auth.xboxlive.com/xsts/authorize";
     private static final String mcLoginUrl = "https://api.minecraftservices.com/authentication/login_with_xbox";
     private static final String mcStoreUrl = "https://api.minecraftservices.com/entitlements/mcstore";
     private static final String mcProfileUrl = "https://api.minecraftservices.com/minecraft/profile";
-    public String acquireAccessToken(String authcode) {
+    public Pair<String, String> acquireAccessToken(String authcode) {
         Map<Object, Object> data = new HashMap<>();
         data.put("client_id", "00000000402b5328");
         data.put("code", authcode);
@@ -35,7 +38,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             client.conn.setConnectTimeout(5000);
             client.conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             JSONObject ob = client.readJSON();
-            return ob.getString("access_token");
+            return new Pair<>(ob.getString("access_token"), ob.getString("refresh_token"));
         }
         catch (Exception e){
             throw new RuntimeException(e);
@@ -177,12 +180,16 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             throw new RuntimeException(e);
         }
     }
-    public MicrosoftUser getUser(String... args){
-        String token = acquireAccessToken(args[0]);
-        Pair<String, String> xbl_token = acquireXBLToken(token);
+    public MicrosoftUser getUser(String... args) throws RuntimeException {
+        Pair<String, String> token = acquireAccessToken(args[0]);
+        return getUserFromToken(token);
+    }
+    public MicrosoftUser getUserFromToken(Pair<String, String> token) throws RuntimeException {
+        Pair<String, String> xbl_token = acquireXBLToken(token.getKey());
         Pair<String, String> xsts = acquireXsts(xbl_token.getKey());
         ValueSet3<String, Pair<String, String>, Vector<McProfileModel.McSkinModel>> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
-        return new MicrosoftUser(content.getValue1(), content.getValue2().getKey(), content.getValue2().getValue(), content.getValue3());
+        MicrosoftUser msu = new MicrosoftUser(content.getValue1(), content.getValue2().getKey(), content.getValue2().getValue(), content.getValue3(), token.getValue());
+        return msu;
     }
     public static class McProfileModel {
         public String id;
@@ -196,9 +203,63 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             public String state;
             public String url;
             public String variant;
+            public String cape;
+            public boolean isSlim;
             public String toString(){
                 return url;
             }
         }
+    }
+    public static McProfileModel getUserSkinFromName(String name) throws IOException {
+        String url = String.format("https://api.mojang.com/users/profiles/minecraft/%s", name.toLowerCase());
+        HttpClient client = HttpClient.getInstance(url);
+        client.openConnection();
+        McProfileModel model = new Gson().fromJson(client.read(), McProfileModel.class);
+        return getUserSkin(model.id);
+    }
+    public static McProfileModel getUserSkin(String uuid) throws IOException {
+        String skinUrl = String.format("https://sessionserver.mojang.com/session/minecraft/profile/%s", uuid);
+        HttpClient skin = HttpClient.getInstance(skinUrl);
+        skin.openConnection();
+        String value = null;
+        JSONObject objj;
+        try {
+            objj = skin.readJSON();
+        } catch (JSONException e) {
+            throw new IOException(e);
+        }
+        for (Object o : objj.getJSONArray("properties")) {
+            JSONObject ob = (JSONObject) o;
+            if (Objects.equals(ob.getString("name"), "textures")) {
+                value = ob.getString("value");
+                break;
+            }
+        }
+        JSONObject obj = new JSONObject(new String(Base64.getDecoder().decode(value)));
+        System.out.println(obj);
+        McProfileModel.McSkinModel model1 = new McProfileModel.McSkinModel();
+        try {
+            model1.url = obj.getJSONObject("textures").getJSONObject("SKIN").getString("url");
+        }
+        catch (Exception ignored){
+            model1.url = "https://";
+        }
+        try {
+            model1.cape = obj.getJSONObject("textures").getJSONObject("CAPE").getString("url");
+        }
+        catch (Exception ignored){
+            model1.cape = "https://";
+        }
+        try {
+            obj.getJSONObject("textures").getJSONObject("SKIN").getJSONObject("metadata").getString("model");
+            model1.isSlim = true;
+        }
+        catch (Exception ignored){
+            model1.isSlim = false;
+        }
+        McProfileModel model = new Gson().fromJson(objj.toString(), McProfileModel.class);
+        model.skins = new Vector<>();
+        model.skins.add(model1);
+        return model;
     }
 }

@@ -6,7 +6,6 @@ import com.mcreater.amcl.api.windows.MessageCenter;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
-import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.*;
 import com.mcreater.amcl.pages.dialogs.PopupMessage;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
@@ -19,8 +18,6 @@ import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
-import com.sun.jna.platform.win32.Shell32Util;
-import com.sun.jna.platform.win32.User32;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
@@ -33,14 +30,17 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import jdk.internal.reflect.Reflection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 
@@ -58,6 +58,7 @@ public class Launcher extends javafx.application.Application {
     public static ModDownloadPage MODDOWNLOADPAGE;
     public static DownloadMcPage DOWNLOADMCPAGE;
     public static DownloadAddonSelectPage DOWNLOADADDONSELECTPAGE;
+    public static UserSelectPage USERSELECTPAGE;
     public static ThemeManager themeManager;
     public static ConfigWriter configReader;
     public static LanguageManager languageManager;
@@ -68,8 +69,14 @@ public class Launcher extends javafx.application.Application {
     public static int height = 480;
     public static Label ln;
     public static Pane p = new Pane();
+    public static JFXButton close;
+    public static JFXButton min;
+    public static JFXButton back;
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
+        Field fi = Font.class.getDeclaredField("DEFAULT");
+        fi.setAccessible(true);
+        fi.set(null, Fonts.t_f);
         if (is_t) {
             languageManager = new LanguageManager(null);
             themeManager = new ThemeManager();
@@ -102,8 +109,9 @@ public class Launcher extends javafx.application.Application {
             MODDOWNLOADPAGE = new ModDownloadPage(width, height);
             DOWNLOADMCPAGE = new DownloadMcPage(width, height);
             DOWNLOADADDONSELECTPAGE = new DownloadAddonSelectPage(width, height);
+            USERSELECTPAGE = new UserSelectPage(width, height);
 
-            languageManager.bindAll(MAINPAGE, CONFIGPAGE, VERSIONSELECTPAGE, VERSIONINFOPAGE, ADDMODSPAGE, MODDOWNLOADPAGE, DOWNLOADMCPAGE, DOWNLOADADDONSELECTPAGE);
+            languageManager.bindAll(MAINPAGE, CONFIGPAGE, VERSIONSELECTPAGE, VERSIONINFOPAGE, ADDMODSPAGE, MODDOWNLOADPAGE, DOWNLOADMCPAGE, DOWNLOADADDONSELECTPAGE, USERSELECTPAGE);
 
             themeManager.apply(this);
 
@@ -121,8 +129,9 @@ public class Launcher extends javafx.application.Application {
             stage.getIcons().add(new Image("assets/icons/grass.png"));
 
             stage.initStyle(StageStyle.TRANSPARENT);
-            WindowMovement windowMovement = new WindowMovement();
-            windowMovement.windowMove(s, stage);
+//            WindowMovement windowMovement = new WindowMovement();
+//            windowMovement.windowMove(s, stage);
+
             new Thread(() -> {
                 try {
                     if (GithubReleases.isDevelop()) {
@@ -179,9 +188,9 @@ public class Launcher extends javafx.application.Application {
 
         GridPane title = new GridPane();
         title.setAlignment(Pos.CENTER);
-        JFXButton close = new JFXButton();
-        JFXButton min = new JFXButton();
-        JFXButton back = new JFXButton();
+        close = new JFXButton();
+        min = new JFXButton();
+        back = new JFXButton();
         close.setPrefWidth(t_size / 6 * 5);
         close.setPrefHeight(t_size / 6 * 5);
         close.setGraphic(getSVGManager().close(Bindings.createObjectBinding(() -> Paint.valueOf("#000000")), t_size / 3 * 2, t_size / 3 * 2));
@@ -278,5 +287,6 @@ public class Launcher extends javafx.application.Application {
         MODDOWNLOADPAGE.setBackground(bg);
         DOWNLOADMCPAGE.setBackground(bg);
         DOWNLOADADDONSELECTPAGE.setBackground(bg);
+        USERSELECTPAGE.setBackground(bg);
     }
 }

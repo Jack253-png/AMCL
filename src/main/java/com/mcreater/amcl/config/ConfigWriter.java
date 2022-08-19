@@ -2,6 +2,7 @@ package com.mcreater.amcl.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
@@ -74,6 +75,12 @@ public class ConfigWriter{
             }
         });
         configModel.selected_minecraft_dir = dirs;
+        try {
+            ConfigModel.UserType.valueOf(configModel.last_userType);
+        }
+        catch (Exception e){
+            configModel.last_userType = "OFFLINE";
+        }
         write();
     }
 }

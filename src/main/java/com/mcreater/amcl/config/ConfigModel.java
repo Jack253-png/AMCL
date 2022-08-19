@@ -1,5 +1,6 @@
 package com.mcreater.amcl.config;
 
+import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.lang.LanguageManager;
 
 import java.util.Vector;
@@ -17,6 +18,11 @@ public class ConfigModel {
     public int downloadChunkSize;
     public int showingUpdateSpped;
     public String downloadServer;
+    public String last_uuid;
+    public String last_name;
+    public String last_accessToken;
+    public String last_refreshToken;
+    public String last_userType;
     public ConfigModel getI(){
         selected_java = new Vector<>();
         selected_minecraft_dir = new Vector<>();
@@ -31,5 +37,9 @@ public class ConfigModel {
         showingUpdateSpped = 500;
         downloadServer = "MCBBS";
         return this;
+    }
+    public enum UserType {
+        OFFLINE,
+        MICROSOFT
     }
 }

@@ -1,24 +1,31 @@
 package com.mcreater.amcl.pages.stages;
 
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.MSAuth;
+import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
+import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.teamdev.jxbrowser.chromium.CookieStorage;
 import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
 import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
 import com.teamdev.jxbrowser.chromium.swing.BrowserView;
+import javafx.application.Platform;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
 
 public class FXBrowserPage extends AbstractStage{
     BrowserView view;
-    JFrame frame;
+    public JFrame frame;
 
     JButton back;
     JButton forward;
     JButton refresh;
     JTextField f;
+    public MicrosoftUser user;
+    public RuntimeException ex;
     public FXBrowserPage(String url){
         view = new BrowserView();
         CookieStorage storage = view.getBrowser().getCookieStorage();
@@ -31,20 +38,34 @@ public class FXBrowserPage extends AbstractStage{
                 new Thread(() -> {
                     String url = event.getValidatedURL();
                     if (url.contains("The%20user%20has%20denied%20access%20to%20the%20scope%20requested%20by%20the%20client%20application.")){
-                        frame.dispose();
+                        view.getBrowser().loadURL(MSAuth.loginUrl);
                     }
                     else if (url.startsWith(MSAuth.redirectUrlSuffix)){
                         frame.dispose();
                         int start = url.indexOf("?code=");
                         String temp = url.substring(start);
                         int end = temp.indexOf("&lc=");
-                        System.out.println(new MSAuth().getUser(temp.substring(6, end)));
+                        try {
+                            user = new MSAuth().getUser(temp.substring(6, end));
+                        }
+                        catch (RuntimeException e){
+                            ex = e;
+                            Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.login.failed"), e.toString(), ""));
+                        }
                     }
                 }).start();
             }
         });
-        frame = new JFrame();
+        frame = new JFrame(){
+            protected void processWindowEvent(WindowEvent event){
+                if (event.getID() == WindowEvent.WINDOW_CLOSING){
+                    return;
+                }
+                super.processWindowEvent(event);
+            }
+        };
         frame.setIconImage(Toolkit.getDefaultToolkit().createImage(new ResourceGetter().getUrl("assets/icons/grass.png")));
+
 
         back = new JButton("back");
         back.addActionListener(actionEvent -> view.getBrowser().goBack());

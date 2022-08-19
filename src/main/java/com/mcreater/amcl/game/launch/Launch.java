@@ -3,6 +3,9 @@ package com.mcreater.amcl.game.launch;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.api.auth.YggdrasilServer;
+import com.mcreater.amcl.api.auth.users.AbstractUser;
+import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.DownloadTask;
@@ -24,6 +27,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
@@ -38,7 +43,10 @@ public class Launch {
     public Process p;
     ProcessDialog d;
     Logger logger = LogManager.getLogger(this.getClass());
-    public void launch(String java_path, String dir, String version_name, boolean ie, int m) throws IllegalStateException, InterruptedException, LaunchException, IOException {
+    public void launch(String java_path, String dir, String version_name, boolean ie, int m, AbstractUser user) throws Exception {
+        if (user == null){
+            throw new Exception("user is null");
+        }
         TaskManager.bind(MainPage.d, 2);
         MainPage.d.Create();
         MainPage.d.setV(0, 5, Launcher.languageManager.get("ui.launch._01"));
@@ -211,7 +219,7 @@ public class Launch {
                 arguments = arguments.replace("${assets_index_name}", r.assetIndex.get("id"));
             }
         }
-        arguments = arguments.replace("${auth_player_name}","123");
+        arguments = arguments.replace("${auth_player_name}","\""+user.username+"\"");
         arguments = arguments.replace("${user_type}","mojang");
         arguments = arguments.replace("${version_type}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
         arguments = arguments.replace("${resolution_width}","854");
@@ -225,8 +233,8 @@ public class Launch {
         }
         arguments = arguments.replace("${game_directory}", String.format("\"%s\"", gamedir.getPath()));
         arguments = arguments.replace("${user_properties}","{}");
-        arguments = arguments.replace("${auth_uuid}","00000000eef84bc6b7274f9c754a5a2c");
-        arguments = arguments.replace("${auth_access_token}","00000000000000");
+        arguments = arguments.replace("${auth_uuid}",user.uuid);
+        arguments = arguments.replace("${auth_access_token}",user.accessToken);
         arguments = arguments.replace("${auth_session}","8888888888888");
         arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
         arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
@@ -284,7 +292,22 @@ public class Launch {
         }
 
         try {
-            String command = StringUtils.LinkCommands.link(java, jvm, String.valueOf(classpath), mem, forgevm,mainClass.replace(" ",""), arguments);
+            InputStream stream = new ResourceGetter().get("authlib-injector.jar");
+            File target = new File("authlib-injector.jar");
+
+            OutputStream output = Files.newOutputStream(target.toPath());
+            byte[] buf = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = stream.read(buf)) > 0) {
+                output.write(buf, 0, bytesRead);
+            }
+            stream.close();
+            output.close();
+
+            String authLibInjectorArg = "-javaagent:" + target.getAbsolutePath() + "=http://localhost:" + YggdrasilServer.DEFAULT_PORT + " -Dauthlibinjector.side=client";
+            authLibInjectorArg = "";
+
+            String command = StringUtils.LinkCommands.link(java, jvm, authLibInjectorArg,String.valueOf(classpath), mem, forgevm,mainClass.replace(" ",""), arguments);
             MainPage.d.setV(0, 90, Launcher.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
             logger.info(String.format("Getted Command Line : %s", command));

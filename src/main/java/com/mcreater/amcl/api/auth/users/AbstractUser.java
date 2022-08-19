@@ -1,9 +1,12 @@
 package com.mcreater.amcl.api.auth.users;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+
 public abstract class AbstractUser {
-    public final String accessToken;
-    public final String username;
-    public final String uuid;
+    public String accessToken;
+    public String username;
+    public String uuid;
     public AbstractUser(String accessToken, String username, String uuid){
         this.accessToken = accessToken;
         this.username = username;
@@ -21,4 +24,9 @@ public abstract class AbstractUser {
     public String getUuid() {
         return uuid;
     }
+    public void setAccessToken(String accessToken) {this.accessToken = accessToken;}
+    public void setUsername(String username) {this.username = username;}
+    public void setUuid(String uuid) {this.uuid = uuid;}
+
+    public abstract void refresh() throws IOException;
 }

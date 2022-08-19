@@ -342,7 +342,6 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             }
         });
         versionfinalName = new StringItem("", this.width / 2);
-        versionfinalName.cont.setFont(Fonts.t_f);
         box.add(id, 0, 0, 1, 1);
         box.add(forge, 0, 1, 1, 1);
         box.add(optifine, 0, 2, 1, 1);
