@@ -23,6 +23,10 @@ public class ConfigModel {
     public String last_accessToken;
     public String last_refreshToken;
     public String last_userType;
+
+    public String last_skin_path;
+    public String last_cape_path;
+    public boolean last_is_slim;
     public ConfigModel getI(){
         selected_java = new Vector<>();
         selected_minecraft_dir = new Vector<>();

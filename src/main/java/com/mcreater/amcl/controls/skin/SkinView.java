@@ -120,6 +120,13 @@ public class SkinView extends Group {
 
     public void updateSkin(Image skin, boolean isSlim, final @Nullable Image cape) {
         if (SkinHelper.isNoRequest(skin) && SkinHelper.isSkin(skin)) {
+            boolean isDoubleSkin = skin.getWidth() >= 64 && skin.getHeight() >= 64;
+            headOuter.setVisible(isDoubleSkin);
+            bodyOuter.setVisible(isDoubleSkin);
+            larmOuter.setVisible(isDoubleSkin);
+            rarmOuter.setVisible(isDoubleSkin);
+            llegOuter.setVisible(isDoubleSkin);
+            rlegOuter.setVisible(isDoubleSkin);
             this.srcSkin = skin;
             this.skin = SkinHelper.x32Tox64(skin);
             this.srcCape = cape;

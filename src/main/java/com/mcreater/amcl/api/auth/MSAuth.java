@@ -210,14 +210,21 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             }
         }
     }
-    public static McProfileModel getUserSkinFromName(String name) throws IOException {
+    public static McProfileModel getUserSkinFromName(String name) throws Exception {
         String url = String.format("https://api.mojang.com/users/profiles/minecraft/%s", name.toLowerCase());
         HttpClient client = HttpClient.getInstance(url);
         client.openConnection();
         McProfileModel model = new Gson().fromJson(client.read(), McProfileModel.class);
         return getUserSkin(model.id);
     }
-    public static McProfileModel getUserSkin(String uuid) throws IOException {
+    public static String getUserUUID(String name) throws Exception {
+        String url = String.format("https://api.mojang.com/users/profiles/minecraft/%s", name.toLowerCase());
+        HttpClient client = HttpClient.getInstance(url);
+        client.openConnection();
+        McProfileModel model = new Gson().fromJson(client.read(), McProfileModel.class);
+        return model.id;
+    }
+    public static McProfileModel getUserSkin(String uuid) throws Exception {
         String skinUrl = String.format("https://sessionserver.mojang.com/session/minecraft/profile/%s", uuid);
         HttpClient skin = HttpClient.getInstance(skinUrl);
         skin.openConnection();

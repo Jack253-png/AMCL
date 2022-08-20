@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.MessageDigest;
@@ -26,9 +27,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class YggdrasilServer extends NanoHTTPD {
     private final KeyPair keyPair = KeyUtils.generateKey();
     private Player current_player;
-    private String rooturl;
+    public final String rooturl;
     public static final int DEFAULT_PORT = 10078;
-    private Logger logger = LogManager.getLogger(YggdrasilServer.class);
+    private final Logger logger = LogManager.getLogger(YggdrasilServer.class);
     public YggdrasilServer(int port) {
         super(port);
         rooturl = "http://localhost:" + port;

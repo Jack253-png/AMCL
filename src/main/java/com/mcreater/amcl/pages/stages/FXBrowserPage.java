@@ -50,7 +50,6 @@ public class FXBrowserPage extends AbstractStage{
                         }
                         catch (RuntimeException e){
                             ex = e;
-                            Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.login.failed"), e.toString(), ""));
                         }
                     }
                 }).start();

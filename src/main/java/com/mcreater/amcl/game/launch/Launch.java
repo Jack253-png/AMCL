@@ -5,6 +5,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.YggdrasilServer;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
+import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
@@ -27,6 +28,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.net.BindException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.util.*;
@@ -304,10 +306,51 @@ public class Launch {
             stream.close();
             output.close();
 
-            String authLibInjectorArg = "-javaagent:" + target.getAbsolutePath() + "=http://localhost:" + YggdrasilServer.DEFAULT_PORT + " -Dauthlibinjector.side=client";
-            authLibInjectorArg = "";
+            String authLibInjectorArg = "";
+            int port = 2;
+            YggdrasilServer server = null;
+            if (user instanceof OffLineUser){
+                OffLineUser temp_user = (OffLineUser) user;
+                if (temp_user.skinUseable() || temp_user.capeUseable()){
+                    File skin = null;
+                    File cape = null;
+                    if (temp_user.skinUseable()) skin = new File(temp_user.skin);
+                    if (temp_user.capeUseable()) cape = new File(temp_user.cape);
 
-            String command = StringUtils.LinkCommands.link(java, jvm, authLibInjectorArg,String.valueOf(classpath), mem, forgevm,mainClass.replace(" ",""), arguments);
+                    while (true){
+                        try {
+                            MainPage.d.setV(0, 90, String.format(Launcher.languageManager.get("ui.userselectpage.launch.tryOpenServer"), port));
+                            server = new YggdrasilServer(port);
+                            server.setCurrent_player(new YggdrasilServer.Player(
+                                    user.uuid,
+                                    user.username,
+                                    skin,
+                                    cape,
+                                    temp_user.is_slim
+                            ));
+                            server.start();
+                            break;
+                        }
+                        catch (BindException e){
+                            port += 1;
+                            if (port > 65536){
+                                throw new IOException("server cannot open");
+                            }
+                        }
+                    }
+                    authLibInjectorArg = "-javaagent:" + target.getAbsolutePath() + "=http://localhost:" + port + " -Dauthlibinjector.side=client";
+                }
+            }
+
+            String command = StringUtils.LinkCommands.link(
+                    java,
+                    jvm,
+                    authLibInjectorArg,
+                    String.valueOf(classpath),
+                    mem,
+                    forgevm,
+                    mainClass.replace(" ",""),
+                    arguments);
             MainPage.d.setV(0, 90, Launcher.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
             logger.info(String.format("Getted Command Line : %s", command));
@@ -337,6 +380,7 @@ public class Launch {
             }).start();
             MainPage.minecraft_running = true;
             MainPage.stop.setDisable(false);
+            YggdrasilServer finalServer = server;
             new Thread(() -> {
                 while (true){
                     try {
@@ -346,6 +390,7 @@ public class Launch {
                         else {
                             MainPage.exit_code = 1L;
                         }
+                        if (finalServer != null) finalServer.stop();
                         MainPage.minecraft_running = false;
                         Platform.runLater(MainPage::check);
                         MainPage.launchButton.setDisable(false);
@@ -366,8 +411,8 @@ public class Launch {
     }
     public static void readProcessOutput(final Process process) {
         if (process != null) {
-            read(process.getInputStream(), System.out);
-            read(process.getErrorStream(), System.err);
+            new Thread(() -> read(process.getInputStream(), System.out)).start();
+            new Thread(() -> read(process.getErrorStream(), System.err)).start();
         }
     }
     public static void read(InputStream inputStream, PrintStream out) {

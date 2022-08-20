@@ -17,6 +17,7 @@ public class ListItem<T> extends HBox {
         this.name.setFont(Fonts.t_f);
         cont = new JFXComboBox<>();
         cont.setBorder(FXUtils.generateBorder(Color.BLACK, BorderStrokeStyle.SOLID, false, false, true, false, 2));
+        cont.disableAnimationProperty().set(false);
         HBox left = new HBox(this.name);
         left.setAlignment(Pos.CENTER_LEFT);
         FXUtils.ControlSize.setWidth(left, width / 2);

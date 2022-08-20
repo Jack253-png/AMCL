@@ -65,7 +65,7 @@ public final class SkinHelper {
     }
 
     public static boolean isSkin(Image image) {
-        return image.getWidth() % 64 == 0 && image.getWidth() / 64 > 0 &&
+        return image.getWidth() % 32 == 0 && image.getWidth() / 32 > 0 &&
                 (image.getHeight() == image.getWidth() / 2 || image.getHeight() == image.getWidth());
     }
 
