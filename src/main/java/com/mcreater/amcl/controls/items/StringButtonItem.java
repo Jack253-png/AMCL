@@ -2,10 +2,14 @@ package com.mcreater.amcl.controls.items;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.skins.JFXTextFieldSkin;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
+
+import java.lang.reflect.Field;
 
 public class StringButtonItem extends HBox {
     public JFXButton title;
@@ -15,6 +19,8 @@ public class StringButtonItem extends HBox {
         this.title.setFont(Fonts.t_f);
         cont = new JFXTextField();
         cont.setFont(Fonts.t_f);
+        FXUtils.fixJFXTextField(cont);
+
         HBox left = new HBox(this.title);
         left.setAlignment(Pos.CENTER_LEFT);
         FXUtils.ControlSize.setWidth(left, width / 2);

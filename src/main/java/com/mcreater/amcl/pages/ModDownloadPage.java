@@ -1,22 +1,23 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXCheckBox;
+import com.jfoenix.controls.JFXToggleButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.CurseAPI;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
 import com.mcreater.amcl.controls.ModFile;
-import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.theme.ThemeManager;
-import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
@@ -30,7 +31,10 @@ import javafx.scene.layout.VBox;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -43,7 +47,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
     ModFile last;
     Thread loadThread;
     GridPane p;
-    public JFXCheckBox installRequires;
+    public JFXToggleButton installRequires;
     public JFXButton install;
     CurseModModel content;
     public ModDownloadPage(double width, double height) {
@@ -54,7 +58,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
         v = new VBox();
         FXUtils.ControlSize.set(p, width, height);
         p.add(new SettingPage(800, 480 - 45 - 70, v, false), 0, 0, 1, 1);
-        installRequires = new JFXCheckBox();
+        installRequires = new JFXToggleButton();
         installRequires.selectedProperty().set(true);
         installRequires.setFont(Fonts.t_f);
         install = new JFXButton();
@@ -120,7 +124,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                 FastInfomation.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
             }
         });
-        VBox box = new VBox(installRequires, install);
+        HBox box = new HBox(installRequires, install);
         box.setSpacing(10);
         box.setAlignment(Pos.CENTER_LEFT);
         HBox t = new HBox(new Label("    "), box);
@@ -191,8 +195,9 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     FXUtils.ControlSize.setWidth(b, this.width - 15);
                     FXUtils.ControlSize.setWidth(v, this.width - 15);
                     Platform.runLater(() -> v.getChildren().add(pane));
+                    Platform.runLater(() -> ThemeManager.loadButtonAnimates(pane));
+                    Sleeper.sleep(100);
                 }
-                ThemeManager.loadButtonAnimates(v.getChildren().toArray(new Node[0]));
                 this.setDisable(false);
             }
             catch (IOException e){
@@ -201,7 +206,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     Launcher.setPage(Launcher.ADDMODSPAGE, this);
                 });
             } catch (ParseException e) {
-                throw new RuntimeException(e);
+
             }
         }
         );
@@ -227,8 +232,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
     }
     public static Date getTimeTick(String time) throws ParseException {
         SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = simpleDateFormat1.parse(J8Utils.createList(time.split("\\.")).get(0).replace("T", " "));
-        return date;
+        return simpleDateFormat1.parse(J8Utils.createList(time.split("\\.")).get(0).replace("T", " "));
     }
     public static class VersionComparsion implements Comparator<String> {
         public int compare(String compareValue1, String compareValue2) {

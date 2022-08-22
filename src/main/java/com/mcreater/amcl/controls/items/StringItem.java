@@ -1,5 +1,6 @@
 package com.mcreater.amcl.controls.items;
 
+import com.jfoenix.controls.JFXTextField;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.geometry.Insets;
@@ -11,14 +12,15 @@ import javafx.scene.paint.Color;
 
 public class StringItem extends HBox {
     public Label title;
-    public TextField cont;
+    public JFXTextField cont;
     public StringItem(String title, double width){
         BorderStroke borderStroke = new BorderStroke(null,null, Color.BLACK,null, null,null, BorderStrokeStyle.SOLID,null,null, BorderWidths.DEFAULT,new Insets(2));
         this.title = new Label(title);
         this.title.setFont(Fonts.t_f);
-        cont = new TextField();
+        cont = new JFXTextField();
         cont.setBorder(new Border(borderStroke));
         cont.setFont(Fonts.t_f);
+        FXUtils.fixJFXTextField(cont);
         HBox left = new HBox(this.title);
         left.setAlignment(Pos.CENTER_LEFT);
         FXUtils.ControlSize.setWidth(left, width / 2);

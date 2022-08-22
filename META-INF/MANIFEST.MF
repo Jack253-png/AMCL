@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: com.mcreater.amcl.StableMain
+Add-Opens: java.base/jdk.internal.loader java.base/java.net
+Add-Exports: java.desktop/sun.font java.desktop/sun.awt java.desktop/sun.awt.windows

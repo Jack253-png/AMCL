@@ -1,10 +1,15 @@
 package com.mcreater.amcl.util;
 
+import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.skins.JFXTextFieldSkin;
 import javafx.geometry.Insets;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
+import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
+
+import java.lang.reflect.Field;
 
 public class FXUtils {
     public static class ControlSize {
@@ -49,5 +54,15 @@ public class FXUtils {
                               bottom ? style : null,
                               left ? style : null,
                               null, BorderWidths.DEFAULT, new Insets(width));
+    }
+    public static void fixJFXTextField(JFXTextField field) {
+        try {
+            JFXTextFieldSkin<?> sk = new JFXTextFieldSkin<>(field);
+            field.setSkin(sk);
+            Field f = JFXTextFieldSkin.class.getDeclaredField("textNode");
+            f.setAccessible(true);
+            f.set(sk, new Text());
+        }
+        catch (Exception ignored){}
     }
 }

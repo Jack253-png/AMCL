@@ -10,10 +10,7 @@ import com.mcreater.amcl.config.ConfigModel;
 import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.controls.skin.SkinView;
-import com.mcreater.amcl.pages.dialogs.CustomSkinDialog;
-import com.mcreater.amcl.pages.dialogs.FastInfomation;
-import com.mcreater.amcl.pages.dialogs.InputDialog;
-import com.mcreater.amcl.pages.dialogs.LoadingDialog;
+import com.mcreater.amcl.pages.dialogs.*;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
@@ -32,7 +29,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
 import java.io.IOException;
@@ -61,6 +57,10 @@ public class UserSelectPage extends AbstractMenuBarPage {
     Label onlineUser;
     Label custom;
     ImageView decorator;
+    public String handleNullString(String raw){
+        if (raw == null) return "";
+        else return raw;
+    }
     public UserSelectPage(double width, double height) {
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -80,174 +80,14 @@ public class UserSelectPage extends AbstractMenuBarPage {
         }
         offlineSkin.cont.getItems().addAll(onlineUser, custom);
 
-        offlineSkin.cont.getSelectionModel().select(0);
-        offlineLogin = new JFXButton();
-        offlineLogin.setFont(Fonts.t_f);
-        offlineLogin.setOnAction(event -> {
-            Launcher.configReader.configModel.last_userType = "OFFLINE";
-            Launcher.configReader.configModel.last_name = nameItem.cont.getText();
-
-            Runnable finalRunnable = () -> {
-                Launcher.configReader.configModel.last_refreshToken = "";
-                Launcher.configReader.configModel.last_accessToken = "";
-                Launcher.configReader.write();
-                user_object.set(new OffLineUser(
-                        Launcher.configReader.configModel.last_name,
-                        Launcher.configReader.configModel.last_uuid,
-                        Launcher.configReader.configModel.last_is_slim,
-                        Launcher.configReader.configModel.last_skin_path,
-                        Launcher.configReader.configModel.last_cape_path));
-                FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.content"), "");
-                refreshSkin();
-                setP1(2);
-            };
-
-            if (offlineSkin.cont.getSelectionModel().getSelectedIndex() == 0) {
-                Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
-                Launcher.configReader.configModel.last_is_slim = false;
-                Launcher.configReader.configModel.last_skin_path = null;
-                Launcher.configReader.configModel.last_cape_path = null;
-                finalRunnable.run();
-            }
-            else if (offlineSkin.cont.getSelectionModel().getSelectedIndex() == 1) {
-                Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
-                Launcher.configReader.configModel.last_is_slim = false;
-                Launcher.configReader.configModel.last_skin_path = null;
-                Launcher.configReader.configModel.last_cape_path = null;
-                finalRunnable.run();
-            }
-            else if (offlineSkin.cont.getSelectionModel().getSelectedIndex() == 2){
-                InputDialog dialog = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
-                dialog.Create();
-                dialog.setEvent(event1 -> {
-                    dialog.close();
-                    LoadingDialog dialog1 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.logging"));
-                    dialog1.Create();
-                    new Thread(() -> {
-                        Launcher.configReader.configModel.last_is_slim = false;
-                        Launcher.configReader.configModel.last_skin_path = null;
-                        Launcher.configReader.configModel.last_cape_path = null;
-                        try {
-                            Launcher.configReader.configModel.last_uuid = MSAuth.getUserUUID(dialog.f.getText());
-                        }
-                        catch (Exception e){
-                            Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
-                        }
-                        Platform.runLater(dialog1::close);
-                        Platform.runLater(finalRunnable);
-                    }).start();
-                });
-            }
-            else if (offlineSkin.cont.getSelectionModel().getSelectedIndex() == 3) {
-                Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
-                CustomSkinDialog dialog = new CustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"));
-
-                dialog.setEvent(event12 -> {
-                    switch (dialog.changeModelSelect.cont.getSelectionModel().getSelectedIndex()){
-                        default:
-                        case 0:
-                            Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
-                            Launcher.configReader.configModel.last_is_slim = false;
-                            break;
-                        case 1:
-                            Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
-                            Launcher.configReader.configModel.last_is_slim = true;
-                            break;
-                    }
-                    Launcher.configReader.configModel.last_skin_path = dialog.skin;
-                    Launcher.configReader.configModel.last_cape_path = dialog.cape;
-                    Launcher.configReader.write();
-                    Platform.runLater(finalRunnable);
-                    Platform.runLater(dialog::close);
-                });
-                dialog.Create();
-            }
-        });
-        switch (ConfigModel.UserType.valueOf(Launcher.configReader.configModel.last_userType)){
-            case OFFLINE:
-                if (Launcher.configReader.configModel.last_name != null || Launcher.configReader.configModel.last_uuid != null){
-                    nameItem.cont.setText(Launcher.configReader.configModel.last_name);
-                    user_object.set(new OffLineUser(
-                            Launcher.configReader.configModel.last_name,
-                            Launcher.configReader.configModel.last_uuid,
-                            Launcher.configReader.configModel.last_is_slim,
-                            Launcher.configReader.configModel.last_skin_path,
-                            Launcher.configReader.configModel.last_cape_path));
-                }
-                break;
-            case MICROSOFT:
-                if (Launcher.configReader.configModel.last_name != null || Launcher.configReader.configModel.last_uuid != null || Launcher.configReader.configModel.last_accessToken != null || Launcher.configReader.configModel.last_refreshToken != null){
-                    user_object.set(new MicrosoftUser(
-                            Launcher.configReader.configModel.last_accessToken,
-                            Launcher.configReader.configModel.last_name,
-                            Launcher.configReader.configModel.last_uuid,
-                            new Vector<>(),
-                            Launcher.configReader.configModel.last_refreshToken));
-                }
-                break;
-        }
-        offL.getChildren().addAll(nameItem, offlineSkin, offlineLogin);
-        msLogin = new JFXButton();
-        msLogin.setFont(Fonts.s_f);
-        msLogin.setOnAction(event -> {
-            FXBrowserPage p = new FXBrowserPage(MSAuth.loginUrl);
-            msLogin.setDisable(true);
-            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.logging"));
-            dialog.Create();
-            new Thread(() -> {
-                while (p.user == null && p.ex == null) {
-                    Sleeper.sleep(1000);
-                }
-                if (p.user != null){
-                    Launcher.configReader.configModel.last_uuid = p.user.uuid;
-                    Launcher.configReader.configModel.last_name = p.user.username;
-                    Launcher.configReader.configModel.last_accessToken = p.user.accessToken;
-                    Launcher.configReader.configModel.last_refreshToken = p.user.refreshToken;
-                    Launcher.configReader.configModel.last_userType = "MICROSOFT";
-                    Launcher.configReader.configModel.last_is_slim = false;
-                    Launcher.configReader.configModel.last_skin_path = null;
-                    Launcher.configReader.configModel.last_cape_path = null;
-                    user_object.set(p.user);
-                    Launcher.configReader.write();
-                    Platform.runLater(() -> {
-                        dialog.close();
-                        FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.ms.content"), "");
-                        msLogin.setDisable(false);
-                        refreshSkin();
-                        setP1(2);
-                    });
-                }
-                else {
-                    Platform.runLater(() -> {
-                        dialog.close();
-                        FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.login.failed"), p.ex.toString(), "");
-                        msLogin.setDisable(false);
-                    });
-                }
-            }).start();
-        });
-
-        view = new ImageView();
-        decorator = new ImageView();
-        p1 = new SettingPage(width / 4 * 3, height, offL);
-        b1 = new JFXButton();
-        b1.setFont(Fonts.s_f);
-        p2 = new SettingPage(width / 4 * 3, height, new VBox(msLogin));
-        b2 = new JFXButton();
-        b2.setFont(Fonts.s_f);
-        profile = new JFXButton();
-        profile.setFont(Fonts.s_f);
-
-        skin3d = new SkinView(width / 4 * 3, height - 50 - Launcher.barSize);
-        skin3d.enableRotation(.5);
-        name = new Label();
-        name.setFont(Fonts.s_f);
-
         JFXButton logout = new JFXButton();
         JFXButton refresh = new JFXButton();
+        JFXButton edit = new JFXButton();
+
         logout.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), 40 ,40));
         refresh.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 40 ,40));
-        FXUtils.ControlSize.setAll(40, 40, logout, refresh);
+        edit.setGraphic(Launcher.getSVGManager().accountEdit(Bindings.createObjectBinding(this::returnBlack), 40 ,40));
+        FXUtils.ControlSize.setAll(40, 40, logout, refresh, edit);
 
         refresh.setOnAction(event -> {
             refresh.setDisable(true);
@@ -287,10 +127,318 @@ public class UserSelectPage extends AbstractMenuBarPage {
             Launcher.configReader.write();
         });
 
+        edit.setOnAction(event -> {
+            EditAccountContentDialog dialog = new EditAccountContentDialog(Launcher.languageManager.get("ui.userselectpage.account.edit"));
+            OffLineUser temp_user = (OffLineUser) user_object.get();
+            if (temp_user.capeUseable() || temp_user.skinUseable()) {
+                dialog.item2.cont.getSelectionModel().select(3);
+            }
+            else {
+                switch (user_object.get().uuid) {
+                    case OffLineUser.STEVE:
+                        dialog.item2.cont.getSelectionModel().select(0);
+                        break;
+                    case OffLineUser.ALEX:
+                        dialog.item2.cont.getSelectionModel().select(1);
+                        break;
+                    default:
+                        dialog.item2.cont.getSelectionModel().select(2);
+                        break;
+                }
+            }
+            dialog.item.cont.setText(temp_user.username);
+            Runnable finalRunnable = () -> {
+                Launcher.configReader.write();
+                user_object.set(new OffLineUser(
+                        Launcher.configReader.configModel.last_name,
+                        Launcher.configReader.configModel.last_uuid,
+                        Launcher.configReader.configModel.last_is_slim,
+                        Launcher.configReader.configModel.last_skin_path,
+                        Launcher.configReader.configModel.last_cape_path
+                ));
+                refreshSkin();
+                dialog.close();
+            };
+            dialog.setEvent(event13 -> {
+                Launcher.configReader.configModel.last_name = dialog.item.cont.getText();
+                switch (dialog.item2.cont.getSelectionModel().getSelectedIndex()){
+                    case 0:
+                        Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
+                        Launcher.configReader.configModel.last_is_slim = false;
+                        Launcher.configReader.configModel.last_skin_path = null;
+                        Launcher.configReader.configModel.last_cape_path = null;
+                        finalRunnable.run();
+                        break;
+                    case 1:
+                        Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
+                        Launcher.configReader.configModel.last_is_slim = true;
+                        Launcher.configReader.configModel.last_skin_path = null;
+                        Launcher.configReader.configModel.last_cape_path = null;
+                        finalRunnable.run();
+                        break;
+                    case 2:
+                        InputDialog d1 = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
+                        LoadingDialog d3 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.loading"));
+                        d3.Create();
+                        new Thread(() -> {
+                            try {
+                                d1.f.setText(MSAuth.getUserSkin(Launcher.configReader.configModel.last_uuid).name);
+                            } catch (Exception ignored) {}
+                            Platform.runLater(d3::close);
+                            Platform.runLater(() -> {
+                                d1.Create();
+                                d1.setEvent(event1 -> {
+                                    d1.close();
+                                    LoadingDialog dialog1 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.updating"));
+                                    dialog1.Create();
+                                    new Thread(() -> {
+                                        Launcher.configReader.configModel.last_skin_path = null;
+                                        Launcher.configReader.configModel.last_cape_path = null;
+                                        try {
+                                            Launcher.configReader.configModel.last_uuid = MSAuth.getUserUUID(d1.f.getText());
+                                        }
+                                        catch (Exception e){
+                                            Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
+                                        }
+                                        try {
+                                            Launcher.configReader.configModel.last_is_slim = MSAuth.getUserSkinFromName(d1.f.getText()).skins.get(0).isSlim;
+                                        }
+                                        catch (Exception e){
+                                            Launcher.configReader.configModel.last_is_slim = false;
+                                        }
+                                        Platform.runLater(dialog1::close);
+                                        Platform.runLater(finalRunnable);
+                                    }).start();
+                                });
+                            });
+                        }).start();
+                        break;
+                    case 3:
+                        Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
+                        CustomSkinDialog d2 = new CustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"));
+                        if (Launcher.configReader.configModel.last_is_slim){
+                            d2.changeModelSelect.cont.getSelectionModel().select(1);
+                        }
+                        else {
+                            d2.changeModelSelect.cont.getSelectionModel().select(0);
+                        }
+                        d2.skin = handleNullString(Launcher.configReader.configModel.last_skin_path);
+                        d2.skin_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_skin_path));
+                        d2.cape = handleNullString(Launcher.configReader.configModel.last_cape_path);
+                        d2.cape_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_cape_path));
+
+                        d2.setEvent(event12 -> {
+                            switch (d2.changeModelSelect.cont.getSelectionModel().getSelectedIndex()){
+                                default:
+                                case 0:
+                                    Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
+                                    Launcher.configReader.configModel.last_is_slim = false;
+                                    break;
+                                case 1:
+                                    Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
+                                    Launcher.configReader.configModel.last_is_slim = true;
+                                    break;
+                            }
+                            Launcher.configReader.configModel.last_skin_path = d2.skin;
+                            Launcher.configReader.configModel.last_cape_path = d2.cape;
+                            Launcher.configReader.write();
+                            Platform.runLater(d2::close);
+                            finalRunnable.run();
+                        });
+                        d2.Create();
+                        break;
+
+                }
+
+            });
+            dialog.Create();
+        });
+
+        user_object.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null){
+                edit.setDisable(newValue instanceof MicrosoftUser);
+            }
+        });
+
+        offlineSkin.cont.getSelectionModel().select(0);
+        offlineLogin = new JFXButton();
+        offlineLogin.setFont(Fonts.t_f);
+        offlineLogin.setOnAction(event -> {
+            Launcher.configReader.configModel.last_userType = "OFFLINE";
+            Launcher.configReader.configModel.last_name = nameItem.cont.getText();
+
+            Runnable finalRunnable = () -> {
+                Launcher.configReader.configModel.last_refreshToken = "";
+                Launcher.configReader.configModel.last_accessToken = "";
+                Launcher.configReader.write();
+                user_object.set(new OffLineUser(
+                        Launcher.configReader.configModel.last_name,
+                        Launcher.configReader.configModel.last_uuid,
+                        Launcher.configReader.configModel.last_is_slim,
+                        Launcher.configReader.configModel.last_skin_path,
+                        Launcher.configReader.configModel.last_cape_path));
+                FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.content"), "");
+                refreshSkin();
+                setP1(2);
+            };
+
+            switch (offlineSkin.cont.getSelectionModel().getSelectedIndex()) {
+                case 0:
+                    Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
+                    Launcher.configReader.configModel.last_is_slim = false;
+                    Launcher.configReader.configModel.last_skin_path = null;
+                    Launcher.configReader.configModel.last_cape_path = null;
+                    finalRunnable.run();
+                    break;
+                case 1:
+                    Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
+                    Launcher.configReader.configModel.last_is_slim = false;
+                    Launcher.configReader.configModel.last_skin_path = null;
+                    Launcher.configReader.configModel.last_cape_path = null;
+                    finalRunnable.run();
+                    break;
+                case 2:
+                    InputDialog dialog = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
+                    dialog.Create();
+                    dialog.setEvent(event1 -> {
+                        dialog.close();
+                        LoadingDialog dialog1 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.logging"));
+                        dialog1.Create();
+                        new Thread(() -> {
+                            Launcher.configReader.configModel.last_skin_path = null;
+                            Launcher.configReader.configModel.last_cape_path = null;
+                            try {
+                                Launcher.configReader.configModel.last_uuid = MSAuth.getUserUUID(dialog.f.getText());
+                            } catch (Exception e) {
+                                Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
+                            }
+                            try {
+                                Launcher.configReader.configModel.last_is_slim = MSAuth.getUserSkinFromName(dialog.f.getText()).skins.get(0).isSlim;
+                            } catch (Exception e) {
+                                Launcher.configReader.configModel.last_is_slim = false;
+                            }
+                            Platform.runLater(dialog1::close);
+                            Platform.runLater(finalRunnable);
+                        }).start();
+                    });
+                    break;
+                case 3:
+                    Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
+                    CustomSkinDialog d2 = new CustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"));
+
+                    d2.setEvent(event12 -> {
+                        switch (d2.changeModelSelect.cont.getSelectionModel().getSelectedIndex()) {
+                            default:
+                            case 0:
+                                Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
+                                Launcher.configReader.configModel.last_is_slim = false;
+                                break;
+                            case 1:
+                                Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
+                                Launcher.configReader.configModel.last_is_slim = true;
+                                break;
+                        }
+                        Launcher.configReader.configModel.last_skin_path = d2.skin;
+                        Launcher.configReader.configModel.last_cape_path = d2.cape;
+                        Launcher.configReader.write();
+                        Platform.runLater(finalRunnable);
+                        Platform.runLater(d2::close);
+                    });
+                    d2.Create();
+                    break;
+                }
+            });
+        switch (ConfigModel.UserType.valueOf(Launcher.configReader.configModel.last_userType)){
+            case OFFLINE:
+                if (Launcher.configReader.configModel.last_name != null || Launcher.configReader.configModel.last_uuid != null){
+                    nameItem.cont.setText(Launcher.configReader.configModel.last_name);
+                    user_object.set(new OffLineUser(
+                            Launcher.configReader.configModel.last_name,
+                            Launcher.configReader.configModel.last_uuid,
+                            Launcher.configReader.configModel.last_is_slim,
+                            Launcher.configReader.configModel.last_skin_path,
+                            Launcher.configReader.configModel.last_cape_path));
+                }
+                break;
+            case MICROSOFT:
+                if (Launcher.configReader.configModel.last_name != null || Launcher.configReader.configModel.last_uuid != null || Launcher.configReader.configModel.last_accessToken != null || Launcher.configReader.configModel.last_refreshToken != null){
+                    user_object.set(new MicrosoftUser(
+                            Launcher.configReader.configModel.last_accessToken,
+                            Launcher.configReader.configModel.last_name,
+                            Launcher.configReader.configModel.last_uuid,
+                            new Vector<>(),
+                            Launcher.configReader.configModel.last_refreshToken));
+                }
+                break;
+        }
+        offL.getChildren().addAll(nameItem, offlineSkin, offlineLogin);
+        msLogin = new JFXButton();
+        msLogin.setFont(Fonts.s_f);
+        msLogin.setOnAction(event -> {
+            FXBrowserPage p = new FXBrowserPage(MSAuth.loginUrl);
+            msLogin.setDisable(true);
+            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.logging"));
+            dialog.Create();
+            Thread t = new Thread(() -> {
+                while (p.user == null && p.ex == null) {
+                    Sleeper.sleep(1000);
+                }
+                if (p.user != null){
+                    Launcher.configReader.configModel.last_uuid = p.user.uuid;
+                    Launcher.configReader.configModel.last_name = p.user.username;
+                    Launcher.configReader.configModel.last_accessToken = p.user.accessToken;
+                    Launcher.configReader.configModel.last_refreshToken = p.user.refreshToken;
+                    Launcher.configReader.configModel.last_userType = "MICROSOFT";
+                    Launcher.configReader.configModel.last_is_slim = false;
+                    Launcher.configReader.configModel.last_skin_path = null;
+                    Launcher.configReader.configModel.last_cape_path = null;
+                    user_object.set(p.user);
+                    Launcher.configReader.write();
+                    Platform.runLater(() -> {
+                        dialog.close();
+                        FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.ms.content"), "");
+                        msLogin.setDisable(false);
+                        refreshSkin();
+                        setP1(2);
+                    });
+                }
+                else {
+                    Platform.runLater(() -> {
+                        dialog.close();
+                        FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.login.failed"), p.ex.toString(), "");
+                        msLogin.setDisable(false);
+                    });
+                }
+            });
+            t.start();
+            p.r = () -> {
+                dialog.close();
+                t.stop();
+                msLogin.setDisable(false);
+            };
+
+        });
+
+        view = new ImageView();
+        decorator = new ImageView();
+        p1 = new SettingPage(width / 4 * 3, height, offL);
+        b1 = new JFXButton();
+        b1.setFont(Fonts.s_f);
+        p2 = new SettingPage(width / 4 * 3, height, new VBox(msLogin));
+        b2 = new JFXButton();
+        b2.setFont(Fonts.s_f);
+        profile = new JFXButton();
+        profile.setFont(Fonts.s_f);
+
+        skin3d = new SkinView(width / 4 * 3, height - 50 - Launcher.barSize);
+        skin3d.enableRotation(.5);
+        name = new Label();
+        name.setFont(Fonts.s_f);
+
         Pane p = new Pane();
         p.getChildren().addAll(view, decorator);
 
-        HBox g = new HBox(p, name, refresh, logout);
+        HBox g = new HBox(p, name, refresh, logout, edit);
         g.setSpacing(15);
         FXUtils.ControlSize.setHeight(g, 50);
         p3 = new SettingPage(width / 4 * 3, height, new VBox(g, skin3d));
@@ -370,7 +518,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
     }
     public void refreshSkin(){
         CountDownLatch latch = new CountDownLatch(1);
-        OffLineUser user = null;
+        OffLineUser user;
         Image skin;
         Image cape;
         if (user_object.get() instanceof OffLineUser){

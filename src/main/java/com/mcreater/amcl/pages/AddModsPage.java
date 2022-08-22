@@ -27,7 +27,7 @@ import java.util.Vector;
 
 public class AddModsPage extends AbstractAnimationPage {
     GridPane pane;
-    public TextField in;
+    public JFXTextField in;
     public JFXButton submit;
     public SmoothableListView<CurseMod> modlist;
     public JFXProgressBar bar;
@@ -37,7 +37,8 @@ public class AddModsPage extends AbstractAnimationPage {
         l = Launcher.VERSIONINFOPAGE;
         pane = new GridPane();
         FXUtils.ControlSize.set(pane, this.width, this.height);
-        in = new TextField();
+        in = new JFXTextField();
+        FXUtils.fixJFXTextField(in);
         submit = new JFXButton();
         bar = new JFXProgressBar(0);
         in.setFont(Fonts.t_f);
@@ -99,8 +100,8 @@ public class AddModsPage extends AbstractAnimationPage {
         }
     }
     public void showDownloads(CurseModModel model) throws InterruptedException {
-        Launcher.setPage(Launcher.MODDOWNLOADPAGE, this);
         Launcher.MODDOWNLOADPAGE.setModContent(model);
+        Launcher.setPage(Launcher.MODDOWNLOADPAGE, this);
         new Thread(() -> {
             try {
                 Thread.sleep(25);

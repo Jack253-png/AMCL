@@ -1,7 +1,6 @@
 package com.mcreater.amcl.pages.dialogs;
 
 import com.jfoenix.animation.alert.JFXAlertAnimation;
-import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
@@ -18,7 +17,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 
@@ -27,7 +25,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class CustomSkinDialog extends JFXAlert<String> {
+public class CustomSkinDialog extends AbstractDialog {
     EventHandler<ActionEvent> event = event -> {};
     JFXButton addButton;
     public String skin;
@@ -39,16 +37,9 @@ public class CustomSkinDialog extends JFXAlert<String> {
         this.event = event;
         addButton.setOnAction(this.event);
     }
-    private static Label setFont(Label l, Font font){
-        l.setFont(font);
-        return l;
-    }
 
     public CustomSkinDialog(String title){
         super(Launcher.stage);
-        this.setAnimation(JFXAlertAnimation.BOTTOM_ANIMATION);
-        this.initModality(Modality.APPLICATION_MODAL);
-        this.setOverlayClose(false);
         JFXDialogLayout layout = new JFXDialogLayout();
 
         changeModelSelect = new ListItem<>(Launcher.languageManager.get("ui.userselectpage.custom.model"), 400);
@@ -70,7 +61,7 @@ public class CustomSkinDialog extends JFXAlert<String> {
 
         skin_ui.title.setOnAction(event -> {
             FileChooser chooser = new FileChooser();
-            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Minecraft 皮肤文件", "*.png"));
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(Launcher.languageManager.get("ui.userselectpage.custom.file.desc"), "*.png"));
             File f = chooser.showOpenDialog(Launcher.stage);
             if (f != null){
                 try {
@@ -98,7 +89,7 @@ public class CustomSkinDialog extends JFXAlert<String> {
         });
         cape_ui.title.setOnAction(event -> {
             FileChooser chooser = new FileChooser();
-            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Minecraft 皮肤文件", "*.png"));
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(Launcher.languageManager.get("ui.userselectpage.custom.file.desc"), "*.png"));
             File f = chooser.showOpenDialog(Launcher.stage);
             if (f != null){
                 try {
@@ -131,8 +122,5 @@ public class CustomSkinDialog extends JFXAlert<String> {
         this.setOnHidden(event -> {});
         this.setOnHiding(event -> {});
         this.setContent(layout);
-    }
-    public void Create(){
-        Platform.runLater(this::show);
     }
 }

@@ -68,6 +68,8 @@ dependencies {
     implementation('com.github.oshi:oshi-core:3.5.0')
     implementation files('jxbrowser-6.18.jar')
     implementation files('jxbrowser-win32-6.18.jar')
+    implementation('org.apache.commons:commons-lang3:3.5')
+    implementation('org.nanohttpd:nanohttpd:2.3.1')
 }
 
 test {

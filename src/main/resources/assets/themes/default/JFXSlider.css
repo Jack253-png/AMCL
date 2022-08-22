@@ -9,3 +9,7 @@
 .root .animated-thumb {
     -fx-background-color: rgba(173,216,246, 1.0);
 }
+
+.root .sliderValue {
+    -fx-font-size: 16;
+}

@@ -151,6 +151,8 @@ public class VersionSelectPage extends AbstractAnimationPage {
 
         this.add(p, 0, 0, 1, 1);
         this.add(versionlist,1,0 ,1,1);
+
+        onExitPage();
     }
     public int findLabelFromName(String name){
         for (int i = 0;i < dirs.getItems().size();i++){

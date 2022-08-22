@@ -6,6 +6,7 @@ import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.teamdev.jxbrowser.chromium.BrowserException;
 import com.teamdev.jxbrowser.chromium.CookieStorage;
 import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
 import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
@@ -26,8 +27,15 @@ public class FXBrowserPage extends AbstractStage{
     JTextField f;
     public MicrosoftUser user;
     public RuntimeException ex;
+    public Runnable r = () -> {};
+
     public FXBrowserPage(String url){
-        view = new BrowserView();
+        try {
+            view = new BrowserView();
+        }
+        catch (BrowserException e){
+            ex = e;
+        }
         CookieStorage storage = view.getBrowser().getCookieStorage();
         storage.deleteAll();
         storage.save();
@@ -58,7 +66,7 @@ public class FXBrowserPage extends AbstractStage{
         frame = new JFrame(){
             protected void processWindowEvent(WindowEvent event){
                 if (event.getID() == WindowEvent.WINDOW_CLOSING){
-                    return;
+                    r.run();
                 }
                 super.processWindowEvent(event);
             }

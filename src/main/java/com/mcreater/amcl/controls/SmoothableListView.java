@@ -3,6 +3,7 @@ package com.mcreater.amcl.controls;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.sun.javafx.scene.EventHandlerProperties;
 import javafx.beans.property.ObjectProperty;
@@ -26,6 +27,7 @@ public class SmoothableListView<T extends Region> extends VBox{
     public SmoothableListView(double width, double height) {
         page = new SettingPage(width, height, this, false);
         this.setSpacing(5);
+        ThemeManager.loadButtonAnimates(this);
     }
     public void setOnAction(Runnable r){
         onActionProperty.set(r);
@@ -41,6 +43,9 @@ public class SmoothableListView<T extends Region> extends VBox{
         Border b2 = FXUtils.generateBorder(Color.BLACK, BorderStrokeStyle.SOLID, false, false, false, false, 1);
         button.setOnMouseEntered(event -> button.setBorder(b1));
         button.setOnMouseExited(event -> button.setBorder(b2));
+        button.setButtonType(JFXButton.ButtonType.RAISED);
+
+        ThemeManager.loadButtonAnimates(button);
 
         type.set(event -> {
             selectedItem = item;

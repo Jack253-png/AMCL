@@ -29,15 +29,19 @@ public class ModFile extends HBox implements Comparable<ModFile>{
         if (model.releaseType == 1){
             checkBox.setCheckedColor(Color.LIGHTGREEN);
             checkBox.setUnCheckedColor(Color.LIGHTGREEN);
+            checkBox.setStyle("-fx-background-color: lightgreen");
         }
         else if (model.releaseType == 2){
             checkBox.setCheckedColor(Color.LIGHTBLUE);
             checkBox.setUnCheckedColor(Color.LIGHTBLUE);
+            checkBox.setStyle("-fx-background-color: lightblue");
         }
         else{
             checkBox.setCheckedColor(Color.RED);
             checkBox.setUnCheckedColor(Color.RED);
+            checkBox.setStyle("-fx-background-color: red");
         }
+
         checkBox.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
         Label name = new Label(model.fileName);
         name.setFont(Fonts.s_f);

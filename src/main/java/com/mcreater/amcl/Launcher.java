@@ -7,6 +7,7 @@ import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.*;
+import com.mcreater.amcl.pages.dialogs.AboutDialog;
 import com.mcreater.amcl.pages.dialogs.PopupMessage;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -14,6 +15,7 @@ import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
@@ -42,6 +44,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
+import java.util.concurrent.Callable;
 
 public class Launcher extends javafx.application.Application {
     static Logger logger = LogManager.getLogger(Launcher.class);
@@ -128,25 +131,10 @@ public class Launcher extends javafx.application.Application {
             stage.getIcons().add(new Image("assets/icons/grass.png"));
 
             stage.initStyle(StageStyle.TRANSPARENT);
-//            WindowMovement windowMovement = new WindowMovement();
-//            windowMovement.windowMove(s, stage);
+            WindowMovement windowMovement = new WindowMovement();
+            windowMovement.windowMove(s, stage);
 
-            new Thread(() -> {
-                try {
-                    if (GithubReleases.isDevelop()) {
-                        PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.inDevelope"), PopupMessage.MessageTypes.LABEL, null);
-                    } else if (GithubReleases.outDated()) {
-                        Runnable show = () -> new UpgradePage().open();
-                        Platform.runLater(() -> {
-                            Hyperlink link = (Hyperlink) PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.outDated"), PopupMessage.MessageTypes.HYPERLINK, null);
-                            link.setOnAction(event -> show.run());
-                        });
-                    }
-                }
-                catch (IllegalStateException e){
-                    Platform.runLater(() -> PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.checkFailed.name"), PopupMessage.MessageTypes.LABEL, null));
-                }
-            }).start();
+            new Thread(VersionChecker::check).start();
             stage.show();
         }
         else{
@@ -206,7 +194,7 @@ public class Launcher extends javafx.application.Application {
 
         back.setPrefWidth(t_size / 2.5);
         back.setPrefHeight(t_size / 2.5);
-        back.setGraphic(getSVGManager().back(Bindings.createObjectBinding(() -> Paint.valueOf("#000000")), t_size / 3 * 2, t_size / 3 * 2));
+        back.setGraphic(getSVGManager().back(Bindings.createObjectBinding(() -> Color.BLACK), t_size / 3 * 2, t_size / 3 * 2));
         back.setButtonType(JFXButton.ButtonType.RAISED);
         AbstractAnimationPage lpa = last.l;
         ln = new Label();
@@ -218,14 +206,21 @@ public class Launcher extends javafx.application.Application {
                 setPage(lpa, lpa);
             });
         }
+        JFXButton about = new JFXButton();
+        about.setPrefWidth(t_size / 2.5);
+        about.setPrefHeight(t_size / 2.5);
+        about.setGraphic(getSVGManager().dotsVertical(Bindings.createObjectBinding(() -> Color.BLACK), barSize / 3 * 2, barSize / 3 * 2));
+        about.setButtonType(JFXButton.ButtonType.RAISED);
+        about.setOnAction(event -> new AboutDialog().Create());
+
         setTitle();
-        FXUtils.ControlSize.setAll(t_size / 6 * 5, t_size / 6 * 5, back, min, close);
+        FXUtils.ControlSize.setAll(t_size / 6 * 5, t_size / 6 * 5, about, back, min, close);
         HBox b = new HBox(back, ln);
         b.setAlignment(Pos.CENTER_LEFT);
         b.setMinSize(400, t_size);
         b.setMaxSize(400, t_size);
         title.add(b, 0, 0, 1, 1);
-        HBox cl = new HBox(min, close);
+        HBox cl = new HBox(about, min, close);
         cl.setAlignment(Pos.CENTER_RIGHT);
         cl.setMinSize(400, t_size);
         cl.setMaxSize(400, t_size);
@@ -235,6 +230,7 @@ public class Launcher extends javafx.application.Application {
         min.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
         close.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
         back.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
+        about.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
 
         themeManager.applyTopBar(top);
         VBox v = new VBox();

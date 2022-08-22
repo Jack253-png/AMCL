@@ -1,21 +1,19 @@
 package com.mcreater.amcl.pages.dialogs;
 
 import com.jfoenix.animation.alert.JFXAlertAnimation;
-import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXTextField;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
-import javafx.application.Platform;
+import com.mcreater.amcl.util.FXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
-import javafx.scene.text.Font;
 import javafx.stage.Modality;
 
-public class InputDialog extends JFXAlert<String> {
+public class InputDialog extends AbstractDialog {
     EventHandler<ActionEvent> event = event -> {};
     JFXButton addButton;
     public JFXTextField f;
@@ -25,13 +23,10 @@ public class InputDialog extends JFXAlert<String> {
     }
     public InputDialog(String title){
         super(Launcher.stage);
-        this.setAnimation(JFXAlertAnimation.BOTTOM_ANIMATION);
-        this.initModality(Modality.APPLICATION_MODAL);
-        this.setOverlayClose(false);
         JFXDialogLayout layout = new JFXDialogLayout();
 
         f = new JFXTextField();
-        f.setDisableAnimation(false);
+        FXUtils.fixJFXTextField(f);
 
         Label head = setFont(new Label(title), Fonts.s_f);
         ThemeManager.loadButtonAnimates(f, head);
@@ -45,12 +40,5 @@ public class InputDialog extends JFXAlert<String> {
         this.setOnHidden(event -> {});
         this.setOnHiding(event -> {});
         this.setContent(layout);
-    }
-    public void Create(){
-        Platform.runLater(this::show);
-    }
-    private static Label setFont(Label l, Font font){
-        l.setFont(font);
-        return l;
     }
 }

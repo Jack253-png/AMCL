@@ -154,7 +154,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 install.setDisable(false);
                 return;
             }
-            else if (!isValidFileName(rl)){
+            else if (!isValidFileName(rl) || rl.equals("")){
                 FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.2"), "");
                 install.setDisable(false);
                 return;
