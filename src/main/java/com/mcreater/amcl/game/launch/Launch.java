@@ -41,13 +41,13 @@ public class Launch {
     String mainClass;
     String arguments;
     String forge_jvm;
-    String forgevm;
+    String forgevm = "";
     public Process p;
     ProcessDialog d;
     Logger logger = LogManager.getLogger(this.getClass());
     public void launch(String java_path, String dir, String version_name, boolean ie, int m, AbstractUser user) throws Exception {
         if (user == null){
-            throw new Exception("user is null");
+            throw new BadUserException();
         }
         TaskManager.bind(MainPage.d, 2);
         MainPage.d.Create();
@@ -56,7 +56,7 @@ public class Launch {
         MainPage.d.setV(0, 10, Launcher.languageManager.get("ui.launch._02"));
         MainPage.d.setV(2, 0, Launcher.languageManager.get("ui.fix._01"));
         try {
-            MinecraftFixer.fix(Launcher.configReader.configModel.fastDownload, Launcher.configReader.configModel.downloadChunkSize, dir, version_name);
+            MinecraftFixer.fix(Launcher.configReader.configModel.fastDownload, Launcher.configReader.configModel.downloadChunkSize, dir, version_name, 2);
         }
         catch (IOException e){
             Platform.runLater(() -> {
@@ -64,7 +64,6 @@ public class Launch {
                 FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString());
             });
         }
-        Platform.runLater(() -> MainPage.d.setV(2, 100));
 
         if (!new File(dir).exists()){
             throw new BadMinecraftDirException();
@@ -90,51 +89,69 @@ public class Launch {
         Vector<String> libs = new Vector<>();
         Vector<String> natives = new Vector<>();
         int s0 = 0;
+        boolean has_322 = false;
+        boolean has_321 = false;
+        for (LibModel model1 : r.libraries) {
+            try {
+                if (model1.downloads.artifact != null) {
+                    String u = model1.downloads.artifact.get("url");
+                    if (!has_321 && u.contains("3.2.1")) {
+                        has_321 = true;
+                    }
+                    if (!has_322 && u.contains("3.2.2")) {
+                        has_322 = true;
+                    }
+                }
+            }
+            catch (Exception ignored){
+
+            }
+        }
         for (LibModel l : r.libraries) {
             if (l.name != null) {
-                if (l.downloads != null) {
-                    if (l.downloads.classifiers != null) {
-                        if (l.downloads.classifiers.get("natives-windows") != null) {
-                            if (new File(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path)).exists()) {
-                                natives.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
-                                libs.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
-                            }
-                        }
-                    }
-                }
-                if (l.name.contains("natives-windows")) {
-                    if (new File(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path"))).exists()) {
-                        natives.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
-                        libs.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
-                    }
-                }
-                if (l.name.contains("net.minecraftforge:minecraftforge")){
-                    String p = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name));
-                    System.out.println(new File(p).getParentFile());
-                    for (File f1 : new File(p).getParentFile().listFiles()){
-                        if (f1.getPath().endsWith(".jar")){
-                            libs.add(f1.getPath());
-                        }
-                    }
-                }
-                if (new File(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name))).exists()) {
-                    if (!libs.contains(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)))) {
-                        if (l.name.contains("org.apache.logging.log4j:log4j-api:2.8.1") || l.name.contains("org.apache.logging.log4j:log4j-core:2.8.1")){
-                            if (versionTypeGetter.get(dir, version_name).contains("forge")) {
-                                String local = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)).replace("2.8.1", "2.15.0");
-                                new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
-                                String server = FasterUrls.fast(l.downloads.artifact.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)).replace("2.8.1", "2.15.0");
-                                if (!Objects.equals(l.downloads.artifact.get("sha1"), FileUtils.HashHelper.getFileSHA1(new File(local)))) {
-                                    new DownloadTask(server, local, 1024).setHash(l.downloads.artifact.get("sha1")).execute();
+                if (!(l.name.contains("3.2.1") && has_322)) {
+                    if (l.downloads != null) {
+                        if (l.downloads.classifiers != null) {
+                            if (l.downloads.classifiers.get("natives-windows") != null) {
+                                if (new File(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path)).exists()) {
+                                    natives.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
+                                    libs.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
                                 }
-                                libs.add(local);
                             }
-                            else{
+                        }
+                    }
+                    if (l.name.contains("natives-windows")) {
+                        if (new File(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path"))).exists()) {
+                            natives.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
+                            libs.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
+                        }
+                    }
+                    if (l.name.contains("net.minecraftforge:minecraftforge")) {
+                        String p = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name));
+                        System.out.println(new File(p).getParentFile());
+                        for (File f1 : new File(p).getParentFile().listFiles()) {
+                            if (f1.getPath().endsWith(".jar")) {
+                                libs.add(f1.getPath());
+                            }
+                        }
+                    }
+                    if (new File(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name))).exists()) {
+                        if (!libs.contains(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)))) {
+                            if (l.name.contains("org.apache.logging.log4j:log4j-api:2.8.1") || l.name.contains("org.apache.logging.log4j:log4j-core:2.8.1")) {
+                                if (versionTypeGetter.get(dir, version_name).contains("forge")) {
+                                    String local = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)).replace("2.8.1", "2.15.0");
+                                    new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
+                                    String server = FasterUrls.fast(l.downloads.artifact.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)).replace("2.8.1", "2.15.0");
+                                    if (!Objects.equals(l.downloads.artifact.get("sha1"), FileUtils.HashHelper.getFileSHA1(new File(local)))) {
+                                        new DownloadTask(server, local, 1024).setHash(l.downloads.artifact.get("sha1")).execute();
+                                    }
+                                    libs.add(local);
+                                } else {
+                                    libs.add(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)));
+                                }
+                            } else {
                                 libs.add(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)));
                             }
-                        }
-                        else {
-                            libs.add(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)));
                         }
                     }
                 }
@@ -237,7 +254,7 @@ public class Launch {
         arguments = arguments.replace("${user_properties}","{}");
         arguments = arguments.replace("${auth_uuid}",user.uuid);
         arguments = arguments.replace("${auth_access_token}",user.accessToken);
-        arguments = arguments.replace("${auth_session}","8888888888888");
+        arguments = arguments.replace("${auth_session}",user.uuid);
         arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
         arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
 
@@ -357,11 +374,12 @@ public class Launch {
             MainPage.exit_code = null;
             MainPage.cleanLog();
             MainPage.d.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
+            boolean b = true;
             try {
                 p = Runtime.getRuntime().exec(command, null, new File(dir));
             }
             catch (IOException e){
-                MainPage.d.close();
+                throw new ProcessException();
             }
             new Thread(() -> {
                 while (true) {
@@ -406,7 +424,7 @@ public class Launch {
             }).start();
             readProcessOutput(p);
         } catch (Exception e){
-            e.printStackTrace();
+            throw new ProcessException();
         }
     }
     public static void readProcessOutput(final Process process) {

@@ -93,7 +93,7 @@ public class AddModsPage extends AbstractAnimationPage {
         for (CurseModModel model : mods){
             loaded += 1;
             CurseMod m = new CurseMod(model);
-            Platform.runLater(() -> modlist.addItem(m, m.onMouseReleasedProperty()));
+            Platform.runLater(() -> modlist.addItem(m));
             double finalLoaded = loaded;
             Platform.runLater(() -> bar.setProgress(finalLoaded / mods.size()));
             ThemeManager.loadButtonAnimates(m);

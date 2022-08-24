@@ -1,13 +1,24 @@
 package com.mcreater.amcl.controls.items;
 
 import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.skins.JFXComboBoxListViewSkin;
+import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollBar;
+import javafx.scene.control.skin.ComboBoxListViewSkin;
+import javafx.scene.control.skin.ListViewSkin;
+import javafx.scene.control.skin.VirtualFlow;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 public class ListItem<T> extends HBox {
     public Label name;
@@ -16,8 +27,7 @@ public class ListItem<T> extends HBox {
         this.name = new Label(name);
         this.name.setFont(Fonts.t_f);
         cont = new JFXComboBox<>();
-        cont.setBorder(FXUtils.generateBorder(Color.BLACK, BorderStrokeStyle.SOLID, false, false, true, false, 2));
-        cont.disableAnimationProperty().set(false);
+
         HBox left = new HBox(this.name);
         left.setAlignment(Pos.CENTER_LEFT);
         FXUtils.ControlSize.setWidth(left, width / 2);

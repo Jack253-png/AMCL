@@ -10,9 +10,11 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.value.WritableValue;
+import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -83,6 +85,14 @@ public class ThemeManager {
     public static Node loadSingleNodeAnimate(Node node){
         loadButtonAnimates(node);
         return node;
+    }
+    public static Timeline generateAni(KeyValue v1, KeyValue v2, double duration){
+        Timeline Mousein = new Timeline();
+        Mousein.setCycleCount(1);
+        Mousein.getKeyFrames().clear();
+        Mousein.getKeyFrames().add(new KeyFrame(Duration.ZERO, v1));
+        Mousein.getKeyFrames().add(new KeyFrame(new Duration(duration), v2));
+        return Mousein;
     }
     public static void loadButtonAnimates(Node... nodes){
         for (Node button : nodes){

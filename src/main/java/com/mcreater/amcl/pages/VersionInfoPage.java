@@ -170,7 +170,6 @@ public class VersionInfoPage extends AbstractMenuBarPage {
                 RemoveFileToTrash.remove(path);
                 Platform.runLater(dialog::close);
             }).start();
-            new Thread(this::loadMods).start();
         });
 
         modList.setOnAction(() -> delete.setDisable(modList.selectedItem == null));

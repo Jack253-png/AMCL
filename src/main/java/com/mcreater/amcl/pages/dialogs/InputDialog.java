@@ -15,11 +15,17 @@ import javafx.stage.Modality;
 
 public class InputDialog extends AbstractDialog {
     EventHandler<ActionEvent> event = event -> {};
+    EventHandler<ActionEvent> cancel = event -> {};
     JFXButton addButton;
+    JFXButton cancelButton;
     public JFXTextField f;
     public void setEvent(EventHandler<ActionEvent> event){
         this.event = event;
         addButton.setOnAction(this.event);
+    }
+    public void setCancel(EventHandler<ActionEvent> event){
+        this.cancel = event;
+        cancelButton.setOnAction(this.cancel);
     }
     public InputDialog(String title){
         super(Launcher.stage);
@@ -36,7 +42,12 @@ public class InputDialog extends AbstractDialog {
         addButton.setFont(Fonts.t_f);
         addButton.setDefaultButton(true);
         addButton.setOnAction(event);
-        layout.setActions(addButton);
+        cancelButton = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
+        cancelButton.setFont(Fonts.t_f);
+        cancelButton.setDefaultButton(true);
+        cancelButton.setOnAction(cancel);
+        layout.setActions(cancelButton, addButton);
+        ThemeManager.loadButtonAnimates(addButton, cancelButton);
         this.setOnHidden(event -> {});
         this.setOnHiding(event -> {});
         this.setContent(layout);

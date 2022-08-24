@@ -19,14 +19,23 @@ import javafx.scene.paint.Color;
 public class EditAccountContentDialog extends AbstractDialog {
     JFXButton addButton;
     EventHandler<ActionEvent> event = event -> {};
+    EventHandler<ActionEvent> cancel = event -> {};
     Label onlineUser;
     Label custom;
     public StringItem item;
     public ListItem<Label> item2;
+    JFXButton cancelButton;
+
     public void setEvent(EventHandler<ActionEvent> event){
         this.event = event;
         addButton.setOnAction(this.event);
     }
+
+    public void setCancel(EventHandler<ActionEvent> cancel) {
+        this.cancel = cancel;
+        cancelButton.setOnAction(this.cancel);
+    }
+
     public EditAccountContentDialog(String title){
         super(Launcher.stage);
 
@@ -56,7 +65,12 @@ public class EditAccountContentDialog extends AbstractDialog {
         addButton.setFont(Fonts.t_f);
         addButton.setDefaultButton(true);
         addButton.setOnAction(event);
-        layout.setActions(addButton);
+        cancelButton = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
+        cancelButton.setFont(Fonts.t_f);
+        cancelButton.setDefaultButton(true);
+        cancelButton.setOnAction(cancel);
+        layout.setActions(cancelButton, addButton);
+        ThemeManager.loadButtonAnimates(cancelButton, addButton);
         this.setOnHidden(event -> {});
         this.setOnHiding(event -> {});
         this.setContent(layout);

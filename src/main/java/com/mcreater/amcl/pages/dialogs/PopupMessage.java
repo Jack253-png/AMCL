@@ -28,6 +28,10 @@ public class PopupMessage {
     static int contentHeight = 450;
     static Vector<Control> mess = new Vector<>();
     static boolean hasMessages = false;
+
+    public static final int MESSAGE_BASE_HEIGHT = 450;
+    public static final int MESSAGE_MAX_NUM = 18;
+    public static final int MESSAGE_HEIGHT = 20;
     public enum MessageTypes{
         LABEL,
         HYPERLINK,
@@ -71,12 +75,12 @@ public class PopupMessage {
                IllegalAccessException exception){
             exception.printStackTrace();
         }
-        if (contentHeight == 250 && hasMessages){
+        if (contentHeight == MESSAGE_BASE_HEIGHT - MESSAGE_MAX_NUM * MESSAGE_HEIGHT && hasMessages){
             return circle;
         }
         else{
-            if (contentHeight == 250) contentHeight = 450;
-            contentHeight -= 20;
+            if (contentHeight == MESSAGE_BASE_HEIGHT - MESSAGE_MAX_NUM * MESSAGE_HEIGHT) contentHeight = MESSAGE_BASE_HEIGHT;
+            contentHeight -= MESSAGE_HEIGHT;
         }
         circle.setTextFill(Color.TRANSPARENT);
         hasMessages = true;
@@ -99,7 +103,7 @@ public class PopupMessage {
             mess.remove(circle);
             if (mess.size() == 0){
                 hasMessages = false;
-                contentHeight = 450;
+                contentHeight = MESSAGE_BASE_HEIGHT;
             }
         });
         new Thread(() -> {

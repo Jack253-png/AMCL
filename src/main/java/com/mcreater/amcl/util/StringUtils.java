@@ -3,6 +3,7 @@ package com.mcreater.amcl.util;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
 
 public class StringUtils {
@@ -56,7 +57,9 @@ public class StringUtils {
         public static String link(String... coms){
             StringBuilder res = new StringBuilder();
             for (String s : coms){
-                res.append(s).append(" ");
+                if (!(Objects.equals(s, "") || s == null)){
+                    res.append(s).append(" ");
+                }
             }
             return String.valueOf(res);
         }

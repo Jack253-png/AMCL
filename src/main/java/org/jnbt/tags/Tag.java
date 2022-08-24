@@ -61,7 +61,7 @@ public abstract class Tag {
 	
 		this.name = name;
 	}
-	public <T> T toTag(Class<T> type){
+	public <T extends Tag> T toTag(Class<T> type){
 		return (T) this;
 	}
 	

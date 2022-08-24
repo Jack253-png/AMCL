@@ -181,3 +181,7 @@ ui.about.opensource.name=Github Link
 ui.about.opensource.title=Open source
 ui.about.version.title=Launcher version
 ui.about.java.title=Java info
+ui.userselectpage.cancel=Cancel
+exceptions.baduserexception.name=User not logined
+exceptions.processexception.name=Failed to start minecraft process
+ui.mainpage.versionChecker.latest=This version is the latest version

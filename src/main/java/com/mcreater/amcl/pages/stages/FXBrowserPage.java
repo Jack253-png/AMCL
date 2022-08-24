@@ -114,10 +114,8 @@ public class FXBrowserPage extends AbstractStage{
         frame.setBounds(100, 100, 500, 620);
         frame.setMinimumSize(new Dimension(500, 620));
         frame.setLocationRelativeTo(null);
-
-        frame.show();
     }
     public void open() {
-
+        frame.show();
     }
 }

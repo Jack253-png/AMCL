@@ -181,3 +181,7 @@ ui.about.opensource.name=Github 链接
 ui.about.opensource.title=开源
 ui.about.version.title=启动器版本
 ui.about.java.title=Java 信息
+ui.userselectpage.cancel=取消
+exceptions.baduserexception.name=用户没有登录
+exceptions.processexception.name=无法启动 minecraft 进程
+ui.mainpage.versionChecker.latest=此版本为最新版本

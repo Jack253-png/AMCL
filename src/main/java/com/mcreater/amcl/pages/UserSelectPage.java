@@ -22,6 +22,8 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -159,6 +161,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 refreshSkin();
                 dialog.close();
             };
+            dialog.setCancel(event17 -> dialog.close());
             dialog.setEvent(event13 -> {
                 Launcher.configReader.configModel.last_name = dialog.item.cont.getText();
                 switch (dialog.item2.cont.getSelectionModel().getSelectedIndex()){
@@ -187,6 +190,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                             Platform.runLater(d3::close);
                             Platform.runLater(() -> {
                                 d1.Create();
+                                d1.setCancel(event16 -> d1.close());
                                 d1.setEvent(event1 -> {
                                     d1.close();
                                     LoadingDialog dialog1 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.updating"));
@@ -227,6 +231,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                         d2.cape = handleNullString(Launcher.configReader.configModel.last_cape_path);
                         d2.cape_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_cape_path));
 
+                        d2.setCancel(event1 -> d2.close());
                         d2.setEvent(event12 -> {
                             switch (d2.changeModelSelect.cont.getSelectionModel().getSelectedIndex()){
                                 default:
@@ -264,10 +269,9 @@ public class UserSelectPage extends AbstractMenuBarPage {
         offlineLogin = new JFXButton();
         offlineLogin.setFont(Fonts.t_f);
         offlineLogin.setOnAction(event -> {
-            Launcher.configReader.configModel.last_userType = "OFFLINE";
-            Launcher.configReader.configModel.last_name = nameItem.cont.getText();
-
             Runnable finalRunnable = () -> {
+                Launcher.configReader.configModel.last_userType = "OFFLINE";
+                Launcher.configReader.configModel.last_name = nameItem.cont.getText();
                 Launcher.configReader.configModel.last_refreshToken = "";
                 Launcher.configReader.configModel.last_accessToken = "";
                 Launcher.configReader.write();
@@ -300,6 +304,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 case 2:
                     InputDialog dialog = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
                     dialog.Create();
+                    dialog.setCancel(event14 -> dialog.close());
                     dialog.setEvent(event1 -> {
                         dialog.close();
                         LoadingDialog dialog1 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.logging"));
@@ -325,7 +330,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 case 3:
                     Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
                     CustomSkinDialog d2 = new CustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"));
-
+                    d2.setCancel(event15 -> d2.close());
                     d2.setEvent(event12 -> {
                         switch (d2.changeModelSelect.cont.getSelectionModel().getSelectedIndex()) {
                             default:

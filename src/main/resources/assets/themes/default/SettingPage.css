@@ -26,9 +26,13 @@
     -fx-height: 0;
 }
 .scroll-bar .increment-arrow,
-.scroll-bar .decrement-arrow,
+.scroll-bar .decrement-arrow
 {
     -fx-background-color: rgba(0, 0, 0, 0);
+}
+.scroll-bar:horizontal,
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
 }
 .scroll-bar:horizontal .thumb,
 .scroll-bar:vertical .thumb {
@@ -40,7 +44,7 @@
 }
 .scroll-bar:horizontal .thumb:pressed,
 .scroll-bar:vertical .thumb:pressed{
-    -fx-background-color: rgb(0, 0, 0);
+    -fx-background-color: rgba(0, 0, 0);
 }
 
 .scroll-bar:horizontal,

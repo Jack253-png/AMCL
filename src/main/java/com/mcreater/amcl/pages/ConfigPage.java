@@ -268,6 +268,10 @@ public class ConfigPage extends AbstractMenuBarPage {
         FXUtils.ControlSize.setWidth(cpu, this.width / 4 * 3);
         FXUtils.ControlSize.setWidth(jvm, this.width / 4 * 3);
 
+        memory.setLegendVisible(false);
+        cpu.setLegendVisible(false);
+        jvm.setLegendVisible(false);
+
         FXUtils.ControlSize.set(view, this.width / 4 * 2.95, 400);
         VBox v = new VBox(startListen, memory, cpu, jvm);
         v.setAlignment(Pos.CENTER_LEFT);

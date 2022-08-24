@@ -1,6 +1,5 @@
 package com.mcreater.amcl.pages.interfaces;
 
-import com.mcreater.amcl.Launcher;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -10,7 +9,7 @@ import javafx.util.Duration;
 public interface AnimationPage {
     Timeline in = new Timeline();
     Timeline out = new Timeline();
-    long delay = 250;
+    long delay = 300;
     default void set(DoubleProperty property){
         in.setCycleCount(1);
         in.getKeyFrames().clear();

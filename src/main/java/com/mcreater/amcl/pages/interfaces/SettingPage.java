@@ -5,17 +5,20 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.skin.ScrollPaneSkin;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 
 public class SettingPage extends ScrollPane implements SettingsAnimationPage {
     public double width, height;
-    public VBox content;
+    public Pane content;
 
     private final Region shadow = new Region();
     public SettingPage(double width, double height, VBox content, Object flag){
@@ -31,10 +34,10 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
         JFXSmoothScroll.smoothScrolling(this, 0.8);
         ThemeManager.loadButtonAnimates(this.content);
     }
-    public SettingPage(double width, double height, VBox content) {
+    public SettingPage(double width, double height, Pane content) {
         this (width, height, content, true);
     }
-    public SettingPage(double width, double height, VBox content, boolean neededHeight) {
+    public SettingPage(double width, double height, Pane content, boolean neededHeight) {
         super(content);
         FXUtils.ControlSize.set(this, width, height);
         if (neededHeight) {

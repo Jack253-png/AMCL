@@ -142,7 +142,6 @@ public class VersionSelectPage extends AbstractAnimationPage {
         versionlist.getChildren().add(version_list.page);
 
         dot_minecraft_dir.getChildren().addAll(title,dirs,new MainPage.Spacer(),select_version,new MainPage.Spacer(),buttons);
-        dirs.setBorder(FXUtils.generateBorder(Color.BLACK, BorderStrokeStyle.SOLID, false, false, true, false, 2));
 
         add_dir.setButtonType(JFXButton.ButtonType.RAISED);
 

@@ -11,6 +11,7 @@ import com.mcreater.amcl.pages.dialogs.AboutDialog;
 import com.mcreater.amcl.pages.dialogs.PopupMessage;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.stages.FXBrowserPage;
 import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
@@ -27,6 +28,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -74,11 +76,9 @@ public class Launcher extends javafx.application.Application {
     public static JFXButton close;
     public static JFXButton min;
     public static JFXButton back;
+    public static AboutDialog aboutDialog;
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
-        Field fi = Font.class.getDeclaredField("DEFAULT");
-        fi.setAccessible(true);
-        fi.set(null, Fonts.t_f);
         if (is_t) {
             languageManager = new LanguageManager(null);
             themeManager = new ThemeManager();
@@ -135,6 +135,7 @@ public class Launcher extends javafx.application.Application {
             windowMovement.windowMove(s, stage);
 
             new Thread(VersionChecker::check).start();
+            aboutDialog = new AboutDialog();
             stage.show();
         }
         else{
@@ -211,7 +212,7 @@ public class Launcher extends javafx.application.Application {
         about.setPrefHeight(t_size / 2.5);
         about.setGraphic(getSVGManager().dotsVertical(Bindings.createObjectBinding(() -> Color.BLACK), barSize / 3 * 2, barSize / 3 * 2));
         about.setButtonType(JFXButton.ButtonType.RAISED);
-        about.setOnAction(event -> new AboutDialog().Create());
+        about.setOnAction(event -> aboutDialog.Create());
 
         setTitle();
         FXUtils.ControlSize.setAll(t_size / 6 * 5, t_size / 6 * 5, about, back, min, close);

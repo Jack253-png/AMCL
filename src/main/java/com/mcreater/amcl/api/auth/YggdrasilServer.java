@@ -187,16 +187,29 @@ public class YggdrasilServer extends NanoHTTPD {
         return response;
     }
     private Response root(){
-        return ok(J8Utils.createMap(
-                "signaturePublickey", KeyUtils.toPEMPublicKey(keyPair.getPublic()),
-                "skinDomains", J8Utils.createList("127.0.0.1", "localhost"),
-                "meta", J8Utils.createMap(
-                        "serverName", "AMCL",
-                        "implementationName", "AMCL",
-                        "implementationVersion", "1.0",
-                        "feature.non_email_login", true
-                )
-        ));
+        if (keyPair != null) {
+            return ok(J8Utils.createMap(
+                    "signaturePublickey", KeyUtils.toPEMPublicKey(keyPair.getPublic()),
+                    "skinDomains", J8Utils.createList("127.0.0.1", "localhost"),
+                    "meta", J8Utils.createMap(
+                            "serverName", "AMCL",
+                            "implementationName", "AMCL",
+                            "implementationVersion", "1.0",
+                            "feature.non_email_login", true
+                    )
+            ));
+        }
+        else {
+            return ok(J8Utils.createMap(
+                    "skinDomains", J8Utils.createList("127.0.0.1", "localhost"),
+                    "meta", J8Utils.createMap(
+                            "serverName", "AMCL",
+                            "implementationName", "AMCL",
+                            "implementationVersion", "1.0",
+                            "feature.non_email_login", true
+                    )
+            ));
+        }
     }
 
     private Response status(){

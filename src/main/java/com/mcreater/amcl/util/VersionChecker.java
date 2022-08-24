@@ -20,6 +20,9 @@ public class VersionChecker {
                     link.setOnAction(event -> show.run());
                 });
             }
+            else {
+                PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.latest"), PopupMessage.MessageTypes.LABEL, null);
+            }
         }
         catch (IllegalStateException e){
             Platform.runLater(() -> PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.checkFailed.name"), PopupMessage.MessageTypes.LABEL, null));

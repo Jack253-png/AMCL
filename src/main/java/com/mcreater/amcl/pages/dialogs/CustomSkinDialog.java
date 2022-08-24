@@ -27,7 +27,9 @@ import java.io.IOException;
 
 public class CustomSkinDialog extends AbstractDialog {
     EventHandler<ActionEvent> event = event -> {};
+    EventHandler<ActionEvent> cancel = event -> {};
     JFXButton addButton;
+    JFXButton cancelButton;
     public String skin;
     public String cape;
     public ListItem<Label> changeModelSelect;
@@ -36,6 +38,11 @@ public class CustomSkinDialog extends AbstractDialog {
     public void setEvent(EventHandler<ActionEvent> event){
         this.event = event;
         addButton.setOnAction(this.event);
+    }
+
+    public void setCancel(EventHandler<ActionEvent> cancel) {
+        this.cancel = cancel;
+        cancelButton.setOnAction(this.cancel);
     }
 
     public CustomSkinDialog(String title){
@@ -105,8 +112,8 @@ public class CustomSkinDialog extends AbstractDialog {
                 }
             }
             else {
-                this.skin = null;
-                skin_ui.cont.setText("");
+                this.cape = null;
+                cape_ui.cont.setText("");
             }
         });
 
@@ -118,7 +125,13 @@ public class CustomSkinDialog extends AbstractDialog {
         addButton.setFont(Fonts.t_f);
         addButton.setDefaultButton(true);
         addButton.setOnAction(event);
-        layout.setActions(addButton);
+        cancelButton = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
+        cancelButton.setFont(Fonts.t_f);
+        cancelButton.setDefaultButton(true);
+        cancelButton.setOnAction(cancel);
+        layout.setActions(cancelButton, addButton);
+
+        ThemeManager.loadButtonAnimates(addButton, cancelButton);
         this.setOnHidden(event -> {});
         this.setOnHiding(event -> {});
         this.setContent(layout);

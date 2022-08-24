@@ -103,9 +103,10 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 pane.setText(Launcher.languageManager.get("ui.downloadmcpage.types." + t));
                 pane.setFont(Fonts.s_f);
                 FXUtils.ControlSize.setWidth(pane, DownloadMcPage.width / 4 * 3);
-                SmoothableListView<VanilaVersionContent> listv = new SmoothableListView<>(DownloadMcPage.width / 4 * 3, 250);
+                SmoothableListView<VanilaVersionContent> listv = new SmoothableListView<>(DownloadMcPage.width / 4 * 3, 300);
                 listv.page.getStylesheets().add(String.format(ThemeManager.getPath(), "JFXListView"));
                 listv.setStyle("-fx-background-color: transparent");
+                Platform.runLater(() -> pane.setContent(listv.page));
                 vs.forEach(model -> {
                     if (Objects.equals(model.type, t)){
                         loaded.addAndGet(1);
@@ -114,7 +115,6 @@ public class DownloadMcPage extends AbstractAnimationPage {
                     }
                 });
                 FXUtils.ControlSize.setWidth(listv, DownloadMcPage.width / 3 * 2);
-                Platform.runLater(() -> pane.setContent(listv.page));
                 pane.setExpanded(false);
                 pane.expandedProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue){

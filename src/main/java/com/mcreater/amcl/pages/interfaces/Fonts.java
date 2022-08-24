@@ -5,6 +5,7 @@ import javafx.scene.text.Font;
 
 import java.awt.*;
 import java.io.*;
+import java.lang.reflect.Field;
 
 public class Fonts {
     public static Font b_f;
@@ -31,8 +32,14 @@ public class Fonts {
             awt_t_f = awt_t_f.deriveFont(16F);
             is3.close();
         }
-        catch (FontFormatException | IOException e){
+        catch (Exception e){
             e.printStackTrace();
         }
+        try {
+            Field fi = Font.class.getDeclaredField("DEFAULT");
+            fi.setAccessible(true);
+            fi.set(null, Fonts.t_f);
+        }
+        catch (Exception e){}
     }
 }

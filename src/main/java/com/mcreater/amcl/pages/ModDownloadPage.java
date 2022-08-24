@@ -88,6 +88,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                                 modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "mods");
                             }
                             if (model.downloadUrl != null) {
+                                if (model.fileName.endsWith(".zip")) model.fileName = model.fileName.substring(0, model.fileName.length() - 4) + ".jar";
                                 tasks.add(new DownloadTask(model.downloadUrl, LinkPath.link(modPath, model.fileName), 2048));
                             }
                         }

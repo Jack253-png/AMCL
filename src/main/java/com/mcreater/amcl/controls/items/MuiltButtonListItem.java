@@ -20,11 +20,9 @@ public class MuiltButtonListItem<T> extends HBox{
     public HBox group;
     public Vector<JFXButton> buttons;
     public MuiltButtonListItem(String name, double width) {
-        BorderStroke borderStroke = new BorderStroke(null,null, Color.BLACK,null, null,null, BorderStrokeStyle.SOLID,null,null, BorderWidths.DEFAULT,new Insets(2));
         this.name = new Label(name);
         this.name.setFont(Fonts.t_f);
         cont = new JFXComboBox<>();
-        cont.setBorder(new Border(borderStroke));
         FXUtils.ControlSize.setWidth(cont, width / 1.75);
         group = new HBox();
         buttons = new Vector<>();

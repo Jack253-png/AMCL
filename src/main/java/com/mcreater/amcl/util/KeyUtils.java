@@ -13,8 +13,9 @@ public final class KeyUtils {
             gen.initialize(4096, new SecureRandom());
             return gen.genKeyPair();
         } catch (GeneralSecurityException e) {
-            throw new RuntimeException(e);
+
         }
+        return null;
     }
 
     public static String toPEMPublicKey(PublicKey key) {

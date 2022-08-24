@@ -15,11 +15,13 @@ import com.mcreater.amcl.pages.dialogs.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.tasks.AbstractTask;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
@@ -28,7 +30,10 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -51,35 +56,37 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
     public BooleanListItem<CurseFileLabel> fabricapi;
     StringItem versionfinalName;
     public JFXButton install;
+    public void closeAll(TitledPane pane){
+        for (TitledPane t : J8Utils.createList(forge.cont.pane, optifine.cont.pane, fabric.cont.pane, optifabric.cont.pane, fabricapi.cont.pane)){
+            if (t != pane) t.setExpanded(false);
+        }
+    }
+    public void bindSingle(TitledPane pane){
+        pane.setOnMouseReleased(event -> closeAll(pane));
+    }
     public DownloadAddonSelectPage(double width, double height) {
         super(width, height);
         l = Launcher.DOWNLOADMCPAGE;
         box = new GridPane();
-        box.setStyle("-fx-background-color: rgba(255, 255, 255, 0.75)");
         box.setAlignment(Pos.TOP_CENTER);
-        FXUtils.ControlSize.set(box, width, height);
+        FXUtils.ControlSize.setWidth(box, width);
         id = new Label();
         id.setFont(Fonts.s_f);
-        forge = new BooleanListItem<>("Forge", width);
-        optifine = new BooleanListItem<>("OptiFine", width);
-        fabric = new BooleanListItem<>("Fabric", width);
-        optifabric = new BooleanListItem<>("OptiFabric", width);
-        fabricapi = new BooleanListItem<>("Fabric API", width);
-        FXUtils.ControlSize.setWidth(forge.cont, width / 3);
-        FXUtils.ControlSize.setWidth(optifine.cont, width / 3);
-        FXUtils.ControlSize.setWidth(fabric.cont, width / 3);
-        FXUtils.ControlSize.setWidth(optifabric.cont, width / 3);
-        FXUtils.ControlSize.setWidth(fabricapi.cont, width / 3);
-        FXUtils.ControlSize.setHeight(forge, 40);
-        FXUtils.ControlSize.setHeight(optifine, 40);
-        FXUtils.ControlSize.setHeight(fabric, 40);
-        FXUtils.ControlSize.setHeight(optifabric, 40);
-        FXUtils.ControlSize.setHeight(fabricapi, 40);
+        forge = new BooleanListItem<>("Forge", width / 6);
+        optifine = new BooleanListItem<>("OptiFine", width / 6);
+        fabric = new BooleanListItem<>("Fabric", width / 6);
+        optifabric = new BooleanListItem<>("OptiFabric", width / 6);
+        fabricapi = new BooleanListItem<>("Fabric API", width / 6);
         forge.cont.setDisable(true);
         optifine.cont.setDisable(true);
         fabric.cont.setDisable(true);
         fabricapi.cont.setDisable(true);
         optifabric.cont.setDisable(true);
+        bindSingle(forge.cont.pane);
+        bindSingle(optifine.cont.pane);
+        bindSingle(fabric.cont.pane);
+        bindSingle(optifabric.cont.pane);
+        bindSingle(fabricapi.cont.pane);
         forge.button.selectedProperty().addListener(event -> {
             forge.cont.setDisable(!forge.button.isSelected());
             if (forge.button.isSelected()){
@@ -137,11 +144,11 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             boolean fabric = this.fabric.button.isSelected();
             boolean fabricapi = this.fabricapi.button.isSelected();
             boolean optifabric = this.optifabric.button.isSelected();
-            Label forgeItem = this.forge.cont.getSelectionModel().getSelectedItem();
-            Label optifineItem = this.optifine.cont.getSelectionModel().getSelectedItem();
-            Label fabricItem = this.fabric.cont.getSelectionModel().getSelectedItem();
-            CurseFileLabel optifabricItem = this.optifabric.cont.getSelectionModel().getSelectedItem();
-            CurseFileLabel fabricapiItem = this.fabricapi.cont.getSelectionModel().getSelectedItem();
+            Label forgeItem = this.forge.cont.selectedItem;
+            Label optifineItem = this.optifine.cont.selectedItem;
+            Label fabricItem = this.fabric.cont.selectedItem;
+            CurseFileLabel optifabricItem = this.optifabric.cont.selectedItem;
+            CurseFileLabel fabricapiItem = this.fabricapi.cont.selectedItem;
             ProcessDialog dialog = new ProcessDialog(3, Launcher.languageManager.get("ui.install.title"));
             dialog.setV(0, 0);
             dialog.setV(1, 0);
@@ -176,7 +183,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 rl,
                                 Launcher.configReader.configModel.downloadChunkSize
                                 );
-                    } catch (IOException | InterruptedException e) {
+                    } catch (Exception e) {
                         dialog.setAll(100);
                         Platform.runLater(dialog::close);
                         throw new RuntimeException(e);
@@ -205,7 +212,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                     () -> TaskManager.bind(dialog, 1),
                                     () -> TaskManager.bind(dialog, 2)
                             );
-                        } catch (IOException | InterruptedException | ParserConfigurationException | SAXException e) {
+                        } catch (Exception e) {
                             dialog.setAll(100);
                             Platform.runLater(dialog::close);
                             throw new RuntimeException(e);
@@ -227,7 +234,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 new File(finalModDir).mkdirs();
                                 try {
                                     new OptiFineInstallerDownloadTask(opti, LinkPath.link(finalModDir, opti)).execute();
-                                } catch (IOException e) {
+                                } catch (Exception e) {
                                     dialog.setAll(100);
                                     Platform.runLater(dialog::close);
                                     throw new RuntimeException(e);
@@ -258,7 +265,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                     fabricItem.getText(),
                                     () -> TaskManager.bind(dialog, 1)
                             );
-                        } catch (IOException | InterruptedException e) {
+                        } catch (Exception e) {
                             dialog.setAll(100);
                             Platform.runLater(dialog::close);
                             throw new RuntimeException(e);
@@ -279,7 +286,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 try {
                                     tasks.add(new OptiFineInstallerDownloadTask(opti, LinkPath.link(finalModDir1, opti)));
                                 } catch (FileNotFoundException e) {
-                                    throw new RuntimeException(e);
+                                    dialog.setAll(100);
+                                    Platform.runLater(dialog::close);
                                 }
                             }
                             if (fabricapiItem != null) {
@@ -287,7 +295,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 try {
                                     tasks.add(new DownloadTask(m.downloadUrl, LinkPath.link(finalModDir1, m.fileName)));
                                 } catch (FileNotFoundException e) {
-                                    throw new RuntimeException(e);
+                                    dialog.setAll(100);
+                                    Platform.runLater(dialog::close);
                                 }
                             }
                             if (optifabricItem != null) {
@@ -297,7 +306,6 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 } catch (FileNotFoundException e) {
                                     dialog.setAll(100);
                                     Platform.runLater(dialog::close);
-                                    throw new RuntimeException(e);
                                 }
                             }
                         }).run();
@@ -305,8 +313,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         TaskManager.bind(dialog, 2);
                         try {
                             TaskManager.execute("<fabric addons>");
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
+                        } catch (Exception e) {
+
                         }
                         Platform.runLater(() -> install.setDisable(false));
                         dialog.setAll(100);
@@ -325,9 +333,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                     Launcher.configReader.configModel.downloadChunkSize,
                                     optifineItem.getText()
                             );
-                        } catch (IOException | InterruptedException | NoSuchMethodException | IllegalAccessException |
-                                 InstantiationException | InvocationTargetException | ClassNotFoundException |
-                                 NoSuchFieldException e) {
+                        } catch (Exception e) {
                             dialog.setAll(100);
                             Platform.runLater(dialog::close);
                             throw new RuntimeException(e);
@@ -341,22 +347,22 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 install.setDisable(false);
             }
         });
-        versionfinalName = new StringItem("", this.width / 2);
-        box.add(id, 0, 0, 1, 1);
+        SettingPage p = new SettingPage(width, height - Launcher.barSize, box, false);
+        versionfinalName = new StringItem("", width / 2);
+        box.add(id, 0, 0, 5, 1);
+
         box.add(forge, 0, 1, 1, 1);
-        box.add(optifine, 0, 2, 1, 1);
-        box.add(fabric, 0, 3, 1, 1);
-        box.add(fabricapi, 0, 4, 1, 1);
-        box.add(optifabric, 0, 5, 1, 1);
-        box.add(versionfinalName, 0, 6, 1, 1);
-        box.add(install, 0, 7, 1, 1);
-        this.add(box, 0, 0, 1, 1);
+        box.add(optifine, 1, 1, 1, 1);
+        box.add(fabric, 2, 1, 1, 1);
+        box.add(fabricapi, 3, 1, 1, 1);
+        box.add(optifabric, 4, 1, 1, 1);
+
+        box.add(versionfinalName, 0, 2, 5, 1);
+        box.add(install, 0, 3, 5, 1);
+        ThemeManager.loadButtonAnimates(id, forge, optifine, fabric, fabricapi, optifabric, versionfinalName, install);
+        this.add(p, 0, 0, 1, 1);
     }
-    public void checkItem(boolean is, Node item) throws IOException {
-        if (is && item == null){
-            throw new IOException();
-        }
-    }
+
     public static boolean isValidFileName(String fileName) {
 
         if (fileName == null || fileName.length() > 255) {
@@ -379,7 +385,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             try {
                 loadVers();
             }
-            catch (ParserConfigurationException | IOException | SAXException e){
+            catch (Exception e){
                 e.printStackTrace();
                 Platform.runLater(() -> {
                     FastInfomation.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content"));
@@ -392,38 +398,38 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
     }
     public void loadVers() throws ParserConfigurationException, IOException, SAXException {
         Platform.runLater(() -> {
-            forge.cont.getItems().clear();
-            optifine.cont.getItems().clear();
-            fabric.cont.getItems().clear();
-            optifabric.cont.getItems().clear();
-            fabricapi.cont.getItems().clear();
+            forge.cont.clear();
+            optifine.cont.clear();
+            fabric.cont.clear();
+            optifabric.cont.clear();
+            fabricapi.cont.clear();
         });
         for (String forgev : GetVersionList.getForgeVersionList(model.id)){
             Label l = new Label(forgev);
             l.setFont(Fonts.t_f);
-            Platform.runLater(() -> forge.cont.getItems().add(l));
+            Platform.runLater(() -> forge.cont.addItem(l));
         }
         for (optifineJarModel optiv : GetVersionList.getOptifineVersionList(model.id)){
             Label l = new Label(optiv.name);
             l.setFont(Fonts.t_f);
-            Platform.runLater(() -> optifine.cont.getItems().add(l));
+            Platform.runLater(() -> optifine.cont.addItem(l));
         }
         for (String fabv : GetVersionList.getFabricVersionList(model.id)){
-            Label l = new Label(fabv);
+            Label l = new Label(fabv.replace("+build.", "."));
             l.setFont(Fonts.t_f);
-            Platform.runLater(() -> fabric.cont.getItems().add(l));
+            Platform.runLater(() -> fabric.cont.addItem(l));
         }
         for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(model.id)){
-            CurseFileLabel l = new CurseFileLabel(fabapav.fileName);
+            CurseFileLabel l = new CurseFileLabel(fabapav.fileName.replace("fabric-api-", "").replace(".jar", ""));
             l.setFont(Fonts.t_f);
             l.model = fabapav;
-            Platform.runLater(() -> fabricapi.cont.getItems().add(l));
+            Platform.runLater(() -> fabricapi.cont.addItem(l));
         }
         for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(model.id)){
-            CurseFileLabel l = new CurseFileLabel(optfabv.fileName);
+            CurseFileLabel l = new CurseFileLabel(optfabv.fileName.replace("optifabric-", "").replace(".jar", ""));
             l.setFont(Fonts.t_f);
             l.model = optfabv;
-            Platform.runLater(() -> optifabric.cont.getItems().add(l));
+            Platform.runLater(() -> optifabric.cont.addItem(l));
         }
         checkIsNull(forge);
         checkIsNull(optifine);
@@ -439,7 +445,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         }
     }
     public void checkIsNull(BooleanListItem<?> item){
-        item.setDisable(item.cont.getItems().size() == 0);
+        item.setDisable(item.cont.vecs.size() == 0);
         item.button.selectedProperty().set(false);
         item.button.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue){
@@ -447,8 +453,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     item.button.selectedProperty().set(false);
                 }
                 else{
-                    if (item.cont.getItems().size() > 0){
-                        item.cont.getSelectionModel().select(0);
+                    if (item.cont.vecs.size() > 0){
+                        item.cont.select(0);
                     }
                 }
             }

@@ -24,7 +24,7 @@ import static com.mcreater.amcl.download.OriginalDownload.createNewDir;
 
 public class MinecraftFixer {
     static Vector<Task> tasks = new Vector<>();
-    public static void fix(boolean faster, int chunkSize, String dir, String versionName) throws IOException, InterruptedException {
+    public static void fix(boolean faster, int chunkSize, String dir, String versionName, int index) throws IOException, InterruptedException {
         String versionDir = LinkPath.link(dir, String.format("versions\\%s", versionName));
         String libDir = String.format("%s\\libraries", dir);
         String assetsDir = String.format("%s\\assets\\indexes\\", dir);
@@ -48,6 +48,11 @@ public class MinecraftFixer {
         runTasks();
     }
     public static void runTasks() throws InterruptedException {
+        if (tasks.size() == 0) tasks.add(new AbstractTask("test") {
+            public Integer execute() {
+                return null;
+            }
+        });
         TaskManager.addTasks(tasks);
         TaskManager.execute("<full files>");
     }

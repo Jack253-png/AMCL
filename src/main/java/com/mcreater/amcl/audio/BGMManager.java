@@ -3,7 +3,6 @@ package com.mcreater.amcl.audio;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.dialogs.PopupMessage;
 import com.sun.media.jfxmedia.AudioClip;
-import javafx.application.Platform;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +17,7 @@ public class BGMManager {
     private static long seed;
     public static AudioClip currentClip;
     private static Thread musicThread;
+    public static boolean isNext;
     public static void init() throws IOException, URISyntaxException {
         File c = new File("AMCL/Musics");
         c.mkdirs();
@@ -46,9 +46,9 @@ public class BGMManager {
                 public void run() {
                     while (true) {
                         int index = r.nextInt(musics.size());
-                        PopupMessage.createMessage(String.format(Launcher.languageManager.get("ui.bgmmanager.playing"), names.get(index)), PopupMessage.MessageTypes.LABEL, null);
                         AudioClip clip = musics.get(index);
                         if (currentClip != clip) {
+                            PopupMessage.createMessage(String.format(Launcher.languageManager.get("ui.bgmmanager.playing"), names.get(index)), PopupMessage.MessageTypes.LABEL, null);
                             currentClip = clip;
                             currentClip.play(30);
                             synchronized (currentClip) {
@@ -69,5 +69,15 @@ public class BGMManager {
     public static void stop(){
         currentClip.stop();
         musicThread.stop();
+    }
+    public static void next(){
+        try {
+            synchronized (currentClip) {
+                currentClip.notify();
+            }
+        }
+        catch (Exception ignored){
+
+        }
     }
 }
