@@ -3,36 +3,41 @@ package com.mcreater.amcl.game.launch;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.api.auth.YggdrasilServer;
+import com.mcreater.amcl.api.auth.LocalYggdrasilServer;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
 import com.mcreater.amcl.api.auth.users.OffLineUser;
-import com.mcreater.amcl.nativeInterface.ResourceGetter;
-import com.mcreater.amcl.pages.dialogs.FastInfomation;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
-import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.exceptions.*;
 import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.nativeInterface.EnumWindow;
+import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.MainPage;
-import com.mcreater.amcl.audio.BGMManager;
-import com.mcreater.amcl.pages.dialogs.ProcessDialog;
+import com.mcreater.amcl.pages.dialogs.FastInfomation;
+import com.mcreater.amcl.tasks.DownloadTask;
+import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.*;
-import com.mcreater.amcl.util.FileUtils;
-import com.mcreater.amcl.util.FileUtils.*;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
+import com.mcreater.amcl.util.FileUtils.ZipUtil;
 import com.mcreater.amcl.util.net.FasterUrls;
 import javafx.application.Platform;
+import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.AnsiConsole;
 
 import java.io.*;
 import java.net.BindException;
-import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Vector;
+
+import static org.fusesource.jansi.Ansi.ansi;
 
 public class Launch {
     String java;
@@ -43,24 +48,25 @@ public class Launch {
     String forge_jvm;
     String forgevm = "";
     public Process p;
-    ProcessDialog d;
     Logger logger = LogManager.getLogger(this.getClass());
+
+    public Long exitCode;
     public void launch(String java_path, String dir, String version_name, boolean ie, int m, AbstractUser user) throws Exception {
         if (user == null){
             throw new BadUserException();
         }
-        TaskManager.bind(MainPage.d, 2);
-        MainPage.d.Create();
-        MainPage.d.setV(0, 5, Launcher.languageManager.get("ui.launch._01"));
+        TaskManager.bind(MainPage.launchDialog, 2);
+        MainPage.launchDialog.Create();
+        MainPage.launchDialog.setV(0, 5, Launcher.languageManager.get("ui.launch._01"));
         java = java_path;
-        MainPage.d.setV(0, 10, Launcher.languageManager.get("ui.launch._02"));
-        MainPage.d.setV(2, 0, Launcher.languageManager.get("ui.fix._01"));
+        MainPage.launchDialog.setV(0, 10, Launcher.languageManager.get("ui.launch._02"));
+        MainPage.launchDialog.setV(2, 0, Launcher.languageManager.get("ui.fix._01"));
         try {
             MinecraftFixer.fix(Launcher.configReader.configModel.fastDownload, Launcher.configReader.configModel.downloadChunkSize, dir, version_name, 2);
         }
         catch (IOException e){
             Platform.runLater(() -> {
-                MainPage.d.close();
+                MainPage.launchDialog.close();
                 FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString());
             });
         }
@@ -77,7 +83,7 @@ public class Launch {
         if (!json_file.exists() || !jar_file.exists()){
             throw new BadMainFilesException();
         }
-        MainPage.d.setV(0, 75, Launcher.languageManager.get("ui.launch._03"));
+        MainPage.launchDialog.setV(0, 75, Launcher.languageManager.get("ui.launch._03"));
         String json_result = FileUtils.FileStringReader.read(json_file.getPath());
         Gson g = new Gson();
         VersionJsonModel r = g.fromJson(json_result, VersionJsonModel.class);
@@ -157,11 +163,11 @@ public class Launch {
                 }
             }
             s0 += 1;
-            MainPage.d.setV(0, 75 + 5 * s0 / r.libraries.size(), String.format(Launcher.languageManager.get("ui.launch._04"), l.name));
-            MainPage.d.setV(1, (int) ((double) s0 / r.libraries.size() * 100));
+            MainPage.launchDialog.setV(0, 75 + 5 * s0 / r.libraries.size(), String.format(Launcher.languageManager.get("ui.launch._04"), l.name));
+            MainPage.launchDialog.setV(1, (int) ((double) s0 / r.libraries.size() * 100));
         }
-        MainPage.d.setV(1, 100);
-        MainPage.d.setV(0, 80, String.format(Launcher.languageManager.get("ui.launch._05"), r.libraries.size()));
+        MainPage.launchDialog.setV(1, 100);
+        MainPage.launchDialog.setV(0, 80, String.format(Launcher.languageManager.get("ui.launch._05"), r.libraries.size()));
         File nativef = new File(LinkPath.link(f.getPath(),version_name + "-natives"));
         if (!nativef.exists()){
             boolean b = nativef.mkdirs();
@@ -179,7 +185,7 @@ public class Launch {
                 e.printStackTrace();
                 throw new BadUnzipException();
             }
-            MainPage.d.setV(0, 85, Launcher.languageManager.get("ui.launch._06"));
+            MainPage.launchDialog.setV(0, 85, Launcher.languageManager.get("ui.launch._06"));
         }
         StringBuilder classpath = new StringBuilder("-cp \"");
         for (String s : libs){
@@ -325,25 +331,28 @@ public class Launch {
 
             String authLibInjectorArg = "";
             int port = 2;
-            YggdrasilServer server = null;
+            LocalYggdrasilServer server = null;
             if (user instanceof OffLineUser){
                 OffLineUser temp_user = (OffLineUser) user;
-                if (temp_user.skinUseable() || temp_user.capeUseable()){
+                if (temp_user.skinUseable() || temp_user.capeUseable() || temp_user.elytraUseable()){
                     File skin = null;
                     File cape = null;
+                    File elytra = null;
                     if (temp_user.skinUseable()) skin = new File(temp_user.skin);
                     if (temp_user.capeUseable()) cape = new File(temp_user.cape);
+                    if (temp_user.elytraUseable()) elytra = new File(temp_user.elytra);
 
                     while (true){
                         try {
-                            MainPage.d.setV(0, 90, String.format(Launcher.languageManager.get("ui.userselectpage.launch.tryOpenServer"), port));
-                            server = new YggdrasilServer(port);
-                            server.setCurrent_player(new YggdrasilServer.Player(
+                            MainPage.launchDialog.setV(0, 90, String.format(Launcher.languageManager.get("ui.userselectpage.launch.tryOpenServer"), port));
+                            server = new LocalYggdrasilServer(port);
+                            server.setCurrent_player(new LocalYggdrasilServer.Player(
                                     user.uuid,
                                     user.username,
                                     skin,
                                     cape,
-                                    temp_user.is_slim
+                                    temp_user.is_slim,
+                                    elytra
                             ));
                             server.start();
                             break;
@@ -351,7 +360,7 @@ public class Launch {
                         catch (BindException e){
                             port += 1;
                             if (port > 65536){
-                                throw new IOException("server cannot open");
+                                throw new IOException("server cannot open local server");
                             }
                         }
                     }
@@ -368,12 +377,10 @@ public class Launch {
                     forgevm,
                     mainClass.replace(" ",""),
                     arguments);
-            MainPage.d.setV(0, 90, Launcher.languageManager.get("ui.launch._07"));
+            MainPage.launchDialog.setV(0, 90, Launcher.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
             logger.info(String.format("Getted Command Line : %s", command));
-            MainPage.exit_code = null;
-            MainPage.cleanLog();
-            MainPage.d.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
+            MainPage.launchDialog.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
             boolean b = true;
             try {
                 p = Runtime.getRuntime().exec(command, null, new File(dir));
@@ -385,9 +392,8 @@ public class Launch {
                 while (true) {
                     try {
                         if (EnumWindow.getTaskPID().contains(J8Utils.getProcessPid(p))) {
-                            BGMManager.stop();
                             MainPage.logger.info("Window Showed");
-                            MainPage.d.close();
+                            MainPage.launchDialog.close();
                             break;
                         }
                     }
@@ -396,30 +402,22 @@ public class Launch {
                     }
                 }
             }).start();
-            MainPage.minecraft_running = true;
-            MainPage.stop.setDisable(false);
-            YggdrasilServer finalServer = server;
+            LocalYggdrasilServer finalServer = server;
             new Thread(() -> {
                 while (true){
                     try {
                         if (p != null) {
-                            MainPage.exit_code = (long) p.exitValue();
+                            exitCode = (long) p.exitValue();
                         }
                         else {
-                            MainPage.exit_code = 1L;
+                            exitCode = 1L;
                         }
+                        MainPage.tryToRemoveLaunch(this);
                         if (finalServer != null) finalServer.stop();
-                        MainPage.minecraft_running = false;
-                        Platform.runLater(MainPage::check);
-                        MainPage.launchButton.setDisable(false);
-                        ChangeDir.changeToDefault();
+                        Platform.runLater(() -> MainPage.check(this));
                         break;
                     }
-                    catch (IllegalThreadStateException e){
-                        if (!MainPage.minecraft_running) {
-                            MainPage.minecraft_running = true;
-                        }
-                    }
+                    catch (IllegalThreadStateException ignored){}
                 }
             }).start();
             readProcessOutput(p);
@@ -435,11 +433,10 @@ public class Launch {
     }
     public static void read(InputStream inputStream, PrintStream out) {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("GBK")));
             String line;
             while ((line = reader.readLine()) != null) {
-                MainPage.addLog(line);
-                out.println(line);
+                LogLineDetecter.printLog(line, out);
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="INFO">
+<Configuration status="INFO" monitorInterval = "1">
     <Appenders>
         <Console name="SysOut" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level][%c{1}/%M] %msg%n" />
+            <PatternLayout pattern="%highlight{[%d{HH:mm:ss}] [%t/%level][%c{1}/%M]: %msg%n}{FATAL=red, ERROR=red, WARN=yellow, INFO=green, DEBUG=cyan,TRACE=blue}" />
         </Console>
-        <File name="LogFile" immediateFlush="true" fileName="AMCL/logs/log.log">
-            <PatternLayout charset="UTF-8" pattern="[%d{HH:mm:ss}] [%t/%level][%c{1}/%M] %msg%n" />
-        </File>
+        <RollingRandomAccessFile name="LogFile" fileName="AMCL/logs/latest.log" filePattern="AMCL/logs/%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout charset="UTF-8" pattern="[%d{HH:mm:ss}] [%t/%level][%c{1}/%M]: %msg%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="100 KB"/>
+                <OnStartupTriggeringPolicy />
+            </Policies>
+        </RollingRandomAccessFile>
     </Appenders>
     <Loggers>
         <Root level="info">
-            <filters>
-                <MarkerFilter marker="NETWORK_PACKETS" onMatch="DENY" onMismatch="NEUTRAL" />
-            </filters>
             <AppenderRef ref="SysOut"/>
             <AppenderRef ref="LogFile"/>
         </Root>

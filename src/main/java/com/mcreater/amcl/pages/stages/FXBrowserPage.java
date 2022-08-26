@@ -1,21 +1,22 @@
 package com.mcreater.amcl.pages.stages;
 
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
-import com.mcreater.amcl.pages.dialogs.FastInfomation;
+import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.util.NetworkUtils;
 import com.teamdev.jxbrowser.chromium.BrowserException;
+import com.teamdev.jxbrowser.chromium.Cookie;
 import com.teamdev.jxbrowser.chromium.CookieStorage;
 import com.teamdev.jxbrowser.chromium.events.FinishLoadingEvent;
 import com.teamdev.jxbrowser.chromium.events.LoadAdapter;
 import com.teamdev.jxbrowser.chromium.swing.BrowserView;
-import javafx.application.Platform;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
+import java.util.HashMap;
 
 public class FXBrowserPage extends AbstractStage{
     BrowserView view;
@@ -24,21 +25,43 @@ public class FXBrowserPage extends AbstractStage{
     JButton back;
     JButton forward;
     JButton refresh;
-    JTextField f;
     public MicrosoftUser user;
-    public RuntimeException ex;
+    public Exception ex;
     public Runnable r = () -> {};
+    ProcessDialog dialog;
+    public static class CookieMap extends HashMap<String, Cookie> {
+        final CookieStorage storage;
+        public CookieMap(final CookieStorage storage){
+            this.storage = storage;
+            reloadCookies();
+        }
+        public void reloadCookies(){
+            for (Cookie c : storage.getAllCookies()){
+                put(c.getName(), c);
+            }
+        }
+    }
 
+    public void setDialog(ProcessDialog dialog){
+        this.dialog = dialog;
+    }
     public FXBrowserPage(String url){
         try {
             view = new BrowserView();
         }
         catch (BrowserException e){
             ex = e;
+            return;
         }
+        init(url);
+    }
+    public void init(String url){
         CookieStorage storage = view.getBrowser().getCookieStorage();
         storage.deleteAll();
         storage.save();
+
+        CookieMap map = new CookieMap(storage);
+
         view.getBrowser().loadURL(url);
         view.getBrowser().addLoadListener(new LoadAdapter() {
             public void onFinishLoadingFrame(FinishLoadingEvent event) {
@@ -54,15 +77,25 @@ public class FXBrowserPage extends AbstractStage{
                         String temp = url.substring(start);
                         int end = temp.indexOf("&lc=");
                         try {
-                            user = new MSAuth().getUser(temp.substring(6, end));
+                            map.reloadCookies();
+                            Cookie emailCookie = map.get("MSPPre");
+
+                            String email = NetworkUtils.decodeURL(emailCookie.getValue()).replace(map.get("MSPCID").getValue(), "").replace("|", "");
+
+                            System.err.println(email);
+
+                            MSAuth auth = new MSAuth();
+                            auth.bindDialog(dialog);
+                            user = auth.getUser(temp.substring(6, end));
                         }
-                        catch (RuntimeException e){
+                        catch (Exception e){
                             ex = e;
                         }
                     }
                 }).start();
             }
         });
+
         frame = new JFrame(){
             protected void processWindowEvent(WindowEvent event){
                 if (event.getID() == WindowEvent.WINDOW_CLOSING){
@@ -114,8 +147,9 @@ public class FXBrowserPage extends AbstractStage{
         frame.setBounds(100, 100, 500, 620);
         frame.setMinimumSize(new Dimension(500, 620));
         frame.setLocationRelativeTo(null);
+        frame.show();
     }
     public void open() {
-        frame.show();
+
     }
 }

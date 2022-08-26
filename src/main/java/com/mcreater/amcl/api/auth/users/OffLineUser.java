@@ -13,15 +13,21 @@ public class OffLineUser extends AbstractUser{
     public boolean is_slim;
     public String skin;
     public String cape;
-    public OffLineUser(String username, String uuid, boolean is_slim, String skin, String cape) {
-        super(String.valueOf(new Random().nextInt(Integer.MAX_VALUE)), username, uuid);
+    public String elytra;
+    public OffLineUser(String username, String uuid, boolean is_slim, String skin, String cape, String elytra) {
+        super(String.valueOf(new Random().nextInt(Integer.MAX_VALUE)), username, uuid, String.valueOf(new Random().nextInt(Integer.MAX_VALUE)));
         this.is_slim = is_slim;
         this.skin = skin;
         this.cape = cape;
+        this.elytra = elytra;
     }
 
     public void refresh() {
         // Do Nothing
+    }
+
+    public boolean vaildate() {
+        return true;
     }
 
     private boolean fileUseable(String path){
@@ -33,10 +39,17 @@ public class OffLineUser extends AbstractUser{
         }
     }
 
+    public String toString(){
+        return super.toString() + String.format("\nskin : %s\ncape : %s\nelytra : %s\nis Alex Model : %s", skin, cape, elytra, is_slim);
+    }
+
     public boolean skinUseable(){
         return fileUseable(skin);
     }
     public boolean capeUseable(){
         return fileUseable(cape);
+    }
+    public boolean elytraUseable(){
+        return fileUseable(elytra);
     }
 }

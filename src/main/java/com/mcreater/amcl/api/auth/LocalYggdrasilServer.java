@@ -13,7 +13,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.MessageDigest;
@@ -24,18 +23,18 @@ import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class YggdrasilServer extends NanoHTTPD {
+public class LocalYggdrasilServer extends NanoHTTPD {
     private final KeyPair keyPair = KeyUtils.generateKey();
     private Player current_player;
     public final String rooturl;
     public static final int DEFAULT_PORT = 10078;
-    private final Logger logger = LogManager.getLogger(YggdrasilServer.class);
-    public YggdrasilServer(int port) {
+    private final Logger logger = LogManager.getLogger(LocalYggdrasilServer.class);
+    public LocalYggdrasilServer(int port) {
         super(port);
         rooturl = "http://localhost:" + port;
         logger.info(String.format("openning yggdrasil server on %s", rooturl));
     }
-    public YggdrasilServer(){
+    public LocalYggdrasilServer(){
         this(DEFAULT_PORT);
     }
     public void setCurrent_player(Player p){
@@ -86,19 +85,23 @@ public class YggdrasilServer extends NanoHTTPD {
         public String name;
         public File skin;
         public File cape;
+        public File elytra;
         public boolean is_slim;
 
         public String skin_hash;
         public String cape_hash;
+        public String elytra_hash;
 
-        public Player(String uuid, String name, File skin, File cape, boolean is_slim) throws IOException {
+        public Player(String uuid, String name, File skin, File cape, boolean is_slim, File elytra) throws IOException {
             this.uuid = uuid;
             this.name = name;
             this.skin = skin;
             this.cape = cape;
+            this.elytra = elytra;
             this.is_slim = is_slim;
             if (skin != null) skin_hash = computeTextureHash(ImageIO.read(skin));
             if (cape != null) cape_hash = computeTextureHash(ImageIO.read(cape));
+            if (elytra != null) elytra_hash = computeTextureHash(ImageIO.read(elytra));
         }
     }
     public Response serve(IHTTPSession session) {
@@ -130,6 +133,9 @@ public class YggdrasilServer extends NanoHTTPD {
         else if (hash.equals(current_player.skin_hash)){
             return returnImage(current_player.skin, hash);
         }
+        else if (hash.equals(current_player.elytra_hash)){
+            return returnImage(current_player.elytra, hash);
+        }
         else {
             return notFound();
         }
@@ -152,6 +158,9 @@ public class YggdrasilServer extends NanoHTTPD {
             }
             if (current_player.cape != null){
                 tex.put("CAPE", J8Utils.createMap("url", rooturl + "/textures/" + current_player.cape_hash));
+            }
+            if (current_player.elytra != null){
+                tex.put("ELYTRA", J8Utils.createMap("url", rooturl + "/textures/" + current_player.elytra_hash));
             }
 
             Map<String, Object> textureResponse = J8Utils.createMap(String.class, Object.class,
@@ -184,6 +193,7 @@ public class YggdrasilServer extends NanoHTTPD {
         Response response = newFixedLengthResponse(Response.Status.OK, "image/png", new ByteArrayInputStream(buf.toByteArray()), buf.toByteArray().length);
         response.addHeader("Etag", String.format("\"%s\"", hash));
         response.addHeader("Cache-Control", "max-age=2592000, public");
+        logger.info(String.format("accessing : %s", f));
         return response;
     }
     private Response root(){

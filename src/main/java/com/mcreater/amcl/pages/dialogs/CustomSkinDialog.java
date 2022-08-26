@@ -32,9 +32,11 @@ public class CustomSkinDialog extends AbstractDialog {
     JFXButton cancelButton;
     public String skin;
     public String cape;
+    public String elytra;
     public ListItem<Label> changeModelSelect;
     public StringButtonItem skin_ui;
     public StringButtonItem cape_ui;
+    public StringButtonItem elytra_ui;
     public void setEvent(EventHandler<ActionEvent> event){
         this.event = event;
         addButton.setOnAction(this.event);
@@ -53,6 +55,7 @@ public class CustomSkinDialog extends AbstractDialog {
         changeModelSelect.cont.setBorder(FXUtils.generateBorder(Color.TRANSPARENT, BorderStrokeStyle.SOLID, false, false, false ,false, 1));
         skin_ui = new StringButtonItem(Launcher.languageManager.get("ui.userselectpage.skin.select"), 400);
         cape_ui = new StringButtonItem(Launcher.languageManager.get("ui.userselectpage.cape.select"), 400);
+        elytra_ui = new StringButtonItem(Launcher.languageManager.get(Launcher.languageManager.get("ui.userselectpage.elytra.select")), 400);
 
         for (String s : J8Utils.createList("Steve", "Alex")){
             Label l = new Label(s);
@@ -103,6 +106,8 @@ public class CustomSkinDialog extends AbstractDialog {
                     if (ImageIO.read(f) != null) {
                         this.cape = f.getAbsolutePath();
                         cape_ui.cont.setText(this.cape);
+                        this.elytra = f.getAbsolutePath();
+                        elytra_ui.cont.setText(this.elytra);
                     }
                     else {
                         s.run();
@@ -114,13 +119,41 @@ public class CustomSkinDialog extends AbstractDialog {
             else {
                 this.cape = null;
                 cape_ui.cont.setText("");
+                this.elytra = null;
+                elytra_ui.cont.setText("");
+            }
+        });
+        elytra_ui.title.setOnAction(event -> {
+            FileChooser chooser = new FileChooser();
+            chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(Launcher.languageManager.get("ui.userselectpage.custom.file.desc"), "*.png"));
+            File f = chooser.showOpenDialog(Launcher.stage);
+            if (f != null){
+                try {
+                    if (ImageIO.read(f) != null) {
+                        this.elytra = f.getAbsolutePath();
+                        elytra_ui.cont.setText(this.elytra);
+                        this.cape = f.getAbsolutePath();
+                        cape_ui.cont.setText(this.cape);
+                    }
+                    else {
+                        s.run();
+                    }
+                } catch (IOException ignored) {
+                    s.run();
+                }
+            }
+            else {
+                this.elytra = null;
+                elytra_ui.cont.setText("");
+                this.cape = null;
+                cape_ui.cont.setText("");
             }
         });
 
         Label head = setFont(new Label(title), Fonts.s_f);
-        ThemeManager.loadButtonAnimates(head, changeModelSelect, skin_ui, cape_ui);
+        ThemeManager.loadButtonAnimates(head, changeModelSelect, skin_ui, cape_ui, elytra_ui);
         layout.setHeading(head);
-        layout.setBody(new VBox(changeModelSelect, skin_ui, cape_ui));
+        layout.setBody(new VBox(changeModelSelect, skin_ui, cape_ui, elytra_ui));
         addButton = new JFXButton(Launcher.languageManager.get("ui.dialogs.information.ok.name"));
         addButton.setFont(Fonts.t_f);
         addButton.setDefaultButton(true);

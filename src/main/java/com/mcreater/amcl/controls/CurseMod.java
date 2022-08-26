@@ -5,7 +5,7 @@ import com.mcreater.amcl.api.curseApi.mod.CurseModAuthorModel;
 import com.mcreater.amcl.api.curseApi.mod.CurseModCategorieModel;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.util.operatingSystem.BrowserHelper;
+import com.mcreater.amcl.util.operatingSystem.SystemActions;
 import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
@@ -52,7 +52,7 @@ public class CurseMod extends GridPane {
         authors.getChildren().add(base);
         for (CurseModAuthorModel m : model.authors){
             Hyperlink link = new Hyperlink(m.name);
-            link.setOnAction(event -> BrowserHelper.open(m.url));
+            link.setOnAction(event -> SystemActions.openBrowser(m.url));
             link.setFont(Fonts.t_f);
             Label comma = new Label(",");
             authors.getChildren().addAll(link, comma);

@@ -51,19 +51,47 @@ public class OptifineDownload {
         ReflectedJar jar = ReflectHelper.getReflectedJar("opti.jar");
         int installer = jar.createNewInstance(jar.getJarClass("optifine.Installer"));
 
-        String ofVer = (String) jar.invokeNoArgsMethod(installer, "getOptiFineVersion");
-        String[] ofVers = (String[]) jar.invokeStaticMethod(jar.getJarClass("optifine.Utils"), "tokenize", new String[]{ofVer, "_"}, String.class, String.class);
-        String ofEd = (String) jar.invokeMethod(installer, "getOptiFineEdition", new Object[]{ofVers}, String[].class);
+        String ofVer = (String) jar.invokeNoArgsMethod(
+                installer,
+                "getOptiFineVersion");
+        String[] ofVers = (String[]) jar.invokeStaticMethod(
+                jar.getJarClass("optifine.Utils"),
+                "tokenize",
+                new String[]{ofVer, "_"},
+                String.class, String.class);
 
-        jar.invokeMethod(installer, "installOptiFineLibrary", new Object[]{version_name, ofEd, new File(LinkPath.link(minecraft_dir, "libraries")), false}, String.class, String.class, File.class, boolean.class);
+        String ofEd = (String) jar.invokeMethod(
+                installer,
+                "getOptiFineEdition",
+                new Object[]{ofVers},
+                String[].class);
 
-        try{
-            jar.invokeMethod(installer, "installLaunchwrapperLibrary", new Object[]{id, ofEd, new File(LinkPath.link(minecraft_dir, "libraries"))}, String.class, String.class, File.class);
+        // optifine main jar
+        jar.invokeMethod(
+                installer,
+                "installOptiFineLibrary",
+                new Object[]{version_name, ofEd, new File(LinkPath.link(minecraft_dir, "libraries")), false},
+                String.class, String.class, File.class, boolean.class);
+
+        // from 1.13
+        // optifine launchwrapper
+        try {
+            jar.invokeMethod(
+                    installer,
+                    "installLaunchwrapperLibrary",
+                    new Object[]{id, ofEd, new File(LinkPath.link(minecraft_dir, "libraries"))},
+                    String.class, String.class, File.class);
         }
         catch (Exception ignored){}
 
-        jar.invokeMethod(installer, "updateJson", new Object[]{new File(LinkPath.link(minecraft_dir, "versions")), version_name, new File(LinkPath.link(minecraft_dir, "libraries")), id, ofEd}, File.class, String.class, File.class, String.class, String.class);
+        // extract optifine json
+        jar.invokeMethod(
+                installer,
+                "updateJson",
+                new Object[]{new File(LinkPath.link(minecraft_dir, "versions")), version_name, new File(LinkPath.link(minecraft_dir, "libraries")), id, ofEd},
+                File.class, String.class, File.class, String.class, String.class);
 
+        // merge json
         JSONObject f = new JSONObject(new Gson().fromJson(FileStringReader.read(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)), Map.class));
         Vector<Map<String, String>> oflibs = new Vector<>();
         for (Object o : f.getJSONArray("libraries")){

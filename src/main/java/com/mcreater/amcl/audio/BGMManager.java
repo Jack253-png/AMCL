@@ -67,8 +67,12 @@ public class BGMManager {
         }
     }
     public static void stop(){
-        currentClip.stop();
-        musicThread.stop();
+        if (currentClip != null) currentClip.stop();
+        if (musicThread != null) musicThread.stop();
+    }
+    public static void startOrStop(boolean b){
+        if (b) start();
+        else stop();
     }
     public static void next(){
         try {

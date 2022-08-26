@@ -117,6 +117,16 @@ public class Launcher extends javafx.application.Application {
 
             themeManager.apply(this);
 
+            USERSELECTPAGE.view.setOnMouseEntered(event -> {});
+            USERSELECTPAGE.decorator.setOnMouseEntered(event -> {});
+            USERSELECTPAGE.view.setOnMouseExited(event -> {});
+            USERSELECTPAGE.decorator.setOnMouseExited(event -> {});
+
+            USERSELECTPAGE.view.setOpacity(1);
+            USERSELECTPAGE.decorator.setOpacity(1);
+
+            ThemeManager.loadButtonAnimateParent(USERSELECTPAGE.p);
+
             refreshBackground();
 
             last = MAINPAGE;

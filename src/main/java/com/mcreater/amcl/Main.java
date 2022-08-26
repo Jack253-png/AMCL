@@ -23,7 +23,6 @@ public class Main {
     }
     public static void start() {
         try {
-            StableMain.makeSingle();
             args = new String[]{};
             logger.info("initialize");
             logger.info("launching core with arguments : " + Arrays.toString(args));

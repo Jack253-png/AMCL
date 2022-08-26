@@ -44,10 +44,6 @@ public class SmoothableListView<T extends Region> extends VBox{
         vecs.add(item);
         JFXButton button = new JFXButton();
         button.setGraphic(item);
-        Border b1 = FXUtils.generateBorder(new Color(0, 0, 0, 0.25), BorderStrokeStyle.SOLID, true, true, true, true, 1);
-        Border b2 = FXUtils.generateBorder(Color.BLACK, BorderStrokeStyle.SOLID, false, false, false, false, 1);
-        button.setOnMouseEntered(event -> button.setBorder(b1));
-        button.setOnMouseExited(event -> button.setBorder(b2));
         button.setButtonType(JFXButton.ButtonType.RAISED);
 
         bs.add(button);
@@ -55,8 +51,6 @@ public class SmoothableListView<T extends Region> extends VBox{
         ThemeManager.loadButtonAnimates(button);
 
         button.setOnAction(event -> {
-            bs.forEach(e -> e.setStyle("-fx-background-color: transparent"));
-            button.setStyle("-fx-background-color: rgba(0, 0, 0, 0.15)");
             selectedItem = item;
             selectedButton = button;
             onActionProperty.get().run();

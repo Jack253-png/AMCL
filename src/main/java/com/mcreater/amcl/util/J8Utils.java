@@ -2,13 +2,15 @@ package com.mcreater.amcl.util;
 
 import com.mcreater.amcl.util.system.MemoryReader;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
 public class J8Utils {
-    public static <K extends Object, V extends Object> Map<K, V> createMap(Class<K> k, Class<V> v, Object... values){
+    public static String rawToString(Object o){
+        return String.format("%s@%s", o.getClass(), Integer.toHexString(o.hashCode()));
+    }
+    public static <K, V> Map<K, V> createMap(Class<K> k, Class<V> v, Object... values){
         Map<K, V> map = new HashMap<>();
         if (values.length % 2 != 0){
             throw new StackOverflowError();
@@ -21,6 +23,7 @@ public class J8Utils {
     public static Map<Object, Object> createMap(Object... values){
         return createMap(Object.class, Object.class, values);
     }
+    @SafeVarargs
     public static <E> List<E> createList(E... values){
         List<E> list = new Vector<>();
         Collections.addAll(list, values);

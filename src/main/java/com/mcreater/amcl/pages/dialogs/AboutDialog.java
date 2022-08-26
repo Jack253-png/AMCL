@@ -9,7 +9,7 @@ import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
-import com.mcreater.amcl.util.operatingSystem.BrowserHelper;
+import com.mcreater.amcl.util.operatingSystem.SystemActions;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -43,7 +43,7 @@ public class AboutDialog extends AbstractDialog {
         page.getStylesheets().add(String.format(ThemeManager.getPath(), "SettingPage"));
 
         Hyperlink hyperlink = new Hyperlink(Launcher.languageManager.get("ui.about.opensource.name"));
-        hyperlink.setOnAction(event -> BrowserHelper.open("https://github.com/Jack253-png/AMCL"));
+        hyperlink.setOnAction(event -> SystemActions.openBrowser("https://github.com/Jack253-png/AMCL"));
         hyperlink.setFont(Fonts.t_f);
 
         v.setSpacing(10);

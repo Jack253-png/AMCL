@@ -77,8 +77,12 @@ public class ThemeManager {
         for (Node n : controls){
             loadButtonAnimates(n);
             String sheetPath = String.format(theme_base_path, themeName, n.getClass().getSimpleName());
+            logger.info(String.format("loading style for control %s", n.getClass().getSimpleName()));
             if (!(new ResourceGetter().get(sheetPath) == null)){
                 ((Parent) n).getStylesheets().add(sheetPath);
+            }
+            else {
+                logger.warn(String.format("failed load style for control %s !", n.getClass().getSimpleName()));
             }
         }
     }
@@ -93,6 +97,9 @@ public class ThemeManager {
         Mousein.getKeyFrames().add(new KeyFrame(Duration.ZERO, v1));
         Mousein.getKeyFrames().add(new KeyFrame(new Duration(duration), v2));
         return Mousein;
+    }
+    public static void loadButtonAnimateParent(Node node){
+        generateAnimations(node, 0.6D, 1D, 200, node.opacityProperty());
     }
     public static void loadButtonAnimates(Node... nodes){
         for (Node button : nodes){

@@ -78,7 +78,6 @@ public class RegionFile {
             e.printStackTrace();
         }
     }
-
     public synchronized DataInputStream getChunkDataInputStream(int x, int z) {
         if (outOfBounds(x, z)) {
             return null;

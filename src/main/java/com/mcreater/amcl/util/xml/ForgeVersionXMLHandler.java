@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -29,6 +30,7 @@ public class ForgeVersionXMLHandler {
         XMLReader reader=parse.getXMLReader();
         reader.setContentHandler(new PHandler());
         reader.parse("./temp.xml");
+        new File("./temp.xml").delete();
         return result;
     }
     static class PHandler extends DefaultHandler {

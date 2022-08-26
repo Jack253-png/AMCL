@@ -2,29 +2,23 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.api.auth.MSAuth;
-import com.mcreater.amcl.api.auth.OffLineAuth;
-import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.audio.BGMManager;
-import com.mcreater.amcl.controls.skin.FunctionHelper;
-import com.mcreater.amcl.controls.skin.SkinCanvasSupport;
-import com.mcreater.amcl.controls.skin.SkinView;
-import com.mcreater.amcl.controls.skin.animation.SkinAniRunning;
-import com.mcreater.amcl.controls.skin.animation.SkinAniWavingArms;
-import com.mcreater.amcl.exceptions.LaunchException;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.stages.FXBrowserPage;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
-import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.VersionInfo;
+import com.sun.javafx.collections.MappingChange;
+import com.sun.javafx.collections.SourceAdapterChange;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
@@ -35,9 +29,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainPage extends AbstractAnimationPage {
     public static Label title;
@@ -53,26 +49,36 @@ public class MainPage extends AbstractAnimationPage {
     public static Label downloadTitle;
     public static JFXButton launchButton;
     public static VBox launchBox;
-    public static boolean minecraft_running = false;
-    public static String log = "";
-    public static Long exit_code = null;
     public boolean is_vaild_minecraft_dir;
-    public static Launch g;
+    public static ObservableList<Launch> game;
     public static Logger logger = LogManager.getLogger(MainPage.class);
-    public static boolean window_showed;
-    public static ProcessDialog d;
+    public static ProcessDialog launchDialog;
     public static ProcessDialog l;
-    public static JFXButton stop;
     public static JFXButton users;
+    public static JFXButton stopProcess;
+    public static final AtomicBoolean clearingThread = new AtomicBoolean(false);
+    public static void tryToRemoveLaunch(Launch launch){
+        new Thread(() -> {
+            while (true){
+                if (!clearingThread.get()){
+                    game.remove(launch);
+                    break;
+                }
+            }
+        }).start();
+    }
+    public void stopAllProcess(){
+        clearingThread.set(true);
+        game.forEach(Launch::stop_process);
+        clearingThread.set(false);
+    }
     public MainPage(double width,double height) {
         super(width, height);
         l = null;
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (minecraft_running) {
-                g.stop_process();
-            }
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(this::stopAllProcess));
+
+        game = FXCollections.observableArrayList();
 
         launchButton = new JFXButton();
         launchButton.setId("launch-button");
@@ -84,14 +90,14 @@ public class MainPage extends AbstractAnimationPage {
             FileUtils.ChangeDir.saveNowDir();
             if (!Objects.equals(launchButton.getText(), Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
                 Launcher.configReader.check_and_write();
-                g = new Launch();
-                d = new ProcessDialog(3, Launcher.languageManager.get("ui.mainpage.launch._01"));
-                d.setV(0, 1, Launcher.languageManager.get("ui.mainpage.launch._02"));
+                launchDialog = new ProcessDialog(3, Launcher.languageManager.get("ui.mainpage.launch._01"));
+                launchDialog.setV(0, 1, Launcher.languageManager.get("ui.mainpage.launch._02"));
                 Thread la = new Thread(() -> {
                     try {
-                        launchButton.setDisable(true);
                         if (new File(Launcher.configReader.configModel.selected_java_index).exists()) {
-                            g.launch(
+                            game.add(new Launch());
+                            Thread.currentThread().setName(String.format("Launch Thread #%d", game.size() - 1));
+                            game.get(game.size() - 1).launch(
                                     Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir,
                                     Launcher.configReader.configModel.max_memory,
                                     UserSelectPage.user_object.get());
@@ -101,40 +107,45 @@ public class MainPage extends AbstractAnimationPage {
                             Launcher.configReader.configModel.selected_java_index = "";
                             Launcher.configReader.write();
                             Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.javaChecker.name"), Launcher.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), ""));
-                            launchButton.setDisable(false);
                         }
                     }
                     catch (Exception e) {
-                        d.close();
+                        launchDialog.close();
                         logger.info("failed to launch", e);
-                        launchButton.setDisable(false);
                         Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
                     }
                 });
-                la.setName("Launch Thread");
                 la.start();
             } else {
-                if (d != null) d.close();
+                if (launchDialog != null) launchDialog.close();
                 FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.noVersion.name"), Launcher.languageManager.get("ui.mainpage.launch.noVersion.Headcontent"), Launcher.languageManager.get("ui.mainpage.launch.noVersion.content"));
             }
         });
-        if (minecraft_running) {
-            launchButton.setDisable(true);
-        }
-        stop = new JFXButton();
-        stop.setDisable(true);
-        stop.setId("launch-button");
-        stop.setFont(Fonts.s_f);
-        stop.setTextFill(Color.WHITE);
-        stop.setOnAction(event -> {
-            g.stop_process();
-            stop.setDisable(true);
+
+        stopProcess = new JFXButton();
+        stopProcess.setId("launch-button");
+        stopProcess.setFont(Fonts.s_f);
+        stopProcess.setTextFill(Color.WHITE);
+        ListChangeListener<Launch> listener = c -> {
+            stopProcess.setDisable(game.size() == 0);
+            BGMManager.startOrStop(game.size() == 0);
+        };
+        game.addListener(listener);
+        listener.onChanged(new ListChangeListener.Change<Launch>(game) {
+            public boolean next() {return false;}
+            public void reset() {}
+            public int getFrom() {return 0;}
+            public int getTo() {return 0;}
+            public List<Launch> getRemoved() {return null;}
+            protected int[] getPermutation() {return new int[0];}
         });
+
+        stopProcess.setOnAction(event -> stopAllProcess());
 
         launchBox = new VBox();
         launchBox.setAlignment(Pos.BOTTOM_LEFT);
         launchBox.setMaxSize(width / 2, height - 185);
-        launchBox.getChildren().addAll(stop, launchButton);
+        launchBox.getChildren().addAll(stopProcess, launchButton);
 
         title = new Label();
         launch = new Label();
@@ -229,28 +240,15 @@ public class MainPage extends AbstractAnimationPage {
         this.add(hBox2, 2, 1, 1, 1);
         this.add(launchBox, 3, 1, 1, 1);
     }
-    public static void check(){
-        launchButton.setDisable(minecraft_running);
-        if (!minecraft_running){
-            Platform.runLater(d::close);
-            if (exit_code != null){
-                logger.info("Minecraft exited with code " + exit_code);
-                if (exit_code != 0){
+    public static void check(Launch launchCore){
+        Platform.runLater(launchDialog::close);
+        if (launchCore.exitCode != null){
+            logger.info("Minecraft exited with code " + launchCore.exitCode);
+            if (launchCore.exitCode != 0){
 
-                    FastInfomation.create(Launcher.languageManager.get("ui.mainpage.minecraftExit.title"), Launcher.languageManager.get("ui.mainpage.minecraftExit.Headercontent"),String.format(Launcher.languageManager.get("ui.mainpage.minecraftExit.content"), exit_code));
-                }
-                exit_code = null;
-                window_showed = false;
-                stop.setDisable(true);
-                BGMManager.start();
+                FastInfomation.create(Launcher.languageManager.get("ui.mainpage.minecraftExit.title"), String.format(Launcher.languageManager.get("ui.mainpage.minecraftExit.Headercontent"), launchCore),String.format(Launcher.languageManager.get("ui.mainpage.minecraftExit.content"), launchCore.exitCode));
             }
         }
-    }
-    public static void cleanLog(){
-        log = "";
-    }
-    public static void addLog(String line){
-        log += line + "\n";
     }
     public static class Spacer extends Label {
         public Spacer(){
@@ -268,16 +266,24 @@ public class MainPage extends AbstractAnimationPage {
         });
     }
     public void flush(){
-        if (new File(Launcher.configReader.configModel.selected_minecraft_dir_index).exists()) {
+        boolean minecraft_dir_exists = new File(Launcher.configReader.configModel.selected_minecraft_dir_index).exists();
+
+        if (minecraft_dir_exists) {
             if (Launcher.configReader.configModel.selected_minecraft_dir.contains(Launcher.configReader.configModel.selected_minecraft_dir_index)) {
                 if (Launcher.configReader.configModel.selected_version_index != null) {
                     if (Objects.requireNonNull(getMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index)).contains(Launcher.configReader.configModel.selected_version_index)) {
-                        Platform.runLater(() -> {
-                            version_settings.setText(" " + Launcher.configReader.configModel.selected_version_index);
-                            launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.hasVersion"));
-                            version_settings.setDisable(false);
+                        if (new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/%s.json", Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)).exists()) {
+                            Platform.runLater(() -> {
+                                version_settings.setText(" " + Launcher.configReader.configModel.selected_version_index);
+                                launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.hasVersion"));
+                                version_settings.setDisable(false);
+                                downloadMc.setDisable(false);
+                            });
+                        }
+                        else {
+                            clean_null_version();
                             downloadMc.setDisable(false);
-                        });
+                        }
                     } else {
                         clean_null_version();
                         downloadMc.setDisable(false);
@@ -318,7 +324,7 @@ public class MainPage extends AbstractAnimationPage {
         settings.setText(" "+ Launcher.languageManager.get("ui.mainpage.settings.name"));
         downloadTitle.setText(Launcher.languageManager.get("ui.mainpage.download.title"));
         downloadMc.setText(Launcher.languageManager.get("ui.mainpage.downloadMc.name"));
-        stop.setText(Launcher.languageManager.get("ui.mainpage.stop"));
         users.setText(Launcher.languageManager.get("ui.mainpage.users.name"));
+        stopProcess.setText(Launcher.languageManager.get("ui.mainpage.stop"));
     }
 }

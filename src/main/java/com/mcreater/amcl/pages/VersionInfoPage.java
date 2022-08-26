@@ -98,45 +98,35 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         FXUtils.ControlSize.set(delVer, t_size, t_size);
         delVer.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         delVer.setOnAction(event -> {
-            if (!MainPage.minecraft_running) {
-                RemoveFileToTrash.remove(LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", Launcher.configReader.configModel.selected_version_index)));
-                Launcher.setPage(Launcher.MAINPAGE, this);
-            }
-            else {
-                FastInfomation.create(Launcher.languageManager.get("ui.versioninfopage.modify.fail.title"), Launcher.languageManager.get("ui.versioninfopage.modify.fail.content"), "");
-            }
+            RemoveFileToTrash.remove(LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", Launcher.configReader.configModel.selected_version_index)));
+            Launcher.setPage(Launcher.MAINPAGE, this);
         });
         item = new StringItem("", this.width / 4 * 3);
         changeName = new JFXButton();
         changeName.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         FXUtils.ControlSize.set(changeName, t_size, t_size);
         changeName.setOnAction(event -> {
-            if (!MainPage.minecraft_running) {
-                if (isValidFileName(item.cont.getText())) {
-                    String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", item.cont.getText()));
-                    if (new File(versionDir).exists()) {
-                        FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.1"), "");
-                    } else {
-                        String temp = Launcher.configReader.configModel.selected_version_index;
-                        Launcher.configReader.configModel.selected_version_index = item.cont.getText();
-                        String dir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", temp));
-                        String newDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", item.cont.getText()));
-                        String jar = newDir + String.format("\\%s.jar", temp);
-                        String json = newDir + String.format("\\%s.json", temp);
-                        String newJar = newDir + String.format("\\%s.jar", item.cont.getText());
-                        String newJson = newDir + String.format("\\%s.json", item.cont.getText());
-
-                        new File(dir).renameTo(new File(newDir));
-                        new File(jar).renameTo(new File(newJar));
-                        new File(json).renameTo(new File(newJson));
-                        Launcher.setPage(Launcher.MAINPAGE, this);
-                    }
+            if (isValidFileName(item.cont.getText())) {
+                String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", item.cont.getText()));
+                if (new File(versionDir).exists()) {
+                    FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.1"), "");
                 } else {
-                    FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.2"), "");
+                    String temp = Launcher.configReader.configModel.selected_version_index;
+                    Launcher.configReader.configModel.selected_version_index = item.cont.getText();
+                    String dir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", temp));
+                    String newDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", item.cont.getText()));
+                    String jar = newDir + String.format("\\%s.jar", temp);
+                    String json = newDir + String.format("\\%s.json", temp);
+                    String newJar = newDir + String.format("\\%s.jar", item.cont.getText());
+                    String newJson = newDir + String.format("\\%s.json", item.cont.getText());
+
+                    new File(dir).renameTo(new File(newDir));
+                    new File(jar).renameTo(new File(newJar));
+                    new File(json).renameTo(new File(newJson));
+                    Launcher.setPage(Launcher.MAINPAGE, this);
                 }
-            }
-            else {
-                FastInfomation.create(Launcher.languageManager.get("ui.versioninfopage.modify.fail.title"), Launcher.languageManager.get("ui.versioninfopage.modify.fail.content"), "");
+            } else {
+                FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.2"), "");
             }
         });
         HBox b1 = new HBox(delVer, changeName);

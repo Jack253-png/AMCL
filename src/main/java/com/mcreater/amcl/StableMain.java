@@ -29,15 +29,6 @@ import java.util.Vector;
 
 public class StableMain {
     public static PreLanguageManager manager;
-    public static void makeSingle() throws IOException {
-        File f = new File("C:\\TEMP.lock");
-        if (!f.exists()) f.createNewFile();
-        try {
-            FileInputStream stream = new FileInputStream(f);
-        } catch (Exception e) {
-            throw new IOException("this application only can run once.");
-        }
-    }
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException {
         try {
             for (File f : Objects.requireNonNull(new File(FileUtils.LinkPath.link(System.getProperty("user.home"), "AppData\\Local\\JxBrowser")).listFiles())) {

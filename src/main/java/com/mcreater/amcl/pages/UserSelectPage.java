@@ -6,6 +6,7 @@ import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.auth.users.OffLineUser;
+import com.mcreater.amcl.api.auth.users.UserHashManager;
 import com.mcreater.amcl.config.ConfigModel;
 import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.controls.items.StringItem;
@@ -17,13 +18,13 @@ import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.pages.stages.FXBrowserPage;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -33,6 +34,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -40,7 +42,7 @@ import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
 public class UserSelectPage extends AbstractMenuBarPage {
-    ImageView view;
+    public ImageView view;
     SettingPage p1;
     JFXButton b1;
     VBox offL;
@@ -58,14 +60,45 @@ public class UserSelectPage extends AbstractMenuBarPage {
     ListItem<Label> offlineSkin;
     Label onlineUser;
     Label custom;
-    ImageView decorator;
+    public ImageView decorator;
     public String handleNullString(String raw){
         if (raw == null) return "";
         else return raw;
     }
+    public Pane p;
+    public JFXButton edit;
+    public JFXButton refresh;
+    public JFXButton logout;
     public UserSelectPage(double width, double height) {
         super(width, height);
         l = Launcher.MAINPAGE;
+
+        SimpleFunctions.Arg0Func<Integer> getUserTypeIndex = () -> {
+            if (user_object.get() != null){
+                if (user_object.get() instanceof OffLineUser){
+                    OffLineUser temp_user = (OffLineUser) user_object.get();
+                    if (temp_user.capeUseable() || temp_user.skinUseable() || temp_user.elytraUseable()) {
+                        return 3;
+                    }
+                    else {
+                        switch (user_object.get().uuid) {
+                            case OffLineUser.STEVE:
+                                return 0;
+                            case OffLineUser.ALEX:
+                                return 1;
+                            default:
+                                return 2;
+                        }
+                    }
+                }
+            }
+            return 0;
+        };
+
+        SimpleFunctions.Arg1Func<Boolean, Integer> castIntToBoolean = arg1 -> {
+            return arg1 ? 1 : 0;
+        };
+
         user_object = new SimpleObjectProperty<>();
         mainBox = new VBox();
         offL = new VBox();
@@ -81,10 +114,11 @@ public class UserSelectPage extends AbstractMenuBarPage {
             offlineSkin.cont.getItems().add(l);
         }
         offlineSkin.cont.getItems().addAll(onlineUser, custom);
+        offlineSkin.cont.getSelectionModel().select(getUserTypeIndex.run());
 
-        JFXButton logout = new JFXButton();
-        JFXButton refresh = new JFXButton();
-        JFXButton edit = new JFXButton();
+        logout = new JFXButton();
+        refresh = new JFXButton();
+        edit = new JFXButton();
 
         logout.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), 40 ,40));
         refresh.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 40 ,40));
@@ -96,58 +130,38 @@ public class UserSelectPage extends AbstractMenuBarPage {
             LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.refresh.title"));
             dialog.Create();
             new Thread(() -> {
-                try {
-                    user_object.get().refresh();
-                    Launcher.configReader.configModel.last_uuid = user_object.get().uuid;
-                    Launcher.configReader.configModel.last_name = user_object.get().username;
-                    if (user_object.get() instanceof MicrosoftUser) {
-                        Launcher.configReader.configModel.last_accessToken = user_object.get().accessToken;
-                        Launcher.configReader.configModel.last_refreshToken = ((MicrosoftUser) user_object.get()).refreshToken;
+                if (!user_object.get().vaildate()) {
+                    try {
+                        user_object.get().refresh();
+                        Launcher.configReader.configModel.last_uuid = user_object.get().uuid;
+                        Launcher.configReader.configModel.last_name = user_object.get().username;
+                        if (user_object.get() instanceof MicrosoftUser) {
+                            Launcher.configReader.configModel.last_accessToken = user_object.get().accessToken;
+                            Launcher.configReader.configModel.last_refreshToken = user_object.get().refreshToken;
+                        }
+                        Launcher.configReader.write();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"), e.toString(), ""));
                     }
-                    Launcher.configReader.write();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"), e.toString(), ""));
                 }
                 Platform.runLater(() -> refresh.setDisable(false));
                 Platform.runLater(dialog::close);
                 Platform.runLater(this::refreshSkin);
+                UserHashManager.writeSafe(user_object.get());
             }).start();
         });
 
         logout.setOnAction(event -> {
             user_object.set(null);
+            UserHashManager.clearUserData();
             setP1(0);
-            Launcher.configReader.configModel.last_uuid = null;
-            Launcher.configReader.configModel.last_name = null;
-            Launcher.configReader.configModel.last_accessToken = null;
-            Launcher.configReader.configModel.last_refreshToken = null;
-            Launcher.configReader.configModel.last_userType = "OFFLINE";
-            Launcher.configReader.configModel.last_is_slim = false;
-            Launcher.configReader.configModel.last_skin_path = null;
-            Launcher.configReader.configModel.last_cape_path = null;
-            Launcher.configReader.write();
         });
 
         edit.setOnAction(event -> {
             EditAccountContentDialog dialog = new EditAccountContentDialog(Launcher.languageManager.get("ui.userselectpage.account.edit"));
             OffLineUser temp_user = (OffLineUser) user_object.get();
-            if (temp_user.capeUseable() || temp_user.skinUseable()) {
-                dialog.item2.cont.getSelectionModel().select(3);
-            }
-            else {
-                switch (user_object.get().uuid) {
-                    case OffLineUser.STEVE:
-                        dialog.item2.cont.getSelectionModel().select(0);
-                        break;
-                    case OffLineUser.ALEX:
-                        dialog.item2.cont.getSelectionModel().select(1);
-                        break;
-                    default:
-                        dialog.item2.cont.getSelectionModel().select(2);
-                        break;
-                }
-            }
+            dialog.item2.cont.getSelectionModel().select(getUserTypeIndex.run());
             dialog.item.cont.setText(temp_user.username);
             Runnable finalRunnable = () -> {
                 Launcher.configReader.write();
@@ -156,7 +170,8 @@ public class UserSelectPage extends AbstractMenuBarPage {
                         Launcher.configReader.configModel.last_uuid,
                         Launcher.configReader.configModel.last_is_slim,
                         Launcher.configReader.configModel.last_skin_path,
-                        Launcher.configReader.configModel.last_cape_path
+                        Launcher.configReader.configModel.last_cape_path,
+                        Launcher.configReader.configModel.last_elytra_path
                 ));
                 refreshSkin();
                 dialog.close();
@@ -170,6 +185,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                         Launcher.configReader.configModel.last_is_slim = false;
                         Launcher.configReader.configModel.last_skin_path = null;
                         Launcher.configReader.configModel.last_cape_path = null;
+                        Launcher.configReader.configModel.last_elytra_path = null;
                         finalRunnable.run();
                         break;
                     case 1:
@@ -177,6 +193,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                         Launcher.configReader.configModel.last_is_slim = true;
                         Launcher.configReader.configModel.last_skin_path = null;
                         Launcher.configReader.configModel.last_cape_path = null;
+                        Launcher.configReader.configModel.last_elytra_path = null;
                         finalRunnable.run();
                         break;
                     case 2:
@@ -198,6 +215,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                                     new Thread(() -> {
                                         Launcher.configReader.configModel.last_skin_path = null;
                                         Launcher.configReader.configModel.last_cape_path = null;
+                                        Launcher.configReader.configModel.last_elytra_path = null;
                                         try {
                                             Launcher.configReader.configModel.last_uuid = MSAuth.getUserUUID(d1.f.getText());
                                         }
@@ -220,16 +238,13 @@ public class UserSelectPage extends AbstractMenuBarPage {
                     case 3:
                         Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
                         CustomSkinDialog d2 = new CustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"));
-                        if (Launcher.configReader.configModel.last_is_slim){
-                            d2.changeModelSelect.cont.getSelectionModel().select(1);
-                        }
-                        else {
-                            d2.changeModelSelect.cont.getSelectionModel().select(0);
-                        }
+                        d2.changeModelSelect.cont.getSelectionModel().select(castIntToBoolean.run(Launcher.configReader.configModel.last_is_slim));
                         d2.skin = handleNullString(Launcher.configReader.configModel.last_skin_path);
                         d2.skin_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_skin_path));
                         d2.cape = handleNullString(Launcher.configReader.configModel.last_cape_path);
                         d2.cape_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_cape_path));
+                        d2.elytra = handleNullString(Launcher.configReader.configModel.last_elytra_path);
+                        d2.elytra_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_elytra_path));
 
                         d2.setCancel(event1 -> d2.close());
                         d2.setEvent(event12 -> {
@@ -246,15 +261,14 @@ public class UserSelectPage extends AbstractMenuBarPage {
                             }
                             Launcher.configReader.configModel.last_skin_path = d2.skin;
                             Launcher.configReader.configModel.last_cape_path = d2.cape;
+                            Launcher.configReader.configModel.last_elytra_path = d2.elytra;
                             Launcher.configReader.write();
                             Platform.runLater(d2::close);
                             finalRunnable.run();
                         });
                         d2.Create();
                         break;
-
                 }
-
             });
             dialog.Create();
         });
@@ -263,6 +277,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
             if (newValue != null){
                 edit.setDisable(newValue instanceof MicrosoftUser);
             }
+            UserHashManager.writeSafe(newValue);
         });
 
         offlineSkin.cont.getSelectionModel().select(0);
@@ -280,7 +295,9 @@ public class UserSelectPage extends AbstractMenuBarPage {
                         Launcher.configReader.configModel.last_uuid,
                         Launcher.configReader.configModel.last_is_slim,
                         Launcher.configReader.configModel.last_skin_path,
-                        Launcher.configReader.configModel.last_cape_path));
+                        Launcher.configReader.configModel.last_cape_path,
+                        Launcher.configReader.configModel.last_elytra_path
+                ));
                 FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.content"), "");
                 refreshSkin();
                 setP1(2);
@@ -292,13 +309,15 @@ public class UserSelectPage extends AbstractMenuBarPage {
                     Launcher.configReader.configModel.last_is_slim = false;
                     Launcher.configReader.configModel.last_skin_path = null;
                     Launcher.configReader.configModel.last_cape_path = null;
+                    Launcher.configReader.configModel.last_elytra_path = null;
                     finalRunnable.run();
                     break;
                 case 1:
                     Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
-                    Launcher.configReader.configModel.last_is_slim = false;
+                    Launcher.configReader.configModel.last_is_slim = true;
                     Launcher.configReader.configModel.last_skin_path = null;
                     Launcher.configReader.configModel.last_cape_path = null;
+                    Launcher.configReader.configModel.last_elytra_path = null;
                     finalRunnable.run();
                     break;
                 case 2:
@@ -312,6 +331,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                         new Thread(() -> {
                             Launcher.configReader.configModel.last_skin_path = null;
                             Launcher.configReader.configModel.last_cape_path = null;
+                            Launcher.configReader.configModel.last_elytra_path = null;
                             try {
                                 Launcher.configReader.configModel.last_uuid = MSAuth.getUserUUID(dialog.f.getText());
                             } catch (Exception e) {
@@ -345,6 +365,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                         }
                         Launcher.configReader.configModel.last_skin_path = d2.skin;
                         Launcher.configReader.configModel.last_cape_path = d2.cape;
+                        Launcher.configReader.configModel.last_elytra_path = d2.elytra;
                         Launcher.configReader.write();
                         Platform.runLater(finalRunnable);
                         Platform.runLater(d2::close);
@@ -355,24 +376,34 @@ public class UserSelectPage extends AbstractMenuBarPage {
             });
         switch (ConfigModel.UserType.valueOf(Launcher.configReader.configModel.last_userType)){
             case OFFLINE:
-                if (Launcher.configReader.configModel.last_name != null || Launcher.configReader.configModel.last_uuid != null){
+                if ((Launcher.configReader.configModel.last_name != null || Launcher.configReader.configModel.last_uuid != null)){
                     nameItem.cont.setText(Launcher.configReader.configModel.last_name);
                     user_object.set(new OffLineUser(
                             Launcher.configReader.configModel.last_name,
                             Launcher.configReader.configModel.last_uuid,
                             Launcher.configReader.configModel.last_is_slim,
                             Launcher.configReader.configModel.last_skin_path,
-                            Launcher.configReader.configModel.last_cape_path));
+                            Launcher.configReader.configModel.last_cape_path,
+                            Launcher.configReader.configModel.last_elytra_path
+                    ));
+                }
+                if (!UserHashManager.vaildateSafe(user_object.get())){
+                    user_object.set(null);
+                    UserHashManager.clearUserData();
                 }
                 break;
             case MICROSOFT:
-                if (Launcher.configReader.configModel.last_name != null || Launcher.configReader.configModel.last_uuid != null || Launcher.configReader.configModel.last_accessToken != null || Launcher.configReader.configModel.last_refreshToken != null){
+                if ((Launcher.configReader.configModel.last_name != null || Launcher.configReader.configModel.last_uuid != null || Launcher.configReader.configModel.last_accessToken != null || Launcher.configReader.configModel.last_refreshToken != null)){
                     user_object.set(new MicrosoftUser(
                             Launcher.configReader.configModel.last_accessToken,
                             Launcher.configReader.configModel.last_name,
                             Launcher.configReader.configModel.last_uuid,
                             new Vector<>(),
                             Launcher.configReader.configModel.last_refreshToken));
+                }
+                if (!UserHashManager.vaildateSafe(user_object.get())){
+                    user_object.set(null);
+                    UserHashManager.clearUserData();
                 }
                 break;
         }
@@ -382,11 +413,13 @@ public class UserSelectPage extends AbstractMenuBarPage {
         msLogin.setOnAction(event -> {
             FXBrowserPage p = new FXBrowserPage(MSAuth.loginUrl);
             msLogin.setDisable(true);
-            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.logging"));
+            ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.userselectpage.logging"));
             dialog.Create();
+            dialog.setV(0, 0, Launcher.languageManager.get("ui.msauth._01"));
+            p.setDialog(dialog);
             Thread t = new Thread(() -> {
                 while (p.user == null && p.ex == null) {
-                    Sleeper.sleep(1000);
+                    Sleeper.sleep(100);
                 }
                 if (p.user != null){
                     Launcher.configReader.configModel.last_uuid = p.user.uuid;
@@ -394,9 +427,15 @@ public class UserSelectPage extends AbstractMenuBarPage {
                     Launcher.configReader.configModel.last_accessToken = p.user.accessToken;
                     Launcher.configReader.configModel.last_refreshToken = p.user.refreshToken;
                     Launcher.configReader.configModel.last_userType = "MICROSOFT";
-                    Launcher.configReader.configModel.last_is_slim = false;
+
+                    try {
+                        Launcher.configReader.configModel.last_is_slim = MSAuth.getUserSkin(p.user.uuid).skins.get(0).isSlim;
+                    } catch (Exception e) {
+                        Launcher.configReader.configModel.last_is_slim = false;
+                    }
                     Launcher.configReader.configModel.last_skin_path = null;
                     Launcher.configReader.configModel.last_cape_path = null;
+                    Launcher.configReader.configModel.last_elytra_path = null;
                     user_object.set(p.user);
                     Launcher.configReader.write();
                     Platform.runLater(() -> {
@@ -421,7 +460,6 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 t.stop();
                 msLogin.setDisable(false);
             };
-
         });
 
         view = new ImageView();
@@ -440,7 +478,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
         name = new Label();
         name.setFont(Fonts.s_f);
 
-        Pane p = new Pane();
+        p = new Pane();
         p.getChildren().addAll(view, decorator);
 
         HBox g = new HBox(p, name, refresh, logout, edit);
@@ -597,8 +635,8 @@ public class UserSelectPage extends AbstractMenuBarPage {
         new Thread(() -> {
             try {
                 latch.await();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+            } catch (InterruptedException ignored) {
+
             }
             Platform.runLater(() -> {
                 dialog.close();

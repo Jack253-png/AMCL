@@ -186,11 +186,6 @@ public class CurseAPI {
         }
         return size != c1.size();
     }
-    public static void main(String[] args) throws IOException, ParseException {
-        Vector<CurseModModel> mod = search("minecraft ", CurseResourceType.Types.MOD, CurseSortType.Types.DESCENDING, 20);
-        Vector<CurseModFileModel> files = getModFiles(mod.get(6));
-        files.forEach(e -> System.out.println(new Gson().toJson(e)));
-    }
     public static CurseModModel getFromModId(int id) throws IOException {
         String url = String.format("/v1/mods/%d", id);
         Gson g = new Gson();

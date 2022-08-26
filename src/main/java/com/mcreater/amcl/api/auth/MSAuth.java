@@ -1,7 +1,9 @@
 package com.mcreater.amcl.api.auth;
 
 import com.google.gson.Gson;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
+import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.ValueSet3;
 import com.mcreater.amcl.util.net.HttpClient;
@@ -25,6 +27,10 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
     private static final String mcLoginUrl = "https://api.minecraftservices.com/authentication/login_with_xbox";
     private static final String mcStoreUrl = "https://api.minecraftservices.com/entitlements/mcstore";
     private static final String mcProfileUrl = "https://api.minecraftservices.com/minecraft/profile";
+    ProcessDialog dialog;
+    public void bindDialog(ProcessDialog dialog){
+        this.dialog = dialog;
+    }
     public Pair<String, String> acquireAccessToken(String authcode) {
         Map<Object, Object> data = new HashMap<>();
         data.put("client_id", "00000000402b5328");
@@ -147,7 +153,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         }
     }
 
-    private boolean checkMcStore(String mcAccessToken) {
+    public boolean checkMcStore(String mcAccessToken) {
         try {
             HttpClient client = HttpClient.getInstance(mcStoreUrl);
             client.openConnection();
@@ -169,7 +175,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         }
     }
 
-    private McProfileModel checkMcProfile(String mcAccessToken) {
+    public McProfileModel checkMcProfile(String mcAccessToken) {
         try {
             HttpClient client = HttpClient.getInstance(mcProfileUrl);
             client.openConnection();
@@ -180,15 +186,23 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             throw new RuntimeException(e);
         }
     }
+    public void setV(int index, int value, String message){
+        if (dialog != null) dialog.setV(index, value, message);
+    }
     public MicrosoftUser getUser(String... args) throws RuntimeException {
         Pair<String, String> token = acquireAccessToken(args[0]);
+        setV(0, 20, Launcher.languageManager.get("ui.msauth._02"));
         return getUserFromToken(token);
     }
     public MicrosoftUser getUserFromToken(Pair<String, String> token) throws RuntimeException {
         Pair<String, String> xbl_token = acquireXBLToken(token.getKey());
+        setV(0, 40, Launcher.languageManager.get("ui.msauth._03"));
         Pair<String, String> xsts = acquireXsts(xbl_token.getKey());
+        setV(0, 60, Launcher.languageManager.get("ui.msauth._04"));
         ValueSet3<String, Pair<String, String>, Vector<McProfileModel.McSkinModel>> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
+        setV(0, 80, Launcher.languageManager.get("ui.msauth._05"));
         MicrosoftUser msu = new MicrosoftUser(content.getValue1(), content.getValue2().getKey(), content.getValue2().getValue(), content.getValue3(), token.getValue());
+        setV(0, 100, Launcher.languageManager.get("ui.msauth._06"));
         return msu;
     }
     public static class McProfileModel {
@@ -243,7 +257,6 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             }
         }
         JSONObject obj = new JSONObject(new String(Base64.getDecoder().decode(value)));
-        System.out.println(obj);
         McProfileModel.McSkinModel model1 = new McProfileModel.McSkinModel();
         try {
             model1.url = obj.getJSONObject("textures").getJSONObject("SKIN").getString("url");
