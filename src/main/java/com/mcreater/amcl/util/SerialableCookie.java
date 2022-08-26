@@ -1,6 +1,9 @@
 package com.mcreater.amcl.util;
 
 import com.teamdev.jxbrowser.chromium.Cookie;
+import com.teamdev.jxbrowser.chromium.internal.CookieImpl;
+
+import java.io.Serializable;
 
 public class SerialableCookie implements Serializable {
     public long serialVersionUID = 3175017776834739074L;
