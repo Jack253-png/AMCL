@@ -15,7 +15,6 @@ public class MojangNews {
 
         Gson g = new GsonBuilder().setPrettyPrinting().create();
 
-        NewsModel model = g.fromJson(client.read(), NewsModel.class);
-        return model;
+        return g.fromJson(client.read(), NewsModel.class);
     }
 }

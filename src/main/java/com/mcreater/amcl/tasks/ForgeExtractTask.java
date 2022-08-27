@@ -6,6 +6,7 @@ import com.mcreater.amcl.download.OriginalDownload;
 import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.nativeInterface.NoExitSecurityManager;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.LogLineDetecter;
 import com.mcreater.amcl.util.java.GetJarMainClass;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 
@@ -29,26 +30,28 @@ public class ForgeExtractTask extends AbstractTask{
 
     @Override
     public Integer execute() throws IOException {
-        SecurityManager man = System.getSecurityManager();
-        System.setSecurityManager(new NoExitSecurityManager());
-        try {
-            String jarp = this.jarpath;
-            ReflectedJar jar = ReflectHelper.getReflectedJar(jarp);
-            int main = jar.createNewInstance(jar.getJarClass(GetJarMainClass.get(jarp)));
-            jar.invokeMethod(main, "main", new Object[]{this.args}, String[].class);
-        }
-        catch (InvocationTargetException e){
-            e.printStackTrace();
-        }
-        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException e){
-            return 1;
-        }
-        finally {
-            copy();
-            System.setSecurityManager(man);
-        }
-        return 0;
-//        old_ex();
+//        SecurityManager man = System.getSecurityManager();
+//        System.setSecurityManager(new NoExitSecurityManager());
+//        try {
+//            String jarp = this.jarpath;
+//            ReflectedJar jar = ReflectHelper.getReflectedJar(jarp);
+//            int main = jar.createNewInstance(jar.getJarClass(GetJarMainClass.get(jarp)));
+//            jar.invokeMethod(main, "main", new Object[]{this.args}, String[].class);
+//        }
+//        catch (InvocationTargetException e){
+//            e.printStackTrace();
+//        }
+//        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException e){
+//            return 1;
+//        }
+//        finally {
+//            copy();
+//            System.setSecurityManager(man);
+//        }
+//        return 0;
+
+        copy();
+        return old_ex();
     }
     public int old_ex() throws IOException {
         Process p = Runtime.getRuntime().exec(command);

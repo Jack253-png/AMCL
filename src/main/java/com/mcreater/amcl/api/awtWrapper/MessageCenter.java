@@ -1,4 +1,4 @@
-package com.mcreater.amcl.api.windows;
+package com.mcreater.amcl.api.awtWrapper;
 
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 

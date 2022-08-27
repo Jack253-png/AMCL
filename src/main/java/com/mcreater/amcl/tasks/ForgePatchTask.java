@@ -1,7 +1,10 @@
 package com.mcreater.amcl.tasks;
 
+import com.mcreater.amcl.api.reflect.ReflectHelper;
+import com.mcreater.amcl.api.reflect.ReflectedJar;
 import com.mcreater.amcl.download.ForgeDownload;
 import com.mcreater.amcl.game.launch.Launch;
+import com.mcreater.amcl.nativeInterface.NoExitSecurityManager;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
@@ -9,6 +12,7 @@ import com.mcreater.amcl.util.java.GetJarMainClass;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Vector;
 
@@ -38,27 +42,26 @@ public class ForgePatchTask extends AbstractTask{
     }
     public Integer execute() throws IOException {
         if (!command.contains("DOWNLOAD_MOJMAPS")) {
-//            SecurityManager sm = System.getSecurityManager();
-//            System.setSecurityManager(new NoExitSecurityManager());
-//            try {
-//                ReflectedJar jar = ReflectHelper.getReflectedJar(this.classpath.toArray(new String[0]));
-//                int main = jar.createNewInstance(jar.getJarClass(GetJarMainClass.get(this.jar)));
-//                jar.invokeMethod(main, "main", new Object[]{args_array}, String[].class);
-//            }
-//            catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e){
-//                e.printStackTrace();
-//                return 1;
-//            }
-//            finally {
-//                System.setSecurityManager(sm);
-//            }
+//            return new_pa();
             return old_pa();
         }
         else{
             List<String> l = J8Utils.createList(command.split(" "));
             ForgeDownload.download_mojmaps(l.get(l.size() - 1));
+            return 0;
         }
-        return 0;
+    }
+    public int new_pa() {
+        try {
+            ReflectedJar jar = ReflectHelper.getReflectedJar(this.classpath.toArray(new String[0]));
+            int main = jar.createNewInstance(jar.getJarClass(GetJarMainClass.get(this.jar)));
+            jar.invokeMethod(main, "main", new Object[]{args_array}, String[].class);
+            return 0;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            return 1;
+        }
     }
     public int old_pa() throws IOException {
         System.out.println(command);

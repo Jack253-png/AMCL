@@ -5,6 +5,7 @@ import com.mcreater.amcl.patcher.depencyLoadingFrame;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.LogLineDetecter;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -74,7 +75,7 @@ public abstract class TaskManager {
                 do {
                     downloaded = latch.getCount();
                     cc = String.format("%s %d / %d", reason, tasks.size() - downloaded, tasks.size());
-                    System.out.print(J8Utils.repeat("\b", cc.length()) + cc);
+                    LogLineDetecter.printLogInLine(J8Utils.repeat("\b", cc.length()) + cc);
                     if (temp != latch.getCount()) {
                         if (dialog != null) {
                             if (tasks.size() != 0) {
@@ -93,7 +94,7 @@ public abstract class TaskManager {
                     downloadedBytes = 0;
                 }
                 while (downloaded != 0);
-                System.out.println(J8Utils.repeat("\b", cc.length()) + reason + String.format(" %d / %d", all, all));
+                LogLineDetecter.printLogInLine(J8Utils.repeat("\b", cc.length()) + reason + String.format(" %d / %d", all, all));
                 if (frame != null){
                     frame.button.setEnabled(true);
                     frame.progressBar.setString("下载完成");

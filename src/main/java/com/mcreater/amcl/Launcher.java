@@ -1,18 +1,14 @@
 package com.mcreater.amcl;
 
 import com.jfoenix.controls.JFXButton;
-import com.mcreater.amcl.api.githubApi.GithubReleases;
-import com.mcreater.amcl.api.windows.MessageCenter;
+import com.mcreater.amcl.api.awtWrapper.MessageCenter;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.*;
 import com.mcreater.amcl.pages.dialogs.AboutDialog;
-import com.mcreater.amcl.pages.dialogs.PopupMessage;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.stages.FXBrowserPage;
-import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
@@ -21,20 +17,16 @@ import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
@@ -43,10 +35,8 @@ import org.apache.logging.log4j.Logger;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
-import java.util.concurrent.Callable;
 
 public class Launcher extends javafx.application.Application {
     static Logger logger = LogManager.getLogger(Launcher.class);
@@ -125,7 +115,15 @@ public class Launcher extends javafx.application.Application {
             USERSELECTPAGE.view.setOpacity(1);
             USERSELECTPAGE.decorator.setOpacity(1);
 
+            CONFIGPAGE.bar1.setOnMouseEntered(event -> {});
+            CONFIGPAGE.bar1.setOnMouseExited(event -> {});
+            CONFIGPAGE.bar2.setOnMouseEntered(event -> {});
+            CONFIGPAGE.bar2.setOnMouseExited(event -> {});
+            CONFIGPAGE.bar1.setOpacity(0.5);
+            CONFIGPAGE.bar2.setOpacity(1);
+
             ThemeManager.loadButtonAnimateParent(USERSELECTPAGE.p);
+            ThemeManager.loadButtonAnimateParent(CONFIGPAGE.p);
 
             refreshBackground();
 

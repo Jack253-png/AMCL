@@ -11,21 +11,19 @@ import java.util.Map;
 
 public class WeatherAPI {
     public static final String WEATHER_API_URL = "http://autodev.openspeech.cn/csp/api/v2.1/weather";
-    public static WeatherAPIModel getWeather(String city) throws IOException {
+    public static WeatherAPIModel getWeather(String city, int pageNo, int pageSize, boolean moreData) throws IOException {
         Map<Object, Object> data = J8Utils.createMap(
                 "openId", "aiuicus",
                 "clientType", "android",
                 "sign", "android",
                 "city", city,
-                "needMoreData", true,
-                "pageNo", 1,
-                "pageSize", 7
+                "needMoreData", moreData,
+                "pageNo", pageNo,
+                "pageSize", pageSize
         );
         HttpClient client = HttpClient.getInstance(WEATHER_API_URL, data);
         client.openConnection();
         Gson g = new GsonBuilder().setPrettyPrinting().create();
-        String content = client.read();
-        WeatherAPIModel model = g.fromJson(content, WeatherAPIModel.class);
-        return model;
+        return g.fromJson(client.read(), WeatherAPIModel.class);
     }
 }

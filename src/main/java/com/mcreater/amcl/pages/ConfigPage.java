@@ -1,7 +1,9 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXProgressBar;
 import com.jfoenix.controls.JFXTreeView;
+import com.jfoenix.skins.JFXSliderSkin;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.items.BooleanItem;
 import com.mcreater.amcl.controls.items.IntItem;
@@ -13,6 +15,7 @@ import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.java.JavaInfoGetter;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
@@ -21,6 +24,8 @@ import com.mcreater.amcl.util.system.JavaHeapMemoryReader;
 import com.mcreater.amcl.util.system.MemoryReader;
 import com.mcreater.amcl.util.system.UsbDeviceReader;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -31,11 +36,13 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.Pair;
 import oshi.hardware.UsbDevice;
 
+import javax.swing.event.ChangeEvent;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -77,6 +84,10 @@ public class ConfigPage extends AbstractMenuBarPage {
     LineChart<Number, Number> cpu;
     LineChart<Number, Number> jvm;
     Map<String, String> servers;
+    public Pane p;
+    public JFXProgressBar bar1;
+    public JFXProgressBar bar2;
+    Label ltitle;
     public ConfigPage(int width, int height) throws NoSuchFieldException, IllegalAccessException {
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -202,9 +213,56 @@ public class ConfigPage extends AbstractMenuBarPage {
         FXUtils.ControlSize.setHeight(item6, 30);
         FXUtils.ControlSize.setHeight(item7, 30);
 
+        p = new Pane();
+        bar1 = new JFXProgressBar();
+        bar2 = new JFXProgressBar();
+        bar1.setId("game-memory-up");
+        bar2.setId("game-memory");
+
+        ltitle = new Label();
+        ltitle.setFont(Fonts.t_f);
+
+        Label total = new Label();
+        Label used = new Label();
+        Label jvmmem = new Label();
+        total.setFont(Fonts.t_f);
+        used.setFont(Fonts.t_f);
+        jvmmem.setFont(Fonts.t_f);
+
+        VBox vo = new VBox(ltitle, p, total, used, jvmmem);
+        vo.setSpacing(10);
+
+        new Thread(() -> {
+            while (true){
+                double d = item2.cont.getValue();
+
+                double value = Timer.g(MemoryReader.getUsedMemory() + Launcher.configReader.configModel.max_memory * 1024 * 1024L, MemoryReader.getTotalMemory());
+                double value2 = Timer.g(MemoryReader.getUsedMemory(), MemoryReader.getTotalMemory());
+                String totalS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.total.name"), MemoryReader.convertMemToString(MemoryReader.getTotalMemory()));
+                String usedS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.used.name"), MemoryReader.convertMemToString(MemoryReader.getUsedMemory()));
+                String jvmmemS;
+                if (MemoryReader.getUsedMemory() + d * 1024 * 1024L < MemoryReader.getTotalMemory()){
+                    jvmmemS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.name"), MemoryReader.convertMemToString((long) (d * 1024 * 1024L)));
+                }
+                else {
+                    jvmmemS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.out.name"), MemoryReader.convertMemToString((long) (d * 1024 * 1024L)), MemoryReader.convertMemToString(MemoryReader.getFreeMemory()));
+                }
+                Platform.runLater(() -> bar1.setProgress(value));
+                Platform.runLater(() -> bar2.setProgress(value2));
+                Platform.runLater(() -> total.setText(totalS));
+                Platform.runLater(() -> used.setText(usedS));
+                Platform.runLater(() -> jvmmem.setText(jvmmemS));
+                Sleeper.sleep(10);
+            }
+        }).start();
+
+        p.getChildren().addAll(bar2, bar1);
+
+        FXUtils.ControlSize.setAll(width / 5 * 3, 3, p, bar1, bar2);
+
         configs_box = new VBox();
         configs_box.setSpacing(10);
-        configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6, item7);
+        configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6, item7, vo);
         configs_box.setId("config-box");
 
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
@@ -403,6 +461,8 @@ public class ConfigPage extends AbstractMenuBarPage {
         memory.setTitle(Launcher.languageManager.get("ui.configpage.systemInfo.charts.1.title"));
         cpu.setTitle(Launcher.languageManager.get("ui.configpage.systemInfo.charts.2.title"));
         jvm.setTitle(Launcher.languageManager.get("ui.configpage.systemInfo.charts.3.title"));
+
+        ltitle.setText(Launcher.languageManager.get("ui.configpage.mem.bar.title"));
     }
 
     public void refreshType(){

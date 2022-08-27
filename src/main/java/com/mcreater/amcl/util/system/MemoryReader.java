@@ -11,16 +11,16 @@ public class MemoryReader {
     public static String convertMemToString(long value){
         double d = (double) value;
         if (d < 1024){
-            return String.format("%f B", d);
+            return String.format("%.2f B", d);
         }
         else if (d < 1024 * 1024){
-            return String.format("%f KB", d / 1024);
+            return String.format("%.2f KB", d / 1024);
         }
         else if (d < 1024 * 1024 * 1024){
-            return String.format("%f MB", d / 1024 / 1024);
+            return String.format("%.2f MB", d / 1024 / 1024);
         }
         else {
-            return String.format("%f GB", d / 1024 / 1024 / 1024);
+            return String.format("%.2f GB", d / 1024 / 1024 / 1024);
         }
     }
     public static long getUsedMemory(){

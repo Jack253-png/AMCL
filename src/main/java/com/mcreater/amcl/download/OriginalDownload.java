@@ -33,7 +33,7 @@ public class OriginalDownload {
     public static String getVJ(){
         return vj;
     }
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize) throws IOException, InterruptedException {
+    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize) throws Exception {
         tasks.clear();
         OriginalDownload.chunkSize = chunkSize;
         String url = FasterUrls.getVersionJsonv2WithFaster(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));

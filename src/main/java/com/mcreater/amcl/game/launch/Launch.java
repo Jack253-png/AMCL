@@ -21,6 +21,7 @@ import com.mcreater.amcl.util.*;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FileUtils.ZipUtil;
 import com.mcreater.amcl.util.net.FasterUrls;
+import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
@@ -52,6 +53,9 @@ public class Launch {
 
     public Long exitCode;
     public void launch(String java_path, String dir, String version_name, boolean ie, int m, AbstractUser user) throws Exception {
+        if (MemoryReader.getFreeMemory() < (long) m * 1024 * 1024){
+            m = (int) (MemoryReader.getFreeMemory() / 1024 / 1204);
+        }
         if (user == null){
             throw new BadUserException();
         }

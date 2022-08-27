@@ -10,10 +10,14 @@ import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.StringUtils;
+import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
 import com.mcreater.amcl.util.xml.DepencyItem;
 import com.sun.javafx.tk.quantum.QuantumToolkit;
+import javafx.fxml.Initializable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
@@ -30,6 +34,7 @@ import java.util.Vector;
 public class StableMain {
     public static PreLanguageManager manager;
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException {
+        Timer timer = Timer.getInstance();
         try {
             for (File f : Objects.requireNonNull(new File(FileUtils.LinkPath.link(System.getProperty("user.home"), "AppData\\Local\\JxBrowser")).listFiles())) {
                 if (f.isFile()) {
@@ -48,6 +53,8 @@ public class StableMain {
         Vector<DepencyItem> addonItems = new Vector<>();
         downloadDepenciesJars(addonItems);
         injectDepencies();
+        Logger logger = LogManager.getLogger(StableMain.class);
+        logger.info("Initlaze : " + timer.getTimeString());
         Main.main(args);
     }
     public static void fixPulseTimer(){

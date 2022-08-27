@@ -23,7 +23,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class OptifineDownload {
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version) throws IOException, InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version) throws Exception {
         String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
         Gson g = new Gson();
         optifineAPIModel model = g.fromJson(r, optifineAPIModel.class);

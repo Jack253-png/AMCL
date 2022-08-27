@@ -11,6 +11,7 @@ public class Fonts {
     public static Font b_f;
     public static Font s_f;
     public static Font t_f;
+    public static Font ts_f;
     public static java.awt.Font awt_b_f;
     public static java.awt.Font awt_s_f;
     public static java.awt.Font awt_t_f;
@@ -18,6 +19,7 @@ public class Fonts {
         b_f = Font.loadFont(new ResourceGetter().get("assets/fonts/GNU Unifont.ttf"), 28);
         s_f = Font.loadFont(new ResourceGetter().get("assets/fonts/GNU Unifont.ttf"), 22);
         t_f = Font.loadFont(new ResourceGetter().get("assets/fonts/GNU Unifont.ttf"), 16);
+        ts_f = Font.loadFont(new ResourceGetter().get("assets/fonts/GNU Unifont.ttf"), 12);
         try {
             InputStream is = new ResourceGetter().get("assets/fonts/GNU Unifont.ttf");
             awt_b_f = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, is);
@@ -40,6 +42,6 @@ public class Fonts {
             fi.setAccessible(true);
             fi.set(null, Fonts.t_f);
         }
-        catch (Exception e){}
+        catch (Exception ignored){}
     }
 }

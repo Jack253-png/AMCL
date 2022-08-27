@@ -11,11 +11,8 @@ import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.*;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.StringUtils;
-//import com.mcreater.amcl.util.fileUtils.*;
 import com.mcreater.amcl.util.net.GetFileExists;
-import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import com.mcreater.amcl.util.net.FasterUrls;
-import com.mcreater.amcl.util.xml.ForgeVersionXMLHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -45,7 +42,7 @@ public class ForgeDownload {
         }
         return count;
     }
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String forge_version, Runnable r, Runnable r2) throws IOException, ParserConfigurationException, SAXException, InterruptedException {
+    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String forge_version, Runnable r, Runnable r2) throws Exception {
         tasks.clear();
         ForgeDownload.chunkSize = chunkSize;
         String c = null;

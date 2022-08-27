@@ -27,7 +27,11 @@ public class LogLineDetecter {
             else if (s.contains("/WARN")) printLogInternal(s, WARN, stream);
             else if (s.contains("/ERROR")) printLogInternal(s, ERROR, stream);
             else if (s.contains("/FATAL")) printLogInternal(s, FATAL, stream);
+            else printLogInternal(s, INFO, stream);
         }
+    }
+    public static void printLogInLine(String s){
+        System.out.print(ansi().fg(INFO).a(s).reset());
     }
     private static void printLogInternal(String s, Ansi.Color color, PrintStream stream){
         AnsiConsole.systemInstall();

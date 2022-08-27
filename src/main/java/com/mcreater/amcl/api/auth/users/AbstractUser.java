@@ -1,10 +1,7 @@
 package com.mcreater.amcl.api.auth.users;
 
-import com.mcreater.amcl.Launcher;
-
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.MalformedURLException;
 
 public abstract class AbstractUser implements Serializable {
     private static final long serialVersionUID = -187944731L;
