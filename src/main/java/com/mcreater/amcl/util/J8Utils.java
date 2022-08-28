@@ -2,6 +2,7 @@ package com.mcreater.amcl.util;
 
 import com.mcreater.amcl.util.system.MemoryReader;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -37,9 +38,21 @@ public class J8Utils {
             throw new NullPointerException(message);
         return obj;
     }
-    public static long getProcessPid(Process process) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        Method m = Process.class.getDeclaredMethod("pid");
-        return (long) m.invoke(process);
+    public static long getProcessPid(Process process) {
+        try {
+            Method m = Process.class.getDeclaredMethod("pid");
+            return (long) m.invoke(process);
+        }
+        catch (Exception e){
+            try {
+                Field f = process.getClass().getDeclaredField("pid");
+                f.setAccessible(true);
+                return f.getLong(process);
+            }
+            catch (Exception e2){
+                return -1;
+            }
+        }
     }
     public static String repeat(String s, int r){
         StringBuilder b = new StringBuilder();

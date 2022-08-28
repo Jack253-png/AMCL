@@ -95,9 +95,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
             return 0;
         };
 
-        SimpleFunctions.Arg1Func<Boolean, Integer> castIntToBoolean = arg1 -> {
-            return arg1 ? 1 : 0;
-        };
+        SimpleFunctions.Arg1Func<Boolean, Integer> castIntToBoolean = arg1 -> arg1 ? 1 : 0;
 
         user_object = new SimpleObjectProperty<>();
         mainBox = new VBox();

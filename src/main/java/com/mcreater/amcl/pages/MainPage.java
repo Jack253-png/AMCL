@@ -111,7 +111,7 @@ public class MainPage extends AbstractAnimationPage {
                     }
                     catch (Exception e) {
                         launchDialog.close();
-                        logger.info("failed to launch", e);
+                        logger.error("failed to launch", e);
                         Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
                     }
                 });

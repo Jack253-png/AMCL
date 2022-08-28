@@ -3,6 +3,7 @@ package com.mcreater.amcl.download;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.tasks.*;
 import com.mcreater.amcl.model.LibModel;
@@ -126,14 +127,15 @@ public class OriginalDownload {
                 }
             }
         }
+        String nativeName = StableMain.getSystem2.run();
         for (LibModel model1 : model.libraries){
             boolean b0 = !(has_322 && model1.name.contains("3.2.1"));
             if (model1.downloads.classifiers != null) {
-                if (model1.downloads.classifiers.get("natives-windows") != null) {
+                if (model1.downloads.classifiers.get(nativeName) != null) {
                     if (b0) {
-                        String npath = LinkPath.link(lib_base_path, model1.downloads.classifiers.get("natives-windows").path);
-                        String nurl = model1.downloads.classifiers.get("natives-windows").url;
-                        String nhash = model1.downloads.classifiers.get("natives-windows").sha1;
+                        String npath = LinkPath.link(lib_base_path, model1.downloads.classifiers.get(nativeName).path);
+                        String nurl = model1.downloads.classifiers.get(nativeName).url;
+                        String nhash = model1.downloads.classifiers.get(nativeName).sha1;
                         createNewDir(npath);
                         tasks.add(new NativeDownloadTask(FasterUrls.fast(nurl, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), npath, native_base_path, chunkSize).setHash(nhash));
                     }
@@ -146,7 +148,7 @@ public class OriginalDownload {
                 createNewDir(path);
 
                 if (b0) {
-                    if (model1.name.contains("natives-windows")) {
+                    if (model1.name.contains(nativeName)) {
                         tasks.add(new NativeDownloadTask(FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), path, native_base_path, chunkSize).setHash(hash));
                     } else {
                         tasks.add(new LibDownloadTask(FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), path, chunkSize).setHash(hash));

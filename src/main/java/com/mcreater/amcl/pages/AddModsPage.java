@@ -1,7 +1,7 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXProgressBar;
+import com.mcreater.amcl.controls.JFXProgressBar;
 import com.jfoenix.controls.JFXTextField;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.CurseAPI;
@@ -30,7 +30,7 @@ public class AddModsPage extends AbstractAnimationPage {
     public JFXTextField in;
     public JFXButton submit;
     public SmoothableListView<CurseMod> modlist;
-    public JFXProgressBar bar;
+    public com.jfoenix.controls.JFXProgressBar bar;
     Thread searchThread = new Thread(() -> {});
     public AddModsPage(double width, double height) {
         super(width, height);
@@ -40,7 +40,7 @@ public class AddModsPage extends AbstractAnimationPage {
         in = new JFXTextField();
         FXUtils.fixJFXTextField(in);
         submit = new JFXButton();
-        bar = new JFXProgressBar(0);
+        bar = JFXProgressBar.createProgressBar(0);
         in.setFont(Fonts.t_f);
         submit.setFont(Fonts.t_f);
         BorderStroke borderStroke = new BorderStroke(null,null, Color.BLACK,null, null,null, BorderStrokeStyle.SOLID,null,null, BorderWidths.DEFAULT,new Insets(5));

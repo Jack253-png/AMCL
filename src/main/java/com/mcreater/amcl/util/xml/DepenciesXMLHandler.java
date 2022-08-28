@@ -1,8 +1,10 @@
 package com.mcreater.amcl.util.xml;
 
 import com.google.gson.Gson;
+import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.patcher.ClassPathInjector;
+import com.mcreater.amcl.util.SimpleFunctions;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -24,7 +26,18 @@ public class DepenciesXMLHandler {
                 items.add(new DepencyItem(item.old, model.maven));
             }
             else {
-                items.add(new DepencyItem(item.name, model.maven));
+                if (OSInfo.isWin()) {
+                    items.add(new DepencyItem(item.name, model.maven));
+                }
+                else if (OSInfo.isMac() && item.mac != null){
+                    items.add(new DepencyItem(item.mac, model.maven));
+                }
+                else if (OSInfo.isLinux() && item.linux != null){
+                    items.add(new DepencyItem(item.linux, model.maven));
+                }
+                else {
+                    items.add(new DepencyItem(item.name, model.maven));
+                }
             }
         }
         return items;
@@ -35,6 +48,8 @@ public class DepenciesXMLHandler {
         public static class ItemModel {
             public String name;
             public String old;
+            public String mac;
+            public String linux;
         }
     }
 }

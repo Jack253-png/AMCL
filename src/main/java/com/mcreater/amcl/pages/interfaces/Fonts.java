@@ -42,6 +42,8 @@ public class Fonts {
             fi.setAccessible(true);
             fi.set(null, Fonts.t_f);
         }
-        catch (Exception ignored){}
+        catch (Exception ignored){
+            ignored.printStackTrace();
+        }
     }
 }

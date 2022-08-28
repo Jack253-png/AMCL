@@ -3,10 +3,18 @@ package com.mcreater.amcl.game.launch;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.api.auth.LocalYggdrasilServer;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
 import com.mcreater.amcl.api.auth.users.OffLineUser;
-import com.mcreater.amcl.exceptions.*;
+import com.mcreater.amcl.exceptions.BadLibDirException;
+import com.mcreater.amcl.exceptions.BadMainFilesException;
+import com.mcreater.amcl.exceptions.BadMinecraftDirException;
+import com.mcreater.amcl.exceptions.BadNativeDirException;
+import com.mcreater.amcl.exceptions.BadUnzipException;
+import com.mcreater.amcl.exceptions.BadUserException;
+import com.mcreater.amcl.exceptions.BadVersionDirException;
+import com.mcreater.amcl.exceptions.ProcessException;
 import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.model.LibModel;
@@ -17,28 +25,35 @@ import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
-import com.mcreater.amcl.util.*;
+import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FileUtils.ZipUtil;
+import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.LogLineDetecter;
+import com.mcreater.amcl.util.StringUtils;
+import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
-import javafx.scene.paint.Color;
+import javafx.beans.property.SimpleObjectProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.AnsiConsole;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.BindException;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Vector;
-
-import static org.fusesource.jansi.Ansi.ansi;
 
 public class Launch {
     String java;
@@ -50,6 +65,7 @@ public class Launch {
     String forgevm = "";
     public Process p;
     Logger logger = LogManager.getLogger(this.getClass());
+    SimpleObjectProperty<StringBuilder> logProperty = new SimpleObjectProperty<>(new StringBuilder());
 
     public Long exitCode;
     public void launch(String java_path, String dir, String version_name, boolean ie, int m, AbstractUser user) throws Exception {
@@ -64,7 +80,7 @@ public class Launch {
         MainPage.launchDialog.setV(0, 5, Launcher.languageManager.get("ui.launch._01"));
         java = java_path;
         MainPage.launchDialog.setV(0, 10, Launcher.languageManager.get("ui.launch._02"));
-        MainPage.launchDialog.setV(2, 0, Launcher.languageManager.get("ui.fix._01"));
+        Platform.runLater(() -> MainPage.launchDialog.l.setText(Launcher.languageManager.get("ui.fix._01")));
         try {
             MinecraftFixer.fix(Launcher.configReader.configModel.fastDownload, Launcher.configReader.configModel.downloadChunkSize, dir, version_name, 2);
         }
@@ -73,6 +89,7 @@ public class Launch {
                 MainPage.launchDialog.close();
                 FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString());
             });
+            return;
         }
 
         if (!new File(dir).exists()){
@@ -117,20 +134,21 @@ public class Launch {
 
             }
         }
+        String nativeName = StableMain.getSystem2.run();
         for (LibModel l : r.libraries) {
             if (l.name != null) {
                 if (!(l.name.contains("3.2.1") && has_322)) {
                     if (l.downloads != null) {
                         if (l.downloads.classifiers != null) {
-                            if (l.downloads.classifiers.get("natives-windows") != null) {
-                                if (new File(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path)).exists()) {
-                                    natives.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
-                                    libs.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get("natives-windows").path));
+                            if (l.downloads.classifiers.get(nativeName) != null) {
+                                if (new File(LinkPath.link(libf.getPath(), l.downloads.classifiers.get(nativeName).path)).exists()) {
+                                    natives.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get(nativeName).path));
+                                    libs.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get(nativeName).path));
                                 }
                             }
                         }
                     }
-                    if (l.name.contains("natives-windows")) {
+                    if (l.name.contains(nativeName)) {
                         if (new File(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path"))).exists()) {
                             natives.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
                             libs.add(LinkPath.link(libf.getPath(), l.downloads.artifact.get("path")));
@@ -138,7 +156,6 @@ public class Launch {
                     }
                     if (l.name.contains("net.minecraftforge:minecraftforge")) {
                         String p = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name));
-                        System.out.println(new File(p).getParentFile());
                         for (File f1 : new File(p).getParentFile().listFiles()) {
                             if (f1.getPath().endsWith(".jar")) {
                                 libs.add(f1.getPath());
@@ -385,7 +402,6 @@ public class Launch {
             command = command.replace("null","");
             logger.info(String.format("Getted Command Line : %s", command));
             MainPage.launchDialog.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
-            boolean b = true;
             try {
                 p = Runtime.getRuntime().exec(command, null, new File(dir));
             }
@@ -394,15 +410,11 @@ public class Launch {
             }
             new Thread(() -> {
                 while (true) {
-                    try {
-                        if (EnumWindow.getTaskPID().contains(J8Utils.getProcessPid(p))) {
-                            MainPage.logger.info("Window Showed");
-                            MainPage.launchDialog.close();
-                            break;
-                        }
-                    }
-                    catch (Exception ignored){
-
+                    if (J8Utils.getProcessPid(p) == -1) break;
+                    if (EnumWindow.getTaskPID().contains(J8Utils.getProcessPid(p))) {
+                        MainPage.logger.info("Window Showed");
+                        MainPage.launchDialog.close();
+                        break;
                     }
                 }
             }).start();
@@ -429,21 +441,27 @@ public class Launch {
             throw new ProcessException();
         }
     }
-    public static void readProcessOutput(final Process process) {
+    public void readProcessOutput(final Process process) {
         if (process != null) {
             new Thread(() -> read(process.getInputStream(), System.out)).start();
             new Thread(() -> read(process.getErrorStream(), System.err)).start();
         }
     }
-    public static void read(InputStream inputStream, PrintStream out) {
+    public void read(InputStream inputStream, PrintStream out) {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("GBK")));
             String line;
             while ((line = reader.readLine()) != null) {
+                logProperty.get().append(line);
                 LogLineDetecter.printLog(line, out);
             }
         } catch (IOException e) {
             e.printStackTrace();
+            StringWriter writer = new StringWriter();
+            PrintWriter print = new PrintWriter(writer);
+            e.printStackTrace(print);
+            logProperty.get().append(writer.toString());
+            print.close();
         } finally {
             try {
                 inputStream.close();
@@ -459,7 +477,6 @@ public class Launch {
             String line;
             while ((line = reader.readLine()) != null) {
                 f.append(line).append("\n");
-                System.out.println(line);
             }
         } catch (IOException e) {
             e.printStackTrace();

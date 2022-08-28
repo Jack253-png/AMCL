@@ -14,12 +14,9 @@ public class DepencyItem {
         this.maven = maven;
     }
     public String getLocal(){
-        return "AMCL\\depencies\\" + depenciesLoader.convertName(this.name);
+        return "AMCL/depencies/" + depenciesLoader.convertName(this.name);
     }
-    public String getFileName(){
-        List<String> an = J8Utils.createList(depenciesLoader.convertName(this.name).split("\\\\"));
-        return an.get(an.size() - 1);
-    }
+
     public String getURL() throws MalformedURLException {
         return this.maven + depenciesLoader.convertNameToUrl(this.name);
     }

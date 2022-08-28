@@ -1,7 +1,7 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXProgressBar;
+import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.RemoteMod;
 import com.mcreater.amcl.controls.SmoothableListView;
@@ -52,7 +52,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     public SmoothableListView<RemoteMod> modList;
     public JFXButton addMod;
     public JFXButton setted;
-    public JFXProgressBar bar;
+    public com.jfoenix.controls.JFXProgressBar bar;
     public JFXButton refresh;
     public JFXButton delete;
     public JFXButton delVer;
@@ -164,7 +164,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
         modList.setOnAction(() -> delete.setDisable(modList.selectedItem == null));
 
-        bar = new JFXProgressBar(-1.0D);
+        bar = JFXProgressBar.createProgressBar(-1.0D);
         FXUtils.ControlSize.setWidth(bar, this.width / 4 * 3);
         mods.add(addMod, 0, 0, 1, 1);
         mods.add(refresh, 1, 0, 1, 1);

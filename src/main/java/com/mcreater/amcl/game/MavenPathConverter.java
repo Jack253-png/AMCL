@@ -4,7 +4,6 @@ import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
 
 import java.io.File;
-import java.util.List;
 import java.util.Vector;
 
 public class MavenPathConverter {

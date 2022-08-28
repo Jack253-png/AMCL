@@ -69,7 +69,8 @@ public class Launcher extends javafx.application.Application {
     public static AboutDialog aboutDialog;
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
-        if (is_t) {
+        // is_t
+        if (true) {
             languageManager = new LanguageManager(null);
             themeManager = new ThemeManager();
             stage = new Stage();
@@ -93,6 +94,8 @@ public class Launcher extends javafx.application.Application {
             }
             languageManager.setLanguage(LanguageManager.LanguageType.valueOf(configReader.configModel.language));
             MessageCenter.pushNewMessage("test", "test", TrayIcon.MessageType.WARNING);
+
+
             MAINPAGE = new MainPage(width, height);
             CONFIGPAGE = new ConfigPage(width, height);
             VERSIONSELECTPAGE = new VersionSelectPage(width, height);

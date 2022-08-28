@@ -75,7 +75,7 @@ public abstract class TaskManager {
                 do {
                     downloaded = latch.getCount();
                     cc = String.format("%s %d / %d", reason, tasks.size() - downloaded, tasks.size());
-                    LogLineDetecter.printLogInLine(J8Utils.repeat("\b", cc.length()) + cc);
+                    System.out.print(J8Utils.repeat("\b", cc.length()) + cc);
                     if (temp != latch.getCount()) {
                         if (dialog != null) {
                             if (tasks.size() != 0) {
@@ -94,7 +94,7 @@ public abstract class TaskManager {
                     downloadedBytes = 0;
                 }
                 while (downloaded != 0);
-                LogLineDetecter.printLogInLine(J8Utils.repeat("\b", cc.length()) + reason + String.format(" %d / %d", all, all));
+                System.out.print(J8Utils.repeat("\b", cc.length()) + reason + String.format(" %d / %d", all, all));
                 if (frame != null){
                     frame.button.setEnabled(true);
                     frame.progressBar.setString("下载完成");

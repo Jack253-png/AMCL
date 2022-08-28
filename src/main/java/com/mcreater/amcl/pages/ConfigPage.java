@@ -1,7 +1,7 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXProgressBar;
+import com.mcreater.amcl.controls.JFXProgressBar;
 import com.jfoenix.controls.JFXTreeView;
 import com.jfoenix.skins.JFXSliderSkin;
 import com.mcreater.amcl.Launcher;
@@ -85,8 +85,8 @@ public class ConfigPage extends AbstractMenuBarPage {
     LineChart<Number, Number> jvm;
     Map<String, String> servers;
     public Pane p;
-    public JFXProgressBar bar1;
-    public JFXProgressBar bar2;
+    public com.jfoenix.controls.JFXProgressBar bar1;
+    public com.jfoenix.controls.JFXProgressBar bar2;
     Label ltitle;
     public ConfigPage(int width, int height) throws NoSuchFieldException, IllegalAccessException {
         super(width, height);
@@ -214,8 +214,8 @@ public class ConfigPage extends AbstractMenuBarPage {
         FXUtils.ControlSize.setHeight(item7, 30);
 
         p = new Pane();
-        bar1 = new JFXProgressBar();
-        bar2 = new JFXProgressBar();
+        bar1 = JFXProgressBar.createProgressBar();
+        bar2 = JFXProgressBar.createProgressBar();
         bar1.setId("game-memory-up");
         bar2.setId("game-memory");
 

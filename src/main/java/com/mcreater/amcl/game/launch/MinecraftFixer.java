@@ -48,7 +48,7 @@ public class MinecraftFixer {
         runTasks();
     }
     public static void runTasks() throws InterruptedException {
-        if (tasks.size() == 0) tasks.add(new AbstractTask("test") {
+        if (tasks.size() < 10) tasks.add(new AbstractTask("test") {
             public Integer execute() {
                 return null;
             }

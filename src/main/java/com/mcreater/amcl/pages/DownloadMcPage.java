@@ -1,7 +1,7 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXProgressBar;
+import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.VanilaVersionContent;
@@ -35,7 +35,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
     public SettingPage p1;
     Parent setted;
     public Vector<TitledPane> panes = new Vector<>();
-    JFXProgressBar bar;
+    com.jfoenix.controls.JFXProgressBar bar;
     Thread service;
     public DownloadMcPage(int width, int height){
         super(width, height);
@@ -44,7 +44,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
 
         double t_size = Launcher.barSize;
 
-        bar = new JFXProgressBar(-1.0D);
+        bar = JFXProgressBar.createProgressBar(-1.0D);
         FXUtils.ControlSize.setWidth(bar, this.width / 4 * 3);
 
         mainBox = new VBox();

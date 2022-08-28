@@ -160,7 +160,7 @@ public class FileUtils {
                     }
                     if(new File(outpath).isDirectory())
                         continue;
-                    if (outpath.endsWith(".dll") && !new File(outpath).exists()) {
+                    if ((outpath.endsWith(".dll") || outpath.endsWith(".so")) && !new File(outpath).exists()) {
                         OutputStream out = new FileOutputStream(outpath);
                         byte[] bf = new byte[4096];
                         int len;

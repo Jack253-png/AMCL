@@ -1,7 +1,7 @@
 package com.mcreater.amcl.pages.dialogs;
 
 import com.jfoenix.controls.JFXDialogLayout;
-import com.jfoenix.controls.JFXProgressBar;
+import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
@@ -12,7 +12,7 @@ import javafx.scene.layout.VBox;
 import java.util.Vector;
 
 public class ProcessDialog extends AbstractDialog {
-    public Vector<JFXProgressBar> progresses;
+    public Vector<com.jfoenix.controls.JFXProgressBar> progresses;
     public Label l;
     public ProcessDialog(int process_num, String title){
         super(Launcher.stage);
@@ -23,7 +23,7 @@ public class ProcessDialog extends AbstractDialog {
         VBox b = new VBox();
         b.setSpacing(10);
         for (int i = 0;i < process_num;i++){
-            JFXProgressBar bar = new JFXProgressBar(-1.0D);
+            com.jfoenix.controls.JFXProgressBar bar = JFXProgressBar.createProgressBar(-1.0D);
             progresses.add(bar);
             b.getChildren().add(bar);
             ThemeManager.loadButtonAnimates(bar);

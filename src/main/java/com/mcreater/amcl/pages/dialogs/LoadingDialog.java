@@ -1,16 +1,14 @@
 package com.mcreater.amcl.pages.dialogs;
 
-import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXDialogLayout;
-import com.jfoenix.controls.JFXProgressBar;
 import com.jfoenix.controls.JFXSpinner;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 
 import java.util.Vector;
 
