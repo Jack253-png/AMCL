@@ -16,6 +16,7 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Vector;
 
@@ -26,6 +27,7 @@ public class SmoothableListView<T extends Region> extends VBox{
     public T selectedItem = null;
     public JFXButton selectedButton = null;
     public ObjectProperty<Runnable> onActionProperty = new SimpleObjectProperty<>(() -> {});
+    public ObjectProperty<Runnable> onReleasedProperty = new SimpleObjectProperty<>(() -> {});
     public void select(int index){
         try {
             bs.get(index).getOnAction().handle(new ActionEvent());
@@ -37,7 +39,7 @@ public class SmoothableListView<T extends Region> extends VBox{
         this.setSpacing(5);
         ThemeManager.loadButtonAnimates(this);
     }
-    public void setOnAction(Runnable r){
+    public void setOnAction(@NotNull Runnable r){
         onActionProperty.set(r);
     }
     public void addItem(T item){
@@ -55,6 +57,7 @@ public class SmoothableListView<T extends Region> extends VBox{
             selectedButton = button;
             onActionProperty.get().run();
         });
+        button.setOnMouseReleased(event -> onReleasedProperty.get().run());
         FXUtils.ControlSize.setWidth(button, this.getMaxWidth());
         this.getChildren().add(button);
         FXUtils.ControlSize.setWidth(this, page.width - 15);

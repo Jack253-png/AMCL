@@ -197,3 +197,5 @@ ui.configpage.mem.bar.total.name=总内存 %s
 ui.configpage.mem.bar.used.name=使用的内存 %s
 ui.configpage.mem.bar.jvmmem.name=Minecraft 将使用 %s
 ui.configpage.mem.bar.jvmmem.out.name=Minecraft 将使用 %s (%s 可用)
+ui.mod.loader=可用加载器 :
+ui.mod.version=可用版本 :

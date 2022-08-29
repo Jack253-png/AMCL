@@ -17,6 +17,7 @@ public class BGMManager {
     private static long seed;
     public static AudioClip currentClip;
     private static Thread musicThread;
+    private static boolean reVars = false;
     public static boolean isNext;
     public static void init() throws IOException, URISyntaxException {
         File c = new File("AMCL/Musics");
@@ -47,19 +48,17 @@ public class BGMManager {
                     while (true) {
                         int index = r.nextInt(musics.size());
                         AudioClip clip = musics.get(index);
+
                         if (currentClip != clip) {
                             PopupMessage.createMessage(String.format(Launcher.languageManager.get("ui.bgmmanager.playing"), names.get(index)), PopupMessage.MessageTypes.LABEL, null);
                             currentClip = clip;
                             currentClip.play(30);
-                            synchronized (currentClip) {
-                                try {
-                                    currentClip.wait();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                            }
+                            do {}
+                            while (currentClip.isPlaying() || reVars);
                             currentClip.stop();
                         }
+
+
                     }
                 }
             };

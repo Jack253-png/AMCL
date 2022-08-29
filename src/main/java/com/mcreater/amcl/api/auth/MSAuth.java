@@ -3,6 +3,7 @@ package com.mcreater.amcl.api.auth;
 import com.google.gson.Gson;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
+import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.ValueSet3;
@@ -32,6 +33,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         this.dialog = dialog;
     }
     public Pair<String, String> acquireAccessToken(String authcode) {
+        GithubReleases.trustAllHosts();
         Map<Object, Object> data = new HashMap<>();
         data.put("client_id", "00000000402b5328");
         data.put("code", authcode);

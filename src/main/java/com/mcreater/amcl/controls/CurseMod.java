@@ -1,5 +1,6 @@
 package com.mcreater.amcl.controls;
 
+import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.mod.CurseModAuthorModel;
 import com.mcreater.amcl.api.curseApi.mod.CurseModCategorieModel;

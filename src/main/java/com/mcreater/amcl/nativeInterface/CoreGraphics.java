@@ -13,10 +13,7 @@ public interface CoreGraphics extends Library {
     CoreFoundation.CFArrayRef CGWindowListCopyWindowInfo(int option, int relativeToWindow);
     default Set<Long> get(){
         CoreFoundation.CFArrayRef windowInfo = CoreGraphics.INSTANCE.CGWindowListCopyWindowInfo(0, 0);
-        CoreFoundation.CFStringRef kCGWindowNumber = CoreFoundation.CFStringRef.createCFString("kCGWindowNumber");
         CoreFoundation.CFStringRef kCGWindowOwnerPID = CoreFoundation.CFStringRef.createCFString("kCGWindowOwnerPID");
-        CoreFoundation.CFStringRef kCGWindowName = CoreFoundation.CFStringRef.createCFString("kCGWindowName");
-        CoreFoundation.CFStringRef kCGWindowOwnerName = CoreFoundation.CFStringRef.createCFString("kCGWindowOwnerName");
         int numWindows = windowInfo.getCount();
         Set<Long> pids = new HashSet<>();
         for (int i = 0; i < numWindows; i++) {
@@ -26,10 +23,7 @@ public interface CoreGraphics extends Library {
             CoreFoundation.CFNumberRef windowOwnerPID = new CoreFoundation.CFNumberRef(result);
             pids.add(windowOwnerPID.longValue());
         }
-        kCGWindowNumber.release();
         kCGWindowOwnerPID.release();
-        kCGWindowName.release();
-        kCGWindowOwnerName.release();
         windowInfo.release();
         return pids;
     }

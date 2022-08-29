@@ -6,12 +6,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.api.reflect.ReflectedJar;
-import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.model.optifine.optifineAPIModel;
 import com.mcreater.amcl.model.optifine.optifineJarModel;
+import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.util.FileUtils;
-import static com.mcreater.amcl.util.FileUtils.*;
-
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 
@@ -19,8 +17,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
+
+import static com.mcreater.amcl.util.FileUtils.FileStringReader;
+import static com.mcreater.amcl.util.FileUtils.LinkPath;
 
 public class OptifineDownload {
     public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version) throws Exception {

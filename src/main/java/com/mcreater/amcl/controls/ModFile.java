@@ -1,6 +1,7 @@
 package com.mcreater.amcl.controls;
 
 import com.jfoenix.controls.JFXCheckBox;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import javafx.geometry.Pos;
@@ -29,26 +30,25 @@ public class ModFile extends HBox implements Comparable<ModFile>{
         if (model.releaseType == 1){
             checkBox.setCheckedColor(Color.LIGHTGREEN);
             checkBox.setUnCheckedColor(Color.LIGHTGREEN);
-            checkBox.setStyle("-fx-background-color: lightgreen");
         }
         else if (model.releaseType == 2){
             checkBox.setCheckedColor(Color.LIGHTBLUE);
             checkBox.setUnCheckedColor(Color.LIGHTBLUE);
-            checkBox.setStyle("-fx-background-color: lightblue");
         }
         else{
             checkBox.setCheckedColor(Color.RED);
             checkBox.setUnCheckedColor(Color.RED);
-            checkBox.setStyle("-fx-background-color: red");
         }
 
         checkBox.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
         Label name = new Label(model.fileName);
         name.setFont(Fonts.s_f);
-        Label loaders = new Label(getModLoaders(model.gameVersions, true).toString());
+
+        Label loaders = new Label(Launcher.languageManager.get("ui.mod.loader") + String.join(", ", getModLoaders(model.gameVersions, true)));
         loaders.setFont(Fonts.t_f);
-        Label versions = new Label(getModLoaders(model.gameVersions, false).toString());
+        Label versions = new Label(Launcher.languageManager.get("ui.mod.version") + String.join(", ", getModLoaders(model.gameVersions, false)));
         versions.setFont(Fonts.t_f);
+
         VBox v = new VBox();
         v.getChildren().addAll(name, loaders, versions);
         this.getChildren().addAll(checkBox, v);

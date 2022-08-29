@@ -197,3 +197,5 @@ ui.configpage.mem.bar.total.name=Total Memory %s
 ui.configpage.mem.bar.used.name=Used Memory %s
 ui.configpage.mem.bar.jvmmem.name=Minecraft will use %s
 ui.configpage.mem.bar.jvmmem.out.name=Minecraft will use %s (%s available)
+ui.mod.loader=Available loaders :
+ui.mod.version=Available versions :

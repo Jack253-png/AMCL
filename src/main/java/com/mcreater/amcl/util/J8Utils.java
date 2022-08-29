@@ -62,7 +62,7 @@ public class J8Utils {
         return b.toString();
     }
     public static long getMcMaxMemory(){
-        long value = (long) (MemoryReader.getTotalMemory() * 0.75 / 1024 / 1024);
+        long value = MemoryReader.getTotalMemory() / 1024 / 1024;
         if (value < 1024) {
             return 1024;
         }

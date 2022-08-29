@@ -1,7 +1,10 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXSpinner;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.api.weatherAPI.WeatherAPI;
+import com.mcreater.amcl.api.weatherAPI.models.WeatherAPIModel;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
@@ -9,11 +12,13 @@ import com.mcreater.amcl.pages.dialogs.FastInfomation;
 import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.JsonUtils;
 import com.mcreater.amcl.util.VersionInfo;
-import com.sun.javafx.collections.MappingChange;
-import com.sun.javafx.collections.SourceAdapterChange;
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -23,6 +28,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
@@ -31,8 +37,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainPage extends AbstractAnimationPage {
@@ -84,9 +88,7 @@ public class MainPage extends AbstractAnimationPage {
         launchButton.setId("launch-button");
         launchButton.setFont(Fonts.s_f);
         launchButton.setTextFill(Color.WHITE);
-        launchButton.setOnMouseEntered(event -> flush());
         launchButton.setOnAction(event -> {
-            flush();
             FileUtils.ChangeDir.saveNowDir();
             if (!Objects.equals(launchButton.getText(), Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
                 Launcher.configReader.check_and_write();
@@ -210,11 +212,6 @@ public class MainPage extends AbstractAnimationPage {
         FXUtils.ControlSize.set(GameMenu, width / 4, height);
         GameMenu.setAlignment(Pos.TOP_CENTER);
 
-        HBox hBox1 = new HBox();
-        FXUtils.ControlSize.set(hBox1, width / 5, height);
-        HBox hBox2 = new HBox();
-        FXUtils.ControlSize.set(hBox2, width / 5, height);
-
         GameMenu.getChildren().addAll(
                 title,
                 LaunchTitle,
@@ -235,10 +232,21 @@ public class MainPage extends AbstractAnimationPage {
                 downloadMc
         );
 
+        Pane p = new Pane();
+        FXUtils.ControlSize.set(p, width / 2, height - Launcher.barSize - 50);
+
         this.add(GameMenu, 0, 1, 1, 1);
-        this.add(hBox1, 1, 1, 1, 1);
-        this.add(hBox2, 2, 1, 1, 1);
-        this.add(launchBox, 3, 1, 1, 1);
+        this.add(p, 1, 1, 1, 1);
+        this.add(launchBox, 2, 1, 1, 1);
+
+        this.setAlignment(Pos.TOP_LEFT);
+
+        new Thread(() -> {
+            while (true) {
+                flush();
+                Sleeper.sleep(10);
+            }
+        }).start();
     }
     public static void check(Launch launchCore){
         Platform.runLater(launchDialog::close);
@@ -273,12 +281,24 @@ public class MainPage extends AbstractAnimationPage {
                 if (Launcher.configReader.configModel.selected_version_index != null) {
                     if (Objects.requireNonNull(getMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index)).contains(Launcher.configReader.configModel.selected_version_index)) {
                         if (new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/%s.json", Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)).exists()) {
-                            Platform.runLater(() -> {
-                                version_settings.setText(" " + Launcher.configReader.configModel.selected_version_index);
-                                launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.hasVersion"));
-                                version_settings.setDisable(false);
+                            if (!Launcher.configReader.configModel.selected_version_index.equals("")) {
+                                if (JsonUtils.isVaildJson(new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/%s.json", Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)))) {
+                                    Platform.runLater(() -> {
+                                        version_settings.setText(" " + Launcher.configReader.configModel.selected_version_index);
+                                        launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.hasVersion"));
+                                        version_settings.setDisable(false);
+                                        downloadMc.setDisable(false);
+                                    });
+                                }
+                                else {
+                                    clean_null_version();
+                                    downloadMc.setDisable(false);
+                                }
+                            }
+                            else {
+                                clean_null_version();
                                 downloadMc.setDisable(false);
-                            });
+                            }
                         }
                         else {
                             clean_null_version();

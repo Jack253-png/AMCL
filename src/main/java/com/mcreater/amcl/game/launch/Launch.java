@@ -38,6 +38,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -82,7 +83,7 @@ public class Launch {
         MainPage.launchDialog.setV(0, 10, Launcher.languageManager.get("ui.launch._02"));
         Platform.runLater(() -> MainPage.launchDialog.l.setText(Launcher.languageManager.get("ui.fix._01")));
         try {
-            MinecraftFixer.fix(Launcher.configReader.configModel.fastDownload, Launcher.configReader.configModel.downloadChunkSize, dir, version_name, 2);
+            MinecraftFixer.fix(Launcher.configReader.configModel.fastDownload, Launcher.configReader.configModel.downloadChunkSize, dir, version_name);
         }
         catch (IOException e){
             Platform.runLater(() -> {
@@ -285,6 +286,18 @@ public class Launch {
         arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
         arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
 
+        try {
+            String path = LinkPath.link(LinkPath.link(dir, "assets/indexes"), r.assetIndex.get("id") + ".json");
+            JSONObject o = new JSONObject(FileUtils.FileStringReader.read(path));
+            JSONObject ob = o.getJSONObject("objects");
+            for (String s : ob.keySet()){
+                System.out.printf("%s : %s\n", s, ob.getJSONObject(s));
+            }
+        }
+        catch (Exception e){
+
+        }
+
         jvm = "-Dfile.encoding=GB18030 -Dminecraft.client.jar=${jar_path} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16m -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -XX:-DontCompileHugeMethods -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false -Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false -Dlog4j2.formatMsgNoLookups=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Djava.library.path=${native_path} -Dminecraft.launcher.brand=${launcher_brand} -Dminecraft.launcher.version=${launcher_version}";
         jvm = jvm.replace("${jar_path}", String.format("\"%s\"", jar_file.getPath()));
         jvm = jvm.replace("${native_path}",String.format("\"%s\"", nativef.getPath()));
@@ -400,7 +413,7 @@ public class Launch {
                     arguments);
             MainPage.launchDialog.setV(0, 90, Launcher.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
-            logger.info(String.format("Getted Command Line : %s", command));
+//            logger.info(String.format("Getted Command Line : %s", command));
             MainPage.launchDialog.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
             try {
                 p = Runtime.getRuntime().exec(command, null, new File(dir));
@@ -410,7 +423,6 @@ public class Launch {
             }
             new Thread(() -> {
                 while (true) {
-                    if (J8Utils.getProcessPid(p) == -1) break;
                     if (EnumWindow.getTaskPID().contains(J8Utils.getProcessPid(p))) {
                         MainPage.logger.info("Window Showed");
                         MainPage.launchDialog.close();
@@ -454,6 +466,12 @@ public class Launch {
             while ((line = reader.readLine()) != null) {
                 logProperty.get().append(line);
                 LogLineDetecter.printLog(line, out);
+                if (line.contains("Backend library: LWJGL version") ||
+                line.contains("LWJGL Version") ||
+                line.contains("Turning of ImageIO disk-caching") ||
+                line.contains("Loading current icons for window from:")){
+                    MainPage.launchDialog.close();
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -465,6 +483,23 @@ public class Launch {
         } finally {
             try {
                 inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public static void loadOut(InputStream stream, PrintStream out){
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charset.forName("GBK")));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                LogLineDetecter.printLog(line, out);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                stream.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

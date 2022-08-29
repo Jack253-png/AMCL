@@ -50,7 +50,7 @@ public class AddModsPage extends AbstractAnimationPage {
         FXUtils.ControlSize.set(submit, this.width / 8, 45);
         FXUtils.ControlSize.setWidth(bar, this.width);
         modlist = new SmoothableListView<>(width, height - 45 - Launcher.barSize);
-        modlist.setOnAction(() -> {
+        modlist.onReleasedProperty.set(() -> {
             if (modlist.selectedItem != null) {
                 try {
                     showDownloads(modlist.selectedItem.model);

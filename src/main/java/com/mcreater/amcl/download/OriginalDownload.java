@@ -28,7 +28,6 @@ public class OriginalDownload {
     static GsonBuilder gb;
     static Vector<Task> tasks = new Vector<>();
     static int chunkSize;
-    static Logger logger = LogManager.getLogger(OriginalDownload.class);
     static String vj;
 
     public static String getVJ(){

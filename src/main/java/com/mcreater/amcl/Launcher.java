@@ -15,6 +15,7 @@ import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import javafx.beans.binding.Bindings;
@@ -125,6 +126,7 @@ public class Launcher extends javafx.application.Application {
             CONFIGPAGE.bar1.setOpacity(0.5);
             CONFIGPAGE.bar2.setOpacity(1);
 
+
             ThemeManager.loadButtonAnimateParent(USERSELECTPAGE.p);
             ThemeManager.loadButtonAnimateParent(CONFIGPAGE.p);
 
@@ -142,8 +144,7 @@ public class Launcher extends javafx.application.Application {
             stage.getIcons().add(new Image("assets/icons/grass.png"));
 
             stage.initStyle(StageStyle.TRANSPARENT);
-            WindowMovement windowMovement = new WindowMovement();
-            windowMovement.windowMove(s, stage);
+
 
             new Thread(VersionChecker::check).start();
             aboutDialog = new AboutDialog();
@@ -243,6 +244,8 @@ public class Launcher extends javafx.application.Application {
         close.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
         back.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
         about.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
+
+        new WindowMovement().windowMove(top, stage);
 
         themeManager.applyTopBar(top);
         VBox v = new VBox();

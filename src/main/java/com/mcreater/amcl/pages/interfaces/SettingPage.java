@@ -31,7 +31,7 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
         this.setHbarPolicy(ScrollBarPolicy.NEVER);
         this.content = content;
         init();
-        JFXSmoothScroll.smoothScrolling(this, 0.8);
+        JFXSmoothScroll.smoothScrolling(this, 1.2);
         ThemeManager.loadButtonAnimates(this.content);
     }
     public SettingPage(double width, double height, Pane content) {

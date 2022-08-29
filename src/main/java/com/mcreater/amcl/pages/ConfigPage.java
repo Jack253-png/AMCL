@@ -37,6 +37,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.Pair;
@@ -113,7 +114,7 @@ public class ConfigPage extends AbstractMenuBarPage {
 
         item2 = new IntItem("", this.width / 4 * 3);
         item2.cont.setMax(J8Utils.getMcMaxMemory());
-        item2.cont.setMin(256);
+        item2.cont.setMin(16);
         item2.cont.setValue(Launcher.configReader.configModel.max_memory);
         item2.cont.setOrientation(Orientation.HORIZONTAL);
         item2.cont.valueProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.max_memory = newValue.intValue());

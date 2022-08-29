@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 
 public class ForgePatchTask extends AbstractTask{
     Integer exit;
@@ -64,14 +65,20 @@ public class ForgePatchTask extends AbstractTask{
         }
     }
     public int old_pa() throws IOException {
-        System.out.println(command);
         Process p = Runtime.getRuntime().exec(command);
         while (true) {
             try {
-                System.out.println(Launch.ret(p.getInputStream()));
-                System.err.println(Launch.ret(p.getErrorStream()));
-                exit = p.exitValue();
-                return exit;
+                CountDownLatch latch = new CountDownLatch(2);
+                new Thread(() -> {
+                    Launch.loadOut(p.getInputStream(), System.out);
+                    latch.countDown();
+                }).start();
+                new Thread(() -> {
+                    Launch.loadOut(p.getErrorStream(), System.err);
+                    latch.countDown();
+                }).start();
+                latch.await();
+                return p.exitValue();
             } catch (Exception e) {
                 e.printStackTrace();
             }

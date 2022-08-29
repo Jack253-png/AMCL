@@ -53,7 +53,7 @@ public class ConfigWriter{
         if (configModel.selected_version_index == null){
             configModel.selected_version_index = "";
         }
-        if (configModel.max_memory < 256 || configModel.max_memory > J8Utils.getMcMaxMemory()){
+        if (configModel.max_memory < 16 || configModel.max_memory > J8Utils.getMcMaxMemory()){
             configModel.max_memory = 1024;
         }
         if (configModel.downloadChunkSize < 512 || configModel.downloadChunkSize > 8192){

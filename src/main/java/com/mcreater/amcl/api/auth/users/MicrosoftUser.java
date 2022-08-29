@@ -3,6 +3,7 @@ package com.mcreater.amcl.api.auth.users;
 import com.google.gson.Gson;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.MSAuth;
+import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.HttpClient;
 import javafx.util.Pair;
@@ -50,6 +51,7 @@ public class MicrosoftUser extends AbstractUser {
 
     public boolean vaildate() {
         try {
+            GithubReleases.trustAllHosts();
             new MSAuth().checkMcStore(accessToken);
             return true;
         }

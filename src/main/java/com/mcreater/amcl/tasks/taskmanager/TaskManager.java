@@ -6,6 +6,7 @@ import com.mcreater.amcl.pages.dialogs.ProcessDialog;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.LogLineDetecter;
+import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -65,6 +66,7 @@ public abstract class TaskManager {
 
         new Thread("Manager Counting Thread"){
             public void run(){
+                Timer timer = Timer.getInstance();
                 if (dialog != null){
                     dialog.setV(index, 0);
                 }
@@ -94,12 +96,18 @@ public abstract class TaskManager {
                     downloadedBytes = 0;
                 }
                 while (downloaded != 0);
+
+                if (dialog != null) {
+                    dialog.setV(index, 100);
+                }
+
                 System.out.print(J8Utils.repeat("\b", cc.length()) + reason + String.format(" %d / %d", all, all));
                 if (frame != null){
                     frame.button.setEnabled(true);
                     frame.progressBar.setString("下载完成");
                     frame.progressBar.setValue(100);
                 }
+                LogLineDetecter.printLog(timer.getTimeString(), System.out);
             }
         }.start();
         for (Task t : tasks){

@@ -17,10 +17,8 @@ import com.mcreater.amcl.util.FileUtils.LinkPath;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -112,6 +110,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
             }
             else {
                 String path = file.getPath();
+                new File(LinkPath.link(path, "versions")).mkdirs();
                 Vector<String> result = getMinecraftVersion.get(path);
                 if (result == null) {
                     setDialog.run();

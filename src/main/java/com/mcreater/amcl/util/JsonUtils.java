@@ -5,7 +5,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 
+import java.io.File;
 import java.lang.reflect.Type;
+import java.util.Map;
 
 public final class JsonUtils {
 
@@ -41,6 +43,15 @@ public final class JsonUtils {
             return GSON.fromJson(json, type);
         } catch (JsonSyntaxException e) {
             return null;
+        }
+    }
+    public static boolean isVaildJson(File path){
+        try {
+            GSON.fromJson(FileUtils.FileStringReader.read(path.getAbsolutePath()), Map.class);
+            return true;
+        }
+        catch (Exception e){
+            return false;
         }
     }
 }

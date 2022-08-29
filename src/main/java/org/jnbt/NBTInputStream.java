@@ -99,9 +99,7 @@ public final class NBTInputStream implements Closeable {
 	public NBTInputStream(final InputStream is) throws IOException {
 		this.is = new DataInputStream(new GZIPInputStream(is));
 	}
-	
-	//TODO: comment this.  supports raw Gziped data.
-	// author: ensirius
+
 	public NBTInputStream(final DataInputStream is) {
                 this.is = is;
         }

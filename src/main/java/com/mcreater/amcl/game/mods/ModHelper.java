@@ -28,11 +28,12 @@ public class ModHelper {
             modDir = LinkPath.link(dir, "mods");
         }
         File d = new File(modDir);
-        d.mkdirs();
-        for (File f : d.listFiles()){
-            if (f.isFile()) {
-                if (f.getPath().endsWith(".jar") || f.getPath().endsWith(".litemod")) {
-                    result.add(f);
+        if (d.exists()) {
+            for (File f : d.listFiles()) {
+                if (f.isFile()) {
+                    if (f.getPath().endsWith(".jar") || f.getPath().endsWith(".litemod")) {
+                        result.add(f);
+                    }
                 }
             }
         }
