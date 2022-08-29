@@ -84,11 +84,11 @@ public class StableMain {
             JOptionPane.showMessageDialog(null, "launcher cannot fix javafx environment in java 8-10", "javafx broken", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
-        fixPulseTimer();
         initPreLanguageManager();
         Vector<DepencyItem> addonItems = new Vector<>();
         downloadDepenciesJars(addonItems);
         injectDepencies();
+        fixPulseTimer();
         Logger logger = LogManager.getLogger(StableMain.class);
         logger.info("Initlaze : " + timer.getTimeString());
         Main.main(args);
