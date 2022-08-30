@@ -1,13 +1,11 @@
 package com.mcreater.amcl;
 
 import com.google.gson.Gson;
-import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.lang.PreLanguageManager;
 import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.patcher.depenciesLoader;
-import com.mcreater.amcl.patcher.depencyLoadingFrame;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.FileUtils;
@@ -17,25 +15,21 @@ import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
 import com.mcreater.amcl.util.xml.DepencyItem;
-import com.sun.glass.ui.Application;
-import com.sun.javafx.scene.NodeHelper;
 import com.sun.javafx.tk.quantum.QuantumToolkit;
-import javafx.fxml.Initializable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.xml.sax.SAXException;
-import oshi.SystemInfo;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.*;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Vector;
 
