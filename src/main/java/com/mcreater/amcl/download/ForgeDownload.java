@@ -6,26 +6,40 @@ import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
-import com.mcreater.amcl.model.forge.*;
+import com.mcreater.amcl.model.forge.ForgeInjectModel;
+import com.mcreater.amcl.model.forge.ForgeProcessorModel;
+import com.mcreater.amcl.model.forge.ForgeVersionModel;
+import com.mcreater.amcl.model.forge.OldForgeLibModel;
+import com.mcreater.amcl.model.forge.OldForgeVersionModel;
+import com.mcreater.amcl.tasks.DownloadTask;
+import com.mcreater.amcl.tasks.ForgeExtractTask;
+import com.mcreater.amcl.tasks.ForgeInstallerDownloadTask;
+import com.mcreater.amcl.tasks.ForgePatchTask;
+import com.mcreater.amcl.tasks.LibDownloadTask;
+import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
-import com.mcreater.amcl.tasks.*;
 import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.StringUtils;
-import com.mcreater.amcl.util.net.GetFileExists;
 import com.mcreater.amcl.util.net.FasterUrls;
+import com.mcreater.amcl.util.net.GetFileExists;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Vector;
 
-import static com.mcreater.amcl.util.StringUtils.ForgeMapplings.*;
+import static com.mcreater.amcl.util.StringUtils.ForgeMapplings.checkIsForgePath;
+import static com.mcreater.amcl.util.StringUtils.ForgeMapplings.checkIsMapKey;
+import static com.mcreater.amcl.util.StringUtils.ForgeMapplings.get;
+import static com.mcreater.amcl.util.StringUtils.ForgeMapplings.getLong;
 
 public class ForgeDownload {
     static int chunkSize;
@@ -86,6 +100,9 @@ public class ForgeDownload {
             throw new IOException();
         }
         String lib_base = FileUtils.LinkPath.link(minecraft_dir, "libraries");
+
+        SimpleFunctions.Arg0Func<String> getJavaExecutable = () -> FileUtils.LinkPath.link(System.getProperty("java.home"), "bin/java.exe").replace("\\", "/");
+
         if (new File(versionPath).exists()){
             String t = FileUtils.FileStringReader.read(versionPath);
             Gson g = new Gson();
@@ -96,7 +113,7 @@ public class ForgeDownload {
                 ao.getJSONArray("libraries").put(g.fromJson(g.toJson(m, LibModel.class), Map.class));
                 if (Objects.equals(m.downloads.artifact.get("url"), "")){
                     String extract = StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path")));
-                    String com = String.format("\"%s\" -jar %s --extract %s",FileUtils.LinkPath.link(System.getProperty("java.home"), "bin\\java.exe").replace("\\", "/"), installer_path.replace("\\", "/"), extract);
+                    String com = String.format("\"%s\" -jar %s --extract %s", getJavaExecutable.run(), installer_path.replace("\\", "/"), extract);
                     int returnCode = new ForgeExtractTask(com, extract, installer_path.replace("\\", "/"), new String[]{"--extract", extract}).execute();
                     if (returnCode != 0){
                         throw new IOException("Install Failed");
@@ -191,7 +208,7 @@ public class ForgeDownload {
                         String i = FileUtils.LinkPath.link(FileUtils.ChangeDir.dirs, installer_path).replace("\\", "/");
                         FileUtils.ChangeDir.changeTo(p);
                         System.out.println(p);
-                        String com = String.format("\"%s\" -jar %s --extract", FileUtils.LinkPath.link(System.getProperty("java.home"), "bin\\java.exe").replace("\\", "/"), i);
+                        String com = String.format("\"%s\" -jar %s --extract", getJavaExecutable.run(), i);
                         if (new ForgeExtractTask(com, p, i, new String[]{"--extract"}).execute() != 0) {
                             throw new IOException("Forge Extract Failed");
                         }

@@ -170,7 +170,7 @@ public class StableMain {
             String dir = "AMCL/depencies/JXBrowser";
             new File(dir).mkdirs();
             FileUtils.ZipUtil.unzipAll(local, dir);
-            return null;
+            return 0;
         }
     }
 }

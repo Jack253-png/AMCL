@@ -107,7 +107,7 @@ public abstract class TaskManager {
                     frame.progressBar.setString("下载完成");
                     frame.progressBar.setValue(100);
                 }
-                LogLineDetecter.printLog(timer.getTimeString(), System.out);
+                System.out.println(timer.getTimeString());
             }
         }.start();
         for (Task t : tasks){
