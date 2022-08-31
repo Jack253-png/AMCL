@@ -87,8 +87,7 @@ public class Launcher extends javafx.application.Application {
     public static Pane wrapper = new Pane();
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
-        // is_t
-        if (OSInfo.isWin() || OSInfo.isMac()) {
+        if (OSInfo.isWin()) {
             languageManager = new LanguageManager(null);
             themeManager = new ThemeManager();
             stage = new Stage();
