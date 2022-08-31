@@ -100,6 +100,7 @@ public class FXBrowserPage extends AbstractStage{
             protected void processWindowEvent(WindowEvent event){
                 if (event.getID() == WindowEvent.WINDOW_CLOSING){
                     r.run();
+                    this.dispose();
                 }
                 super.processWindowEvent(event);
             }
@@ -141,7 +142,12 @@ public class FXBrowserPage extends AbstractStage{
         bar.add(forward);
         bar.add(refresh);
 
+        JPanel loadType = new JPanel();
+
+        loadType.add(new JProgressBar());
+
         frame.add(bar);
+        frame.add(loadType);
         frame.add(view);
         frame.pack();
         frame.setBounds(100, 100, 500, 620);

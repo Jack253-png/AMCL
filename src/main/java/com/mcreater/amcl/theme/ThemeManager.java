@@ -1,6 +1,8 @@
 package com.mcreater.amcl.theme;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXSlider;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
@@ -11,6 +13,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.value.WritableValue;
 import javafx.event.EventHandler;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
@@ -29,6 +32,7 @@ import java.util.Vector;
 public class ThemeManager {
     public static String themeName = "default";
     Logger logger = LogManager.getLogger(ThemeManager.class);
+    static Vector<JFXButton> buttons = new Vector<>();
     public void setThemeName(String name){
         themeName = name;
     }
@@ -101,11 +105,25 @@ public class ThemeManager {
     public static void loadButtonAnimateParent(Node node){
         generateAnimations(node, 0.6D, 1D, 200, node.opacityProperty());
     }
+    public static void setButtonRadius(double radius){
+        try {
+            buttons.forEach(button -> button.setStyle(String.format("-fx-border-radius: %fpx; -fx-background-radius: %fpx", radius, radius)));
+        }
+        catch (Exception ignored){
+
+        }
+    }
     public static void loadButtonAnimates(Node... nodes){
         for (Node button : nodes){
             if (button instanceof JFXButton){
                 ((JFXButton) button).setButtonType(JFXButton.ButtonType.RAISED);
+                button.setStyle("-fx-border-radius: 0px; -fx-background-radius: 0px");
+                buttons.add((JFXButton) button);
             }
+            if (button instanceof JFXButton || button instanceof JFXSlider || button instanceof JFXComboBox){
+                button.setCursor(Cursor.HAND);
+            }
+
             if (!(button instanceof Pane) && !(button instanceof SettingPage)) {
                 generateAnimations(button, 0.6D, 1D, 200, button.opacityProperty());
             }

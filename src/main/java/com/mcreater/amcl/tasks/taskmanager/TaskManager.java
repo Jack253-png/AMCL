@@ -66,7 +66,6 @@ public abstract class TaskManager {
 
         new Thread("Manager Counting Thread"){
             public void run(){
-                Timer timer = Timer.getInstance();
                 if (dialog != null){
                     dialog.setV(index, 0);
                 }
@@ -107,7 +106,6 @@ public abstract class TaskManager {
                     frame.progressBar.setString("下载完成");
                     frame.progressBar.setValue(100);
                 }
-                System.out.println(timer.getTimeString());
             }
         }.start();
         for (Task t : tasks){

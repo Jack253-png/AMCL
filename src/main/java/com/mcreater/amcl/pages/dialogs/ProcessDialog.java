@@ -14,9 +14,10 @@ import java.util.Vector;
 public class ProcessDialog extends AbstractDialog {
     public Vector<com.jfoenix.controls.JFXProgressBar> progresses;
     public Label l;
+    public JFXDialogLayout layout;
     public ProcessDialog(int process_num, String title){
         super(Launcher.stage);
-        JFXDialogLayout layout = new JFXDialogLayout();
+        layout = new JFXDialogLayout();
         progresses = new Vector<>();
         l = new Label();
         l.setFont(Fonts.t_f);

@@ -1,5 +1,7 @@
 package com.mcreater.amcl.util.operatingSystem;
 
+import com.mcreater.amcl.pages.stages.FXBrowserPage;
+
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +18,9 @@ public class SystemActions {
             catch (IOException e){
                 e.printStackTrace();
             }
-        }).start();
+        });
+        FXBrowserPage browserPage = new FXBrowserPage(url);
+        browserPage.open();
     }
 
     private static boolean supportAction(Desktop.Action action){

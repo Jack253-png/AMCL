@@ -117,16 +117,21 @@ public class SkinView extends Group {
         yRotate.setAngle(180);
         zRotate.setAngle(0);
     }
-
     public void updateSkin(Image skin, boolean isSlim, final @Nullable Image cape) {
+        updateSkin(skin, isSlim, cape, true);
+    }
+    public void updateSkin(Image skin, boolean isSlim, final @Nullable Image cape,
+                           boolean fixOuter) {
         if (SkinHelper.isNoRequest(skin) && SkinHelper.isSkin(skin)) {
-            boolean isDoubleSkin = skin.getWidth() >= 64 && skin.getHeight() >= 64;
-            headOuter.setVisible(isDoubleSkin);
-            bodyOuter.setVisible(isDoubleSkin);
-            larmOuter.setVisible(isDoubleSkin);
-            rarmOuter.setVisible(isDoubleSkin);
-            llegOuter.setVisible(isDoubleSkin);
-            rlegOuter.setVisible(isDoubleSkin);
+            if (fixOuter) {
+                boolean isDoubleSkin = skin.getHeight() / skin.getWidth() >= 1;
+                headOuter.setVisible(isDoubleSkin);
+                bodyOuter.setVisible(isDoubleSkin);
+                larmOuter.setVisible(isDoubleSkin);
+                rarmOuter.setVisible(isDoubleSkin);
+                llegOuter.setVisible(isDoubleSkin);
+                rlegOuter.setVisible(isDoubleSkin);
+            }
             this.srcSkin = skin;
             this.skin = SkinHelper.x32Tox64(skin);
             this.srcCape = cape;

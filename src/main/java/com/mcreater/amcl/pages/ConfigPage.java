@@ -15,6 +15,7 @@ import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.java.JavaInfoGetter;
 import com.mcreater.amcl.util.FXUtils;
@@ -30,6 +31,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.chart.Chart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -307,6 +309,25 @@ public class ConfigPage extends AbstractMenuBarPage {
         heapUsed = new XYChart.Series<>();
         heapMax = new XYChart.Series<>();
         jvm.getData().addAll(heapUsed, heapMax);
+
+        SimpleFunctions.Arg1FuncNoReturn<String> transparent = arg1 -> {
+            try {
+                Field f = XYChart.class.getDeclaredField(arg1);
+                f.setAccessible(true);
+                ((Node) f.get(memory)).setStyle("-fx-background-color: transparent");
+                ((Node) f.get(cpu)).setStyle("-fx-background-color: transparent");
+                ((Node) f.get(jvm)).setStyle("-fx-background-color: transparent");
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+        };
+
+        transparent.run("plotArea");
+        transparent.run("plotContent");
+        transparent.run("plotAreaClip");
+        transparent.run("legend");
+        transparent.run("plotBackground");
 
         start = event -> {
             addMem();

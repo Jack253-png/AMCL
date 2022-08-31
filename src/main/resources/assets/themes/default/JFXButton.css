@@ -1,3 +1,6 @@
 * {
-    -fx-background-color: rgba(0, 0, 0, 0);
+    -fx-background-color: transparent;
+}
+#launch {
+    -fx-background-color: rgba(173, 216, 246, 1);
 }

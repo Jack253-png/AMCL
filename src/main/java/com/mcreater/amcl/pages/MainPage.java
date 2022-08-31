@@ -38,6 +38,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MainPage extends AbstractAnimationPage {
     public static Label title;
@@ -94,11 +95,18 @@ public class MainPage extends AbstractAnimationPage {
                 Launcher.configReader.check_and_write();
                 launchDialog = new ProcessDialog(3, Launcher.languageManager.get("ui.mainpage.launch._01"));
                 launchDialog.setV(0, 1, Launcher.languageManager.get("ui.mainpage.launch._02"));
+
+                JFXButton stopAction = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
+                ThemeManager.loadButtonAnimates(stopAction);
+
+                launchDialog.layout.setActions(stopAction);
+                AtomicReference<Launch> core = new AtomicReference<>(null);
                 Thread la = new Thread(() -> {
                     try {
                         if (new File(Launcher.configReader.configModel.selected_java_index).exists()) {
                             game.add(new Launch());
                             Thread.currentThread().setName(String.format("Launch Thread #%d", game.size() - 1));
+                            core.set(game.get(game.size() - 1));
                             game.get(game.size() - 1).launch(
                                     Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir,
                                     Launcher.configReader.configModel.max_memory,
@@ -116,6 +124,11 @@ public class MainPage extends AbstractAnimationPage {
                         logger.error("failed to launch", e);
                         Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
                     }
+                });
+                stopAction.setOnAction(event1 -> {
+                    la.stop();
+                    if (core.get() != null) core.get().stop_process();
+                    launchDialog.close();
                 });
                 la.start();
             } else {
@@ -148,6 +161,9 @@ public class MainPage extends AbstractAnimationPage {
         launchBox.setAlignment(Pos.BOTTOM_LEFT);
         launchBox.setMaxSize(width / 2, height - 185);
         launchBox.getChildren().addAll(stopProcess, launchButton);
+
+        stopProcess.setId("launch");
+        launchButton.setId("launch");
 
         title = new Label();
         launch = new Label();

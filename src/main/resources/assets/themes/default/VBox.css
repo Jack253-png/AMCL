@@ -3,7 +3,7 @@
 }
 #config-menu,
 #info-menu{
-    -fx-background-color : rgba(255, 255, 255, 0.75);
+    -fx-background-color : rgba(255, 255, 255, 0.50);
 }
 #config-box {
     -fx-background-color : rgba(255, 255, 255, 0.00);

@@ -64,6 +64,7 @@ public class depenciesLoader {
         }
     }
     public static boolean isConnectable() throws IOException {
-        return InetAddress.getByName("maven.aliyun.com").isReachable(3000);
+//        return InetAddress.getByName("maven.aliyun.com").isReachable(30000);
+        return true;
     }
 }

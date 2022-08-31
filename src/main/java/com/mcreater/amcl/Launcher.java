@@ -5,7 +5,16 @@ import com.mcreater.amcl.api.awtWrapper.MessageCenter;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
-import com.mcreater.amcl.pages.*;
+import com.mcreater.amcl.nativeInterface.OSInfo;
+import com.mcreater.amcl.pages.AddModsPage;
+import com.mcreater.amcl.pages.ConfigPage;
+import com.mcreater.amcl.pages.DownloadAddonSelectPage;
+import com.mcreater.amcl.pages.DownloadMcPage;
+import com.mcreater.amcl.pages.MainPage;
+import com.mcreater.amcl.pages.ModDownloadPage;
+import com.mcreater.amcl.pages.UserSelectPage;
+import com.mcreater.amcl.pages.VersionInfoPage;
+import com.mcreater.amcl.pages.VersionSelectPage;
 import com.mcreater.amcl.pages.dialogs.AboutDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -15,7 +24,6 @@ import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
-import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import javafx.beans.binding.Bindings;
@@ -24,7 +32,15 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
@@ -68,10 +84,11 @@ public class Launcher extends javafx.application.Application {
     public static JFXButton min;
     public static JFXButton back;
     public static AboutDialog aboutDialog;
+    public static Pane wrapper = new Pane();
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
         // is_t
-        if (true) {
+        if (OSInfo.isWin() || OSInfo.isMac()) {
             languageManager = new LanguageManager(null);
             themeManager = new ThemeManager();
             stage = new Stage();
@@ -129,11 +146,10 @@ public class Launcher extends javafx.application.Application {
 
             ThemeManager.loadButtonAnimateParent(USERSELECTPAGE.p);
             ThemeManager.loadButtonAnimateParent(CONFIGPAGE.p);
-
-            refreshBackground();
-
             last = MAINPAGE;
             setPage(last, last);
+
+            refreshBackground();
 
             BGMManager.init();
             BGMManager.start();
@@ -142,9 +158,6 @@ public class Launcher extends javafx.application.Application {
             refresh();
             stage.setScene(s);
             stage.getIcons().add(new Image("assets/icons/grass.png"));
-
-            stage.initStyle(StageStyle.TRANSPARENT);
-
 
             new Thread(VersionChecker::check).start();
             aboutDialog = new AboutDialog();
@@ -240,23 +253,23 @@ public class Launcher extends javafx.application.Application {
         title.add(cl, 1, 0, 1, 1);
         top.getChildren().add(title);
 
-        min.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
-        close.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
-        back.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
-        about.setStyle("-fx-border-radius: 50px;-fx-background-radius: 50px");
-
         new WindowMovement().windowMove(top, stage);
 
         themeManager.applyTopBar(top);
         VBox v = new VBox();
         v.getChildren().addAll(top, last);
         v.setStyle("-fx-background-color: transparent");
-        p = new Pane();
-        p.setStyle("-fx-background-color: transparent");
+//        p = new Pane();
+//        p.setStyle("-fx-background-color: transparent");
+        p.getChildren().removeIf(node -> node.getClass() == VBox.class);
         p.getChildren().add(0, v);
+        wrapper.getChildren().clear();
+        wrapper.getChildren().add(p);
+        wrapper.setStyle("-fx-background-color: transparent");
+
         refreshBackground();
         s.setFill(Color.TRANSPARENT);
-        s.setRoot(p);
+        s.setRoot(wrapper);
         stage.setScene(s);
         s.setOnKeyPressed(event -> System.out.println(event.getCode()));
     }
@@ -289,14 +302,16 @@ public class Launcher extends javafx.application.Application {
                 bs);
         bg = new Background(im);
 
-        MAINPAGE.setBackground(bg);
-        VERSIONSELECTPAGE.setBackground(bg);
-        CONFIGPAGE.setBackground(bg);
-        VERSIONINFOPAGE.setBackground(bg);
-        ADDMODSPAGE.setBackground(bg);
-        MODDOWNLOADPAGE.setBackground(bg);
-        DOWNLOADMCPAGE.setBackground(bg);
-        DOWNLOADADDONSELECTPAGE.setBackground(bg);
-        USERSELECTPAGE.setBackground(bg);
+        p.setBackground(bg);
+
+//        MAINPAGE.setBackground(bg);
+//        VERSIONSELECTPAGE.setBackground(bg);
+//        CONFIGPAGE.setBackground(bg);
+//        VERSIONINFOPAGE.setBackground(bg);
+//        ADDMODSPAGE.setBackground(bg);
+//        MODDOWNLOADPAGE.setBackground(bg);
+//        DOWNLOADMCPAGE.setBackground(bg);
+//        DOWNLOADADDONSELECTPAGE.setBackground(bg);
+//        USERSELECTPAGE.setBackground(bg);
     }
 }

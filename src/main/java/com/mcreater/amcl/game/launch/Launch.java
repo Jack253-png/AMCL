@@ -32,13 +32,13 @@ import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.LogLineDetecter;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.VersionInfo;
+import com.mcreater.amcl.util.java.JVMArgs;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -269,36 +269,46 @@ public class Launch {
         arguments = arguments.replace("${auth_player_name}","\""+user.username+"\"");
         arguments = arguments.replace("${user_type}","mojang");
         arguments = arguments.replace("${version_type}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
-        arguments = arguments.replace("${resolution_width}","854");
-        arguments = arguments.replace("${resolution_height}","480");
         File gamedir;
-        if (!ie) {
-            gamedir = new File(dir);
-        }
-        else{
-            gamedir = f;
-        }
+        if (!ie) {gamedir = new File(dir);} else{gamedir = f;}
         arguments = arguments.replace("${game_directory}", String.format("\"%s\"", gamedir.getPath()));
         arguments = arguments.replace("${user_properties}","{}");
         arguments = arguments.replace("${auth_uuid}",user.uuid);
         arguments = arguments.replace("${auth_access_token}",user.accessToken);
-        arguments = arguments.replace("${auth_session}",user.uuid);
+        arguments = arguments.replace("${auth_session}",user.accessToken);
         arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
         arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
 
-        try {
-            String path = LinkPath.link(LinkPath.link(dir, "assets/indexes"), r.assetIndex.get("id") + ".json");
-            JSONObject o = new JSONObject(FileUtils.FileStringReader.read(path));
-            JSONObject ob = o.getJSONObject("objects");
-            for (String s : ob.keySet()){
-                System.out.printf("%s : %s\n", s, ob.getJSONObject(s));
-            }
-        }
-        catch (Exception e){
+        arguments = arguments.replace("${resolution_width}",String.valueOf(854));
+        arguments = arguments.replace("${resolution_height}",String.valueOf(480));
 
-        }
+        jvm = String.join(" ", J8Utils.createList(
+                JVMArgs.FILE_ENCODING,
+                JVMArgs.MINECRAFT_CLIENT_JAR,
+                JVMArgs.UNLOCK_EXPERIMENTAL_OPTIONS,
 
-        jvm = "-Dfile.encoding=GB18030 -Dminecraft.client.jar=${jar_path} -XX:+UnlockExperimentalVMOptions -XX:+UseG1GC -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=16m -XX:-UseAdaptiveSizePolicy -XX:-OmitStackTraceInFastThrow -XX:-DontCompileHugeMethods -Dfml.ignoreInvalidMinecraftCertificates=true -Dfml.ignorePatchDiscrepancies=true -Djava.rmi.server.useCodebaseOnly=true -Dcom.sun.jndi.rmi.object.trustURLCodebase=false -Dcom.sun.jndi.cosnaming.object.trustURLCodebase=false -Dlog4j2.formatMsgNoLookups=true -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Djava.library.path=${native_path} -Dminecraft.launcher.brand=${launcher_brand} -Dminecraft.launcher.version=${launcher_version}";
+                JVMArgs.USE_G1GC,
+                JVMArgs.YOUNG_SIZE_PERCENT,
+                JVMArgs.RESERVE_SIZE_PERCENT,
+                JVMArgs.MAX_GC_PAUSE,
+                JVMArgs.HEAP_REGION_SIZE,
+                JVMArgs.ADAPTIVE_SIZE_POLICY,
+                JVMArgs.STACK_TRACE_FAST_THROW,
+                JVMArgs.DONT_COMPILE_HUGE_METHODS,
+
+                JVMArgs.IGNORE_INVAILD_CERTIFICATES,
+                JVMArgs.IGNORE_PATCH_DISCREPANCIES,
+
+                JVMArgs.USE_CODEBASE_ONLY,
+                JVMArgs.TRUST_URL_CODE_BASE,
+
+                JVMArgs.DISABLE_MSG_LOOPUPS,
+                JVMArgs.INTEL_PERFORMANCE,
+                JVMArgs.JAVA_LIBRARY_PATH,
+                JVMArgs.MINECRAFT_LAUNCHER_BRAND,
+                JVMArgs.MINECRAFT_LAUNCHER_VERSION
+        ));
+
         jvm = jvm.replace("${jar_path}", String.format("\"%s\"", jar_file.getPath()));
         jvm = jvm.replace("${native_path}",String.format("\"%s\"", nativef.getPath()));
         jvm = jvm.replace("${launcher_brand}", VersionInfo.launcher_name);
@@ -411,6 +421,7 @@ public class Launch {
                     forgevm,
                     mainClass.replace(" ",""),
                     arguments);
+            logger.info(command);
             MainPage.launchDialog.setV(0, 90, Launcher.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
 //            logger.info(String.format("Getted Command Line : %s", command));

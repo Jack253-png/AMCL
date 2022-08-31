@@ -7,9 +7,13 @@ import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
+import javafx.scene.Node;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
+
+import java.lang.reflect.Field;
 
 public class FastInfomation {
     public static void create(String Title, String HeaderText, String ContentText){
@@ -29,6 +33,7 @@ public class FastInfomation {
         addButton.setDefaultButton(true);
         addButton.setOnAction(addEvent -> alert.close());
         layout.setActions(addButton);
+
         alert.setContent(layout);
         ThemeManager.loadButtonAnimates(title, body, addButton);
         alert.showAndWait();

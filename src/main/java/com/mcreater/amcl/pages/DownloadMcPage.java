@@ -86,7 +86,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
             mainBox.setDisable(true);
             Platform.runLater(mainBox.getChildren()::clear);
             Platform.runLater(() -> mainBox.getChildren().add(bar));
-            mainBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.75)");
+            mainBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.50)");
             Vector<OriginalVersionModel> vs = GetVersionList.getOriginalList();
             Vector<String> types = new Vector<>();
             for (OriginalVersionModel m : vs){
