@@ -96,7 +96,7 @@ public class Launch {
         if (!new File(dir).exists()){
             throw new BadMinecraftDirException();
         }
-        File f = new File(LinkPath.link(dir, "versions\\" + version_name));
+        File f = new File(LinkPath.link(dir, "versions" + File.separator + version_name));
         if (!f.exists()){
             throw new BadVersionDirException();
         }

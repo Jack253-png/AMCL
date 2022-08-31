@@ -37,7 +37,7 @@ public class FileUtils {
     }
     public static class FileStringReader {
         public static String read(String p){
-            File file = new File(p);
+            File file = new File(p.replace("\\", File.separator));
             BufferedReader reader = null;
             StringBuilder r = new StringBuilder();
             try {

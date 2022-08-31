@@ -12,6 +12,7 @@ public class UsbDeviceReader {
     static SystemInfo si = new SystemInfo();
     static HardwareAbstractionLayer hal = si.getHardware();
     public static Vector<UsbDevice> getDevices(){
-        return new Vector<>(J8Utils.createList(hal.getUsbDevices(true)));
+        // J8Utils.createList(hal.getUsbDevices(true))
+        return new Vector<>();
     }
 }

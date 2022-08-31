@@ -162,9 +162,6 @@ public class MainPage extends AbstractAnimationPage {
         launchBox.setMaxSize(width / 2, height - 185);
         launchBox.getChildren().addAll(stopProcess, launchButton);
 
-        stopProcess.setId("launch");
-        launchButton.setId("launch");
-
         title = new Label();
         launch = new Label();
         set = new Label();

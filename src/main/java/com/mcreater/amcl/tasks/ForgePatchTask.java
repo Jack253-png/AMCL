@@ -43,8 +43,8 @@ public class ForgePatchTask extends AbstractTask{
     }
     public Integer execute() throws IOException {
         if (!command.contains("DOWNLOAD_MOJMAPS")) {
-//            return new_pa();
-            return old_pa();
+            return new_pa();
+//            return old_pa();
         }
         else{
             List<String> l = J8Utils.createList(command.split(" "));

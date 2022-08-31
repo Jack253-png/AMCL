@@ -4,10 +4,14 @@ import oshi.SystemInfo;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HardwareAbstractionLayer;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+
 public class MemoryReader {
     static SystemInfo si = new SystemInfo();
     static HardwareAbstractionLayer hal = si.getHardware();
     static GlobalMemory mem = hal.getMemory();
+    static OperatingSystemMXBean bean = ManagementFactory.getOperatingSystemMXBean();
     public static String convertMemToString(long value){
         double d = (double) value;
         if (d < 1024){

@@ -21,6 +21,6 @@ public class CpuReader {
         long idle = ticks[CentralProcessor.TickType.IDLE.getIndex()] - prevTicks[CentralProcessor.TickType.IDLE.getIndex()];
         long totalCpu = user + nice + cSys + idle + iowait + irq + softirq + steal;
 //        return 1.0 - (idle * 1.0 / totalCpu);
-        return processor.getSystemCpuLoadBetweenTicks();
+        return processor.getSystemCpuLoadBetweenTicks(ticks);
     }
 }

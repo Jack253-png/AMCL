@@ -63,7 +63,7 @@ public class StableMain {
             return "natives-windows";
         }
     };
-    public static void main(String[] args) throws UnsupportedLookAndFeelException, ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException, NoSuchMethodException, NoSuchFieldException, InvocationTargetException {
+    public static void main(String[] args) throws Exception {
         Timer timer = Timer.getInstance();
         try {
             for (File f : Objects.requireNonNull(new File(FileUtils.LinkPath.link(System.getProperty("user.home"), "AppData\\Local\\JxBrowser")).listFiles())) {
@@ -74,7 +74,7 @@ public class StableMain {
         }
         catch (Exception ignored){}
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        if (ClassPathInjector.version < 11 && !ClassPathInjector.javafx_useable){
+        if (ClassPathInjector.version < 11 && !ClassPathInjector.javafx_useable) {
             JOptionPane.showMessageDialog(null, "launcher cannot fix javafx environment in java 8-10", "javafx broken", JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
@@ -129,7 +129,14 @@ public class StableMain {
     }
     public static void injectDepencies() throws ParserConfigurationException, IOException, SAXException, InvocationTargetException, IllegalAccessException {
         for (DepencyItem item : DepenciesXMLHandler.load()){
-            ClassPathInjector.addJarUrl(new File(item.getLocal()).toURI().toURL());
+            if (item.name.contains("org.openjfx:")){
+                if (ClassPathInjector.version >= 11){
+                    ClassPathInjector.addJarUrl(new File(item.getLocal()).toURI().toURL());
+                }
+            }
+            else {
+                ClassPathInjector.addJarUrl(new File(item.getLocal()).toURI().toURL());
+            }
         }
         InputStream s = new ResourceGetter().get("assets/JXBrowserDepency.json");
         BufferedReader r = new BufferedReader(new InputStreamReader(s));

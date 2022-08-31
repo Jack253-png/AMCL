@@ -29,10 +29,10 @@ public class depenciesLoader {
     public static String convertName(String name){
         List<String> names = J8Utils.createList(name.split(":"));
         if (names.size() == 3){
-            return String.format("%s\\%s\\%s\\%s-%s.jar", names.get(0).replace(".", File.separator), names.get(1), names.get(2), names.get(1), names.get(2));
+            return String.format("%s\\%s\\%s\\%s-%s.jar", names.get(0).replace(".", File.separator), names.get(1), names.get(2), names.get(1), names.get(2)).replace("\\", File.separator);
         }
         else if (names.size() == 4){
-            return String.format("%s\\%s\\%s\\%s-%s-%s.jar", names.get(0).replace(".", File.separator), names.get(1), names.get(3), names.get(1), names.get(3), names.get(2));
+            return String.format("%s\\%s\\%s\\%s-%s-%s.jar", names.get(0).replace(".", File.separator), names.get(1), names.get(3), names.get(1), names.get(3), names.get(2)).replace("\\", File.separator);
         }
         else {
             return name;

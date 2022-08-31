@@ -7,7 +7,7 @@ import java.net.MalformedURLException;
 import java.util.List;
 
 public class DepencyItem {
-    String name;
+    public String name;
     String maven;
     public DepencyItem(String name, String maven){
         this.name = name;

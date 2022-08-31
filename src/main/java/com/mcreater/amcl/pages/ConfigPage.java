@@ -127,7 +127,8 @@ public class ConfigPage extends AbstractMenuBarPage {
         java_add.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle(Launcher.languageManager.get("ui.configpage.java_choose.title"));
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(Launcher.languageManager.get("ui.configpage.java_choose.filename.description"), "java.exe"));
+            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(Launcher.languageManager.get("ui.configpage.java_choose.filename.description"), "java.exe"),
+                    new FileChooser.ExtensionFilter("Mac Executable", "*"));
             File choosed_path = fileChooser.showOpenDialog(Launcher.stage);
             if (choosed_path != null) {
                 if (!Launcher.configReader.configModel.selected_java.contains(choosed_path.getPath())) {
@@ -319,14 +320,9 @@ public class ConfigPage extends AbstractMenuBarPage {
                 ((Node) f.get(jvm)).setStyle("-fx-background-color: transparent");
             }
             catch (Exception e){
-                e.printStackTrace();
             }
         };
 
-        transparent.run("plotArea");
-        transparent.run("plotContent");
-        transparent.run("plotAreaClip");
-        transparent.run("legend");
         transparent.run("plotBackground");
 
         start = event -> {
@@ -433,7 +429,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         }
     }
     public static void loadNodeDevice(TreeItem<Label> root, UsbDevice device){
-        if (device.getConnectedDevices().length > 0){
+        if (device.getConnectedDevices().size() > 0){
             for (UsbDevice d : device.getConnectedDevices()){
                 Label l = new Label(d.getName());
                 l.setFont(Fonts.t_f);

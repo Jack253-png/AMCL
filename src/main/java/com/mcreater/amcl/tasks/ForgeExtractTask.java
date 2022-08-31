@@ -30,30 +30,32 @@ public class ForgeExtractTask extends AbstractTask{
 
     @Override
     public Integer execute() throws IOException {
-//        SecurityManager man = System.getSecurityManager();
-//        System.setSecurityManager(new NoExitSecurityManager());
-//        try {
-//            String jarp = this.jarpath;
-//            ReflectedJar jar = ReflectHelper.getReflectedJar(jarp);
-//            int main = jar.createNewInstance(jar.getJarClass(GetJarMainClass.get(jarp)));
-//            jar.invokeMethod(main, "main", new Object[]{this.args}, String[].class);
-//        }
-//        catch (InvocationTargetException e){
-//            e.printStackTrace();
-//        }
-//        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException e){
-//            return 1;
-//        }
-//        finally {
-//            copy();
-//            System.setSecurityManager(man);
-//        }
-//        return 0;
-
-        copy();
+        // return new_ex();
         return old_ex();
     }
+    public int new_ex() throws IOException {
+        SecurityManager man = System.getSecurityManager();
+        System.setSecurityManager(new NoExitSecurityManager());
+        try {
+            String jarp = this.jarpath;
+            ReflectedJar jar = ReflectHelper.getReflectedJar(jarp);
+            int main = jar.createNewInstance(jar.getJarClass(GetJarMainClass.get(jarp)));
+            jar.invokeMethod(main, "main", new Object[]{this.args}, String[].class);
+        }
+        catch (InvocationTargetException e){
+            e.printStackTrace();
+        }
+        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException e){
+            return 1;
+        }
+        finally {
+            copy();
+            System.setSecurityManager(man);
+        }
+        return 0;
+    }
     public int old_ex() throws IOException {
+        copy();
         Process p = Runtime.getRuntime().exec(command);
         while (true){
             try{
