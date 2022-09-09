@@ -3,19 +3,16 @@ package com.mcreater.amcl.download;
 import com.google.gson.Gson;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.CurseAPI;
-import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
-import com.mcreater.amcl.controls.ModFile;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.fabric.FabricListModel;
 import com.mcreater.amcl.model.fabric.FabricLoaderVersionModel;
-import com.mcreater.amcl.model.optifine.optifineAPIModel;
-import com.mcreater.amcl.model.optifine.optifineJarModel;
+import com.mcreater.amcl.model.optifine.OptifineAPIModel;
+import com.mcreater.amcl.model.optifine.OptifineJarModel;
 import com.mcreater.amcl.model.original.VersionsModel;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
-import com.mcreater.amcl.util.net.HttpClient;
 import com.mcreater.amcl.util.xml.ForgeVersionXMLHandler;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import org.xml.sax.SAXException;
@@ -55,7 +52,7 @@ public class GetVersionList {
         return t;
     }
     public static Vector<String> getForgeVersionList(String version) throws ParserConfigurationException, IOException, SAXException {
-        String url = FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", FasterUrls.Servers.MOJANG);
+        String url = FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(url));
         vectorMap.remove("1.1");
         vectorMap.remove("1.2.3");
@@ -101,11 +98,16 @@ public class GetVersionList {
             return new Vector<>();
         }
     }
-    public static Vector<optifineJarModel> getOptifineVersionList(String version) {
+    public static OptifineAPIModel getOptifineVersionRaw(){
         String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
-        optifineAPIModel model = new Gson().fromJson(r, optifineAPIModel.class);
+        Gson g = new Gson();
+        return g.fromJson(r, OptifineAPIModel.class);
+    }
+    public static Vector<OptifineJarModel> getOptifineVersionList(String version) {
+        String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
+        OptifineAPIModel model = new Gson().fromJson(r, OptifineAPIModel.class);
         if (model.versions.contains(version)){
-            Vector<optifineJarModel> jars = new Vector<>();
+            Vector<OptifineJarModel> jars = new Vector<>();
             model.files.forEach(optifineJarModel -> {
                 if (!Objects.equals(optifineJarModel.version, "beta")) {
                     if (!optifineJarModel.name.contains("legacy")) {
@@ -115,15 +117,15 @@ public class GetVersionList {
                     }
                 }
             });
-            for (optifineJarModel jar : jars){
+            for (OptifineJarModel jar : jars){
                 jar.isPreview = jar.name.contains("preview");
                 jar.name = jar.name.replace("OptiFine_"+jar.version+"_", "");
                 jar.name = jar.name.replace("preview_", "");
                 jar.name = jar.name.replace(".jar", "");
             }
-            jars.sort(new Comparator<optifineJarModel>() {
+            jars.sort(new Comparator<OptifineJarModel>() {
                 @Override
-                public int compare(optifineJarModel m, optifineJarModel t) {
+                public int compare(OptifineJarModel m, OptifineJarModel t) {
                     int main = getReturn(getMainVersion(m), getMainVersion(t));
                     if (main != 0){
                         return main;
@@ -149,7 +151,7 @@ public class GetVersionList {
                 public int getReturn(int i, int j){
                     return Integer.compare(j, i);
                 }
-                public int getPreVersion(optifineJarModel model){
+                public int getPreVersion(OptifineJarModel model){
                     if (model.isPreview){
                         String s = J8Utils.createList(model.name.split("_")).get(3).replace("pre", "");
                         return Integer.parseInt(s);
@@ -158,11 +160,11 @@ public class GetVersionList {
                         return 0;
                     }
                 }
-                public int getMajorVersion(optifineJarModel model){
+                public int getMajorVersion(OptifineJarModel model){
                     String s = J8Utils.createList(model.name.split("_")).get(2).substring(1, 2);
                     return Integer.parseInt(s);
                 }
-                public int getMainVersion(optifineJarModel model){
+                public int getMainVersion(OptifineJarModel model){
                     String s = J8Utils.createList(model.name.split("_")).get(2).substring(0, 1);
                     switch (s){
                         case "A":

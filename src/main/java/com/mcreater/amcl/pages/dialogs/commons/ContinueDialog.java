@@ -1,55 +1,50 @@
-package com.mcreater.amcl.pages.dialogs;
+package com.mcreater.amcl.pages.dialogs.commons;
 
-import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
-import com.jfoenix.controls.JFXTextField;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
-import com.mcreater.amcl.util.FXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
-import javafx.stage.Modality;
+import javafx.stage.Stage;
 
-public class InputDialog extends AbstractDialog {
+public class ContinueDialog extends AbstractDialog {
     EventHandler<ActionEvent> event = event -> {};
     EventHandler<ActionEvent> cancel = event -> {};
     JFXButton addButton;
     JFXButton cancelButton;
-    public JFXTextField f;
     public void setEvent(EventHandler<ActionEvent> event){
         this.event = event;
         addButton.setOnAction(this.event);
     }
-    public void setCancel(EventHandler<ActionEvent> event){
-        this.cancel = event;
+
+    public void setCancel(EventHandler<ActionEvent> cancel) {
+        this.cancel = cancel;
         cancelButton.setOnAction(this.cancel);
     }
-    public InputDialog(String title){
+    public ContinueDialog(String title, String content) {
         super(Launcher.stage);
         JFXDialogLayout layout = new JFXDialogLayout();
 
-        f = new JFXTextField();
-        FXUtils.fixJFXTextField(f);
-
-        Label head = setFont(new Label(title), Fonts.s_f);
-        ThemeManager.loadButtonAnimates(f, head);
-        layout.setHeading(head);
-        layout.setBody(f);
         addButton = new JFXButton(Launcher.languageManager.get("ui.dialogs.information.ok.name"));
         addButton.setFont(Fonts.t_f);
         addButton.setDefaultButton(true);
         addButton.setOnAction(event);
-        cancelButton = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
+        cancelButton = new JFXButton(Launcher.languageManager.get("ui.dialogs.information.continue.name"));
         cancelButton.setFont(Fonts.t_f);
         cancelButton.setDefaultButton(true);
         cancelButton.setOnAction(cancel);
+
+        Label title2 = setFont(new Label(title), Fonts.s_f);
+        Label content2 = setFont(new Label(content), Fonts.t_f);
+
+        ThemeManager.loadButtonAnimates(cancelButton, addButton, title2, content2);
         layout.setActions(cancelButton, addButton);
-        ThemeManager.loadButtonAnimates(addButton, cancelButton);
-        this.setOnHidden(event -> {});
-        this.setOnHiding(event -> {});
-        this.setContent(layout);
+        layout.setHeading(title2);
+        layout.setBody(content2);
+        setContent(layout);
     }
 }

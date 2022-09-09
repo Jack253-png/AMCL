@@ -1,7 +1,7 @@
 package com.mcreater.amcl.util;
 
 public class SimpleFunctions {
-    public interface Arg0FuncNoReturn {
+    public interface Arg0FuncNoReturn extends Runnable {
         void run();
     }
     public interface Arg0Func<return_type> {

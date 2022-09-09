@@ -4,19 +4,23 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.api.reflect.ReflectedJar;
-import com.mcreater.amcl.model.optifine.optifineAPIModel;
-import com.mcreater.amcl.model.optifine.optifineJarModel;
+import com.mcreater.amcl.model.optifine.OptifineAPIModel;
+import com.mcreater.amcl.model.optifine.OptifineJarModel;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
+import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
+import javafx.application.Platform;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,14 +31,12 @@ import static com.mcreater.amcl.util.FileUtils.LinkPath;
 
 public class OptifineDownload {
     public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version) throws Exception {
-        String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
-        Gson g = new Gson();
-        optifineAPIModel model = g.fromJson(r, optifineAPIModel.class);
+        OptifineAPIModel model = GetVersionList.getOptifineVersionRaw();
         if (!model.versions.contains(id)){
             throw new IOException();
         }
         String opti = null;
-        for (optifineJarModel m : model.files){
+        for (OptifineJarModel m : model.files){
             if (m.name.contains(id.replace("beta ", "beta_")) && m.name.contains(optifine_version)) {
                 opti = m.name;
                 break;
@@ -49,10 +51,16 @@ public class OptifineDownload {
         System.err.println(opti);
         OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
         JSONObject ob = new JSONObject(new Gson().fromJson(OriginalDownload.getVJ(), Map.class));
+        if (TaskManager.dialog != null) Platform.runLater(() -> TaskManager.dialog.l.setText(Launcher.languageManager.get("ui.download.optifine.installer")));
+
         new OptiFineInstallerDownloadTask(opti, "opti.jar").execute();
         FileUtils.ChangeDir.saveNowDir();
         ReflectedJar jar = ReflectHelper.getReflectedJar("opti.jar");
         int installer = jar.createNewInstance(jar.getJarClass("optifine.Installer"));
+
+        if (TaskManager.dialog != null) Platform.runLater(() -> TaskManager.dialog.l.setText(Launcher.languageManager.get("ui.download.optifine.injecting")));
+
+
 
         String ofVer = (String) jar.invokeNoArgsMethod(
                 installer,
@@ -95,7 +103,7 @@ public class OptifineDownload {
                 File.class, String.class, File.class, String.class, String.class);
 
         // merge json
-        JSONObject f = new JSONObject(new Gson().fromJson(FileStringReader.read(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)), Map.class));
+        JSONObject f = new JSONObject(new Gson().fromJson(FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)), Map.class));
         Vector<Map<String, String>> oflibs = new Vector<>();
         for (Object o : f.getJSONArray("libraries")){
             Map<String, String> s = (Map<String, String>) o;
@@ -121,7 +129,7 @@ public class OptifineDownload {
         }
         GsonBuilder gb = new GsonBuilder();
         gb.setPrettyPrinting();
-        BufferedWriter writer = new BufferedWriter(new FileWriter(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
         writer.write(gb.create().toJson(f));
         writer.close();
     }

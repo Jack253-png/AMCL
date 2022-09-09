@@ -8,14 +8,20 @@ import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.api.auth.users.UserHashManager;
 import com.mcreater.amcl.config.ConfigModel;
+import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.controls.skin.SkinView;
-import com.mcreater.amcl.pages.dialogs.*;
+import com.mcreater.amcl.pages.dialogs.commons.ContinueDialog;
+import com.mcreater.amcl.pages.dialogs.commons.InputDialog;
+import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
+import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
+import com.mcreater.amcl.pages.dialogs.skin.CustomSkinDialog;
+import com.mcreater.amcl.pages.dialogs.skin.EditAccountContentDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.interfaces.SettingPage;
-import com.mcreater.amcl.pages.stages.FXBrowserPage;
+import com.mcreater.amcl.pages.stages.NativeBrowserPage;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.SimpleFunctions;
@@ -24,7 +30,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -34,7 +39,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -128,7 +132,13 @@ public class UserSelectPage extends AbstractMenuBarPage {
             LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.refresh.title"));
             dialog.Create();
             new Thread(() -> {
-                if (!user_object.get().vaildate()) {
+                Runnable run = () -> {
+                    Platform.runLater(() -> refresh.setDisable(false));
+                    Platform.runLater(dialog::close);
+                    Platform.runLater(this::refreshSkin);
+                    UserHashManager.writeSafe(user_object.get());
+                };
+                Runnable ref = () -> {
                     try {
                         user_object.get().refresh();
                         Launcher.configReader.configModel.last_uuid = user_object.get().uuid;
@@ -140,13 +150,27 @@ public class UserSelectPage extends AbstractMenuBarPage {
                         Launcher.configReader.write();
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"), e.toString(), ""));
+                        Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"), e.toString(), ""));
                     }
+                    finally {
+                        run.run();
+                    }
+                };
+                if (!user_object.get().vaildate()) {
+                    ref.run();
                 }
-                Platform.runLater(() -> refresh.setDisable(false));
-                Platform.runLater(dialog::close);
-                Platform.runLater(this::refreshSkin);
-                UserHashManager.writeSafe(user_object.get());
+                else {
+                    Platform.runLater(() -> {
+                        ContinueDialog dialog1 = new ContinueDialog(Launcher.languageManager.get("ui.userselectpage.user_vaildated.title"), Launcher.languageManager.get("ui.userselectpage.user_vaildated.content"));
+                        dialog1.Create();
+                        dialog1.setEvent(event18 -> {dialog1.close();run.run();});
+                        dialog1.setCancel(event19 -> new Thread(() -> {
+                            Platform.runLater(dialog1::close);
+                            ref.run();
+                        }).start());
+                    });
+                }
+
             }).start();
         });
 
@@ -296,7 +320,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                         Launcher.configReader.configModel.last_cape_path,
                         Launcher.configReader.configModel.last_elytra_path
                 ));
-                FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.content"), "");
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.content"), "");
                 refreshSkin();
                 setP1(2);
             };
@@ -409,12 +433,14 @@ public class UserSelectPage extends AbstractMenuBarPage {
         msLogin = new JFXButton();
         msLogin.setFont(Fonts.s_f);
         msLogin.setOnAction(event -> {
-            FXBrowserPage p = new FXBrowserPage(MSAuth.loginUrl);
+            Launcher.stage.hide();
             msLogin.setDisable(true);
             ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.userselectpage.logging"));
-            dialog.Create();
             dialog.setV(0, 0, Launcher.languageManager.get("ui.msauth._01"));
+            NativeBrowserPage p = new NativeBrowserPage(MSAuth.loginUrl);
             p.setDialog(dialog);
+            p.open();
+
             Thread t = new Thread(() -> {
                 while (p.user == null && p.ex == null) {
                     Sleeper.sleep(100);
@@ -438,7 +464,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                     Launcher.configReader.write();
                     Platform.runLater(() -> {
                         dialog.close();
-                        FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.ms.content"), "");
+                        SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.ms.content"), "");
                         msLogin.setDisable(false);
                         refreshSkin();
                         setP1(2);
@@ -447,17 +473,22 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 else {
                     Platform.runLater(() -> {
                         dialog.close();
-                        FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.login.failed"), p.ex.toString(), "");
+                        SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.login.failed"), p.ex.toString(), "");
                         msLogin.setDisable(false);
                     });
                 }
             });
-            t.start();
-            p.r = () -> {
+            p.setOnHiding(event1 -> {
+                dialog.Create();
+                Launcher.stage.show();
+            });
+            p.setOnCloseRequest(event1 -> {
                 dialog.close();
                 t.stop();
                 msLogin.setDisable(false);
-            };
+                Launcher.stage.show();
+            });
+            t.start();
         });
 
         view = new ImageView();
@@ -495,7 +526,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 refreshSkin();
             }
             else {
-                FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.not_logged.title"), Launcher.languageManager.get("ui.userselectpage.not_logged.content"), "");
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.not_logged.title"), Launcher.languageManager.get("ui.userselectpage.not_logged.content"), "");
             }
         });
         this.addNewPair(new Pair<>(b1, p1));

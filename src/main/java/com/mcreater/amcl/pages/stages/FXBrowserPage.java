@@ -3,7 +3,7 @@ package com.mcreater.amcl.pages.stages;
 import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
-import com.mcreater.amcl.pages.dialogs.ProcessDialog;
+import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.NetworkUtils;
 import com.teamdev.jxbrowser.chromium.BrowserException;
@@ -18,6 +18,7 @@ import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
 
+@Deprecated
 public class FXBrowserPage extends AbstractStage{
     BrowserView view;
     public JFrame frame;
@@ -65,7 +66,6 @@ public class FXBrowserPage extends AbstractStage{
         view.getBrowser().loadURL(url);
         view.getBrowser().addLoadListener(new LoadAdapter() {
             public void onFinishLoadingFrame(FinishLoadingEvent event) {
-                System.out.println(event.getValidatedURL());
                 new Thread(() -> {
                     String url = event.getValidatedURL();
                     if (url.contains("The%20user%20has%20denied%20access%20to%20the%20scope%20requested%20by%20the%20client%20application.")){
@@ -142,12 +142,7 @@ public class FXBrowserPage extends AbstractStage{
         bar.add(forward);
         bar.add(refresh);
 
-        JPanel loadType = new JPanel();
-
-        loadType.add(new JProgressBar());
-
         frame.add(bar);
-        frame.add(loadType);
         frame.add(view);
         frame.pack();
         frame.setBounds(100, 100, 500, 620);

@@ -4,6 +4,8 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.skins.JFXTextFieldSkin;
 import javafx.geometry.Insets;
 import javafx.scene.control.SplitPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
@@ -12,6 +14,11 @@ import javafx.scene.web.WebView;
 import java.lang.reflect.Field;
 
 public class FXUtils {
+    public static class ImageConverter {
+        public static WritableImage convertToWritableImage(Image image){
+            return new WritableImage(image.getPixelReader(), (int) image.getWidth(), (int) image.getHeight());
+        }
+    }
     public static class ControlSize {
         public static void set(Region n, double width, double height){
             n.setMinSize(width, height);
@@ -34,6 +41,10 @@ public class FXUtils {
         public static void setHeight(Region n, double height){
             n.setMaxHeight(height);
             n.setMinHeight(height);
+        }
+        public static void setHeight(WebView v, double height){
+            v.setMaxHeight(height);
+            v.setMinHeight(height);
         }
         public static SplitPane setSplit(SplitPane s, double width){
             s.setMaxWidth(width);

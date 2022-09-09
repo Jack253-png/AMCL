@@ -11,21 +11,25 @@ public class RemoteMod extends VBox {
     public Label desc;
     public Label authors;
     public String path;
+    public Label filePath;
     public RemoteMod(CommonModInfoModel model){
         this.path = model.path;
-        name = new Label(model.name);
+        name = new Label(model.name.equals("") ? "null" : model.name);
         name.setFont(Fonts.s_f);
         name.setStyle("word-break:break-all;word-wrap:break-word;");
-        version = new Label(model.version);
+        version = new Label(model.version.equals("") ? "null" : model.version);
         version.setFont(Fonts.t_f);
         version.setStyle("word-break:break-all;word-wrap:break-word;");
-        desc = new Label(model.description);
+        desc = new Label(model.description.equals("") ? "null" : model.description);
         desc.setFont(Fonts.t_f);
         desc.setStyle("word-break:break-all;word-wrap:break-word;");
         authors = new Label();
-        if (model.authorList != null) authors.setText(model.authorList.toString());
+        authors.setText(model.authorList == null ? "null" : String.join(", ", model.authorList));
         authors.setFont(Fonts.t_f);
         authors.setStyle("word-break:break-all;word-wrap:break-word;");
-        this.getChildren().addAll(name, version, desc, authors);
+        filePath = new Label(path);
+        filePath.setFont(Fonts.t_f);
+        filePath.setStyle("word-break:break-all;word-wrap:break-word;");
+        this.getChildren().addAll(name, filePath, version, desc, authors);
     }
 }

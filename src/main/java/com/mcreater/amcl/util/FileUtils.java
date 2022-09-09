@@ -13,6 +13,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -37,7 +39,7 @@ public class FileUtils {
     }
     public static class FileStringReader {
         public static String read(String p){
-            File file = new File(p.replace("\\", File.separator));
+            File file = new File(p.replace("\\", "/"));
             BufferedReader reader = null;
             StringBuilder r = new StringBuilder();
             try {
@@ -118,8 +120,7 @@ public class FileUtils {
             return rep(new File(p1, p2).getPath());
         }
         public static String rep(String p){
-            return p.replace("/",File.separator)
-                    .replace("\\", File.separator);
+            return p.replace("\\", "/");
         }
     }
     public static class RemoveFileToTrash {
@@ -161,7 +162,7 @@ public class FileUtils {
                     if(new File(outpath).isDirectory())
                         continue;
                     if ((outpath.endsWith(".dll") || outpath.endsWith(".so") || outpath.endsWith(".dylib")) && !new File(outpath).exists()) {
-                        OutputStream out = new FileOutputStream(outpath);
+                        OutputStream out = Files.newOutputStream(Paths.get(outpath));
                         byte[] bf = new byte[4096];
                         int len;
                         while ((len = in.read(bf)) > 0) {
@@ -182,7 +183,7 @@ public class FileUtils {
                 boolean mkdirSuccess = desDir.mkdir();
             }
             // 读入流
-            ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(iy));
+            ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(iy)));
             // 遍历每一个文件
             ZipEntry zipEntry = zipInputStream.getNextEntry();
             while (zipEntry != null) {
@@ -197,7 +198,7 @@ public class FileUtils {
                     mkdir(file.getParentFile());
                     // 写出文件流
                     BufferedOutputStream bufferedOutputStream =
-                            new BufferedOutputStream(new FileOutputStream(unzipFilePath));
+                            new BufferedOutputStream(Files.newOutputStream(Paths.get(unzipFilePath)));
                     byte[] bytes = new byte[1024];
                     int readLen;
                     while ((readLen = zipInputStream.read(bytes)) != -1) {
@@ -216,6 +217,31 @@ public class FileUtils {
             }
             mkdir(file.getParentFile());
             file.mkdir();
+        }
+        public static String readTextFileInZip(String zipFile, String internalFileName) throws IOException {
+            ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(zipFile)));
+            ZipEntry zipEntry = zipInputStream.getNextEntry();
+            String content = "";
+            while (zipEntry != null) {
+                if (!zipEntry.isDirectory() && zipEntry.getName().equals(internalFileName)) {
+                    Vector<Byte> b = new Vector<>();
+                    byte[] bytes = new byte[1];
+                    while (zipInputStream.read(bytes) != -1) {
+                        b.addAll(J8Utils.createList(bytes[0]));
+                    }
+                    Byte[] array = b.toArray(new Byte[0]);
+                    byte[] finalData = new byte[array.length];
+                    for (int index = 0;index < array.length;index++){
+                        finalData[index] = array[index];
+                    }
+
+                    content = new String(finalData);
+                    zipInputStream.closeEntry();
+                    return content;
+                }
+                zipEntry = zipInputStream.getNextEntry();
+            }
+            return null;
         }
     }
 }

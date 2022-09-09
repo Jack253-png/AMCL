@@ -1,16 +1,16 @@
-package com.mcreater.amcl.pages.dialogs;
+package com.mcreater.amcl.pages.dialogs.skin;
 
-import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.controls.items.StringButtonItem;
+import com.mcreater.amcl.pages.dialogs.AbstractDialog;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
@@ -18,7 +18,6 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -67,7 +66,7 @@ public class CustomSkinDialog extends AbstractDialog {
         skin_ui.cont.setEditable(false);
         cape_ui.cont.setEditable(false);
 
-        Runnable s = () -> FastInfomation.create(Launcher.languageManager.get("ui.userselectpage.custom.skinwrong.title"), Launcher.languageManager.get("ui.userselectpage.custom.skinwrong.content"), "");
+        Runnable s = () -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.custom.skinwrong.title"), Launcher.languageManager.get("ui.userselectpage.custom.skinwrong.content"), "");
 
         skin_ui.title.setOnAction(event -> {
             FileChooser chooser = new FileChooser();

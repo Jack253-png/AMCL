@@ -1,18 +1,15 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXSpinner;
+import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.api.weatherAPI.WeatherAPI;
-import com.mcreater.amcl.api.weatherAPI.models.WeatherAPIModel;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
-import com.mcreater.amcl.pages.dialogs.FastInfomation;
-import com.mcreater.amcl.pages.dialogs.ProcessDialog;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
+import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.interfaces.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
@@ -26,6 +23,8 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollBar;
+import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -93,7 +92,14 @@ public class MainPage extends AbstractAnimationPage {
             FileUtils.ChangeDir.saveNowDir();
             if (!Objects.equals(launchButton.getText(), Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
                 Launcher.configReader.check_and_write();
-                launchDialog = new ProcessDialog(3, Launcher.languageManager.get("ui.mainpage.launch._01"));
+                launchDialog = new ProcessDialog(3, Launcher.languageManager.get("ui.mainpage.launch._01")) {
+                    public void setAll(int progress){
+                        progresses.forEach(bar -> Platform.runLater(() -> bar.setProgress((double) progress / 100)));
+                    }
+                    public void setV(int index, int progress){
+                        Platform.runLater(() -> this.progresses.get(index).setProgress((double) progress / 100));
+                    }
+                };
                 launchDialog.setV(0, 1, Launcher.languageManager.get("ui.mainpage.launch._02"));
 
                 JFXButton stopAction = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
@@ -116,13 +122,13 @@ public class MainPage extends AbstractAnimationPage {
                             Launcher.configReader.configModel.selected_java.remove(Launcher.configReader.configModel.selected_java_index);
                             Launcher.configReader.configModel.selected_java_index = "";
                             Launcher.configReader.write();
-                            Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.javaChecker.name"), Launcher.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), ""));
+                            Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.launch.javaChecker.name"), Launcher.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), ""));
                         }
                     }
                     catch (Exception e) {
                         launchDialog.close();
                         logger.error("failed to launch", e);
-                        Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
+                        Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
                     }
                 });
                 stopAction.setOnAction(event1 -> {
@@ -133,7 +139,7 @@ public class MainPage extends AbstractAnimationPage {
                 la.start();
             } else {
                 if (launchDialog != null) launchDialog.close();
-                FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.noVersion.name"), Launcher.languageManager.get("ui.mainpage.launch.noVersion.Headcontent"), Launcher.languageManager.get("ui.mainpage.launch.noVersion.content"));
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.launch.noVersion.name"), Launcher.languageManager.get("ui.mainpage.launch.noVersion.Headcontent"), Launcher.languageManager.get("ui.mainpage.launch.noVersion.content"));
             }
         });
 
@@ -267,7 +273,7 @@ public class MainPage extends AbstractAnimationPage {
             logger.info("Minecraft exited with code " + launchCore.exitCode);
             if (launchCore.exitCode != 0){
 
-                FastInfomation.create(Launcher.languageManager.get("ui.mainpage.minecraftExit.title"), String.format(Launcher.languageManager.get("ui.mainpage.minecraftExit.Headercontent"), launchCore),String.format(Launcher.languageManager.get("ui.mainpage.minecraftExit.content"), launchCore.exitCode));
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.minecraftExit.title"), String.format(Launcher.languageManager.get("ui.mainpage.minecraftExit.Headercontent"), launchCore),String.format(Launcher.languageManager.get("ui.mainpage.minecraftExit.content"), launchCore.exitCode));
             }
         }
     }

@@ -8,15 +8,14 @@ import com.mcreater.amcl.controls.items.BooleanListItem;
 import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.download.*;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
-import com.mcreater.amcl.model.optifine.optifineAPIModel;
-import com.mcreater.amcl.model.optifine.optifineJarModel;
-import com.mcreater.amcl.pages.dialogs.FastInfomation;
-import com.mcreater.amcl.pages.dialogs.LoadingDialog;
-import com.mcreater.amcl.pages.dialogs.ProcessDialog;
+import com.mcreater.amcl.model.optifine.OptifineAPIModel;
+import com.mcreater.amcl.model.optifine.OptifineJarModel;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
+import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
+import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.interfaces.SettingPage;
-import com.mcreater.amcl.tasks.AbstractTask;
+import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.tasks.Task;
@@ -28,20 +27,15 @@ import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
@@ -72,11 +66,11 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         FXUtils.ControlSize.setWidth(box, width);
         id = new Label();
         id.setFont(Fonts.s_f);
-        forge = new BooleanListItem<>("Forge", width / 6);
-        optifine = new BooleanListItem<>("OptiFine", width / 6);
-        fabric = new BooleanListItem<>("Fabric", width / 6);
-        optifabric = new BooleanListItem<>("OptiFabric", width / 6);
-        fabricapi = new BooleanListItem<>("Fabric API", width / 6);
+        forge = new BooleanListItem<>("Forge", width / 5 * 4);
+        optifine = new BooleanListItem<>("OptiFine", width / 5 * 4);
+        fabric = new BooleanListItem<>("Fabric", width / 5 * 4);
+        optifabric = new BooleanListItem<>("OptiFabric", width / 5 * 4);
+        fabricapi = new BooleanListItem<>("Fabric API", width / 5 * 4);
         forge.cont.setDisable(true);
         optifine.cont.setDisable(true);
         fabric.cont.setDisable(true);
@@ -155,20 +149,20 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             dialog.setV(2, 0);
             CountDownLatch latch = new CountDownLatch(1);
             String rl = versionfinalName.cont.getText();
-            String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", rl));
+            String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s", rl));
             if (new File(versionDir).exists()){
-                FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.1"), "");
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.1"), "");
                 install.setDisable(false);
                 return;
             }
             else if (!isValidFileName(rl) || rl.equals("")){
-                FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.2"), "");
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.2"), "");
                 install.setDisable(false);
                 return;
             }
             String modDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "mods");
             if (Launcher.configReader.configModel.change_game_dir){
-                modDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s\\mods", rl));
+                modDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/mods", rl));
             }
 
             if (!(forge || optifine || fabric || fabricapi || optifabric)){
@@ -220,10 +214,9 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         latch.countDown();
                         if (optifine){
                             new Thread(() -> {
-                                String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
-                                optifineAPIModel model = new Gson().fromJson(r, optifineAPIModel.class);
+                                OptifineAPIModel model = GetVersionList.getOptifineVersionRaw();
                                 String opti = null;
-                                for (optifineJarModel m : model.files){
+                                for (OptifineJarModel m : model.files){
                                     if (m.name.contains(this.model.id.replace("beta ", "beta_")) && m.name.contains(optifineItem.getText()))
                                     {
                                         opti = m.name;
@@ -273,10 +266,9 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         Vector<Task> tasks = new Vector<>();
                         new Thread(() -> {
                             if (optifine){
-                                String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
-                                optifineAPIModel model = new Gson().fromJson(r, optifineAPIModel.class);
+                                OptifineAPIModel model = GetVersionList.getOptifineVersionRaw();
                                 String opti = null;
-                                for (optifineJarModel m : model.files) {
+                                for (OptifineJarModel m : model.files) {
                                     if (m.name.contains(this.model.id.replace("beta ", "beta_")) && m.name.contains(optifineItem.getText())) {
                                         opti = m.name;
                                         break;
@@ -349,16 +341,16 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         });
         SettingPage p = new SettingPage(width, height - Launcher.barSize, box, false);
         versionfinalName = new StringItem("", width / 2);
-        box.add(id, 0, 0, 5, 1);
+        box.add(id, 0, 0, 1, 1);
 
         box.add(forge, 0, 1, 1, 1);
-        box.add(optifine, 1, 1, 1, 1);
-        box.add(fabric, 2, 1, 1, 1);
-        box.add(fabricapi, 3, 1, 1, 1);
-        box.add(optifabric, 4, 1, 1, 1);
+        box.add(optifine, 0, 2, 1, 1);
+        box.add(fabric, 0, 3, 1, 1);
+        box.add(fabricapi, 0, 4, 1, 1);
+        box.add(optifabric, 0, 5, 1, 1);
 
-        box.add(versionfinalName, 0, 2, 5, 1);
-        box.add(install, 0, 3, 5, 1);
+        box.add(versionfinalName, 0, 6, 1, 1);
+        box.add(install, 0, 7, 1, 1);
         ThemeManager.loadButtonAnimates(id, forge, optifine, fabric, fabricapi, optifabric, versionfinalName, install);
         this.add(p, 0, 0, 1, 1);
     }
@@ -388,7 +380,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             catch (Exception e){
                 e.printStackTrace();
                 Platform.runLater(() -> {
-                    FastInfomation.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content"));
+                    SimpleDialogCreater.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content"));
                     dialog.close();
                 });
                 Launcher.setPage(Launcher.DOWNLOADMCPAGE, this);
@@ -409,7 +401,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             l.setFont(Fonts.t_f);
             Platform.runLater(() -> forge.cont.addItem(l));
         }
-        for (optifineJarModel optiv : GetVersionList.getOptifineVersionList(model.id)){
+        for (OptifineJarModel optiv : GetVersionList.getOptifineVersionList(model.id)){
             Label l = new Label(optiv.name);
             l.setFont(Fonts.t_f);
             Platform.runLater(() -> optifine.cont.addItem(l));

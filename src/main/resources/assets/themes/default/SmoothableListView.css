@@ -2,7 +2,7 @@
     -fx-background-color : rgba(255, 255, 255, 0.00);
 }
 .scroll-pane {
-     -fx-background-color : rgba(255, 255, 255, 0.5);
+    -fx-background-color : rgba(255, 255, 255, 0);
 }
 .scroll-bar:horizontal .track,
 .scroll-bar:vertical .track{

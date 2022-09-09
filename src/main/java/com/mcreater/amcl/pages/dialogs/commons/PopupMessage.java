@@ -1,4 +1,4 @@
-package com.mcreater.amcl.pages.dialogs;
+package com.mcreater.amcl.pages.dialogs.commons;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;

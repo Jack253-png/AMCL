@@ -1,7 +1,7 @@
 package com.mcreater.amcl.util;
 
 import com.mcreater.amcl.api.githubApi.GithubReleases;
-import com.mcreater.amcl.pages.dialogs.PopupMessage;
+import com.mcreater.amcl.pages.dialogs.commons.PopupMessage;
 import com.mcreater.amcl.pages.stages.UpgradePage;
 import javafx.application.Platform;
 import javafx.scene.control.Hyperlink;

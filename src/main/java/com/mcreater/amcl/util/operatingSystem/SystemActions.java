@@ -1,9 +1,8 @@
 package com.mcreater.amcl.util.operatingSystem;
 
-import com.mcreater.amcl.pages.stages.FXBrowserPage;
+import com.mcreater.amcl.pages.stages.NativeBrowserPage;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
@@ -19,8 +18,8 @@ public class SystemActions {
                 e.printStackTrace();
             }
         });
-        FXBrowserPage browserPage = new FXBrowserPage(url);
-        browserPage.open();
+        NativeBrowserPage page = new NativeBrowserPage(url);
+        page.open();
     }
 
     private static boolean supportAction(Desktop.Action action){

@@ -1,10 +1,11 @@
-package com.mcreater.amcl.pages.dialogs;
+package com.mcreater.amcl.pages.dialogs.skin;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.controls.items.StringItem;
+import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;

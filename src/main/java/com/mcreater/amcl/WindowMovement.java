@@ -4,6 +4,8 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
+import java.lang.management.ManagementFactory;
+
 public class WindowMovement {
     double x1;
     double y1;

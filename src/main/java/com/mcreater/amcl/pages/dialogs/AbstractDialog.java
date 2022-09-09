@@ -19,7 +19,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
     public void Create(){
         Platform.runLater(this::show);
     }
-    static Label setFont(Label l, Font font){
+    public static Label setFont(Label l, Font font){
         l.setFont(font);
         return l;
     }

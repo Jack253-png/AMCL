@@ -23,6 +23,7 @@ import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.net.GetFileExists;
+import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -46,7 +47,7 @@ public class ForgeDownload {
     static Vector<Task> tasks = new Vector<>();
     static Logger logger = LogManager.getLogger(ForgeDownload.class);
     static String versiondir;
-    static String u;
+    static String u = "";
     private static int getCont(String raw){
         int count = 0;
         int index = 0;
@@ -74,7 +75,7 @@ public class ForgeDownload {
         OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
         r.run();
         String versionPath = FileUtils.LinkPath.link(temp_path, "version.json");
-        versiondir = String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name);
+        versiondir = String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name);
         VersionJsonModel model225 = new Gson().fromJson(FileUtils.FileStringReader.read(versiondir), VersionJsonModel.class);
         try {
             u = FasterUrls.fast(model225.downloads.get("client_mappings").url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
@@ -91,6 +92,8 @@ public class ForgeDownload {
         if (!GetFileExists.get(installer_url)){
             throw new IOException("this version of forge cannot be automated");
         }
+        if (TaskManager.dialog != null) Platform.runLater(() -> TaskManager.dialog.l.setText(Launcher.languageManager.get("ui.download.forge.installer")));
+
         new ForgeInstallerDownloadTask(installer_url, installer_path, chunkSize).execute();
 //      int i = 0;
         if (new File(temp_path).exists()) {
@@ -107,7 +110,7 @@ public class ForgeDownload {
             String t = FileUtils.FileStringReader.read(versionPath);
             Gson g = new Gson();
             ForgeVersionModel model = g.fromJson(t, ForgeVersionModel.class);
-            JSONObject ao = new JSONObject(FileUtils.FileStringReader.read(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)));
+            JSONObject ao = new JSONObject(FileUtils.FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
             ao = ao.put("mainClass", model.mainClass);
             for (LibModel m : model.libraries) {
                 ao.getJSONArray("libraries").put(g.fromJson(g.toJson(m, LibModel.class), Map.class));
@@ -120,7 +123,7 @@ public class ForgeDownload {
                     }
                 }
                 else {
-                    new File(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path").replace("/", "\\"))).mkdirs();
+                    new File(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path"))).mkdirs();
                     tasks.add(new LibDownloadTask(FasterUrls.fast(m.downloads.artifact.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path").replace("/", "\\")), chunkSize).setHash(m.downloads.artifact.get("sha1")));
                 }
             }
@@ -137,14 +140,14 @@ public class ForgeDownload {
                     }
                 }
             }
-            BufferedWriter w = new BufferedWriter(new FileWriter(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)));
+            BufferedWriter w = new BufferedWriter(new FileWriter(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
             w.write(ao.toString());
             w.close();
 
             ForgeInjectModel model1 = g.fromJson(FileUtils.FileStringReader.read(FileUtils.LinkPath.link(temp_path, "install_profile.json")), ForgeInjectModel.class);
             for (LibModel m1 : model1.libraries){
-                new File(StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path").replace("/", "\\")))).mkdirs();
-                tasks.add(new LibDownloadTask(FasterUrls.fast(m1.downloads.artifact.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path").replace("/", "\\")), chunkSize).setHash(m1.downloads.artifact.get("sha1")));
+                new File(StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")))).mkdirs();
+                tasks.add(new LibDownloadTask(FasterUrls.fast(m1.downloads.artifact.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")), chunkSize).setHash(m1.downloads.artifact.get("sha1")));
             }
             TaskManager.addTasks(tasks);
             TaskManager.execute("<forge>");
@@ -193,7 +196,7 @@ public class ForgeDownload {
             String rw = FileUtils.FileStringReader.read(rr);
             Gson g = new Gson();
             OldForgeVersionModel model = g.fromJson(rw, OldForgeVersionModel.class);
-            JSONObject ao = new JSONObject(FileUtils.FileStringReader.read(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)));
+            JSONObject ao = new JSONObject(FileUtils.FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
             ao = ao.put("mainClass", model.versionInfo.mainClass);
             ao = ao.put("minecraftArguments", model.versionInfo.minecraftArguments);
             Vector<Object> rem = new Vector<>();
@@ -217,7 +220,7 @@ public class ForgeDownload {
                         for (File f : new File(p).listFiles()) {
                             if (f.isFile()) {
                                 if (f.getPath().endsWith(".jar")) {
-                                    if (f.getPath().replace("/", "\\").replace(".jar", "").contains(FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name)).replace(".jar", ""))) {
+                                    if (f.getPath().replace(".jar", "").contains(FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name)).replace(".jar", ""))) {
                                         f.renameTo(new File(FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name))));
                                     }
                                 }

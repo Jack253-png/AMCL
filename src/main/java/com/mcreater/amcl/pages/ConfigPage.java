@@ -1,19 +1,19 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.controls.JFXProgressBar;
 import com.jfoenix.controls.JFXTreeView;
-import com.jfoenix.skins.JFXSliderSkin;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.items.BooleanItem;
 import com.mcreater.amcl.controls.items.IntItem;
 import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.controls.items.MuiltButtonListItem;
 import com.mcreater.amcl.lang.LanguageManager;
-import com.mcreater.amcl.pages.dialogs.FastInfomation;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.Timer;
@@ -25,8 +25,6 @@ import com.mcreater.amcl.util.system.JavaHeapMemoryReader;
 import com.mcreater.amcl.util.system.MemoryReader;
 import com.mcreater.amcl.util.system.UsbDeviceReader;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -39,18 +37,16 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.Pair;
 import oshi.hardware.UsbDevice;
 
-import javax.swing.event.ChangeEvent;
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
@@ -150,10 +146,10 @@ public class ConfigPage extends AbstractMenuBarPage {
                 } catch (ExecutionException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.configpage.java_info.title"), String.format(Launcher.languageManager.get("ui.configpage.java_info.Headercontent"), v.get(0), v.get(1), v.get(2), v.get(3)), ""));
+                Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.java_info.title"), String.format(Launcher.languageManager.get("ui.configpage.java_info.Headercontent"), v.get(0), v.get(1), v.get(2), v.get(3)), ""));
             }
             else{
-                Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.configpage.select_java.title"), Launcher.languageManager.get("ui.configpage.select_java.Headercontent"), ""));
+                Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.select_java.title"), Launcher.languageManager.get("ui.configpage.select_java.Headercontent"), ""));
             }
             java_get.setDisable(false);
         }).start());
@@ -251,8 +247,8 @@ public class ConfigPage extends AbstractMenuBarPage {
                 else {
                     jvmmemS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.out.name"), MemoryReader.convertMemToString((long) (d * 1024 * 1024L)), MemoryReader.convertMemToString(MemoryReader.getFreeMemory()));
                 }
+                JFXSmoothScroll.smoothScrollBarToValue(bar2, value2);
                 Platform.runLater(() -> bar1.setProgress(value));
-                Platform.runLater(() -> bar2.setProgress(value2));
                 Platform.runLater(() -> total.setText(totalS));
                 Platform.runLater(() -> used.setText(usedS));
                 Platform.runLater(() -> jvmmem.setText(jvmmemS));
@@ -382,20 +378,30 @@ public class ConfigPage extends AbstractMenuBarPage {
                     if (current >= 0) {
                         Runnable r = () -> {
                             int curr = Launcher.configReader.configModel.showingUpdateSpped * current;
-                            usedMemory.getData().add(new XYChart.Data<>(curr, MemoryReader.getUsedMemory()));
-                            totalMemory.getData().add(new XYChart.Data<>(curr, MemoryReader.getTotalMemory()));
-                            freeMemory.getData().add(new XYChart.Data<>(curr, MemoryReader.getFreeMemory()));
-                            cpuUsed.getData().add(new XYChart.Data<>(curr, CpuReader.getCpuUsed() * 100));
-                            heapMax.getData().add(new XYChart.Data<>(curr, JavaHeapMemoryReader.getMaxMem()));
-                            heapUsed.getData().add(new XYChart.Data<>(curr, JavaHeapMemoryReader.getUsedMem()));
-                            check(usedMemory);
-                            check(totalMemory);
-                            check(freeMemory);
-                            check(cpuUsed);
-                            check(heapMax);
-                            check(heapUsed);
+                            long used_Mem = MemoryReader.getUsedMemory();
+                            long total_Mem = MemoryReader.getTotalMemory();
+                            long free_Mem = MemoryReader.getFreeMemory();
+                            double used_Cpu = CpuReader.getCpuUsed() * 100;
+                            long max_Heap = JavaHeapMemoryReader.getMaxMem();
+                            long used_Heap = JavaHeapMemoryReader.getUsedMem();
+
+
+                            Platform.runLater(() -> {
+                                usedMemory.getData().add(new XYChart.Data<>(curr, used_Mem));
+                                totalMemory.getData().add(new XYChart.Data<>(curr, total_Mem));
+                                freeMemory.getData().add(new XYChart.Data<>(curr, free_Mem));
+                                cpuUsed.getData().add(new XYChart.Data<>(curr, used_Cpu));
+                                heapMax.getData().add(new XYChart.Data<>(curr, max_Heap));
+                                heapUsed.getData().add(new XYChart.Data<>(curr, used_Heap));
+                                check(usedMemory);
+                                check(totalMemory);
+                                check(freeMemory);
+                                check(cpuUsed);
+                                check(heapMax);
+                                check(heapUsed);
+                            });
                         };
-                        Platform.runLater(r);
+                        r.run();
                         Sleeper.sleep(Launcher.configReader.configModel.showingUpdateSpped);
                     }
                 }
@@ -419,7 +425,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         r.run();
     }
     public static void loadAllDevice(TreeItem<Label> root){
-        Vector<UsbDevice> devices = UsbDeviceReader.getDevices();
+        List<UsbDevice> devices = UsbDeviceReader.getDevices();
         for (UsbDevice d : devices){
             Label l = new Label(d.getName());
             l.setFont(Fonts.t_f);

@@ -1,26 +1,23 @@
 package com.mcreater.amcl.tasks.taskmanager;
 
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.patcher.depencyLoadingFrame;
-import com.mcreater.amcl.pages.dialogs.ProcessDialog;
+import com.mcreater.amcl.StableMain;
+import com.mcreater.amcl.patcher.DepencyLoadingFrame;
+import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.J8Utils;
-import com.mcreater.amcl.util.LogLineDetecter;
-import com.mcreater.amcl.util.Timer;
-import com.mcreater.amcl.util.concurrent.Sleeper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
 public abstract class TaskManager {
     public static Vector<Task> tasks = new Vector<>();
     public static ProcessDialog dialog;
-    public static depencyLoadingFrame frame;
+    public static DepencyLoadingFrame frame;
     public static int index;
     public static long downloadedBytes;
     private TaskManager(){}
@@ -35,7 +32,7 @@ public abstract class TaskManager {
         TaskManager.index = index;
         dialog.setV(index, 0);
     }
-    public static void bindSwing(depencyLoadingFrame frame){
+    public static void bindSwing(DepencyLoadingFrame frame){
         TaskManager.frame = frame;
     }
     public synchronized static void execute1Thread(String reason) throws IOException {
@@ -89,7 +86,7 @@ public abstract class TaskManager {
                         if (tasks.size() != 0) {
                             frame.progressBar.setValue((int) (((double) (tasks.size() - downloaded)) * 100 / tasks.size()));
                             frame.progressBar.setIndeterminate(false);
-                            frame.progressBar.setString(String.format("下载依赖库中(%d/%d)", tasks.size() - downloaded, tasks.size()));
+                            frame.progressBar.setString(String.format(StableMain.manager.get("ui.depencies.downloading.name"), tasks.size() - downloaded, tasks.size()));
                         }
                     }
                     downloadedBytes = 0;
@@ -101,9 +98,10 @@ public abstract class TaskManager {
                 }
 
                 System.out.print(J8Utils.repeat("\b", cc.length()) + reason + String.format(" %d / %d", all, all));
+                System.out.println();
                 if (frame != null){
                     frame.button.setEnabled(true);
-                    frame.progressBar.setString("下载完成");
+                    frame.progressBar.setString(StableMain.manager.get("ui.depencies.downloadSuccess.name"));
                     frame.progressBar.setValue(100);
                 }
             }

@@ -1,6 +1,7 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.SmoothableListView;
@@ -9,10 +10,9 @@ import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
-import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
@@ -63,11 +63,11 @@ public class DownloadMcPage extends AbstractAnimationPage {
         load = new JFXButton();
         load.setFont(Fonts.s_f);
         load.setOnAction(event -> loadVersions());
-        load.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 20, 20));
+        load.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 30, 30));
         setting.setButtonType(JFXButton.ButtonType.RAISED);
         load.setButtonType(JFXButton.ButtonType.RAISED);
-        FXUtils.ControlSize.setWidth(setting, this.width / 4 / 4 * 3);
-        FXUtils.ControlSize.setWidth(load, this.width / 4 / 4);
+        FXUtils.ControlSize.set(setting, this.width / 4 / 4 * 3, 40);
+        FXUtils.ControlSize.set(load, this.width / 4 / 4, 40);
 
         HBox box = new HBox(setting, load);
 
@@ -94,7 +94,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                     types.add(m.type);
                 }
             }
-            Platform.runLater(() -> bar.setProgress(-1.0D));
+            JFXSmoothScroll.smoothScrollBarToValue(bar, -1.0D);
             AtomicInteger loaded = new AtomicInteger();
             for (String t : types){
                 TitledPane pane = new TitledPane();
@@ -104,14 +104,13 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 pane.setFont(Fonts.s_f);
                 FXUtils.ControlSize.setWidth(pane, DownloadMcPage.width / 4 * 3);
                 SmoothableListView<VanilaVersionContent> listv = new SmoothableListView<>(DownloadMcPage.width / 4 * 3, 300);
-                listv.page.getStylesheets().add(String.format(ThemeManager.getPath(), "JFXListView"));
                 listv.setStyle("-fx-background-color: transparent");
                 Platform.runLater(() -> pane.setContent(listv.page));
                 vs.forEach(model -> {
                     if (Objects.equals(model.type, t)){
                         loaded.addAndGet(1);
                         listv.addItem(new VanilaVersionContent(model));
-                        Platform.runLater(() -> bar.setProgress(((double) loaded.get()) * 100 / vs.size()));
+                        JFXSmoothScroll.smoothScrollBarToValue(bar, ((double) loaded.get()) * 100 / vs.size());
                     }
                 });
                 FXUtils.ControlSize.setWidth(listv, DownloadMcPage.width / 3 * 2);
@@ -146,9 +145,11 @@ public class DownloadMcPage extends AbstractAnimationPage {
             if (bs instanceof HBox){
                 for (Node n : ((HBox) bs).getChildren()) {
                     n.setDisable(n == b);
+                    n.setStyle(n == b ? "-fx-background-color: rgba(0, 0, 0, .3)" : "-fx-background-color: transparent");
                 }
             }
             bs.setDisable(bs == b);
+            bs.setStyle(bs == b ? "-fx-background-color: rgba(0, 0, 0, .3)" : "-fx-background-color: transparent");
         }
     }
     public void setP1(SettingPage p){

@@ -2,6 +2,7 @@ package com.mcreater.amcl.pages.interfaces;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -41,6 +42,7 @@ public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
         setted = b;
         for (Node bs : menu.getChildren()){
             bs.setDisable(bs == b);
+            bs.setStyle(bs == b ? "-fx-background-color: rgba(0, 0, 0, .3)" : "-fx-background-color: transparent");
         }
     }
     public void setP1(int i){

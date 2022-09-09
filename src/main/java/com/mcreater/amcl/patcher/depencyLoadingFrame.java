@@ -5,15 +5,18 @@ import com.mcreater.amcl.StableMain;
 import javax.swing.*;
 import java.awt.*;
 
-public class depencyLoadingFrame extends JFrame {
+public class DepencyLoadingFrame extends JFrame {
     public final JProgressBar progressBar;
     public final JButton button;
-    public depencyLoadingFrame() {
+    public DepencyLoadingFrame() {
         super();
         getContentPane().setLayout(new GridBagLayout());
         setTitle(StableMain.manager.get("ui.pre.depencies.title"));
-        setBounds(100, 100, 300, 150);
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        setBounds((int) (dimension.getWidth() / 2 - 300 / 2), (int) (dimension.getHeight() / 2 - 150 / 2), 300, 150);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+
 
         progressBar = new JProgressBar();
         progressBar.setStringPainted(true);

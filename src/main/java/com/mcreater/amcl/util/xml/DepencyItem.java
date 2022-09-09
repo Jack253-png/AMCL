@@ -1,10 +1,8 @@
 package com.mcreater.amcl.util.xml;
 
-import com.mcreater.amcl.patcher.depenciesLoader;
-import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.patcher.DepenciesLoader;
 
 import java.net.MalformedURLException;
-import java.util.List;
 
 public class DepencyItem {
     public String name;
@@ -14,11 +12,11 @@ public class DepencyItem {
         this.maven = maven;
     }
     public String getLocal(){
-        return "AMCL/depencies/" + depenciesLoader.convertName(this.name);
+        return "AMCL/depencies/" + DepenciesLoader.convertName(this.name);
     }
 
     public String getURL() throws MalformedURLException {
-        return this.maven + depenciesLoader.convertNameToUrl(this.name);
+        return this.maven + DepenciesLoader.convertNameToUrl(this.name);
     }
     public String toString(){
         return this.name;

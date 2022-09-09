@@ -44,15 +44,18 @@ public class ModHelper {
         return v.contains("forge") || v.contains("fabric") || v.contains("liteloader");
     }
     public static CommonModInfoModel getModInfo(String path) throws IOException {
-        FileUtils.del("modTemp");
-        ZipUtil.unzipAll(path, "modTemp");
         String version = "";
         String name = "";
         String description = "";
         Vector<String> authorList = new Vector<>();
-        if (new File("modTemp/mcmod.info").exists()){
+
+        String mcmodinfoFile = ZipUtil.readTextFileInZip(path, "mcmod.info");
+        String packMcMetaFile = ZipUtil.readTextFileInZip(path, "pack.mcmeta");
+        String fabricModJsonFile = ZipUtil.readTextFileInZip(path, "fabric.mod.json");
+
+        if (mcmodinfoFile != null){
             Gson g = new Gson();
-            String j = FileStringReader.read("modTemp/mcmod.info");
+            String j = mcmodinfoFile;
             j = j.substring(1, j.length() - 2);
             ForgeModInfoModel model = g.fromJson(j, ForgeModInfoModel.class);
 
@@ -61,21 +64,19 @@ public class ModHelper {
             description = model.description;
             authorList = model.authorList;
         }
-        else if (new File("modTemp/pack.mcmeta").exists()){
-            String j = FileStringReader.read("modTemp/pack.mcmeta");
-            SimpleModInfoModel model = new Gson().fromJson(j, SimpleModInfoModel.class);
+        else if (packMcMetaFile != null){
+            SimpleModInfoModel model = new Gson().fromJson(packMcMetaFile, SimpleModInfoModel.class);
             name = model.pack.get("description");
             description = model.pack.get("description");
         }
-        if (new File("modTemp/fabric.mod.json").exists()) {
-            String j = FileStringReader.read("modTemp/fabric.mod.json");
+        if (fabricModJsonFile != null) {
             FabricModInfoModel model;
             try {
-                model = new Gson().fromJson(j, FabricModInfoModel.class);
+                model = new Gson().fromJson(fabricModJsonFile, FabricModInfoModel.class);
             } catch (Exception e) {
                 e.printStackTrace();
                 CommonModInfoModel mode = new CommonModInfoModel();
-                JSONObject ob = JSON.parseObject(j);
+                JSONObject ob = JSON.parseObject(fabricModJsonFile);
                 mode.name = ob.getString("name");
                 mode.description = ob.getString("description");
                 mode.version = ob.getString("version");
@@ -90,9 +91,8 @@ public class ModHelper {
         m1.version = version;
         m1.name = name;
         m1.description = description;
-        m1.authorList = authorList;
+        m1.authorList = authorList.size() == 0 ? null : authorList;
         m1.path = path;
-        FileUtils.del("modTemp");
         return m1;
     }
 }

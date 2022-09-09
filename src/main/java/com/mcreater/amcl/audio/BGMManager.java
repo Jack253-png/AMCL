@@ -1,7 +1,7 @@
 package com.mcreater.amcl.audio;
 
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.pages.dialogs.PopupMessage;
+import com.mcreater.amcl.pages.dialogs.commons.PopupMessage;
 import com.sun.media.jfxmedia.AudioClip;
 
 import java.io.File;

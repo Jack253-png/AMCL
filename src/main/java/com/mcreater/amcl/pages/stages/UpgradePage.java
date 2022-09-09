@@ -6,7 +6,7 @@ import com.mcreater.amcl.api.githubApi.models.AssetsModel;
 import com.mcreater.amcl.api.githubApi.models.ReleaseModel;
 import com.mcreater.amcl.controls.UpdateItem;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;

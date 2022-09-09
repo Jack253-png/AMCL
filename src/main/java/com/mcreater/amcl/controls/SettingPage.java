@@ -1,8 +1,10 @@
-package com.mcreater.amcl.pages.interfaces;
+package com.mcreater.amcl.controls;
 
 import com.jfoenix.utils.JFXSmoothScroll;
+import com.mcreater.amcl.pages.interfaces.SettingsAnimationPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -10,7 +12,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.skin.ScrollPaneSkin;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -19,32 +20,25 @@ import javafx.scene.shape.Rectangle;
 public class SettingPage extends ScrollPane implements SettingsAnimationPage {
     public double width, height;
     public Pane content;
-
     private final Region shadow = new Region();
-    public SettingPage(double width, double height, VBox content, Object flag){
-        super(content);
-        FXUtils.ControlSize.set(this, width, height);
-        FXUtils.ControlSize.set(content, width - 30, height - 10);
-        this.width = width;
-        this.height = height;
-        this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
-        this.setHbarPolicy(ScrollBarPolicy.NEVER);
-        this.content = content;
-        init();
-        JFXSmoothScroll.smoothScrolling(this, 1.2);
-        ThemeManager.loadButtonAnimates(this.content);
-    }
     public SettingPage(double width, double height, Pane content) {
         this (width, height, content, true);
     }
     public SettingPage(double width, double height, Pane content, boolean neededHeight) {
         super(content);
+        setShowShadow(!neededHeight);
         FXUtils.ControlSize.set(this, width, height);
         if (neededHeight) {
             FXUtils.ControlSize.set(content, width - 30, height - 10);
         }
         else{
             FXUtils.ControlSize.setWidth(content, width - 30);
+            new Thread(() -> {
+                while (true) {
+                    setHvalue(0);
+                    Sleeper.sleep(30);
+                }
+            }).start();
         }
         this.width = width;
         this.height = height;
@@ -61,7 +55,8 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
         setFitToWidth(true);
 
         shadow.setManaged(false);
-        shadow.setStyle("-fx-pref-height: 10;-fx-background-color: rgba(0, 0, 0, .35);-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, .15), 20, 0.8, 0, 4);");
+        // 0.8
+        shadow.setStyle("-fx-pref-height: 10;-fx-background-color: rgba(0, 0, 0, .35);-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, .15), 30, 0.9, 0, 4);");
         shadow.getStyleClass().add("shadow");
         shadow.visibleProperty().bind(showShadowProperty());
         shadow.setMouseTransparent(true);

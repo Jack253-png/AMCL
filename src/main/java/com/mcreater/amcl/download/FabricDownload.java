@@ -34,27 +34,19 @@ public class FabricDownload {
         FabricDownload.chunkSize = chunkSize;
         String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         Gson g = new Gson();
-        String raw = String.format("{\"versions\" : %s}", HttpConnectionUtil.doGet(fabricVersions));
+        Vector<String> vers = GetVersionList.getFabricVersionList(id);
 
-        FabricListModel versions = g.fromJson(raw, FabricListModel.class);
-        String ver = null;
-        for (FabricLoaderVersionModel model : versions.versions) {
-            if (Objects.equals(model.version, fabric_version)) {
-                ver = model.version;
-                break;
-            }
-        }
-        if (ver == null) {
+        if (vers.size() == 0 || !vers.contains(fabric_version)) {
             throw new IOException();
         }
         OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
         ru.run();
-        String fab = FasterUrls.fast(String.format("https://meta.fabricmc.net/v2/versions/loader/%s/%s", id, ver), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+        String fab = FasterUrls.fast(String.format("https://meta.fabricmc.net/v2/versions/loader/%s/%s", id, fabric_version), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         String r = HttpConnectionUtil.doGet(fab);
         try {
             FabricVersionModel model = g.fromJson(r, FabricVersionModel.class);
             String lib_base = LinkPath.link(minecraft_dir, "libraries");
-            String versionJson = String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name);
+            String versionJson = String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name);
             JSONObject ao = new JSONObject(FileStringReader.read(versionJson));
             ao.put("mainClass", model.launcherMeta.mainClass.client);
             for (FabricLibModel lib : model.launcherMeta.libraries.common) {
@@ -103,7 +95,7 @@ public class FabricDownload {
         catch (JsonSyntaxException e){
             OldFabricVersionModel model = g.fromJson(r, OldFabricVersionModel.class);
             String lib_base = LinkPath.link(minecraft_dir, "libraries");
-            String versionJson = String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name);
+            String versionJson = String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name);
             JSONObject ao = new JSONObject(FileStringReader.read(versionJson));
             ao.put("mainClass", model.launcherMeta.mainClass);
             for (String a : model.launcherMeta.arguments.common){

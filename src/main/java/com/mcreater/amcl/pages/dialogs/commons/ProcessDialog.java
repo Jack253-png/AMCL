@@ -1,8 +1,10 @@
-package com.mcreater.amcl.pages.dialogs;
+package com.mcreater.amcl.pages.dialogs.commons;
 
 import com.jfoenix.controls.JFXDialogLayout;
+import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import javafx.application.Platform;
@@ -39,13 +41,13 @@ public class ProcessDialog extends AbstractDialog {
         this.setContent(layout);
     }
     public void setAll(int progress){
-        Platform.runLater(() -> progresses.forEach(bar -> bar.setProgress((double) progress / 100)));
+        progresses.forEach(bar -> JFXSmoothScroll.smoothScrollBarToValue(bar, (double) progress / 100));
     }
     public void setV(int index, int progress){
-        Platform.runLater(() -> this.progresses.get(index).setProgress((double) progress / 100));
+        JFXSmoothScroll.smoothScrollBarToValue(this.progresses.get(index), (double) progress / 100);
     }
     public void setV(int index, int progress, String s){
-        Platform.runLater(() -> this.progresses.get(index).setProgress((double) progress / 100));
+        setV(index, progress);
         Platform.runLater(() -> l.setText(s));
     }
 }

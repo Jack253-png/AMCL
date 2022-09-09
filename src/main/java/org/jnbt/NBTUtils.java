@@ -55,7 +55,6 @@ public final class NBTUtils {
 	 * @return The type name.
 	 */
 	public static String getTypeName(final Class<? extends Tag> clazz) {
-	
 		if (clazz.equals(ByteArrayTag.class)) {
 			return "TAG_Byte_Array";
 		} else if (clazz.equals(ByteTag.class)) {

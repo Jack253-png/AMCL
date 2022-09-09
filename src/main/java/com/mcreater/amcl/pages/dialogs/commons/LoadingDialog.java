@@ -1,9 +1,10 @@
-package com.mcreater.amcl.pages.dialogs;
+package com.mcreater.amcl.pages.dialogs.commons;
 
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXSpinner;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.JFXProgressBar;
+import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import javafx.geometry.Pos;

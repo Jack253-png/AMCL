@@ -7,10 +7,10 @@ import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.VersionItem;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.versionTypeGetter;
-import com.mcreater.amcl.pages.dialogs.FastInfomation;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
@@ -103,7 +103,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
         add_dir.setDefaultButton(true);
         add_dir.setOnAction(event -> {
             DirectoryChooser directoryChooser = new DirectoryChooser();
-            Runnable setDialog = () -> FastInfomation.create(Launcher.languageManager.get("ui.versionselectpage.error_dir.title"), Launcher.languageManager.get("ui.versionselectpage.error_dir.Headercontent"),"");
+            Runnable setDialog = () -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.versionselectpage.error_dir.title"), Launcher.languageManager.get("ui.versionselectpage.error_dir.Headercontent"),"");
             File file = directoryChooser.showDialog(Launcher.stage);
             if (file == null){
                 setDialog.run();

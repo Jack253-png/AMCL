@@ -68,7 +68,7 @@ public class HttpClient {
                 builder.append(temp).append("\n");
             }
         }
-//        logger.info(String.format("fetched message : %s", builder));
+        logger.info(String.format("fetched message : %s", builder));
         return builder.toString();
     }
     public String read(Charset charset, boolean autoConnect) throws IOException {

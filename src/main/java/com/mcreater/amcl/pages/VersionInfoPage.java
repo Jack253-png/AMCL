@@ -1,6 +1,7 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.RemoteMod;
@@ -9,16 +10,17 @@ import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.game.mods.ModHelper;
 import com.mcreater.amcl.game.versionTypeGetter;
 import com.mcreater.amcl.model.mod.CommonModInfoModel;
-import com.mcreater.amcl.pages.dialogs.FastInfomation;
-import com.mcreater.amcl.pages.dialogs.ProcessDialog;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
+import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FileUtils.RemoveFileToTrash;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -98,7 +100,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         FXUtils.ControlSize.set(delVer, t_size, t_size);
         delVer.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
         delVer.setOnAction(event -> {
-            RemoveFileToTrash.remove(LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", Launcher.configReader.configModel.selected_version_index)));
+            RemoveFileToTrash.remove(LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s", Launcher.configReader.configModel.selected_version_index)));
             Launcher.setPage(Launcher.MAINPAGE, this);
         });
         item = new StringItem("", this.width / 4 * 3);
@@ -107,18 +109,18 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         FXUtils.ControlSize.set(changeName, t_size, t_size);
         changeName.setOnAction(event -> {
             if (isValidFileName(item.cont.getText())) {
-                String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", item.cont.getText()));
+                String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s", item.cont.getText()));
                 if (new File(versionDir).exists()) {
-                    FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.1"), "");
+                    SimpleDialogCreater.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.1"), "");
                 } else {
                     String temp = Launcher.configReader.configModel.selected_version_index;
                     Launcher.configReader.configModel.selected_version_index = item.cont.getText();
-                    String dir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", temp));
-                    String newDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions\\%s", item.cont.getText()));
-                    String jar = newDir + String.format("\\%s.jar", temp);
-                    String json = newDir + String.format("\\%s.json", temp);
-                    String newJar = newDir + String.format("\\%s.jar", item.cont.getText());
-                    String newJson = newDir + String.format("\\%s.json", item.cont.getText());
+                    String dir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s", temp));
+                    String newDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s", item.cont.getText()));
+                    String jar = newDir + String.format("/%s.jar", temp);
+                    String json = newDir + String.format("/%s.json", temp);
+                    String newJar = newDir + String.format("/%s.jar", item.cont.getText());
+                    String newJson = newDir + String.format("/%s.json", item.cont.getText());
 
                     new File(dir).renameTo(new File(newDir));
                     new File(jar).renameTo(new File(newJar));
@@ -126,7 +128,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
                     Launcher.setPage(Launcher.MAINPAGE, this);
                 }
             } else {
-                FastInfomation.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.2"), "");
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.2"), "");
             }
         });
         HBox b1 = new HBox(delVer, changeName);
@@ -136,7 +138,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         b2 = new VBox();
         mods = new GridPane();
         modList = new SmoothableListView<>(this.width / 4 * 3, this.height - t_size * 2 - 10);
-        FXUtils.ControlSize.set(modList, this.width / 4 * 3 - 15, this.height - t_size * 2 - 10);
+//        FXUtils.ControlSize.set(modList.page, this.width / 4 * 3 - 15, this.height - t_size * 2 - 10);
 
         addMod = new JFXButton();
         FXUtils.ControlSize.set(addMod, t_size, t_size);
@@ -159,6 +161,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
                 String path = modList.selectedItem.path;
                 RemoveFileToTrash.remove(path);
                 Platform.runLater(dialog::close);
+                Platform.runLater(() -> refresh.getOnAction().handle(new ActionEvent()));
             }).start();
         });
 
@@ -170,7 +173,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         mods.add(refresh, 1, 0, 1, 1);
         mods.add(delete, 2, 0, 1, 1);
         mods.add(bar, 0, 1, 3, 1);
-        mods.add(modList, 0, 2, 3, 1);
+        mods.add(modList.page, 0, 2, 3, 1);
         b2.getChildren().addAll(mods);
 
         p2 = new SettingPage(this.width / 4 * 3, this.height - t_size, b2);
@@ -183,7 +186,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
             if (p == p2){
                 p.setDisable(!ModHelper.isModded(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
                 if (p.isDisabled()) {
-                    FastInfomation.create(Launcher.languageManager.get("ui.versioninfopage.unModded.title"), Launcher.languageManager.get("ui.versioninfopage.unModded.content"), "");
+                    SimpleDialogCreater.create(Launcher.languageManager.get("ui.versioninfopage.unModded.title"), Launcher.languageManager.get("ui.versioninfopage.unModded.content"), "");
                     super.setP1(0);
                 }
             }
@@ -236,7 +239,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     public void loadMods(){
         delete.setDisable(true);
         try {
-            Platform.runLater(() -> bar.setProgress(-1.0D));
+            JFXSmoothScroll.smoothScrollBarToValue(bar, -1.0);
             Platform.runLater(modList::clear);
             Platform.runLater(() -> setType(true));
             Vector<File> f = ModHelper.getMod(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
@@ -245,20 +248,19 @@ public class VersionInfoPage extends AbstractMenuBarPage {
                 if (!Objects.equals(model.name, "")) {
                     RemoteMod m = new RemoteMod(model);
                     Platform.runLater(() -> modList.addItem(m));
-                    double d = (double) modList.vecs.size() / (double) f.size();
-                    double lat = bar.getProgress();
-                    for (int i = 0; i < 100; i++) {
-                        int finalI = i;
-                        Platform.runLater(() -> bar.setProgress(lat + (d - lat) / 100 * finalI));
-                    }
-                    Platform.runLater(() -> bar.setProgress(d));
                 }
+                double d = (double) modList.vecs.size() / (double) f.size();
+                double lat = bar.getProgress();
+                for (int i = 0; i < 100; i++) {
+                    JFXSmoothScroll.smoothScrollBarToValue(bar, lat + (d - lat) / 100 * i);
+                }
+                JFXSmoothScroll.smoothScrollBarToValue(bar, d);
             }
-            Platform.runLater(() -> bar.setProgress(1.0D));
+            JFXSmoothScroll.smoothScrollBarToValue(bar, 1.0D);
             sleep(50);
             Platform.runLater(() -> setType(false));
         }
-        catch (IOException e){
+        catch (IOException ignored){
         }
         finally {
             setType(setted);

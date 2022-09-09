@@ -1,6 +1,9 @@
 package com.mcreater.amcl;
 
+import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialogLayout;
+import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.awtWrapper.MessageCenter;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
@@ -15,9 +18,12 @@ import com.mcreater.amcl.pages.ModDownloadPage;
 import com.mcreater.amcl.pages.UserSelectPage;
 import com.mcreater.amcl.pages.VersionInfoPage;
 import com.mcreater.amcl.pages.VersionSelectPage;
-import com.mcreater.amcl.pages.dialogs.AboutDialog;
+import com.mcreater.amcl.pages.dialogs.AbstractDialog;
+import com.mcreater.amcl.pages.dialogs.SimpleDialog;
+import com.mcreater.amcl.pages.dialogs.commons.AboutDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.stages.NativeBrowserPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
@@ -27,6 +33,8 @@ import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import javafx.beans.binding.Bindings;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -110,8 +118,6 @@ public class Launcher extends javafx.application.Application {
                 logger.error("failed to read config", e);
             }
             languageManager.setLanguage(LanguageManager.LanguageType.valueOf(configReader.configModel.language));
-            MessageCenter.pushNewMessage("test", "test", TrayIcon.MessageType.WARNING);
-
 
             MAINPAGE = new MainPage(width, height);
             CONFIGPAGE = new ConfigPage(width, height);
@@ -161,13 +167,17 @@ public class Launcher extends javafx.application.Application {
             new Thread(VersionChecker::check).start();
             aboutDialog = new AboutDialog();
             stage.show();
+            StableMain.splashScreen.setVisible(false);
         }
         else{
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("System Version Checker");
-            alert.setHeaderText("Please Use Windows");
-            alert.setContentText("Launcher Will Exit");
-            alert.showAndWait();
+            SimpleDialog dialog = new SimpleDialog(
+                    StableMain.manager.get("ui.system.check.title"),
+                    StableMain.manager.get("ui.system.check.content"),
+                    SimpleDialog.MessageType.QUIT,
+                    event -> System.exit(1)
+            );
+            StableMain.splashScreen.setVisible(false);
+            dialog.showAndWait();
         }
     }
     public static void setPage(AbstractAnimationPage n, AbstractAnimationPage caller) {

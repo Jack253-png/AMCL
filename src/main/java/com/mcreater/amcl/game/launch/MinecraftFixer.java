@@ -25,13 +25,13 @@ import static com.mcreater.amcl.download.OriginalDownload.createNewDir;
 public class MinecraftFixer {
     static Vector<Task> tasks = new Vector<>();
     public static void fix(boolean faster, int chunkSize, String dir, String versionName) throws IOException, InterruptedException {
-        String versionDir = LinkPath.link(dir, String.format("versions\\%s", versionName));
-        String libDir = String.format("%s\\libraries", dir).replace("\\", File.separator);
-        String assetsDir = String.format("%s\\assets\\indexes\\", dir).replace("\\", File.separator);;
+        String versionDir = LinkPath.link(dir, String.format("versions/%s", versionName));
+        String libDir = String.format("%s/libraries", dir).replace("\\", "/");
+        String assetsDir = String.format("%s/assets/indexes/", dir).replace("\\", "/");
         if (!new File(versionDir).exists()){
             throw new IOException("version dir does not exists");
         }
-        String versionJson = String.format("%s\\%s.json", versionDir, versionName).replace("\\", File.separator);;
+        String versionJson = String.format("%s/%s.json", versionDir, versionName).replace("\\", "/");
         if (!new File(versionJson).exists()){
             throw new IOException("version json does not exists");
         }
@@ -65,7 +65,7 @@ public class MinecraftFixer {
         AssetsModel m = new Gson().fromJson(FileStringReader.read(index), AssetsModel.class);
         for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()){
             String hash = entry.getValue().get("hash");
-            String s = String.format("%s\\%s\\%s", assets_objects, hash.substring(0, 2), hash).replace("\\", File.separator);;
+            String s = String.format("%s/%s/%s", assets_objects, hash.substring(0, 2), hash).replace("\\", "/");
             if (!HashHelper.getFileSHA1(new File(s)).equals(hash)) {
                 boolean contained = false;
                 for (Task task : tasks){

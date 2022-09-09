@@ -7,11 +7,11 @@ import com.mcreater.amcl.api.curseApi.CurseAPI;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
 import com.mcreater.amcl.controls.ModFile;
-import com.mcreater.amcl.pages.dialogs.FastInfomation;
-import com.mcreater.amcl.pages.dialogs.ProcessDialog;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
+import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
@@ -50,6 +50,8 @@ public class ModDownloadPage extends AbstractAnimationPage {
     public JFXToggleButton installRequires;
     public JFXButton install;
     CurseModModel content;
+
+    boolean loadSuccess = false;
     public ModDownloadPage(double width, double height) {
         super(width, height);
         reqMods = new Vector<>();
@@ -82,14 +84,15 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         for (CurseModFileModel model : requireMods.get()){
                             String modPath;
                             if (Launcher.configReader.configModel.change_game_dir){
-                                modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "versions\\" + Launcher.configReader.configModel.selected_version_index + "\\mods");
+                                modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "versions/" + Launcher.configReader.configModel.selected_version_index + "/mods");
                             }
                             else {
                                 modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "mods");
                             }
                             if (model.downloadUrl != null) {
-                                if (model.fileName.endsWith(".zip")) model.fileName = model.fileName.substring(0, model.fileName.length() - 4) + ".jar";
-                                tasks.add(new DownloadTask(model.downloadUrl, LinkPath.link(modPath, model.fileName), 2048));
+                                if (!model.fileName.endsWith(".zip")) {
+                                    tasks.add(new DownloadTask(model.downloadUrl, LinkPath.link(modPath, model.fileName), 2048));
+                                }
                             }
                         }
                         AtomicInteger downloaded = new AtomicInteger();
@@ -111,7 +114,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         } while (downloaded.get() != tasks.size());
                     }
                     catch (IOException e) {
-                        Platform.runLater(() -> FastInfomation.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), ""));
+                        Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), ""));
                     } catch (InterruptedException ignored) {
                         ignored.printStackTrace();
                     }
@@ -122,7 +125,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                 t.start();
             }
             else{
-                FastInfomation.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
             }
         });
         HBox box = new HBox(installRequires, install);
@@ -135,83 +138,88 @@ public class ModDownloadPage extends AbstractAnimationPage {
         this.add(p, 0, 0, 1, 1);
     }
     public void setModContent(CurseModModel model){
-        this.content = model;
-        this.setDisable(true);
-        do {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ignored) {
-            }
-        } while (this.v.getChildren().size() != 0);
-        loadThread = new Thread(() -> {
-            try {
-                Vector<String> versions = new Vector<>();
-                Vector<CurseModFileModel> files = CurseAPI.getModFiles(model);
-                for (CurseModFileModel m : files) {
-                    for (String s : ModFile.getModLoaders(m.gameVersions, false)) {
-                        if (!versions.contains(s)) {
-                            versions.add(s);
-                        }
-                    }
+        if (this.content != model || !loadSuccess) {
+            this.uis.clear();
+            this.v.getChildren().clear();
+            this.content = model;
+            loadSuccess = false;
+            this.setDisable(true);
+            do {
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException ignored) {
                 }
-                versions.sort(new VersionComparsion());
-                for (String s1 : versions) {
-                    TitledPane pane = new TitledPane();
-                    pane.setText(s1);
-                    pane.setExpanded(false);
-                    pane.setFont(Fonts.t_f);
-                    FXUtils.ControlSize.setWidth(pane, 800);
-                    VBox b = new VBox();
-                    for (CurseModFileModel u : files) {
-                        getTimeTick(u.fileDate);
-                        if (u.gameVersions.contains(s1)) {
-                            b.getChildren().add(new ModFile(u, s1));
+            } while (this.v.getChildren().size() != 0);
+            loadThread = new Thread(() -> {
+                try {
+                    Vector<String> versions = new Vector<>();
+                    Vector<CurseModFileModel> files = CurseAPI.getModFiles(model);
+                    for (CurseModFileModel m : files) {
+                        for (String s : ModFile.getModLoaders(m.gameVersions, false)) {
+                            if (!versions.contains(s)) {
+                                versions.add(s);
+                            }
                         }
                     }
-                    List<Node> list = new Vector<>(b.getChildren());
-                    list.sort(Comparator.comparing(node -> ((ModFile) node)));
-                    b.getChildren().clear();
-                    b.getChildren().addAll(list);
-                    pane.setContent(b);
-                    for (Node n : b.getChildren()) {
-                        ModFile file = (ModFile) n;
-                        uis.add(file);
-                        changeListener = (observable, oldValue, newValue) -> {
-                            if (last == file || last == null) {
-                                coreSelected = newValue;
+                    versions.sort(new VersionComparsion());
+                    for (String s1 : versions) {
+                        TitledPane pane = new TitledPane();
+                        pane.setText(s1);
+                        pane.setExpanded(false);
+                        pane.setFont(Fonts.t_f);
+                        FXUtils.ControlSize.setWidth(pane, 800);
+                        VBox b = new VBox();
+                        for (CurseModFileModel u : files) {
+                            getTimeTick(u.fileDate);
+                            if (u.gameVersions.contains(s1)) {
+                                b.getChildren().add(new ModFile(u, s1));
                             }
-                            if (newValue) {
-                                last = file;
-                                int temp = uis.indexOf(file);
-                                for (int i = 0; i < uis.size(); i++) {
-                                    if (i != temp) {
-                                        uis.get(i).checkBox.selectedProperty().set(false);
+                        }
+                        List<Node> list = new Vector<>(b.getChildren());
+                        list.sort(Comparator.comparing(node -> ((ModFile) node)));
+                        b.getChildren().clear();
+                        b.getChildren().addAll(list);
+                        pane.setContent(b);
+                        for (Node n : b.getChildren()) {
+                            ModFile file = (ModFile) n;
+                            uis.add(file);
+                            changeListener = (observable, oldValue, newValue) -> {
+                                if (last == file || last == null) {
+                                    coreSelected = newValue;
+                                }
+                                if (newValue) {
+                                    last = file;
+                                    int temp = uis.indexOf(file);
+                                    for (int i = 0; i < uis.size(); i++) {
+                                        if (i != temp) {
+                                            uis.get(i).checkBox.selectedProperty().set(false);
+                                        }
                                     }
                                 }
-                            }
-                        };
-                        file.checkBox.selectedProperty().addListener(this.changeListener);
+                            };
+                            file.checkBox.selectedProperty().addListener(this.changeListener);
+                        }
+                        FXUtils.ControlSize.setWidth(pane, this.width - 15);
+                        FXUtils.ControlSize.setWidth(b, this.width - 15);
+                        FXUtils.ControlSize.setWidth(v, this.width - 15);
+                        Platform.runLater(() -> v.getChildren().add(pane));
+                        Platform.runLater(() -> ThemeManager.loadButtonAnimates(pane));
+                        Sleeper.sleep(100);
                     }
-                    FXUtils.ControlSize.setWidth(pane, this.width - 15);
-                    FXUtils.ControlSize.setWidth(b, this.width - 15);
-                    FXUtils.ControlSize.setWidth(v, this.width - 15);
-                    Platform.runLater(() -> v.getChildren().add(pane));
-                    Platform.runLater(() -> ThemeManager.loadButtonAnimates(pane));
-                    Sleeper.sleep(100);
-                }
-                this.setDisable(false);
-            }
-            catch (IOException e){
-                Platform.runLater(() -> {
-                    FastInfomation.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), "");
-                    Launcher.setPage(Launcher.ADDMODSPAGE, this);
-                });
-            } catch (ParseException e) {
+                    this.setDisable(false);
+                    loadSuccess = true;
+                } catch (IOException e) {
+                    Platform.runLater(() -> {
+                        SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), "");
+                        Launcher.setPage(Launcher.ADDMODSPAGE, this);
+                    });
+                } catch (ParseException e) {
 
+                }
             }
+            );
+            loadThread.start();
         }
-        );
-        loadThread.start();
     }
     public void refresh() {
 
@@ -225,11 +233,13 @@ public class ModDownloadPage extends AbstractAnimationPage {
 
     }
     public void onExitPage() {
-        if (loadThread != null){
-            loadThread.stop();
+        if (!loadSuccess) {
+            if (loadThread != null) {
+                loadThread.stop();
+            }
+            this.uis.clear();
+            this.v.getChildren().clear();
         }
-        this.uis.clear();
-        this.v.getChildren().clear();
     }
     public static Date getTimeTick(String time) throws ParseException {
         SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

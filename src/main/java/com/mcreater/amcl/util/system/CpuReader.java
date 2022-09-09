@@ -1,5 +1,6 @@
 package com.mcreater.amcl.util.system;
 
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.HardwareAbstractionLayer;
@@ -10,6 +11,7 @@ public class CpuReader {
     public static double getCpuUsed(){
         CentralProcessor processor = hal.getProcessor();
         long[] prevTicks = processor.getSystemCpuLoadTicks();
+        Sleeper.sleep(300);
         long[] ticks = processor.getSystemCpuLoadTicks();
         long nice = ticks[CentralProcessor.TickType.NICE.getIndex()] - prevTicks[CentralProcessor.TickType.NICE.getIndex()];
         long irq = ticks[CentralProcessor.TickType.IRQ.getIndex()] - prevTicks[CentralProcessor.TickType.IRQ.getIndex()];
@@ -20,7 +22,6 @@ public class CpuReader {
         long iowait = ticks[CentralProcessor.TickType.IOWAIT.getIndex()] - prevTicks[CentralProcessor.TickType.IOWAIT.getIndex()];
         long idle = ticks[CentralProcessor.TickType.IDLE.getIndex()] - prevTicks[CentralProcessor.TickType.IDLE.getIndex()];
         long totalCpu = user + nice + cSys + idle + iowait + irq + softirq + steal;
-//        return 1.0 - (idle * 1.0 / totalCpu);
-        return processor.getSystemCpuLoadBetweenTicks(ticks);
+        return 1.0 - (idle * 1.0 / totalCpu);
     }
 }

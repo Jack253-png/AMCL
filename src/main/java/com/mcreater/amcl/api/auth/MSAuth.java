@@ -4,19 +4,17 @@ import com.google.gson.Gson;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
-import com.mcreater.amcl.pages.dialogs.ProcessDialog;
+import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.ValueSet3;
 import com.mcreater.amcl.util.net.HttpClient;
 import javafx.util.Pair;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.net.MalformedURLException;
 import java.util.*;
 
 public class MSAuth implements AbstractAuth<MicrosoftUser>{
@@ -204,7 +202,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         ValueSet3<String, Pair<String, String>, Vector<McProfileModel.McSkinModel>> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
         setV(0, 80, Launcher.languageManager.get("ui.msauth._05"));
         MicrosoftUser msu = new MicrosoftUser(content.getValue1(), content.getValue2().getKey(), content.getValue2().getValue(), content.getValue3(), token.getValue());
-        setV(0, 100, Launcher.languageManager.get("ui.msauth._06"));
+        setV(0, 80, Launcher.languageManager.get("ui.msauth._06"));
         return msu;
     }
     public static class McProfileModel {

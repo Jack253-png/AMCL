@@ -1,11 +1,14 @@
 package com.jfoenix.utils;
 
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
@@ -15,6 +18,8 @@ import javafx.util.Duration;
 import java.util.function.Function;
 
 public class JFXSmoothScroll {
+    private static final double[] percents = {0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64, 0.8, 0.86,
+    0.9, 0.92, 0.94, 0.96, 1.00};
     private static void customScrolling(ScrollPane scrollPane, DoubleProperty scrollDriection, Function<Bounds, Double> sizeFunc, double speed) {
         final double[] frictions = {0.99, 0.1, 0.05, 0.04, 0.03, 0.02, 0.01, 0.04, 0.01, 0.008, 0.008, 0.008, 0.008, 0.0006, 0.0005, 0.00003, 0.00001};
         final double[] pushes = {speed};
@@ -68,5 +73,23 @@ public class JFXSmoothScroll {
     public static void smoothScrolling(ScrollPane scrollPane, double speed) {
         customScrolling(scrollPane, scrollPane.vvalueProperty(), Bounds::getHeight, speed);
         customScrolling(scrollPane, scrollPane.hvalueProperty(), Bounds::getWidth, speed);
+    }
+    public static void smoothScrollBarToValue(ProgressBar bar, double value){
+        new Thread(() -> {
+            double nowValue = bar.getProgress();
+            // for (double percent = 0;percent <= 1;percent += 0.08){
+            for (double percent : percents){
+                Platform.runLater(() -> {
+                    if (nowValue < value){
+                        bar.setProgress(nowValue + (value - nowValue) * percent);
+                    }
+                    else if (nowValue > value) {
+                        bar.setProgress(nowValue - (nowValue - value) * percent);
+                    }
+                });
+                Sleeper.sleep(10);
+            }
+            Platform.runLater(() -> bar.setProgress(value));
+        }).start();
     }
 }

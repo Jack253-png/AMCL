@@ -53,7 +53,7 @@ public class OriginalDownload {
         if (version_url == null){
             throw new IOException();
         }
-        String version_dir = LinkPath.link(minecraft_dir, "versions\\" + version_name);
+        String version_dir = LinkPath.link(minecraft_dir, "versions/" + version_name);
         new File(version_dir).mkdirs();
 
         String version_json = HttpConnectionUtil.doGet(FasterUrls.fast(version_url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)));
@@ -85,7 +85,7 @@ public class OriginalDownload {
         TaskManager.execute("<vanilla>");
     }
     public static void createNewDir(String path){
-        Vector<String> paths = new Vector<>(J8Utils.createList(path.split("\\\\")));
+        Vector<String> paths = new Vector<>(J8Utils.createList(path.replace("/", "\\").split("\\\\")));
         new File(path.replace(paths.get(paths.size() - 1), "")).mkdirs();
     }
     private static void downloadAssets(VersionJsonModel model, String minecraft_dir) throws IOException {
@@ -104,7 +104,7 @@ public class OriginalDownload {
         AssetsModel model1 = g.fromJson(result, AssetsModel.class);
         for (Map<String, String> h : model1.objects.values()){
             String hh = h.get("hash");
-            new File(String.format("%s\\%s", assets_objects, hh.substring(0, 2))).mkdirs();
+            new File(String.format("%s/%s", assets_objects, hh.substring(0, 2))).mkdirs();
             tasks.add(new AssetsDownloadTask(hh, assets_objects, chunkSize).setHash(hh));
         }
     }
@@ -141,7 +141,7 @@ public class OriginalDownload {
                 }
             }
             if (model1.downloads.artifact != null) {
-                String path = LinkPath.link(lib_base_path, model1.downloads.artifact.get("path").replace("/", "\\"));
+                String path = LinkPath.link(lib_base_path, model1.downloads.artifact.get("path"));
                 String url = model1.downloads.artifact.get("url");
                 String hash = model1.downloads.artifact.get("sha1");
                 createNewDir(path);

@@ -1,4 +1,4 @@
-package com.mcreater.amcl.pages.dialogs;
+package com.mcreater.amcl.pages.dialogs.commons;
 
 import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXAlert;
@@ -7,15 +7,11 @@ import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
-import javafx.scene.Node;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 
-import java.lang.reflect.Field;
-
-public class FastInfomation {
+public class SimpleDialogCreater {
     public static void create(String Title, String HeaderText, String ContentText){
         JFXAlert<String> alert = new JFXAlert<>(Launcher.stage);
         alert.setAnimation(JFXAlertAnimation.BOTTOM_ANIMATION);

@@ -24,6 +24,9 @@ public class ReflectedJar {
         }
         loader = new URLClassLoader(urls);
     }
+    public ReflectedJar(URL... url){
+        loader = new URLClassLoader(url);
+    }
     public Class<?> getJarClass(String className) throws ClassNotFoundException {
         return loader.loadClass(className);
     }

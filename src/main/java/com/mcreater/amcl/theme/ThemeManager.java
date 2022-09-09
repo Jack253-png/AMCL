@@ -7,19 +7,18 @@ import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
-import com.mcreater.amcl.pages.interfaces.SettingPage;
+import com.mcreater.amcl.controls.SettingPage;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.value.WritableValue;
-import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebView;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -124,7 +123,7 @@ public class ThemeManager {
                 button.setCursor(Cursor.HAND);
             }
 
-            if (!(button instanceof Pane) && !(button instanceof SettingPage)) {
+            if (!(button instanceof Pane) && !(button instanceof SettingPage) && !(button instanceof WebView)) {
                 generateAnimations(button, 0.6D, 1D, 200, button.opacityProperty());
             }
             else if (button instanceof Pane){

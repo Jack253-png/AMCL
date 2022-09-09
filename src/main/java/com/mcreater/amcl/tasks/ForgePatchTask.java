@@ -37,14 +37,14 @@ public class ForgePatchTask extends AbstractTask{
             b.append(s1).append(File.pathSeparator);
         }
         b.replace(b.length(), b.length(), "\"");
-        this.command = String.format("\"%s\" %s %s %s", LinkPath.link(System.getProperty("java.home"), "bin\\java.exe"), b, mainClass, args);
+        this.command = String.format("\"%s\" %s %s %s", LinkPath.link(System.getProperty("java.home"), "bin/java.exe"), b, mainClass, args);
         this.jar = mainjar;
         this.args_array = args_array;
     }
     public Integer execute() throws IOException {
         if (!command.contains("DOWNLOAD_MOJMAPS")) {
-            return new_pa();
-//            return old_pa();
+//            return new_pa();
+            return old_pa();
         }
         else{
             List<String> l = J8Utils.createList(command.split(" "));

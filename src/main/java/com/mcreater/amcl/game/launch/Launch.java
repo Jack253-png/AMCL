@@ -22,7 +22,7 @@ import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.nativeInterface.EnumWindow;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.MainPage;
-import com.mcreater.amcl.pages.dialogs.FastInfomation;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
@@ -88,7 +88,7 @@ public class Launch {
         catch (IOException e){
             Platform.runLater(() -> {
                 MainPage.launchDialog.close();
-                FastInfomation.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString());
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString());
             });
             return;
         }
@@ -347,8 +347,11 @@ public class Launch {
                     }
                     forge_libs = new StringBuilder(forge_libs.substring(0, forge_libs.length() - 1));
                     forge_libs.append("\"");
+
                     forgevm = forgevm.replace("-p ", "-p " + "\"" + forge_libs);
                     forgevm = forgevm.replace("--add-modules ALL-MODULE-PATH", " --add-modules ALL-MODULE-PATH");
+
+                    // for some spectial jre
                     if (forgevm.contains("-add-opens --add-exports")){
                         forgevm += "--add-opens java.base/java.lang.invoke=cpw.mods.securejarhandler ";
                     }
@@ -421,7 +424,6 @@ public class Launch {
                     forgevm,
                     mainClass.replace(" ",""),
                     arguments);
-            logger.info(command);
             MainPage.launchDialog.setV(0, 90, Launcher.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
 //            logger.info(String.format("Getted Command Line : %s", command));
@@ -434,6 +436,7 @@ public class Launch {
             }
             new Thread(() -> {
                 while (true) {
+                    if (!p.isAlive()) break;
                     if (EnumWindow.getTaskPID().contains(J8Utils.getProcessPid(p))) {
                         MainPage.logger.info("Window Showed");
                         MainPage.launchDialog.close();
