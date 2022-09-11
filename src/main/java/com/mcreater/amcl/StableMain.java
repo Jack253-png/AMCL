@@ -10,7 +10,6 @@ import com.mcreater.amcl.patcher.DepenciesLoader;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
-import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.StringUtils;
@@ -43,6 +42,9 @@ public class StableMain {
     public static SwingUtils.SplashScreen splashScreen = new SwingUtils.SplashScreen();
     public static SimpleFunctions.Arg0Func<String> getSystem = () -> {
         if (OSInfo.isWin()){
+            if (System.getProperty("os.arch").equals("x86")) {
+                return "win-x86";
+            }
             return "win";
         }
         else if (OSInfo.isLinux()){
@@ -57,12 +59,18 @@ public class StableMain {
     };
     public static SimpleFunctions.Arg0Func<String> getSystem2 = () -> {
         if (OSInfo.isWin()){
+            if (System.getProperty("os.arch").equals("x86")) {
+                return "natives-windows-x86";
+            }
             return "natives-windows";
         }
         else if (OSInfo.isLinux()){
             return "natives-linux";
         }
         else if (OSInfo.isMac()){
+            if (System.getProperty("os.arch").equals("arm64")){
+                return "natives-macos-arm64";
+            }
             return "natives-macos";
         }
         else {
@@ -181,18 +189,18 @@ public class StableMain {
         public String win;
         public String linux;
         public String mac;
+        public String win86;
         public String getUrl(String SystemType){
-            if (SystemType.equals("win")){
-                return win;
-            }
-            else if (SystemType.equals("mac")){
-                return mac;
-            }
-            else if (SystemType.equals("linux")){
-                return linux;
-            }
-            else {
-                return win;
+            switch (SystemType) {
+                case "mac":
+                    return mac;
+                case "linux":
+                    return linux;
+                case "win-x86":
+                    return win86;
+                case "win":
+                default:
+                    return win;
             }
         }
     }

@@ -67,7 +67,6 @@ public class AddModsPage extends AbstractAnimationPage {
         add(modlist.page, 0, 2, 2, 1);
         add(bar, 0, 3, 2, 1);
         setStyle("-fx-background-color : rgba(255, 255, 255, 0.50)");
-//        this.add(pane, 0, 0, 1, 1);
     }
     public void search(){
         searchThread.stop();

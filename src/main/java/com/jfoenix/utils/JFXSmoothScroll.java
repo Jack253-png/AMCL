@@ -69,6 +69,24 @@ public class JFXSmoothScroll {
         }));
         timeline.setCycleCount(Animation.INDEFINITE);
     }
+    public static void scrollToUnder(ScrollPane pane) {
+        new Thread(() -> {
+            double nowValue = pane.getVvalue();
+            double value = 1D;
+            for (double percent : percents){
+                Platform.runLater(() -> {
+                    if (nowValue < value){
+                        pane.setVvalue(nowValue + (value - nowValue) * percent);
+                    }
+                    else if (nowValue > value) {
+                        pane.setVvalue(nowValue - (nowValue - value) * percent);
+                    }
+                });
+                Sleeper.sleep(10);
+            }
+            Platform.runLater(() -> pane.setVvalue(value));
+        }).start();
+    }
 
     public static void smoothScrolling(ScrollPane scrollPane, double speed) {
         customScrolling(scrollPane, scrollPane.vvalueProperty(), Bounds::getHeight, speed);

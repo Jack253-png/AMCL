@@ -15,6 +15,9 @@ public class SkinAnimationPlayer {
     protected boolean running;
     protected int weightedSum = 0;
     protected long lastPlayTime = -1L, interval = 10_000_000_000L;
+    public void reset(){
+        animations.clear();
+    }
     protected AnimationTimer animationTimer = new AnimationTimer() {
         @Override
         public void handle(long now) {

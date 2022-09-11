@@ -1,5 +1,6 @@
 package com.mcreater.amcl.controls.skin;
 
+import com.mcreater.amcl.controls.skin.animation.SkinAniRunning;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import javafx.scene.*;
 import javafx.scene.image.Image;
@@ -101,6 +102,11 @@ public class SkinView extends Group {
 
     protected SkinAnimationPlayer animationPlayer = new SkinAnimationPlayer();
 
+    public void reset(){
+        animationPlayer.stop();
+        animationPlayer.reset();
+        animationPlayer = new SkinAnimationPlayer();
+    }
     public SkinAnimationPlayer getAnimationPlayer() {
         return animationPlayer;
     }
@@ -141,6 +147,8 @@ public class SkinView extends Group {
                 this.skin = SkinHelper.enlarge(this.skin, multiple, multiple);
             updateSkinModel(isSlim, cape != null);
             bindMaterial(root);
+
+
         }
     }
 

@@ -23,7 +23,8 @@ public class DepenciesXMLHandler {
         Vector<DepencyItem> items = new Vector<>();
         for (DepencyModel.ItemModel item : model.depencies){
             if (ClassPathInjector.version < 9 && item.old != null) {
-                items.add(new DepencyItem(item.old, model.maven));
+                if (item.maven != null) items.add(new DepencyItem(item.old, item.maven));
+                else items.add(new DepencyItem(item.old, model.maven));
             }
             else {
                 if (OSInfo.isWin()) {
@@ -50,6 +51,7 @@ public class DepenciesXMLHandler {
             public String old;
             public String mac;
             public String linux;
+            public String maven;
         }
     }
 }

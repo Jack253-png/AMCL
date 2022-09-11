@@ -130,6 +130,7 @@ public class OriginalDownload {
         for (LibModel model1 : model.libraries){
             boolean b0 = !(has_322 && model1.name.contains("3.2.1"));
             if (model1.downloads.classifiers != null) {
+                if (model1.downloads.classifiers.containsKey("natives-osx")) nativeName = nativeName.replace("natives-macos", "natives-osx");
                 if (model1.downloads.classifiers.get(nativeName) != null) {
                     if (b0) {
                         String npath = LinkPath.link(lib_base_path, model1.downloads.classifiers.get(nativeName).path);

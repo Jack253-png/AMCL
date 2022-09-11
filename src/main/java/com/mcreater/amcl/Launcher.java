@@ -68,7 +68,6 @@ public class Launcher extends javafx.application.Application {
     static Scene s = new Scene(new Pane(), Color.TRANSPARENT);
     public static Stage stage;
     static AbstractAnimationPage last;
-    static boolean is_t;
     public static MainPage MAINPAGE;
     public static ConfigPage CONFIGPAGE;
     public static VersionSelectPage VERSIONSELECTPAGE;
@@ -297,8 +296,7 @@ public class Launcher extends javafx.application.Application {
     public static void refresh(){
         stage.setTitle(String.format(languageManager.get("ui.title"), VersionInfo.launcher_name, VersionInfo.launcher_version));
     }
-    public static void startApplication(String[] args, boolean is_true) {
-        is_t = is_true;
+    public static void startApplication(String[] args) {
         launch(args);
     }
     public static void refreshBackground(){
@@ -312,15 +310,5 @@ public class Launcher extends javafx.application.Application {
         bg = new Background(im);
 
         p.setBackground(bg);
-
-//        MAINPAGE.setBackground(bg);
-//        VERSIONSELECTPAGE.setBackground(bg);
-//        CONFIGPAGE.setBackground(bg);
-//        VERSIONINFOPAGE.setBackground(bg);
-//        ADDMODSPAGE.setBackground(bg);
-//        MODDOWNLOADPAGE.setBackground(bg);
-//        DOWNLOADMCPAGE.setBackground(bg);
-//        DOWNLOADADDONSELECTPAGE.setBackground(bg);
-//        USERSELECTPAGE.setBackground(bg);
     }
 }

@@ -2,6 +2,7 @@ package com.mcreater.amcl.api.auth.users;
 
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.util.J8Utils;
+import javafx.scene.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,7 +19,7 @@ public class UserHashManager {
     private static boolean createFile() throws IOException {
         return new File(AMCL_USER_DAT).createNewFile();
     }
-    public static boolean deleteFile() throws IOException {
+    public static boolean deleteFile() {
         return new File(AMCL_USER_DAT).delete();
     }
     public static void writeSafe(AbstractUser user) {

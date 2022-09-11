@@ -162,6 +162,13 @@ public class CurseAPI {
         if (Objects.equals(model.fileName, firstname)){
             logger.info("require mod loaded success");
         }
+        Vector<CurseModFileModel> fabList = new Vector<>();
+        requires.forEach(e -> {
+            if (e.modId == 306612){
+                fabList.add(e);
+            }
+        });
+        requires.removeAll(fabList);
         for (CurseModFileModel file : requires){
             System.out.println(file.fileName);
         }

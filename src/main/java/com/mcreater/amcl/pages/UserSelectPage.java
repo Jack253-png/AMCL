@@ -11,7 +11,10 @@ import com.mcreater.amcl.config.ConfigModel;
 import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.controls.items.StringItem;
+import com.mcreater.amcl.controls.skin.SkinAnimation;
 import com.mcreater.amcl.controls.skin.SkinView;
+import com.mcreater.amcl.controls.skin.animation.SkinAniRunning;
+import com.mcreater.amcl.controls.skin.animation.SkinAniWavingArms;
 import com.mcreater.amcl.pages.dialogs.commons.ContinueDialog;
 import com.mcreater.amcl.pages.dialogs.commons.InputDialog;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
@@ -44,6 +47,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Predicate;
 
 public class UserSelectPage extends AbstractMenuBarPage {
     public ImageView view;
@@ -504,6 +508,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
 
         skin3d = new SkinView(width / 4 * 3, height - 50 - Launcher.barSize);
         skin3d.enableRotation(.5);
+
         name = new Label();
         name.setFont(Fonts.s_f);
 

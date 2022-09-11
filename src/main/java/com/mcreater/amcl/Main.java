@@ -26,14 +26,16 @@ public class Main {
             args = new String[]{};
             logger.info("initialize");
             logger.info("launching core with arguments : " + Arrays.toString(args));
-            Launcher.startApplication(args, System.getProperty("os.name", "Unknow").contains("Windows"));
+            Launcher.startApplication(args);
         }
         catch (Exception e) {
             logger.error("Error while launcher running", e);
+            StableMain.splashScreen.setVisible(false);
             JOptionPane.showMessageDialog(null, "If tou want to see the infomation, please visit the log file.", "Exception", JOptionPane.ERROR_MESSAGE);
         }
         catch (Error e){
             logger.error("Error while loading native libs", e);
+            StableMain.splashScreen.setVisible(false);
             JOptionPane.showMessageDialog(null, "If tou want to see the infomation, please visit the log file.", "Native Lib Exception", JOptionPane.ERROR_MESSAGE);
         }
     }
