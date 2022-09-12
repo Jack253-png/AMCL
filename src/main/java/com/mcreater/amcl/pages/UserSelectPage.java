@@ -79,6 +79,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
     public JFXButton edit;
     public JFXButton refresh;
     public JFXButton logout;
+    public JFXButton refreshSkin;
     public UserSelectPage(double width, double height) {
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -127,11 +128,15 @@ public class UserSelectPage extends AbstractMenuBarPage {
         logout = new JFXButton();
         refresh = new JFXButton();
         edit = new JFXButton();
+        refreshSkin = new JFXButton();
 
         logout.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), 40 ,40));
-        refresh.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 40 ,40));
+        refresh.setGraphic(Launcher.getSVGManager().check(Bindings.createObjectBinding(this::returnBlack), 40 ,40));
         edit.setGraphic(Launcher.getSVGManager().accountEdit(Bindings.createObjectBinding(this::returnBlack), 40 ,40));
-        FXUtils.ControlSize.setAll(40, 40, logout, refresh, edit);
+        refreshSkin.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 40, 40));
+        FXUtils.ControlSize.setAll(40, 40, logout, refresh, edit, refreshSkin);
+
+        refreshSkin.setOnAction(event -> refreshSkin());
 
         refresh.setOnAction(event -> {
             refresh.setDisable(true);
@@ -522,7 +527,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
         p = new Pane();
         p.getChildren().addAll(view, decorator);
 
-        HBox g = new HBox(p, name, refresh, logout, edit);
+        HBox g = new HBox(p, name, refreshSkin, refresh, logout, edit);
         g.setSpacing(15);
         FXUtils.ControlSize.setHeight(g, 50);
         p3 = new SettingPage(width / 4 * 3, height, new VBox(g, skin3d));
