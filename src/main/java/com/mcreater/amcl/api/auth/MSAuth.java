@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.*;
@@ -189,6 +190,8 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
     public void setV(int index, int value, String message){
         if (dialog != null) dialog.setV(index, value, message);
     }
+
+
     public MicrosoftUser getUser(String... args) throws RuntimeException {
         Pair<String, String> token = acquireAccessToken(args[0]);
         setV(0, 20, Launcher.languageManager.get("ui.msauth._02"));

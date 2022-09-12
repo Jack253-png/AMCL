@@ -43,7 +43,7 @@ public class SwingUtils {
         dialog.setResizable(false);
     }
     public static class SplashScreen extends JFrame {
-        private boolean showSplash = true;
+        private boolean showSplash = false;
         public void setShowSplash(boolean b){
             showSplash = b;
         }

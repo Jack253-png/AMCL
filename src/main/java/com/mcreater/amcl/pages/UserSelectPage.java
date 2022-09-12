@@ -33,6 +33,8 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -184,124 +186,129 @@ public class UserSelectPage extends AbstractMenuBarPage {
             setP1(0);
         });
 
-        edit.setOnAction(event -> {
-            EditAccountContentDialog dialog = new EditAccountContentDialog(Launcher.languageManager.get("ui.userselectpage.account.edit"));
-            OffLineUser temp_user = (OffLineUser) user_object.get();
-            dialog.item2.cont.getSelectionModel().select(getUserTypeIndex.run());
-            dialog.item.cont.setText(temp_user.username);
-            Runnable finalRunnable = () -> {
-                Launcher.configReader.write();
-                user_object.set(new OffLineUser(
-                        Launcher.configReader.configModel.last_name,
-                        Launcher.configReader.configModel.last_uuid,
-                        Launcher.configReader.configModel.last_is_slim,
-                        Launcher.configReader.configModel.last_skin_path,
-                        Launcher.configReader.configModel.last_cape_path,
-                        Launcher.configReader.configModel.last_elytra_path
-                ));
-                refreshSkin();
-                dialog.close();
-            };
-            dialog.setCancel(event17 -> dialog.close());
-            dialog.setEvent(event13 -> {
-                Launcher.configReader.configModel.last_name = dialog.item.cont.getText();
-                switch (dialog.item2.cont.getSelectionModel().getSelectedIndex()){
-                    case 0:
-                        Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
-                        Launcher.configReader.configModel.last_is_slim = false;
-                        Launcher.configReader.configModel.last_skin_path = null;
-                        Launcher.configReader.configModel.last_cape_path = null;
-                        Launcher.configReader.configModel.last_elytra_path = null;
-                        finalRunnable.run();
-                        break;
-                    case 1:
-                        Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
-                        Launcher.configReader.configModel.last_is_slim = true;
-                        Launcher.configReader.configModel.last_skin_path = null;
-                        Launcher.configReader.configModel.last_cape_path = null;
-                        Launcher.configReader.configModel.last_elytra_path = null;
-                        finalRunnable.run();
-                        break;
-                    case 2:
-                        InputDialog d1 = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
-                        LoadingDialog d3 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.loading"));
-                        d3.Create();
-                        new Thread(() -> {
-                            try {
-                                d1.f.setText(MSAuth.getUserSkin(Launcher.configReader.configModel.last_uuid).name);
-                            } catch (Exception ignored) {}
-                            Platform.runLater(d3::close);
-                            Platform.runLater(() -> {
-                                d1.Create();
-                                d1.setCancel(event16 -> d1.close());
-                                d1.setEvent(event1 -> {
-                                    d1.close();
-                                    LoadingDialog dialog1 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.updating"));
-                                    dialog1.Create();
-                                    new Thread(() -> {
-                                        Launcher.configReader.configModel.last_skin_path = null;
-                                        Launcher.configReader.configModel.last_cape_path = null;
-                                        Launcher.configReader.configModel.last_elytra_path = null;
-                                        try {
-                                            Launcher.configReader.configModel.last_uuid = MSAuth.getUserUUID(d1.f.getText());
-                                        }
-                                        catch (Exception e){
-                                            Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
-                                        }
-                                        try {
-                                            Launcher.configReader.configModel.last_is_slim = MSAuth.getUserSkinFromName(d1.f.getText()).skins.get(0).isSlim;
-                                        }
-                                        catch (Exception e){
-                                            Launcher.configReader.configModel.last_is_slim = false;
-                                        }
-                                        Platform.runLater(dialog1::close);
-                                        Platform.runLater(finalRunnable);
-                                    }).start();
-                                });
-                            });
-                        }).start();
-                        break;
-                    case 3:
-                        Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
-                        CustomSkinDialog d2 = new CustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"));
-                        d2.changeModelSelect.cont.getSelectionModel().select(castIntToBoolean.run(Launcher.configReader.configModel.last_is_slim));
-                        d2.skin = handleNullString(Launcher.configReader.configModel.last_skin_path);
-                        d2.skin_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_skin_path));
-                        d2.cape = handleNullString(Launcher.configReader.configModel.last_cape_path);
-                        d2.cape_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_cape_path));
-                        d2.elytra = handleNullString(Launcher.configReader.configModel.last_elytra_path);
-                        d2.elytra_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_elytra_path));
 
-                        d2.setCancel(event1 -> d2.close());
-                        d2.setEvent(event12 -> {
-                            switch (d2.changeModelSelect.cont.getSelectionModel().getSelectedIndex()){
-                                default:
+
+        user_object.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null){
+                if (newValue instanceof OffLineUser) {
+                    edit.setOnAction(event -> {
+                        EditAccountContentDialog dialog = new EditAccountContentDialog(Launcher.languageManager.get("ui.userselectpage.account.edit"));
+                        OffLineUser temp_user = (OffLineUser) user_object.get();
+                        dialog.item2.cont.getSelectionModel().select(getUserTypeIndex.run());
+                        dialog.item.cont.setText(temp_user.username);
+                        Runnable finalRunnable = () -> {
+                            Launcher.configReader.write();
+                            user_object.set(new OffLineUser(
+                                    Launcher.configReader.configModel.last_name,
+                                    Launcher.configReader.configModel.last_uuid,
+                                    Launcher.configReader.configModel.last_is_slim,
+                                    Launcher.configReader.configModel.last_skin_path,
+                                    Launcher.configReader.configModel.last_cape_path,
+                                    Launcher.configReader.configModel.last_elytra_path
+                            ));
+                            refreshSkin();
+                            dialog.close();
+                        };
+                        dialog.setCancel(event17 -> dialog.close());
+                        dialog.setEvent(event13 -> {
+                            Launcher.configReader.configModel.last_name = dialog.item.cont.getText();
+                            switch (dialog.item2.cont.getSelectionModel().getSelectedIndex()){
                                 case 0:
                                     Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
                                     Launcher.configReader.configModel.last_is_slim = false;
+                                    Launcher.configReader.configModel.last_skin_path = null;
+                                    Launcher.configReader.configModel.last_cape_path = null;
+                                    Launcher.configReader.configModel.last_elytra_path = null;
+                                    finalRunnable.run();
                                     break;
                                 case 1:
                                     Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
                                     Launcher.configReader.configModel.last_is_slim = true;
+                                    Launcher.configReader.configModel.last_skin_path = null;
+                                    Launcher.configReader.configModel.last_cape_path = null;
+                                    Launcher.configReader.configModel.last_elytra_path = null;
+                                    finalRunnable.run();
+                                    break;
+                                case 2:
+                                    InputDialog d1 = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
+                                    LoadingDialog d3 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.loading"));
+                                    d3.Create();
+                                    new Thread(() -> {
+                                        try {
+                                            d1.f.setText(MSAuth.getUserSkin(Launcher.configReader.configModel.last_uuid).name);
+                                        } catch (Exception ignored) {}
+                                        Platform.runLater(d3::close);
+                                        Platform.runLater(() -> {
+                                            d1.Create();
+                                            d1.setCancel(event16 -> d1.close());
+                                            d1.setEvent(event1 -> {
+                                                d1.close();
+                                                LoadingDialog dialog1 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.updating"));
+                                                dialog1.Create();
+                                                new Thread(() -> {
+                                                    Launcher.configReader.configModel.last_skin_path = null;
+                                                    Launcher.configReader.configModel.last_cape_path = null;
+                                                    Launcher.configReader.configModel.last_elytra_path = null;
+                                                    try {
+                                                        Launcher.configReader.configModel.last_uuid = MSAuth.getUserUUID(d1.f.getText());
+                                                    }
+                                                    catch (Exception e){
+                                                        Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
+                                                    }
+                                                    try {
+                                                        Launcher.configReader.configModel.last_is_slim = MSAuth.getUserSkinFromName(d1.f.getText()).skins.get(0).isSlim;
+                                                    }
+                                                    catch (Exception e){
+                                                        Launcher.configReader.configModel.last_is_slim = false;
+                                                    }
+                                                    Platform.runLater(dialog1::close);
+                                                    Platform.runLater(finalRunnable);
+                                                }).start();
+                                            });
+                                        });
+                                    }).start();
+                                    break;
+                                case 3:
+                                    Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
+                                    CustomSkinDialog d2 = new CustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"));
+                                    d2.changeModelSelect.cont.getSelectionModel().select(castIntToBoolean.run(Launcher.configReader.configModel.last_is_slim));
+                                    d2.skin = handleNullString(Launcher.configReader.configModel.last_skin_path);
+                                    d2.skin_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_skin_path));
+                                    d2.cape = handleNullString(Launcher.configReader.configModel.last_cape_path);
+                                    d2.cape_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_cape_path));
+                                    d2.elytra = handleNullString(Launcher.configReader.configModel.last_elytra_path);
+                                    d2.elytra_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_elytra_path));
+
+                                    d2.setCancel(event1 -> d2.close());
+                                    d2.setEvent(event12 -> {
+                                        switch (d2.changeModelSelect.cont.getSelectionModel().getSelectedIndex()){
+                                            default:
+                                            case 0:
+                                                Launcher.configReader.configModel.last_uuid = OffLineUser.STEVE;
+                                                Launcher.configReader.configModel.last_is_slim = false;
+                                                break;
+                                            case 1:
+                                                Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
+                                                Launcher.configReader.configModel.last_is_slim = true;
+                                                break;
+                                        }
+                                        Launcher.configReader.configModel.last_skin_path = d2.skin;
+                                        Launcher.configReader.configModel.last_cape_path = d2.cape;
+                                        Launcher.configReader.configModel.last_elytra_path = d2.elytra;
+                                        Launcher.configReader.write();
+                                        Platform.runLater(d2::close);
+                                        finalRunnable.run();
+                                    });
+                                    d2.Create();
                                     break;
                             }
-                            Launcher.configReader.configModel.last_skin_path = d2.skin;
-                            Launcher.configReader.configModel.last_cape_path = d2.cape;
-                            Launcher.configReader.configModel.last_elytra_path = d2.elytra;
-                            Launcher.configReader.write();
-                            Platform.runLater(d2::close);
-                            finalRunnable.run();
                         });
-                        d2.Create();
-                        break;
+                        dialog.Create();
+                    });
                 }
-            });
-            dialog.Create();
-        });
-
-        user_object.addListener((observable, oldValue, newValue) -> {
-            if (newValue != null){
-                edit.setDisable(newValue instanceof MicrosoftUser);
+                else {
+                    edit.setOnAction(event -> {});
+                }
             }
             UserHashManager.writeSafe(newValue);
         });

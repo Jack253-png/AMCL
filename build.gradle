@@ -11,6 +11,7 @@ version '1.0-SNAPSHOT'
 repositories {
     maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
     maven { url 'https://mvnrepository.com/artifact/' }
+    maven { url 'https://jitpack.io/' }
     mavenCentral()
 }
 
@@ -38,6 +39,8 @@ javafx {
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.media', 'javafx.web']
 }
 
+
+
 dependencies {
 //    implementation('org.controlsfx:controlsfx:11.1.1')
 //    implementation('com.dlsc.formsfx:formsfx-core:11.3.2') {
@@ -62,14 +65,18 @@ dependencies {
     implementation('com.alibaba:fastjson:2.0.3')
     implementation('org.apache.logging.log4j:log4j-core:2.17.2')
     implementation('org.apache.logging.log4j:log4j-api:2.17.2')
-    implementation('net.java.dev.jna:jna:5.11.0')
-    implementation('net.java.dev.jna:jna-platform:5.11.0')
+    implementation('net.java.dev.jna:jna:5.12.1')
+    implementation('net.java.dev.jna:jna-platform:5.12.1')
     implementation('com.github.jnr:jnr-posix:3.1.15')
-    implementation('com.github.oshi:oshi-core:3.5.0')
+    implementation('com.github.oshi:oshi-core:6.2.2')
     implementation files('jxbrowser-6.18.jar')
     implementation files('jxbrowser-win32-6.18.jar')
     implementation('org.apache.commons:commons-lang3:3.5')
     implementation('org.nanohttpd:nanohttpd:2.3.1')
+    implementation('org.fusesource.jansi:jansi:2.4.0')
+    implementation('org.apache.httpcomponents:httpclient:4.4.1')
+    implementation('org.apache.httpcomponents:httpcore:4.4.1')
+    implementation('org.apache.httpcomponents:httpmime:4.4.1')
 }
 
 test {

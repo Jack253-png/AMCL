@@ -58,7 +58,7 @@ public enum TagType {
     private final String typeName;
     private final int id;
 
-    private TagType(Class<? extends Tag<?>> tagClass, String typeName, int id) {
+    TagType(Class<? extends Tag<?>> tagClass, String typeName, int id) {
         this.tagClass = tagClass;
         this.typeName = typeName;
         this.id = id;
