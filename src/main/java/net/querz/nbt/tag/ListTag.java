@@ -269,7 +269,6 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 		return asTypedList(LongArrayTag.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	public ListTag<ListTag<?>> asListTagList() {
 		checkTypeClass(ListTag.class);
 		typeClass = ListTag.class;
@@ -278,16 +277,6 @@ public class ListTag<T extends Tag<?>> extends Tag<List<T>> implements Iterable<
 
 	public ListTag<CompoundTag> asCompoundTagList() {
 		return asTypedList(CompoundTag.class);
-	}
-
-	@Override
-	public String valueToString(int maxDepth) {
-		StringBuilder sb = new StringBuilder("{\"type\":\"").append(getTypeClass().getSimpleName()).append("\",\"list\":[");
-		for (int i = 0; i < size(); i++) {
-			sb.append(i > 0 ? "," : "").append(get(i).valueToString(decrementMaxDepth(maxDepth)));
-		}
-		sb.append("]}");
-		return sb.toString();
 	}
 
 	@Override

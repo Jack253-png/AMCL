@@ -76,7 +76,7 @@ public abstract class Tag<T> implements Cloneable {
 	/**
 	 * @return The value of this Tag.
 	 * */
-	protected T getValue() {
+	public T getValue() {
 		return value;
 	}
 
@@ -106,30 +106,19 @@ public abstract class Tag<T> implements Cloneable {
 	 * @see Tag#toString(int)
 	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	@Override
-	public final String toString() {
-		return toString(DEFAULT_MAX_DEPTH);
-	}
 
-	/**
-	 * Creates a string representation of this Tag in a valid JSON format.
-	 * @param maxDepth The maximum nesting depth.
+	/*
+	  Creates a string representation of this Tag in a valid JSON format.
+	  @param maxDepth The maximum nesting depth.
 	 * @return The string representation of this Tag.
 	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	public String toString(int maxDepth) {
-		return "{\"type\":\""+ getClass().getSimpleName() + "\"," +
-				"\"value\":" + valueToString(maxDepth) + "}";
-	}
 
-	/**
-	 * Calls {@link Tag#valueToString(int)} with {@link Tag#DEFAULT_MAX_DEPTH}.
-	 * @return The string representation of the value of this Tag.
+	/*
+	  Calls {@link Tag#valueToString(int)} with {@link Tag#DEFAULT_MAX_DEPTH}.
+	  @return The string representation of the value of this Tag.
 	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
-	 * */
-	public String valueToString() {
-		return valueToString(DEFAULT_MAX_DEPTH);
-	}
+
 
 	/**
 	 * Returns a JSON representation of the value of this Tag.
@@ -137,7 +126,6 @@ public abstract class Tag<T> implements Cloneable {
 	 * @return The string representation of the value of this Tag.
 	 * @throws MaxDepthReachedException If the maximum nesting depth is exceeded.
 	 * */
-	public abstract String valueToString(int maxDepth);
 
 	/**
 	 * Returns whether this Tag and some other Tag are equal.
@@ -166,7 +154,6 @@ public abstract class Tag<T> implements Cloneable {
 	 * Creates a clone of this Tag.
 	 * @return A clone of this Tag.
 	 * */
-	@SuppressWarnings("CloneDoesntDeclareCloneNotSupportedException")
 	public abstract Tag<T> clone();
 
 	/**

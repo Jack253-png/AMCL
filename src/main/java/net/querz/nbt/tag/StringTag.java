@@ -29,11 +29,6 @@ public class StringTag extends Tag<String> implements Comparable<StringTag> {
 	}
 
 	@Override
-	public String valueToString(int maxDepth) {
-		return escapeString(getValue(), false);
-	}
-
-	@Override
 	public boolean equals(Object other) {
 		return super.equals(other) && getValue().equals(((StringTag) other).getValue());
 	}

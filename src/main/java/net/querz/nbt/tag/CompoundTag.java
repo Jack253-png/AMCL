@@ -1,5 +1,7 @@
 package net.querz.nbt.tag;
 
+import net.querz.io.MaxDepthIO;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -7,9 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
-
-import com.google.gson.GsonBuilder;
-import net.querz.io.MaxDepthIO;
 
 public class CompoundTag extends Tag<Map<String, Tag<?>>>
 		implements Iterable<Map.Entry<String, Tag<?>>>, Comparable<CompoundTag>, MaxDepthIO {
@@ -250,11 +249,6 @@ public class CompoundTag extends Tag<Map<String, Tag<?>>>
 
 	public Tag<?> putLongArray(String key, long[] value) {
 		return put(key, new LongArrayTag(value));
-	}
-
-	@Override
-	public String valueToString(int maxDepth) {
-		return new GsonBuilder().setPrettyPrinting().create().toJson(getValue());
 	}
 
 	@Override

@@ -30,11 +30,6 @@ public abstract class ArrayTag<T> extends Tag<T> {
 		super.setValue(value);
 	}
 
-	@Override
-	public String valueToString(int maxDepth) {
-		return arrayToString("", "");
-	}
-
 	protected String arrayToString(String prefix, String suffix) {
 		StringBuilder sb = new StringBuilder("[").append(prefix).append("".equals(prefix) ? "" : ";");
 		for (int i = 0; i < length(); i++) {

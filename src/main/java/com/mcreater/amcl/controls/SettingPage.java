@@ -7,14 +7,12 @@ import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.skin.ScrollPaneSkin;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 
 public class SettingPage extends ScrollPane implements SettingsAnimationPage {

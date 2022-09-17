@@ -2,8 +2,12 @@ package com.mcreater.amcl;
 
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
-import net.querz.mca.MCAFile;
-import net.querz.mca.MCAUtil;
+import net.querz.nbt.io.NBTInputStream;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.zip.GZIPInputStream;
+import net.querz.nbt.NBTUtils;
 
 public class WindowMovement {
     double x1;
@@ -25,7 +29,7 @@ public class WindowMovement {
     }
 
     public static void main(String[] args) throws Throwable {
-        MCAFile file = MCAUtil.read("C:\\Users\\Administrator\\Desktop\\r.0.0.mcr");
-        System.out.println(file.getChunk(0, 1).data);
+        NBTInputStream in = new NBTInputStream(new GZIPInputStream(Files.newInputStream(Paths.get("D:\\mods\\util\\.minecraft\\versions\\1.8.8\\saves\\新的世界\\level.dat"))));
+        System.out.println(NBTUtils.toJavaNativeDataType(in.readTag(Integer.MAX_VALUE).getTag()));
     }
 }

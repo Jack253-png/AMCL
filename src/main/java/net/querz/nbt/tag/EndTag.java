@@ -20,11 +20,6 @@ public final class EndTag extends Tag<Void> {
 	}
 
 	@Override
-	public String valueToString(int maxDepth) {
-		return "\"end\"";
-	}
-
-	@Override
 	public EndTag clone() {
 		return INSTANCE;
 	}
