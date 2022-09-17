@@ -30,6 +30,27 @@ public class J8Utils {
         Collections.addAll(list, values);
         return list;
     }
+    public static List<Long> createListFromArray(long[] array) {
+        List<Long> r = new Vector<>();
+        for (long v : array) {
+            r.add(v);
+        }
+        return r;
+    }
+    public static List<Integer> createListFromArray(int[] array) {
+        List<Integer> r = new Vector<>();
+        for (int v : array) {
+            r.add(v);
+        }
+        return r;
+    }
+    public static List<Byte> createListFromArray(byte[] array) {
+        List<Byte> r = new Vector<>();
+        for (byte v : array) {
+            r.add(v);
+        }
+        return r;
+    }
     public static <T> T requireNonNullElse(T obj, T defaultObj) {
         return (obj != null) ? obj : requireNonNull(defaultObj, "defaultObj");
     }

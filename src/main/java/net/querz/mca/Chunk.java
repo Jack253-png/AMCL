@@ -1,5 +1,6 @@
 package net.querz.mca;
 
+import net.querz.nbt.NBTUtils;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.ListTag;
 import net.querz.nbt.io.NamedTag;
@@ -55,9 +56,17 @@ public class Chunk implements Iterable<Section> {
 	 * Create a new chunk based on raw base data from a region file.
 	 * @param data The raw base data to be used.
 	 */
+	public String toString(){
+		return NBTUtils.toJsonString(NBTUtils.toJavaNativeDataType(this));
+	}
 	public Chunk(CompoundTag data) {
 		this.data = data;
-//		initReferences(ALL_DATA);
+		try {
+			initReferences(ALL_DATA);
+		}
+		catch (Exception e){
+
+		}
 	}
 
 	private void initReferences(long loadFlags) {

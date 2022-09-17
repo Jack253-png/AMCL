@@ -215,14 +215,15 @@ public final class MCAUtil {
 	private static final Pattern mcrFilePattern = Pattern.compile("^.*r\\.(?<regionX>-?\\d+)\\.(?<regionZ>-?\\d+)\\.mcr$");
 
 	public static MCAFile newMCAFile(File file) {
-		Matcher m = mcaFilePattern.matcher(file.getName());
-		Matcher n = mcrFilePattern.matcher(file.getName());
-		if (m.find()) {
-			return new MCAFile(Integer.parseInt(m.group("regionX")), Integer.parseInt(m.group("regionZ")));
-		}
-		if (n.find()) {
-			return new MCAFile(Integer.parseInt(n.group("regionX")), Integer.parseInt(n.group("regionZ")));
-		}
-		throw new IllegalArgumentException("invalid mca file name: " + file.getName());
+//		Matcher m = mcaFilePattern.matcher(file.getName());
+//		Matcher n = mcrFilePattern.matcher(file.getName());
+//		if (m.find()) {
+//			return new MCAFile(Integer.parseInt(m.group("regionX")), Integer.parseInt(m.group("regionZ")));
+//		}
+//		if (n.find()) {
+//			return new MCAFile(Integer.parseInt(n.group("regionX")), Integer.parseInt(n.group("regionZ")));
+//		}
+//		throw new IllegalArgumentException("invalid mca file name: " + file.getName());
+		return new MCAFile();
 	}
 }

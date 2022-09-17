@@ -21,11 +21,6 @@ public abstract class ArrayTag<T> extends Tag<T> {
 	}
 
 	@Override
-	public T getValue() {
-		return super.getValue();
-	}
-
-	@Override
 	public void setValue(T value) {
 		super.setValue(value);
 	}

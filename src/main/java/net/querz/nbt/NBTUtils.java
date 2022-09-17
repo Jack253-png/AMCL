@@ -1,11 +1,15 @@
 package net.querz.nbt;
 
+import com.google.gson.GsonBuilder;
+import com.mcreater.amcl.util.J8Utils;
+import net.querz.mca.Chunk;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.EndTag;
 import net.querz.nbt.tag.ListTag;
 import net.querz.nbt.tag.Tag;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +18,10 @@ import java.util.function.Consumer;
 
 public final class NBTUtils {
     public static Object toJavaNativeDataType(Tag<?> root) {
+
         if (root instanceof EndTag) {
             return null;
         }
-
         if (root instanceof CompoundTag) {
             CompoundTag temp = (CompoundTag) root;
             Map<String, Object> nat = new HashMap<>();
@@ -38,6 +42,29 @@ public final class NBTUtils {
             return nat;
         }
 
+        if (root.getValue() instanceof int[]) {
+            return J8Utils.createListFromArray((int[]) root.getValue());
+        }
+        if (root.getValue() instanceof long[]) {
+            return J8Utils.createListFromArray((long[]) root.getValue());
+        }
+        if (root.getValue() instanceof byte[]) {
+            return J8Utils.createListFromArray((byte[]) root.getValue());
+        }
+
         return root.getValue();
+    }
+    public static Object toJavaNativeDataType(NamedTag root) {
+        return J8Utils.createMap(root.getName(), toJavaNativeDataType(root.getTag()));
+    }
+    public static Object toJavaNativeDataType(Chunk chunk) {
+        return toJavaNativeDataType(chunk.data);
+    }
+
+    public static String toJsonString(Object v) {
+        return new GsonBuilder()
+                .setPrettyPrinting()
+                .create()
+                .toJson(v);
     }
 }

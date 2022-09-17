@@ -27,4 +27,8 @@ public class NamedTag {
 	public Tag<?> getTag() {
 		return tag;
 	}
+
+	public String toString(){
+		return tag.toString();
+	}
 }

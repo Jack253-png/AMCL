@@ -19,11 +19,6 @@ public class StringTag extends Tag<String> implements Comparable<StringTag> {
 	}
 
 	@Override
-	public String getValue() {
-		return super.getValue();
-	}
-
-	@Override
 	public void setValue(String value) {
 		super.setValue(value);
 	}

@@ -1,6 +1,8 @@
 package net.querz.nbt.tag;
 
 import net.querz.io.MaxDepthReachedException;
+import net.querz.nbt.NBTUtils;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -78,6 +80,9 @@ public abstract class Tag<T> implements Cloneable {
 	 * */
 	public T getValue() {
 		return value;
+	}
+	public String toString(){
+		return NBTUtils.toJsonString(NBTUtils.toJavaNativeDataType(this));
 	}
 
 	/**

@@ -1,13 +1,17 @@
 package net.querz.mca;
 
+import com.mcreater.amcl.util.J8Utils;
+import net.querz.nbt.NBTUtils;
 import net.querz.nbt.tag.CompoundTag;
 import net.querz.nbt.tag.Tag;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 public class MCAFile implements Iterable<Chunk> {
 
@@ -18,6 +22,20 @@ public class MCAFile implements Iterable<Chunk> {
 
 	private int regionX, regionZ;
 	private Chunk[] chunks;
+	public Chunk[] getChunks(){
+		return chunks;
+	}
+
+	public String toString(){
+		Map<String, String> content = new HashMap<>();
+		for (int x = 0;x < 32;x++){
+			for (int z = 0;z < 32;z++){
+				if (getChunk(x, z) != null) content.put(String.format("[%d, %d]", x, z), J8Utils.rawToString(getChunk(x, z)));
+				else content.put(String.format("[%d, %d]", x, z), "null");
+			}
+		}
+		return NBTUtils.toJsonString(content);
+	}
 
 	/**
 	 * MCAFile represents a world save file used by Minecraft to store world
@@ -31,6 +49,7 @@ public class MCAFile implements Iterable<Chunk> {
 		this.regionX = regionX;
 		this.regionZ = regionZ;
 	}
+	public MCAFile() {}
 
 	/**
 	 * Reads an .mca file from a {@code RandomAccessFile} into this object.
