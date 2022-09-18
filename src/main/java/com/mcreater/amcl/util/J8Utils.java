@@ -91,4 +91,12 @@ public class J8Utils {
             return value;
         }
     }
+    public static void runSafely(Runnable runnable) {
+        try {
+            runnable.run();
+        }
+        catch (Throwable e){
+            e.printStackTrace();
+        }
+    }
 }

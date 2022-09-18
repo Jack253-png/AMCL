@@ -2,14 +2,23 @@ package com.mcreater.amcl.util;
 
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.skins.JFXTextFieldSkin;
+import javafx.application.HostServices;
 import javafx.geometry.Insets;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Field;
 
@@ -75,5 +84,24 @@ public class FXUtils {
             f.set(sk, new Text());
         }
         catch (Exception ignored){}
+    }
+
+    public static class Platform {
+        public static void runLater(Runnable runnable) {
+//            try {
+//                Field f = Toolkit.class.getDeclaredField("fxUserThread");
+//                f.setAccessible(true);
+//                Thread CURRENT_THREAD = (Thread) f.get(Toolkit.getToolkit());
+//                f.set(Toolkit.getToolkit(), Thread.currentThread());
+//
+//                runnable.run();
+//
+//                f.set(Toolkit.getToolkit(), CURRENT_THREAD);
+//            }
+//            catch (Throwable e) {
+//                javafx.application.Platform.runLater(runnable);
+//            }
+            javafx.application.Platform.runLater(runnable);
+        }
     }
 }

@@ -95,7 +95,7 @@ public class CurseAPI {
         String url = String.format("/v1/mods/%s/files/%s", modId, fileId);
         String s = response(url);
         Gson g = new Gson();
-        Map<? , ?> m = g.fromJson(s, Map.class);
+        Map<?, ?> m = g.fromJson(s, Map.class);
         return g.fromJson(g.toJson(m.get("data")), CurseModFileModel.class);
     }
     public static long getTimeFromString(String time) {
@@ -164,7 +164,7 @@ public class CurseAPI {
         }
         Vector<CurseModFileModel> fabList = new Vector<>();
         requires.forEach(e -> {
-            if (e.modId == 306612){
+            if (e.modId == 306612 || e.modId == 322385){
                 fabList.add(e);
             }
         });

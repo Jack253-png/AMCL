@@ -305,7 +305,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         TaskManager.bind(dialog, 2);
                         try {
                             TaskManager.execute("<fabric addons>");
-                        } catch (Exception e) {
+                        } catch (Exception ignored) {
 
                         }
                         Platform.runLater(() -> install.setDisable(false));
@@ -407,18 +407,18 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             Platform.runLater(() -> optifine.cont.addItem(l));
         }
         for (String fabv : GetVersionList.getFabricVersionList(model.id)){
-            Label l = new Label(fabv.replace("+build.", "."));
+            Label l = new Label(fabv);
             l.setFont(Fonts.t_f);
             Platform.runLater(() -> fabric.cont.addItem(l));
         }
         for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(model.id)){
-            CurseFileLabel l = new CurseFileLabel(fabapav.fileName.replace("fabric-api-", "").replace(".jar", ""));
+            CurseFileLabel l = new CurseFileLabel(fabapav.fileName);
             l.setFont(Fonts.t_f);
             l.model = fabapav;
             Platform.runLater(() -> fabricapi.cont.addItem(l));
         }
         for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(model.id)){
-            CurseFileLabel l = new CurseFileLabel(optfabv.fileName.replace("optifabric-", "").replace(".jar", ""));
+            CurseFileLabel l = new CurseFileLabel(optfabv.fileName);
             l.setFont(Fonts.t_f);
             l.model = optfabv;
             Platform.runLater(() -> optifabric.cont.addItem(l));

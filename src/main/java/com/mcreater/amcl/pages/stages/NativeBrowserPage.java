@@ -23,8 +23,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class NativeBrowserPage extends AbstractStage {
+    Logger logger = LogManager.getLogger(NativeBrowserPage.class);
     WebView webView;
     public MicrosoftUser user;
     public Exception ex;
@@ -49,7 +52,7 @@ public class NativeBrowserPage extends AbstractStage {
         webView = new WebView();
         webView.getEngine().titleProperty().addListener((observable, oldValue, newValue) -> setTitle(newValue));
         webView.getEngine().locationProperty().addListener((observable, oldValue, newValue) -> new Thread(() -> {
-            System.out.println(newValue);
+            logger.info("Redirected to " + newValue);
             if (newValue.contains("The%20user%20has%20denied%20access%20to%20the%20scope%20requested%20by%20the%20client%20application.")){
                 webView.getEngine().load(MSAuth.loginUrl);
             }
@@ -70,12 +73,11 @@ public class NativeBrowserPage extends AbstractStage {
         }).start()
         );
         webView.getEngine().load(url);
-        webView.getEngine().getLoadWorker().totalWorkProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue.doubleValue()));
         webView.getEngine().getLoadWorker().progressProperty().addListener((observable, oldValue, newValue) -> {
             JFXSmoothScroll.smoothScrollBarToValue(loadState, newValue.doubleValue());
-            System.out.println(newValue.doubleValue());
+            logger.info(String.format("Load precent : %.2f", newValue.doubleValue() * 100) + "%");
         });
-        webView.getEngine().getLoadWorker().messageProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue));
+        webView.getEngine().getLoadWorker().messageProperty().addListener((observable, oldValue, newValue) -> logger.info("Web Engine message : " + newValue));
 
         refresh.minWidthProperty().bind(widthProperty());
         loadState.minWidthProperty().bind(widthProperty());
@@ -84,7 +86,6 @@ public class NativeBrowserPage extends AbstractStage {
 
         FXUtils.ControlSize.setHeight(refresh, 50);
         FXUtils.ControlSize.setHeight(loadState, 3);
-//        widthProperty().addListener((observable, oldValue, newValue) -> FXUtils.ControlSize.setHeight(webView, getWidth() - 50 - 3));
 
         this.getIcons().add(new Image("assets/icons/grass.png"));
         webView.getStylesheets().add(String.format(ThemeManager.getPath(), "WebView"));

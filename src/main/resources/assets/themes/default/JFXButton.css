@@ -1,5 +1,6 @@
 * {
     -fx-background-color: transparent;
+    -fx-font-smoothing-type: lcd;
 }
 #launch {
     -fx-background-color: rgba(173, 216, 246, 1);
