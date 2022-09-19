@@ -1,10 +1,6 @@
 package com.mcreater.amcl;
 
-import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialogLayout;
-import com.mcreater.amcl.api.auth.MSAuth;
-import com.mcreater.amcl.api.awtWrapper.MessageCenter;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
@@ -18,29 +14,23 @@ import com.mcreater.amcl.pages.ModDownloadPage;
 import com.mcreater.amcl.pages.UserSelectPage;
 import com.mcreater.amcl.pages.VersionInfoPage;
 import com.mcreater.amcl.pages.VersionSelectPage;
-import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.dialogs.SimpleDialog;
 import com.mcreater.amcl.pages.dialogs.commons.AboutDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.stages.NativeBrowserPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -97,6 +87,7 @@ public class Launcher extends javafx.application.Application {
     public static JFXButton back;
     public static AboutDialog aboutDialog;
     public static Pane wrapper = new Pane();
+    public static double radius = 70;
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
         if (OSInfo.isWin()) {
@@ -263,6 +254,7 @@ public class Launcher extends javafx.application.Application {
         cl.setAlignment(Pos.CENTER_RIGHT);
         cl.setMinSize(400, t_size);
         cl.setMaxSize(400, t_size);
+        cl.setStyle("-fx-border-radius: " + radius / 2 + "px");
         title.add(cl, 1, 0, 1, 1);
         top.getChildren().add(title);
 
@@ -272,8 +264,6 @@ public class Launcher extends javafx.application.Application {
         VBox v = new VBox();
         v.getChildren().addAll(top, last);
         v.setStyle("-fx-background-color: transparent");
-//        p = new Pane();
-//        p.setStyle("-fx-background-color: transparent");
         p.getChildren().removeIf(node -> node.getClass() == VBox.class);
         p.getChildren().add(0, v);
         wrapper.getChildren().clear();
@@ -310,18 +300,19 @@ public class Launcher extends javafx.application.Application {
         WritableImage ima = FXUtils.ImageConverter.convertToWritableImage(new Image(wallpaper));
 
         ImageView imageView = new ImageView(ima);
+        imageView.setFitWidth(ima.getWidth() / 7 * 6);
+        imageView.setFitHeight(ima.getHeight() / 12 * 11);
 
         Rectangle clip = new Rectangle(
-                ima.getWidth(), ima.getHeight()
+                imageView.getFitWidth(), imageView.getFitHeight()
         );
-        clip.setArcWidth(20);
-        clip.setArcHeight(20);
+        clip.setArcWidth(radius);
+        clip.setArcHeight(radius);
         imageView.setClip(clip);
 
-        // snapshot the rounded image.
         SnapshotParameters parameters = new SnapshotParameters();
         parameters.setFill(Color.TRANSPARENT);
-        WritableImage image = imageView.snapshot(parameters, null);
+        WritableImage image = imageView.snapshot(parameters, ima);
 
         BackgroundImage im = new BackgroundImage(image,
                 BackgroundRepeat.NO_REPEAT,
@@ -330,7 +321,7 @@ public class Launcher extends javafx.application.Application {
                 bs);
         bg = new Background(im);
 
-        p.setStyle("-fx-border-radius: 20px;");
+        p.setStyle("-fx-border-radius: " + radius + "px");
         p.setBackground(bg);
     }
 }
