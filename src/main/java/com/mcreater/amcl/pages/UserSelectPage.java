@@ -25,6 +25,7 @@ import com.mcreater.amcl.pages.dialogs.skin.EditAccountContentDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.stages.NativeBrowserPage;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.SimpleFunctions;
@@ -494,6 +495,15 @@ public class UserSelectPage extends AbstractMenuBarPage {
                     });
                 }
             });
+            JFXButton cancel = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
+            ThemeManager.loadButtonAnimates(cancel);
+            dialog.layout.getActions().add(cancel);
+            cancel.setOnAction(event110 -> {
+                dialog.close();
+                p.loginThread.stop();
+                t.stop();
+                msLogin.setDisable(false);
+            });
             p.setOnHiding(event1 -> {
                 dialog.Create();
                 Launcher.stage.show();
@@ -503,6 +513,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 t.stop();
                 msLogin.setDisable(false);
                 Launcher.stage.show();
+                p.loginThread.stop();
             });
             t.start();
         });

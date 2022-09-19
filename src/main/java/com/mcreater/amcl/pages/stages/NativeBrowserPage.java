@@ -39,6 +39,7 @@ public class NativeBrowserPage extends AbstractStage {
     public void setDialog(ProcessDialog dialog){
         this.dialog = dialog;
     }
+    public Thread loginThread = new Thread();
     public NativeBrowserPage(String url){
         initOwner(new Stage());
         initStyle(StageStyle.DECORATED);
@@ -51,26 +52,29 @@ public class NativeBrowserPage extends AbstractStage {
 
         webView = new WebView();
         webView.getEngine().titleProperty().addListener((observable, oldValue, newValue) -> setTitle(newValue));
-        webView.getEngine().locationProperty().addListener((observable, oldValue, newValue) -> new Thread(() -> {
-            logger.info("Redirected to " + newValue);
-            if (newValue.contains("The%20user%20has%20denied%20access%20to%20the%20scope%20requested%20by%20the%20client%20application.")){
-                webView.getEngine().load(MSAuth.loginUrl);
-            }
-            else if (newValue.startsWith(MSAuth.redirectUrlSuffix)){
-                Platform.runLater(this::close);
-                int start = newValue.indexOf("?code=");
-                String temp = newValue.substring(start);
-                int end = temp.indexOf("&lc=");
-                try {
-                    MSAuth auth = new MSAuth();
-                    auth.bindDialog(dialog);
-                    user = auth.getUser(temp.substring(6, end));
+        webView.getEngine().locationProperty().addListener((observable, oldValue, newValue) -> {
+            loginThread = new Thread(() -> {
+                logger.info("Redirected to " + newValue);
+                if (newValue.contains("The%20user%20has%20denied%20access%20to%20the%20scope%20requested%20by%20the%20client%20application.")){
+                    webView.getEngine().load(MSAuth.loginUrl);
                 }
-                catch (Exception e){
-                    ex = e;
+                else if (newValue.startsWith(MSAuth.redirectUrlSuffix)){
+                    Platform.runLater(this::close);
+                    int start = newValue.indexOf("?code=");
+                    String temp = newValue.substring(start);
+                    int end = temp.indexOf("&lc=");
+                    try {
+                        MSAuth auth = new MSAuth();
+                        auth.bindDialog(dialog);
+                        user = auth.getUser(temp.substring(6, end));
+                    }
+                    catch (Exception e){
+                        ex = e;
+                    }
                 }
-            }
-        }).start()
+            });
+            loginThread.start();
+        }
         );
         webView.getEngine().load(url);
         webView.getEngine().getLoadWorker().progressProperty().addListener((observable, oldValue, newValue) -> {

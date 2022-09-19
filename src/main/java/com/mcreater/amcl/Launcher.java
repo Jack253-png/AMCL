@@ -33,13 +33,18 @@ import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
@@ -302,13 +307,30 @@ public class Launcher extends javafx.application.Application {
     public static void refreshBackground(){
         String wallpaper = "assets/imgs/background.jpg";
 
-        BackgroundImage im = new BackgroundImage(new Image(wallpaper),
+        WritableImage ima = FXUtils.ImageConverter.convertToWritableImage(new Image(wallpaper));
+
+        ImageView imageView = new ImageView(ima);
+
+        Rectangle clip = new Rectangle(
+                ima.getWidth(), ima.getHeight()
+        );
+        clip.setArcWidth(20);
+        clip.setArcHeight(20);
+        imageView.setClip(clip);
+
+        // snapshot the rounded image.
+        SnapshotParameters parameters = new SnapshotParameters();
+        parameters.setFill(Color.TRANSPARENT);
+        WritableImage image = imageView.snapshot(parameters, null);
+
+        BackgroundImage im = new BackgroundImage(image,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT,
                 BackgroundPosition.DEFAULT,
                 bs);
         bg = new Background(im);
 
+        p.setStyle("-fx-border-radius: 20px;");
         p.setBackground(bg);
     }
 }
