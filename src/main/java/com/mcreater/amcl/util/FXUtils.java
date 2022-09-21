@@ -20,6 +20,8 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 
@@ -107,20 +109,15 @@ public class FXUtils {
     }
     public static class ImagePreProcesser {
         @SafeVarargs
-        public static void process(WritableImage image, double radius, boolean blur, double blurRadius, SimpleFunctions.Arg2FuncNoReturn<ImageView, WritableImage>... func) {
+        public static void process(WritableImage image, SimpleFunctions.Arg2FuncNoReturn<ImageView, WritableImage>... func) {
             ImageView imageView = new ImageView(image);
             imageView.setFitWidth(image.getWidth() / 7 * 6);
             imageView.setFitHeight(image.getHeight() / 12 * 11);
             System.out.printf("%f, %f\n", image.getWidth(), image.getHeight());
-            Rectangle clip = new Rectangle(
-                    imageView.getFitWidth(), imageView.getFitHeight()
-            );
-            clip.setArcWidth(radius);
-            clip.setArcHeight(radius);
-            imageView.setClip(clip);
-            if (blur) imageView.setEffect(new GaussianBlur(blurRadius));
 
-
+            for (SimpleFunctions.Arg2FuncNoReturn<ImageView, WritableImage> processor : func) {
+                processor.run(imageView, image);
+            }
 
             SnapshotParameters parameters = new SnapshotParameters();
             parameters.setFill(Color.TRANSPARENT);

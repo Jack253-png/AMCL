@@ -21,6 +21,7 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
@@ -30,7 +31,10 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
@@ -299,9 +303,15 @@ public class Launcher extends javafx.application.Application {
 
         FXUtils.ImagePreProcesser.process(
                 ima,
-                60,
-                true,
-                20
+                (arg1, arg2) -> {
+                    Rectangle clip = new Rectangle(
+                            arg1.getFitWidth(), arg1.getFitHeight()
+                    );
+                    clip.setArcWidth(radius);
+                    clip.setArcHeight(radius);
+                    arg1.setClip(clip);
+                },
+                (arg1, arg2) -> arg1.setEffect(new GaussianBlur(20))
         );
 
         BackgroundImage im = new BackgroundImage(
