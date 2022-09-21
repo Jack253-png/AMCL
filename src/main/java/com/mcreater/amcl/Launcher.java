@@ -24,16 +24,13 @@ import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
-import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
@@ -88,6 +85,7 @@ public class Launcher extends javafx.application.Application {
     public static AboutDialog aboutDialog;
     public static Pane wrapper = new Pane();
     public static double radius = 70;
+    static VBox top = new VBox();
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
         if (OSInfo.isWin()) {
@@ -199,7 +197,7 @@ public class Launcher extends javafx.application.Application {
 
     private static void setPageCore(){
         double t_size = barSize;
-        VBox top = new VBox();
+        top = new VBox();
         top.setId("top-bar");
         top.setPrefSize(width, t_size);
 
@@ -299,29 +297,21 @@ public class Launcher extends javafx.application.Application {
 
         WritableImage ima = FXUtils.ImageConverter.convertToWritableImage(new Image(wallpaper));
 
-        ImageView imageView = new ImageView(ima);
-        imageView.setFitWidth(ima.getWidth() / 7 * 6);
-        imageView.setFitHeight(ima.getHeight() / 12 * 11);
-
-        Rectangle clip = new Rectangle(
-                imageView.getFitWidth(), imageView.getFitHeight()
+        FXUtils.ImagePreProcesser.process(
+                ima,
+                60,
+                true,
+                20
         );
-        clip.setArcWidth(radius);
-        clip.setArcHeight(radius);
-        imageView.setClip(clip);
 
-        SnapshotParameters parameters = new SnapshotParameters();
-        parameters.setFill(Color.TRANSPARENT);
-        WritableImage image = imageView.snapshot(parameters, ima);
-
-        BackgroundImage im = new BackgroundImage(image,
-                BackgroundRepeat.NO_REPEAT,
-                BackgroundRepeat.NO_REPEAT,
+        BackgroundImage im = new BackgroundImage(
+                ima,
+                BackgroundRepeat.ROUND,
+                BackgroundRepeat.ROUND,
                 BackgroundPosition.DEFAULT,
                 bs);
         bg = new Background(im);
-
-        p.setStyle("-fx-border-radius: " + radius + "px");
+        top.setStyle("-fx-border-radius: " + radius + "px");
         p.setBackground(bg);
     }
 }

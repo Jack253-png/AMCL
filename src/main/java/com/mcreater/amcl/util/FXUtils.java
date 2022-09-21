@@ -2,10 +2,12 @@ package com.mcreater.amcl.util;
 
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.skins.JFXTextFieldSkin;
-import javafx.application.HostServices;
 import javafx.geometry.Insets;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.SplitPane;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
@@ -13,12 +15,11 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 import java.lang.reflect.Field;
 
@@ -102,6 +103,29 @@ public class FXUtils {
 //                javafx.application.Platform.runLater(runnable);
 //            }
             javafx.application.Platform.runLater(runnable);
+        }
+    }
+    public static class ImagePreProcesser {
+        @SafeVarargs
+        public static void process(WritableImage image, double radius, boolean blur, double blurRadius, SimpleFunctions.Arg2FuncNoReturn<ImageView, WritableImage>... func) {
+            ImageView imageView = new ImageView(image);
+            imageView.setFitWidth(image.getWidth() / 7 * 6);
+            imageView.setFitHeight(image.getHeight() / 12 * 11);
+            System.out.printf("%f, %f\n", image.getWidth(), image.getHeight());
+            Rectangle clip = new Rectangle(
+                    imageView.getFitWidth(), imageView.getFitHeight()
+            );
+            clip.setArcWidth(radius);
+            clip.setArcHeight(radius);
+            imageView.setClip(clip);
+            if (blur) imageView.setEffect(new GaussianBlur(blurRadius));
+
+
+
+            SnapshotParameters parameters = new SnapshotParameters();
+            parameters.setFill(Color.TRANSPARENT);
+            image = imageView.snapshot(parameters, image);
+            System.out.printf("%f, %f\n", image.getWidth(), image.getHeight());
         }
     }
 }
