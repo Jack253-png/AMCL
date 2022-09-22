@@ -54,6 +54,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -303,15 +304,27 @@ public class Launcher extends javafx.application.Application {
 
         FXUtils.ImagePreProcesser.process(
                 ima,
-                (arg1, arg2) -> {
+                (view, image) -> {
+                    if (last != MAINPAGE) view.setEffect(new GaussianBlur(20));
+                    else {
+                        WritableImage cutted = FXUtils.ImagePreProcesser.cutImage(image, 400, 400, 400, 400);
+                        BufferedImage swIm = FXUtils.ImagePreProcesser.toSwingImage(cutted);
+                        for (int i = 0; i < 20; i++) {
+                            FXUtils.ImagePreProcesser.SwingImageGaussian.generate(swIm, 20);
+                        }
+                        cutted = FXUtils.ImagePreProcesser.fromSwingImage(swIm);
+                        FXUtils.ImagePreProcesser.copyImage(image, cutted, 400, 400, 400, 400);
+                    }
+                },
+                (view, image) -> {
                     Rectangle clip = new Rectangle(
-                            arg1.getFitWidth(), arg1.getFitHeight()
+                            view.getFitWidth() / 7 * 6,
+                            view.getFitHeight()  / 12 * 11
                     );
                     clip.setArcWidth(radius);
                     clip.setArcHeight(radius);
-                    arg1.setClip(clip);
-                },
-                (arg1, arg2) -> arg1.setEffect(new GaussianBlur(20))
+                    view.setClip(clip);
+                }
         );
 
         BackgroundImage im = new BackgroundImage(
