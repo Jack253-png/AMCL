@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
 import java.nio.IntBuffer;
 import java.util.Arrays;
+import java.util.Vector;
 
 public class FXUtils {
     public static class ImageConverter {
@@ -108,6 +109,15 @@ public class FXUtils {
         }
     }
     public static class ImagePreProcesser {
+        public static WritableImage getColorImage(Color color, int width, int height) {
+            WritableImage result = new WritableImage(width, height);
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    result.getPixelWriter().setColor(x, y, color);
+                }
+            }
+            return result;
+        }
         @SafeVarargs
         public static void process(WritableImage image, SimpleFunctions.Arg2FuncNoReturn<ImageView, WritableImage>... func) {
             ImageView imageView = new ImageView(image);
@@ -154,116 +164,58 @@ public class FXUtils {
             }
         }
 
-        public static BufferedImage toSwingImage(Image image) {
-            int width = (int) image.getWidth();
-            int height = (int) image.getHeight();
-            Color[] pixels = new Color[width * height];
+        public static WritableImage gaussianBlurImage(WritableImage src, int radius) {
+            int w = (int) src.getWidth();
+            int h = (int) src.getHeight();
 
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    Color c = image.getPixelReader().getColor(x, y);
-                    pixels[y * width + x] = c;
-                }
-            }
-
-            BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    // There may be better ways to do this
-                    // You'll need to make sure your image's format is correct here
-                    Color pixel = pixels[y * width + x];
-                    int r = (int) (pixel.getRed() * 255);
-                    int g = (int) (pixel.getGreen() * 255);
-                    int b = (int) (pixel.getBlue() * 255);
-                    bufferedImage.getRaster().setPixel(x, y, new int[]{r, g, b});
-                }
-            }
-            return bufferedImage;
-        }
-
-        public static WritableImage fromSwingImage(BufferedImage image) {
-            int w = image.getWidth();
-            int h = image.getHeight();
             WritableImage result = new WritableImage(w, h);
 
             for (int x = 0; x < w; x++) {
                 for (int y = 0; y < h; y++) {
-                    java.awt.Color c = new java.awt.Color(image.getRGB(x, y));
-                    result.getPixelWriter().setColor(x, y, new Color((double) c.getRed() / 255, (double) c.getGreen() / 255, (double) c.getBlue() / 255, 1));
+                    System.out.printf("%d, %d\n", x, y);
+                    result.getPixelWriter().setColor(x, y, getAvgColor(src, x, y, radius));
                 }
             }
+
             return result;
         }
-        public static class SwingImageGaussian {
-            public static void generate(BufferedImage src, int radius) {
-                System.out.println(new java.awt.Color(src.getRGB(0, 0)));
-                int height = src.getHeight();
-                int width = src.getWidth();
-                int[][] martrix = new int[3][3];
-                int[] values = new int[9];
-                for (int i = 0; i < width; i++)
-                    for (int j = 0; j < height; j++) {
-                        readPixel(src, i, j, values);
-                        fillMatrix(martrix, values);
-                        src.setRGB(i, j, avgMatrix(martrix));
+
+        private static Color getAvgColor(Image src, int x, int y, int radius) {
+            ColorVector colors = new ColorVector();
+            for (int xPos = -radius; xPos <= radius; xPos++) {
+                for (int yPos = -radius; yPos <= radius; yPos++) {
+                    try {
+                        colors.add(src.getPixelReader().getColor(x + xPos, y + yPos));
                     }
-                System.out.println(new java.awt.Color(src.getRGB(0, 0)));
-            }
+                    catch (Exception ignored){
 
-            private static void readPixel(BufferedImage img, int x, int y, int[] pixels) {
-                int xStart = x - 1;
-                int yStart = y - 1;
-                int current = 0;
-                for (int i = xStart; i < 3 + xStart; i++)
-                    for (int j = yStart; j < 3 + yStart; j++) {
-                        int tx = i;
-                        if (tx < 0) {
-                            tx = -tx;
-
-                        } else if (tx >= img.getWidth()) {
-                            tx = x;
-                        }
-                        int ty = j;
-                        if (ty < 0) {
-                            ty = -ty;
-                        } else if (ty >= img.getHeight()) {
-                            ty = y;
-                        }
-                        pixels[current++] = img.getRGB(tx, ty);
-
-                    }
-            }
-
-            private static void fillMatrix(int[][] matrix, int[] values) {
-                int filled = 0;
-                for (int[] x : matrix) {
-                    for (int j = 0; j < x.length; j++) {
-                        x[j] = values[filled++];
                     }
                 }
             }
 
-            private static int avgMatrix(int[][] matrix) {
-                int r = 0;
-                int g = 0;
-                int b = 0;
-                for (int[] x : matrix) {
-                    for (int j = 0; j < x.length; j++) {
-                        if (j == 1) {
-                            continue;
-                        }
-                        java.awt.Color c = new java.awt.Color(x[j]);
-                        r += c.getRed();
-                        g += c.getGreen();
-                        b += c.getBlue();
-                    }
-                }
-                r = (int) (r / 0.75);
-                g = (int) (g / 0.75);
-                b = (int) (b / 0.75);
-                return new java.awt.Color(r / 8 , g / 8, b / 8).getRGB();
+            return colors.getAvgColor();
+        }
 
+        public static class ColorVector extends Vector<Color> {
+            public Color getAvgColor(){
+                double rAvg = 0;
+                double gAvg = 0;
+                double bAvg = 0;
+                double aAvg = 0;
+
+                for (Color item : this) {
+                    rAvg += item.getRed();
+                    gAvg += item.getGreen();
+                    bAvg += item.getBlue();
+                    aAvg += item.getOpacity();
+                }
+
+                return new Color(
+                        rAvg / size(),
+                        gAvg / size(),
+                        bAvg / size(),
+                        aAvg / size()
+                );
             }
         }
     }

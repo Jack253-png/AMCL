@@ -31,7 +31,6 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -54,7 +53,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -98,7 +96,7 @@ public class Launcher extends javafx.application.Application {
             themeManager = new ThemeManager();
             stage = new Stage();
             setGeometry(stage, width, height);
-            bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, false, true);
+            bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true);
             logger.info("Launcher Version : " + VersionInfo.launcher_version);
             try {
                 FileUtils.ChangeDir.saveNowDir();
@@ -307,13 +305,8 @@ public class Launcher extends javafx.application.Application {
                 (view, image) -> {
                     if (last != MAINPAGE) view.setEffect(new GaussianBlur(20));
                     else {
-                        WritableImage cutted = FXUtils.ImagePreProcesser.cutImage(image, 400, 400, 400, 400);
-                        BufferedImage swIm = FXUtils.ImagePreProcesser.toSwingImage(cutted);
-                        for (int i = 0; i < 20; i++) {
-                            FXUtils.ImagePreProcesser.SwingImageGaussian.generate(swIm, 20);
-                        }
-                        cutted = FXUtils.ImagePreProcesser.fromSwingImage(swIm);
-                        FXUtils.ImagePreProcesser.copyImage(image, cutted, 400, 400, 400, 400);
+                        WritableImage cutted = FXUtils.ImagePreProcesser.cutImage(image, 400, 400, 200, 200);
+                        FXUtils.ImagePreProcesser.copyImage(image, cutted, 400, 400, 200, 200);
                     }
                 },
                 (view, image) -> {
@@ -334,7 +327,45 @@ public class Launcher extends javafx.application.Application {
                 BackgroundPosition.DEFAULT,
                 bs);
         bg = new Background(im);
-        top.setStyle("-fx-border-radius: " + radius + "px");
+        top.setStyle("-fx-border-radius: " + radius + "px; ");
+
+        WritableImage image = FXUtils.ImagePreProcesser.getColorImage(
+                new Color(1, 1, 1, 0.5),
+                width, (int) barSize
+        );
+
+        FXUtils.ImagePreProcesser.process(
+                image,
+                (view, image1) -> {
+                    Rectangle clip = new Rectangle(
+                            width,
+                            barSize
+                    );
+                    clip.setArcWidth(radius / 3 * 2 + radius / 100);
+                    clip.setArcHeight(radius / 3 * 2 + radius / 100);
+                    view.setClip(clip);
+                }
+        );
+        FXUtils.ImagePreProcesser.process(
+                image,
+                (arg1, arg2) -> {
+                    for (int x = 0; x < arg2.getWidth(); x++) {
+                        for (int y = (int) (arg2.getHeight() / 2); y < arg2.getHeight(); y++) {
+                            arg2.getPixelWriter().setColor(x, y, new Color(
+                                    1, 1, 1, 0.5
+                            ));
+                        }
+                    }
+                }
+        );
+        top.setBackground(new Background(new BackgroundImage(
+                image,
+                BackgroundRepeat.ROUND,
+                BackgroundRepeat.ROUND,
+                BackgroundPosition.DEFAULT,
+                bs
+        )));
+
         p.setBackground(bg);
     }
 }
