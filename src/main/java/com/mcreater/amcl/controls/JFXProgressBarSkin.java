@@ -97,11 +97,11 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
         this.secondaryBar.resizeRelocate(x, y, this.secondaryBarWidth, h);
         this.bar.resizeRelocate(x, y, ((ProgressIndicator)this.getSkinnable()).isIndeterminate() ? w : this.barWidth, h);
         this.clip.resizeRelocate(0.0, 0.0, w, h);
-        if (((ProgressIndicator)this.getSkinnable()).isIndeterminate()) {
+        if (this.getSkinnable().isIndeterminate()) {
             this.createIndeterminateTimeline();
-            if (NodeHelper.isTreeShowing(this.getSkinnable())) {
-                this.indeterminateTransition.play();
-            }
+//            if (NodeHelper.isTreeShowing(this.getSkinnable())) {
+//                this.indeterminateTransition.play();
+//            }
 
             this.bar.setClip(this.clip);
         } else if (this.indeterminateTransition != null) {

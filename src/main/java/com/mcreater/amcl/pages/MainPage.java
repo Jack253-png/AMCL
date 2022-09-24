@@ -256,6 +256,8 @@ public class MainPage extends AbstractAnimationPage {
                 downloadMc
         );
 
+        nodes.add(GameMenu);
+
         Pane p = new Pane();
         FXUtils.ControlSize.set(p, width / 2, height - Launcher.barSize - 50);
 

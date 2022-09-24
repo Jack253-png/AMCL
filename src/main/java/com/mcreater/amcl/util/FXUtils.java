@@ -8,7 +8,6 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.image.WritablePixelFormat;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -20,13 +19,11 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 
-import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
-import java.nio.IntBuffer;
-import java.util.Arrays;
 import java.util.Vector;
 
 public class FXUtils {
+
     public static class ImageConverter {
         public static WritableImage convertToWritableImage(Image image){
             return new WritableImage(image.getPixelReader(), (int) image.getWidth(), (int) image.getHeight());
@@ -109,6 +106,23 @@ public class FXUtils {
         }
     }
     public static class ImagePreProcesser {
+        public static final SimpleFunctions.Arg2FuncNoReturn<ImageView, WritableImage> NO_TRANSPARENT = (arg1, arg2) -> {
+            for (int x = 0; x < arg2.getWidth(); x++) {
+                for (int y = 0; y < arg2.getHeight(); y++) {
+                    Color c = arg2.getPixelReader().getColor(x, y);
+                    arg2.getPixelWriter().setColor(
+                            x,
+                            y,
+                            new Color(
+                                    c.getRed(),
+                                    c.getGreen(),
+                                    c.getBlue(),
+                                    1
+                            )
+                    );
+                }
+            }
+        };
         public static WritableImage getColorImage(Color color, int width, int height) {
             WritableImage result = new WritableImage(width, height);
             for (int x = 0; x < width; x++) {
@@ -184,11 +198,12 @@ public class FXUtils {
             ColorVector colors = new ColorVector();
             for (int xPos = -radius; xPos <= radius; xPos++) {
                 for (int yPos = -radius; yPos <= radius; yPos++) {
-                    try {
-                        colors.add(src.getPixelReader().getColor(x + xPos, y + yPos));
-                    }
-                    catch (Exception ignored){
+                    if (xPos != 0 && yPos != 0) {
+                        try {
+                            colors.add(src.getPixelReader().getColor(x + xPos, y + yPos));
+                        } catch (Exception ignored) {
 
+                        }
                     }
                 }
             }
