@@ -2,7 +2,13 @@ package com.mcreater.amcl.util;
 
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.skins.JFXTextFieldSkin;
+import com.mcreater.amcl.Launcher;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
+import javafx.geometry.Point3D;
+import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
@@ -20,6 +26,7 @@ import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Vector;
 
 public class FXUtils {
@@ -233,5 +240,12 @@ public class FXUtils {
                 );
             }
         }
+    }
+    public static boolean gemotryInned(Point2D target, List<Node> nodes) {
+        for (Node control : nodes) {
+            System.out.println(control.localToScreen(0, 0));
+            System.out.println(control.localToScreen(new BoundingBox(0, 0, 0, 0)));
+        }
+        return false;
     }
 }

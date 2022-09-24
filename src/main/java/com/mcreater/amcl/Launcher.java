@@ -21,20 +21,18 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
-import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import javafx.beans.binding.Bindings;
-import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
@@ -53,7 +51,6 @@ import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -63,7 +60,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class Launcher extends javafx.application.Application {
     static Logger logger = LogManager.getLogger(Launcher.class);
-    static Scene s = new Scene(new Pane(), Color.TRANSPARENT);
+    public static Scene s = new Scene(new Pane(), Color.TRANSPARENT);
     public static Stage stage;
     static AbstractAnimationPage last;
     public static MainPage MAINPAGE;
@@ -152,8 +149,6 @@ public class Launcher extends javafx.application.Application {
             ThemeManager.loadButtonAnimateParent(CONFIGPAGE.p);
             last = MAINPAGE;
             setPage(last, last);
-
-            refreshBackground();
 
             BGMManager.init();
             BGMManager.start();
@@ -274,10 +269,10 @@ public class Launcher extends javafx.application.Application {
         wrapper.getChildren().add(p);
         wrapper.setStyle("-fx-background-color: transparent");
 
-        refreshBackground();
         s.setFill(Color.TRANSPARENT);
         s.setRoot(wrapper);
         stage.setScene(s);
+        refreshBackground();
         s.setOnKeyPressed(event -> System.out.println(event.getCode()));
     }
     public static void setTitle(){
@@ -304,9 +299,23 @@ public class Launcher extends javafx.application.Application {
         String wallpaper = "assets/imgs/background.jpg";
 
         WritableImage ima = FXUtils.ImageConverter.convertToWritableImage(new Image(wallpaper));
+        WritableImage ima2 = FXUtils.ImagePreProcesser.cutImage(ima, 0, 0, (int) ima.getWidth(), (int) ima.getHeight());
 
-        AtomicReference<WritableImage> temp1 = new AtomicReference<>();
         AtomicReference<WritableImage> temp2 = new AtomicReference<>();
+
+        FXUtils.ImagePreProcesser.process(
+                ima2,
+                (view, image) -> view.setEffect(new GaussianBlur(100)),
+                (view, image) -> {
+                    Rectangle clip = new Rectangle(
+                            view.getFitWidth() / 7 * 6,
+                            view.getFitHeight()  / 12 * 11
+                    );
+                    clip.setArcWidth(0);
+                    clip.setArcHeight(0);
+                    view.setClip(clip);
+                }
+        );
 
         FXUtils.ImagePreProcesser.process(
                 ima,
@@ -324,19 +333,21 @@ public class Launcher extends javafx.application.Application {
         );
         FXUtils.ImagePreProcesser.process(
                 ima,
-                (view, image) -> temp1.set(FXUtils.ImagePreProcesser.cutImage(image, 0, 0, (int) image.getWidth(), (int) image.getHeight())),
                 (view, image) -> {
-                    for (int x = 0; x < image.getWidth(); x++) {
-                        for (int y = (int) (image.getHeight() / 2); y < image.getHeight(); y++) {
-                            try {
-                                image.getPixelWriter().setColor(x, y, temp1.get().getPixelReader().getColor(x, y));
-                            } catch (Exception ignored) {
+                    if (ima2 != null) {
+                        for (int x = 0; x < image.getWidth(); x++) {
+                            for (int y = (int) (image.getHeight() / 2); y < image.getHeight(); y++) {
+                                image.getPixelWriter().setColor(
+                                        x,
+                                        y,
+                                        ima2.getPixelReader().getColor(x, y)
+                                );
                             }
                         }
                     }
                 },
                 (view, image) -> {
-
+                    FXUtils.gemotryInned(new Point2D(0, 0), last.nodes);
                 }
         );
 
