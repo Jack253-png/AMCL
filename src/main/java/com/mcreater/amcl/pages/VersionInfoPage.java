@@ -193,6 +193,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         });
         super.setP1(0);
         super.setButtonType(JFXButton.ButtonType.RAISED);
+        nodes.add(null);
     }
     public void setByview(){
         String type;

@@ -353,6 +353,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         box.add(install, 0, 7, 1, 1);
         ThemeManager.loadButtonAnimates(id, forge, optifine, fabric, fabricapi, optifabric, versionfinalName, install);
         this.add(p, 0, 0, 1, 1);
+
+        nodes.add(null);
     }
 
     public static boolean isValidFileName(String fileName) {

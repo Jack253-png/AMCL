@@ -364,6 +364,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         super.addNewPair(new Pair<>(system, p2));
         super.setP1(0);
         super.setButtonType(JFXButton.ButtonType.RAISED);
+        nodes.add(null);
     }
     public void changeFont(Chart c) throws NoSuchFieldException, IllegalAccessException {
         Field f = Chart.class.getDeclaredField("titleLabel");

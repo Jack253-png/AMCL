@@ -79,6 +79,8 @@ public class DownloadMcPage extends AbstractAnimationPage {
         loadVersions();
         setP1(p1);
         setType(setting);
+
+        nodes.add(null);
     }
     public void loadVersions(){
         if (service != null) service.stop();

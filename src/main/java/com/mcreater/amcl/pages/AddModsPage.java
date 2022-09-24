@@ -60,6 +60,7 @@ public class AddModsPage extends AbstractAnimationPage {
         });
         modlist.page.setStyle("-fx-background-color: transparent");
 
+
         submit.setOnAction(event -> search());
         pane.setAlignment(Pos.TOP_CENTER);
         add(in, 0, 0, 1, 1);
@@ -67,6 +68,7 @@ public class AddModsPage extends AbstractAnimationPage {
         add(modlist.page, 0, 2, 2, 1);
         add(bar, 0, 3, 2, 1);
         setStyle("-fx-background-color : rgba(255, 255, 255, 0.50)");
+        nodes.add(null);
     }
     public void search(){
         searchThread.stop();

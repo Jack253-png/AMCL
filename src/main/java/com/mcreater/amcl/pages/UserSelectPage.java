@@ -562,6 +562,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
         this.addNewPair(new Pair<>(profile, p3));
         super.setP1(0);
         super.setButtonType(JFXButton.ButtonType.RAISED);
+        nodes.add(null);
     }
     public Image getOfflineUserSkin(OffLineUser user) {
         try {

@@ -136,6 +136,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
         FXUtils.ControlSize.set(t, this.width, 70);
         p.add(t, 0, 1, 1, 1);
         this.add(p, 0, 0, 1, 1);
+        nodes.add(null);
     }
     public void setModContent(CurseModModel model){
         if (this.content != model || !loadSuccess) {

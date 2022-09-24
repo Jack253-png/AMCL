@@ -3,6 +3,7 @@ package com.mcreater.amcl.util;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.skins.JFXTextFieldSkin;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.pages.interfaces.AnimationPage;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
@@ -10,6 +11,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.Control;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -117,16 +119,18 @@ public class FXUtils {
             for (int x = 0; x < arg2.getWidth(); x++) {
                 for (int y = 0; y < arg2.getHeight(); y++) {
                     Color c = arg2.getPixelReader().getColor(x, y);
-                    arg2.getPixelWriter().setColor(
-                            x,
-                            y,
-                            new Color(
-                                    c.getRed(),
-                                    c.getGreen(),
-                                    c.getBlue(),
-                                    1
-                            )
-                    );
+                    if (c.getOpacity() > 0.2) {
+                        arg2.getPixelWriter().setColor(
+                                x,
+                                y,
+                                new Color(
+                                        c.getRed(),
+                                        c.getGreen(),
+                                        c.getBlue(),
+                                        1
+                                )
+                        );
+                    }
                 }
             }
         };
@@ -241,10 +245,11 @@ public class FXUtils {
             }
         }
     }
-    public static boolean gemotryInned(Point2D target, List<Node> nodes) {
-        for (Node control : nodes) {
-            System.out.println(control.localToScreen(0, 0));
-            System.out.println(control.localToScreen(new BoundingBox(0, 0, 0, 0)));
+    public static boolean gemotryInned(Point2D target, List<AnimationPage.NodeInfo> nodes) {
+        for (AnimationPage.NodeInfo control : nodes) {
+            if (control.size.contains(target)) {
+                return true;
+            }
         }
         return false;
     }

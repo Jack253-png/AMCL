@@ -5,11 +5,15 @@ import javafx.scene.Node;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 
+import java.util.List;
+import java.util.Vector;
+
 public abstract class AbstractAnimationPage extends GridPane implements AnimationPage {
     public String name;
     public AbstractAnimationPage l;
     public static double width;
     public double height;
+    public final List<NodeInfo> nodes = new Vector<>();
     public Color returnBlack() {
         return Color.BLACK;
     }

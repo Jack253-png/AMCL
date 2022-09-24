@@ -4,16 +4,25 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.util.List;
 import java.util.Vector;
 
 public interface AnimationPage {
+    class NodeInfo {
+        public final BoundingBox size;
+        public NodeInfo(double x, double y, double w, double h){
+            this.size = new BoundingBox(x, y, w, h);
+        }
+    }
     Timeline in = new Timeline();
     Timeline out = new Timeline();
-    List<Node> nodes = new Vector<>();
     long delay = 300;
     default void set(DoubleProperty property){
         in.setCycleCount(1);
