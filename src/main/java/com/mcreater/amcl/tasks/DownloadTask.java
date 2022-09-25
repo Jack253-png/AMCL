@@ -4,6 +4,7 @@ import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
+import com.mcreater.amcl.util.net.FasterUrls;
 
 import javax.net.ssl.*;
 import java.io.*;
@@ -71,7 +72,11 @@ public class DownloadTask extends AbstractTask{
         }
 
         if (conn.getResponseCode() == 404){
-//            throw new Error();
+            server = FasterUrls.ReturnToOriginServer(server);
+            conn = getConnection();
+            if (!(conn.getResponseCode() == 404)) {
+                download();
+            }
         }
         else {
             download();

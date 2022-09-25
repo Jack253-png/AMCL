@@ -16,6 +16,7 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -25,6 +26,15 @@ import javafx.scene.paint.Color;
 
 import java.io.IOException;
 import java.util.Vector;
+
+import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
+import static com.mcreater.amcl.Launcher.CONFIGPAGE;
+import static com.mcreater.amcl.Launcher.DOWNLOADADDONSELECTPAGE;
+import static com.mcreater.amcl.Launcher.DOWNLOADMCPAGE;
+import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
+import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
+import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
+import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
 
 public class AddModsPage extends AbstractAnimationPage {
     GridPane pane;
@@ -69,6 +79,16 @@ public class AddModsPage extends AbstractAnimationPage {
         add(bar, 0, 3, 2, 1);
         setStyle("-fx-background-color : rgba(255, 255, 255, 0.50)");
         nodes.add(null);
+        BindedPageproperty().get().addAll(J8Utils.createList(
+                ADDMODSPAGE,
+                CONFIGPAGE,
+                DOWNLOADADDONSELECTPAGE,
+                DOWNLOADMCPAGE,
+                MODDOWNLOADPAGE,
+                USERSELECTPAGE,
+                VERSIONINFOPAGE,
+                VERSIONSELECTPAGE
+        ));
     }
     public void search(){
         searchThread.stop();

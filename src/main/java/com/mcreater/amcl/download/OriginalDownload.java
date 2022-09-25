@@ -88,7 +88,7 @@ public class OriginalDownload {
         Vector<String> paths = new Vector<>(J8Utils.createList(path.replace("/", "\\").split("\\\\")));
         new File(path.replace(paths.get(paths.size() - 1), "")).mkdirs();
     }
-    private static void downloadAssets(VersionJsonModel model, String minecraft_dir) throws IOException {
+    private static void downloadAssets(VersionJsonModel model, String minecraft_dir) throws Exception {
         String assets_root = LinkPath.link(minecraft_dir, "assets");
         String assets_indexes = LinkPath.link(assets_root, "indexes");
         String assets_objects = LinkPath.link(assets_root, "objects");

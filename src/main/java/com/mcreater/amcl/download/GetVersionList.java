@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class GetVersionList {
-    public static Vector<OriginalVersionModel> getOriginalList() {
+    public static Vector<OriginalVersionModel> getOriginalList() throws Exception {
         String url = FasterUrls.getVersionJsonv2WithFaster(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         VersionsModel model = new Gson().fromJson(HttpConnectionUtil.doGet(url), VersionsModel.class);
         Vector<OriginalVersionModel> t = new Vector<>();
@@ -51,7 +51,7 @@ public class GetVersionList {
         });
         return t;
     }
-    public static Vector<String> getForgeVersionList(String version) throws ParserConfigurationException, IOException, SAXException {
+    public static Vector<String> getForgeVersionList(String version) throws Exception {
         String url = FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(url));
         vectorMap.remove("1.1");
@@ -76,7 +76,7 @@ public class GetVersionList {
             return new Vector<>();
         }
     }
-    public static Vector<String> getFabricVersionList(String version) {
+    public static Vector<String> getFabricVersionList(String version) throws Exception {
         String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/game", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         String loaderVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         Vector<Map<String, String>> s = new Vector<>();
@@ -98,12 +98,12 @@ public class GetVersionList {
             return new Vector<>();
         }
     }
-    public static OptifineAPIModel getOptifineVersionRaw(){
+    public static OptifineAPIModel getOptifineVersionRaw() throws Exception {
         String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
         Gson g = new Gson();
         return g.fromJson(r, OptifineAPIModel.class);
     }
-    public static Vector<OptifineJarModel> getOptifineVersionList(String version) {
+    public static Vector<OptifineJarModel> getOptifineVersionList(String version) throws Exception {
         String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
         OptifineAPIModel model = new Gson().fromJson(r, OptifineAPIModel.class);
         if (model.versions.contains(version)){
@@ -230,10 +230,10 @@ public class GetVersionList {
             return new Vector<>();
         }
     }
-    public static Vector<CurseModFileModel> getFabricAPIVersionList(String version) throws IOException {
+    public static Vector<CurseModFileModel> getFabricAPIVersionList(String version) throws Exception {
         return CurseAPI.getModFiles(CurseAPI.getFromModId(306612), getSnap(version));
     }
-    public static String getSnapShotName(String raw_name) {
+    public static String getSnapShotName(String raw_name) throws Exception {
         OriginalVersionModel n = null;
         for (OriginalVersionModel model : getOriginalList()){
             if (Objects.equals(raw_name, model.id)){
@@ -251,7 +251,7 @@ public class GetVersionList {
         }
         return raw_name;
     }
-    public static String getSnap(String raw_name){
+    public static String getSnap(String raw_name) throws Exception {
         OriginalVersionModel n = null;
         for (OriginalVersionModel model : getOriginalList()){
             if (Objects.equals(raw_name, model.id)){
@@ -269,7 +269,7 @@ public class GetVersionList {
         }
         return raw_name;
     }
-    public static Vector<CurseModFileModel> getOptiFabricVersionList(String version) throws IOException {
+    public static Vector<CurseModFileModel> getOptiFabricVersionList(String version) throws Exception {
         return CurseAPI.getModFiles(CurseAPI.getFromModId(322385), getSnap(version));
     }
 }

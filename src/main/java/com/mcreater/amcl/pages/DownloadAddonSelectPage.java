@@ -1,21 +1,24 @@
 package com.mcreater.amcl.pages;
 
-import com.google.gson.Gson;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
+import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.controls.items.BooleanListItem;
 import com.mcreater.amcl.controls.items.StringItem;
-import com.mcreater.amcl.download.*;
+import com.mcreater.amcl.download.FabricDownload;
+import com.mcreater.amcl.download.ForgeDownload;
+import com.mcreater.amcl.download.GetVersionList;
+import com.mcreater.amcl.download.OptifineDownload;
+import com.mcreater.amcl.download.OriginalDownload;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
-import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.tasks.Task;
@@ -24,20 +27,27 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
-import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
+import static com.mcreater.amcl.Launcher.CONFIGPAGE;
+import static com.mcreater.amcl.Launcher.DOWNLOADADDONSELECTPAGE;
+import static com.mcreater.amcl.Launcher.DOWNLOADMCPAGE;
+import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
+import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
+import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
+import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
 
 public class DownloadAddonSelectPage extends AbstractAnimationPage {
     static OriginalVersionModel model;
@@ -213,8 +223,17 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         }
                         latch.countDown();
                         if (optifine){
-                            new Thread(() -> {
-                                OptifineAPIModel model = GetVersionList.getOptifineVersionRaw();
+                            {
+                                OptifineAPIModel model;
+                                try {
+                                    model = GetVersionList.getOptifineVersionRaw();
+                                }
+                                catch (Exception e){
+                                    e.printStackTrace();
+                                    dialog.close();
+                                    SimpleDialogCreater.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content"));
+                                    return;
+                                }
                                 String opti = null;
                                 for (OptifineJarModel m : model.files){
                                     if (m.name.contains(this.model.id.replace("beta ", "beta_")) && m.name.contains(optifineItem.getText()))
@@ -235,7 +254,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 Platform.runLater(() -> install.setDisable(false));
                                 dialog.setAll(100);
                                 Platform.runLater(dialog::close);
-                            }).run();
+                            }
                         }
                         else {
                             Platform.runLater(() -> install.setDisable(false));
@@ -264,43 +283,50 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                             throw new RuntimeException(e);
                         }
                         Vector<Task> tasks = new Vector<>();
-                        new Thread(() -> {
-                            if (optifine){
-                                OptifineAPIModel model = GetVersionList.getOptifineVersionRaw();
-                                String opti = null;
-                                for (OptifineJarModel m : model.files) {
-                                    if (m.name.contains(this.model.id.replace("beta ", "beta_")) && m.name.contains(optifineItem.getText())) {
-                                        opti = m.name;
-                                        break;
-                                    }
-                                }
-                                dialog.setV(0, 99, Launcher.languageManager.get("ui.install.optifine"));
-                                try {
-                                    tasks.add(new OptiFineInstallerDownloadTask(opti, LinkPath.link(finalModDir1, opti)));
-                                } catch (FileNotFoundException e) {
-                                    dialog.setAll(100);
-                                    Platform.runLater(dialog::close);
+                        if (optifine){
+                            OptifineAPIModel model;
+                            try {
+                                model = GetVersionList.getOptifineVersionRaw();
+                            }
+                            catch (Exception e){
+                                e.printStackTrace();
+                                dialog.close();
+                                SimpleDialogCreater.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content"));
+                                return;
+                            }
+                            String opti = null;
+                            for (OptifineJarModel m : model.files) {
+                                if (m.name.contains(this.model.id.replace("beta ", "beta_")) && m.name.contains(optifineItem.getText())) {
+                                    opti = m.name;
+                                    break;
                                 }
                             }
-                            if (fabricapiItem != null) {
-                                CurseModFileModel m = fabricapiItem.model;
-                                try {
-                                    tasks.add(new DownloadTask(m.downloadUrl, LinkPath.link(finalModDir1, m.fileName)));
-                                } catch (FileNotFoundException e) {
-                                    dialog.setAll(100);
-                                    Platform.runLater(dialog::close);
-                                }
+                            dialog.setV(0, 99, Launcher.languageManager.get("ui.install.optifine"));
+                            try {
+                                tasks.add(new OptiFineInstallerDownloadTask(opti, LinkPath.link(finalModDir1, opti)));
+                            } catch (FileNotFoundException e) {
+                                dialog.setAll(100);
+                                Platform.runLater(dialog::close);
                             }
-                            if (optifabricItem != null) {
-                                CurseModFileModel m1 = optifabricItem.model;
-                                try {
-                                    tasks.add(new DownloadTask(m1.downloadUrl, LinkPath.link(finalModDir1, m1.fileName)));
-                                } catch (FileNotFoundException e) {
-                                    dialog.setAll(100);
-                                    Platform.runLater(dialog::close);
-                                }
+                        }
+                        if (fabricapiItem != null) {
+                            CurseModFileModel m = fabricapiItem.model;
+                            try {
+                                tasks.add(new DownloadTask(m.downloadUrl, LinkPath.link(finalModDir1, m.fileName)));
+                            } catch (FileNotFoundException e) {
+                                dialog.setAll(100);
+                                Platform.runLater(dialog::close);
                             }
-                        }).run();
+                        }
+                        if (optifabricItem != null) {
+                            CurseModFileModel m1 = optifabricItem.model;
+                            try {
+                                tasks.add(new DownloadTask(m1.downloadUrl, LinkPath.link(finalModDir1, m1.fileName)));
+                            } catch (FileNotFoundException e) {
+                                dialog.setAll(100);
+                                Platform.runLater(dialog::close);
+                            }
+                        }
                         TaskManager.addTasks(tasks);
                         TaskManager.bind(dialog, 2);
                         try {
@@ -355,6 +381,16 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         this.add(p, 0, 0, 1, 1);
 
         nodes.add(null);
+        BindedPageproperty().get().addAll(J8Utils.createList(
+                ADDMODSPAGE,
+                CONFIGPAGE,
+                DOWNLOADADDONSELECTPAGE,
+                DOWNLOADMCPAGE,
+                MODDOWNLOADPAGE,
+                USERSELECTPAGE,
+                VERSIONINFOPAGE,
+                VERSIONSELECTPAGE
+        ));
     }
 
     public static boolean isValidFileName(String fileName) {
@@ -390,7 +426,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             Platform.runLater(dialog::close);
         }).start();
     }
-    public void loadVers() throws ParserConfigurationException, IOException, SAXException {
+    public void loadVers() throws Exception {
         Platform.runLater(() -> {
             forge.cont.clear();
             optifine.cont.clear();
@@ -398,32 +434,93 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             optifabric.cont.clear();
             fabricapi.cont.clear();
         });
-        for (String forgev : GetVersionList.getForgeVersionList(model.id)){
-            Label l = new Label(forgev);
-            l.setFont(Fonts.t_f);
-            Platform.runLater(() -> forge.cont.addItem(l));
+        CountDownLatch latch = new CountDownLatch(5);
+        AtomicReference<Throwable> cause = new AtomicReference<>();
+        Vector<Thread> t = new Vector<>();
+
+        AtomicBoolean hasException = new AtomicBoolean(false);
+
+        t.addAll(J8Utils.createList(
+            new Thread(() -> {
+                try {
+                    for (String forgev : GetVersionList.getForgeVersionList(model.id)){
+                        Label l = new Label(forgev);
+                        l.setFont(Fonts.t_f);
+                        Platform.runLater(() -> forge.cont.addItem(l));
+                    }
+                }
+                catch (Exception e){
+                    cause.set(e);
+                    hasException.set(true);
+                }
+                latch.countDown();
+            }),
+            new Thread(() -> {
+                try {
+                    for (OptifineJarModel optiv : GetVersionList.getOptifineVersionList(model.id)){
+                        Label l = new Label(optiv.name);
+                        l.setFont(Fonts.t_f);
+                        Platform.runLater(() -> optifine.cont.addItem(l));
+                    }
+                }
+                catch (Exception e){
+                    cause.set(e);
+                    hasException.set(true);
+                }
+                latch.countDown();
+            }),
+            new Thread(() -> {
+                try {
+                    for (String fabv : GetVersionList.getFabricVersionList(model.id)){
+                        Label l = new Label(fabv);
+                        l.setFont(Fonts.t_f);
+                        Platform.runLater(() -> fabric.cont.addItem(l));
+                    }
+                }
+                catch (Exception e){
+                    cause.set(e);
+                    hasException.set(true);
+                }
+                latch.countDown();
+            }),
+            new Thread(() -> {
+                try {
+                    for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(model.id)){
+                        CurseFileLabel l = new CurseFileLabel(fabapav.fileName);
+                        l.setFont(Fonts.t_f);
+                        l.model = fabapav;
+                        Platform.runLater(() -> fabricapi.cont.addItem(l));
+                    }
+                }
+                catch (Exception e){
+                    cause.set(e);
+                    hasException.set(true);
+                }
+                latch.countDown();
+            }),
+            new Thread(() -> {
+                try {
+                    for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(model.id)){
+                        CurseFileLabel l = new CurseFileLabel(optfabv.fileName);
+                        l.setFont(Fonts.t_f);
+                        l.model = optfabv;
+                        Platform.runLater(() -> optifabric.cont.addItem(l));
+                    }
+                }
+                catch (Exception e){
+                    cause.set(e);
+                    hasException.set(true);
+                }
+                latch.countDown();
+            })
+        ));
+
+        for (Thread t1 : t) {
+            t1.start();
         }
-        for (OptifineJarModel optiv : GetVersionList.getOptifineVersionList(model.id)){
-            Label l = new Label(optiv.name);
-            l.setFont(Fonts.t_f);
-            Platform.runLater(() -> optifine.cont.addItem(l));
-        }
-        for (String fabv : GetVersionList.getFabricVersionList(model.id)){
-            Label l = new Label(fabv);
-            l.setFont(Fonts.t_f);
-            Platform.runLater(() -> fabric.cont.addItem(l));
-        }
-        for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(model.id)){
-            CurseFileLabel l = new CurseFileLabel(fabapav.fileName);
-            l.setFont(Fonts.t_f);
-            l.model = fabapav;
-            Platform.runLater(() -> fabricapi.cont.addItem(l));
-        }
-        for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(model.id)){
-            CurseFileLabel l = new CurseFileLabel(optfabv.fileName);
-            l.setFont(Fonts.t_f);
-            l.model = optfabv;
-            Platform.runLater(() -> optifabric.cont.addItem(l));
+        latch.await();
+        if (hasException.get()) {
+            throw new Exception("load failed", cause.get());
         }
         checkIsNull(forge);
         checkIsNull(optifine);

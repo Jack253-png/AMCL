@@ -228,8 +228,13 @@ public class CurseAPI {
             }
             Vector<CurseModFileModel> forRemoval = new Vector<>();
             files.forEach(e -> {
-                if (!e.gameVersions.contains(GetVersionList.getSnapShotName(version))){
-                    forRemoval.add(e);
+                try {
+                    if (!e.gameVersions.contains(GetVersionList.getSnapShotName(version))) {
+                        forRemoval.add(e);
+                    }
+                }
+                catch (Exception ignored){
+
                 }
             });
             files.removeAll(forRemoval);

@@ -50,6 +50,15 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
+import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
+import static com.mcreater.amcl.Launcher.CONFIGPAGE;
+import static com.mcreater.amcl.Launcher.DOWNLOADADDONSELECTPAGE;
+import static com.mcreater.amcl.Launcher.DOWNLOADMCPAGE;
+import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
+import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
+import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
+import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
+
 public class ConfigPage extends AbstractMenuBarPage {
     Label title;
     VBox configs_box;
@@ -365,6 +374,16 @@ public class ConfigPage extends AbstractMenuBarPage {
         super.setP1(0);
         super.setButtonType(JFXButton.ButtonType.RAISED);
         nodes.add(null);
+        BindedPageproperty().get().addAll(J8Utils.createList(
+                ADDMODSPAGE,
+                CONFIGPAGE,
+                DOWNLOADADDONSELECTPAGE,
+                DOWNLOADMCPAGE,
+                MODDOWNLOADPAGE,
+                USERSELECTPAGE,
+                VERSIONINFOPAGE,
+                VERSIONSELECTPAGE
+        ));
     }
     public void changeFont(Chart c) throws NoSuchFieldException, IllegalAccessException {
         Field f = Chart.class.getDeclaredField("titleLabel");

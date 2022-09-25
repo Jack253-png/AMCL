@@ -14,6 +14,7 @@ import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
+import com.mcreater.amcl.util.J8Utils;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -26,6 +27,15 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.util.Objects;
 import java.util.Vector;
+
+import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
+import static com.mcreater.amcl.Launcher.CONFIGPAGE;
+import static com.mcreater.amcl.Launcher.DOWNLOADADDONSELECTPAGE;
+import static com.mcreater.amcl.Launcher.DOWNLOADMCPAGE;
+import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
+import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
+import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
+import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
 
 public class VersionSelectPage extends AbstractAnimationPage {
     public VBox dot_minecraft_dir;
@@ -150,6 +160,16 @@ public class VersionSelectPage extends AbstractAnimationPage {
         this.add(p, 0, 0, 1, 1);
         this.add(versionlist,1,0 ,1,1);
         nodes.add(null);
+        BindedPageproperty().get().addAll(J8Utils.createList(
+                ADDMODSPAGE,
+                CONFIGPAGE,
+                DOWNLOADADDONSELECTPAGE,
+                DOWNLOADMCPAGE,
+                MODDOWNLOADPAGE,
+                USERSELECTPAGE,
+                VERSIONINFOPAGE,
+                VERSIONSELECTPAGE
+        ));
 
         onExitPage();
     }

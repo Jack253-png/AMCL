@@ -8,6 +8,7 @@ import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.VanilaVersionContent;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.controls.SettingPage;
@@ -15,6 +16,7 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 //import javafx.application.Platform;
 import com.mcreater.amcl.util.FXUtils.Platform;
+import com.mcreater.amcl.util.J8Utils;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -26,6 +28,15 @@ import javafx.scene.layout.VBox;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
+import static com.mcreater.amcl.Launcher.CONFIGPAGE;
+import static com.mcreater.amcl.Launcher.DOWNLOADADDONSELECTPAGE;
+import static com.mcreater.amcl.Launcher.DOWNLOADMCPAGE;
+import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
+import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
+import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
+import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
 
 public class DownloadMcPage extends AbstractAnimationPage {
     VBox mainBox;
@@ -81,6 +92,16 @@ public class DownloadMcPage extends AbstractAnimationPage {
         setType(setting);
 
         nodes.add(null);
+        BindedPageproperty().get().addAll(J8Utils.createList(
+                ADDMODSPAGE,
+                CONFIGPAGE,
+                DOWNLOADADDONSELECTPAGE,
+                DOWNLOADMCPAGE,
+                MODDOWNLOADPAGE,
+                USERSELECTPAGE,
+                VERSIONINFOPAGE,
+                VERSIONSELECTPAGE
+        ));
     }
     public void loadVersions(){
         if (service != null) service.stop();
@@ -90,38 +111,46 @@ public class DownloadMcPage extends AbstractAnimationPage {
             Platform.runLater(mainBox.getChildren()::clear);
             Platform.runLater(() -> mainBox.getChildren().add(bar));
             mainBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.50)");
-            Vector<OriginalVersionModel> vs = GetVersionList.getOriginalList();
+            Vector<OriginalVersionModel> vs = null;
+            try {
+                vs = GetVersionList.getOriginalList();
+            } catch (Exception e) {
+                load.setDisable(false);
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content"));
+                return;
+            }
             Vector<String> types = new Vector<>();
-            for (OriginalVersionModel m : vs){
-                if (!types.contains(m.type)){
+            for (OriginalVersionModel m : vs) {
+                if (!types.contains(m.type)) {
                     types.add(m.type);
                 }
             }
             JFXSmoothScroll.smoothScrollBarToValue(bar, -1.0D);
             AtomicInteger loaded = new AtomicInteger();
-            for (String t : types){
+            for (String t : types) {
                 TitledPane pane = new TitledPane();
                 pane.getStylesheets().add(String.format(ThemeManager.getPath(), "TitledPane"));
                 panes.add(pane);
                 pane.setText(Launcher.languageManager.get("ui.downloadmcpage.types." + t));
                 pane.setFont(Fonts.s_f);
-                FXUtils.ControlSize.setWidth(pane, DownloadMcPage.width / 4 * 3);
-                SmoothableListView<VanilaVersionContent> listv = new SmoothableListView<>(DownloadMcPage.width / 4 * 3, 300);
+                FXUtils.ControlSize.setWidth(pane, width / 4 * 3);
+                SmoothableListView<VanilaVersionContent> listv = new SmoothableListView<>(width / 4 * 3, 300);
                 listv.setStyle("-fx-background-color: transparent");
                 Platform.runLater(() -> pane.setContent(listv.page));
+                Vector<OriginalVersionModel> finalVs = vs;
                 vs.forEach(model -> {
-                    if (Objects.equals(model.type, t)){
+                    if (Objects.equals(model.type, t)) {
                         loaded.addAndGet(1);
                         listv.addItem(new VanilaVersionContent(model));
-                        JFXSmoothScroll.smoothScrollBarToValue(bar, ((double) loaded.get()) * 100 / vs.size());
+                        JFXSmoothScroll.smoothScrollBarToValue(bar, ((double) loaded.get()) * 100 / finalVs.size());
                     }
                 });
-                FXUtils.ControlSize.setWidth(listv, DownloadMcPage.width / 3 * 2);
+                FXUtils.ControlSize.setWidth(listv, width / 3 * 2);
                 pane.setExpanded(false);
                 pane.expandedProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue){
-                        for (TitledPane p : panes){
-                            if (p != pane){
+                    if (newValue) {
+                        for (TitledPane p : panes) {
+                            if (p != pane) {
                                 p.setExpanded(false);
                             }
                         }

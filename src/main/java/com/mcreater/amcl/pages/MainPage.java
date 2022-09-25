@@ -44,6 +44,8 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.mcreater.amcl.Launcher.MAINPAGE;
+
 public class MainPage extends AbstractAnimationPage {
     public static Label title;
     public static Label launch;
@@ -273,6 +275,7 @@ public class MainPage extends AbstractAnimationPage {
                 Sleeper.sleep(10);
             }
         }).start();
+        BindedPageproperty().get().add(MAINPAGE);
     }
     public static void check(Launch launchCore){
         Platform.runLater(launchDialog::close);

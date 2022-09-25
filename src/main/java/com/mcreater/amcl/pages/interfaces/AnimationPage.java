@@ -4,10 +4,12 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.image.WritableImage;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
@@ -24,6 +26,7 @@ public interface AnimationPage {
     Timeline in = new Timeline();
     Timeline out = new Timeline();
     long delay = 300;
+
     default void set(DoubleProperty property){
         in.setCycleCount(1);
         in.getKeyFrames().clear();
