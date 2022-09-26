@@ -723,18 +723,21 @@ public class UserSelectPage extends AbstractMenuBarPage {
         }).start();
     }
     public void setImage(Image i, boolean isSlim){
-        WritableImage image = new WritableImage(8, 8);
-        WritableImage dec = new WritableImage(8, 8);
+        int base1 = 40;
+
+        int siz = (int) (i.getWidth() / 8);
+        WritableImage image = new WritableImage(siz, siz);
+        WritableImage dec = new WritableImage(siz, siz);
         try {
-            for (int x = 8; x < 16; x++) {
-                for (int y = 8; y < 16; y++) {
-                    image.getPixelWriter().setArgb(x - 8, y - 8, i.getPixelReader().getArgb(x, y));
+            for (int x = siz; x < siz * 2; x++) {
+                for (int y = siz; y < siz * 2; y++) {
+                    image.getPixelWriter().setArgb(x - siz, y - siz, i.getPixelReader().getArgb(x, y));
                 }
             }
             if (i.getWidth() >= 64 && i.getHeight() >= 64) {
-                for (int x = 40; x < 48; x++) {
-                    for (int y = 8; y < 16; y++) {
-                        dec.getPixelWriter().setArgb(x - 40, y - 8, i.getPixelReader().getArgb(x, y));
+                for (int x = base1; x < base1 + siz; x++) {
+                    for (int y = siz; y < siz * 2; y++) {
+                        dec.getPixelWriter().setArgb(x - base1, y - siz, i.getPixelReader().getArgb(x, y));
                     }
                 }
             }
