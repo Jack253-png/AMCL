@@ -8,7 +8,7 @@ import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.ValueSet3;
 import com.mcreater.amcl.util.net.HttpClient;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -31,7 +31,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
     public void bindDialog(ProcessDialog dialog){
         this.dialog = dialog;
     }
-    public Pair<String, String> acquireAccessToken(String authcode) {
+    public ImmutablePair<String, String> acquireAccessToken(String authcode) {
         GithubReleases.trustAllHosts();
         Map<Object, Object> data = new HashMap<>();
         data.put("client_id", "00000000402b5328");
@@ -45,7 +45,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             client.conn.setConnectTimeout(5000);
             client.conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             JSONObject ob = client.readJSON();
-            return new Pair<>(ob.getString("access_token"), ob.getString("refresh_token"));
+            return new ImmutablePair<>(ob.getString("access_token"), ob.getString("refresh_token"));
         }
         catch (Exception e){
             throw new RuntimeException(e);
@@ -54,7 +54,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
 
     // first : Token
     // second : uhs
-    public Pair<String, String> acquireXBLToken(String accessToken) {
+    public ImmutablePair<String, String> acquireXBLToken(String accessToken) {
         try {
             Map<Object, Object> data = J8Utils.createMap(
                     "Properties", J8Utils.createMap(
@@ -82,13 +82,13 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             for (Object o : ob.getJSONObject("DisplayClaims").getJSONArray("xui")){
                 uhs = ((JSONObject) o).getString("uhs");
             }
-            return new Pair<>(token, uhs);
+            return new ImmutablePair<>(token, uhs);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public Pair<String, String> acquireXsts(String xblToken) {
+    public ImmutablePair<String, String> acquireXsts(String xblToken) {
         try {
 
             Map<Object, Object> data = J8Utils.createMap(
@@ -117,13 +117,13 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             for (Object o : ob.getJSONObject("DisplayClaims").getJSONArray("xui")){
                 uhs = ((JSONObject) o).getString("uhs");
             }
-            return new Pair<>(ob.getString("Token"), uhs);
+            return new ImmutablePair<>(ob.getString("Token"), uhs);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public ValueSet3<String, Pair<String, String>, Vector<McProfileModel.McSkinModel>> acquireMinecraftToken(String xblUhs, String xblXsts) {
+    public ValueSet3<String, ImmutablePair<String, String>, Vector<McProfileModel.McSkinModel>> acquireMinecraftToken(String xblUhs, String xblXsts) {
         try {
             Map<Object, Object> data = J8Utils.createMap(
                     "identityToken", "XBL3.0 x=" + xblUhs + ";" + xblXsts
@@ -144,7 +144,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             String accessToken = ob.getString("access_token");
             McProfileModel contents = checkMcProfile(accessToken);
             if (contents.checkProfile() && checkMcStore(accessToken)){
-                return new ValueSet3<>(accessToken, new Pair<>(contents.name, contents.id), contents.skins);
+                return new ValueSet3<>(accessToken, new ImmutablePair<>(contents.name, contents.id), contents.skins);
             }
             else {
                 throw new IOException("This user didn't had minecraft");
@@ -193,16 +193,17 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
 
 
     public MicrosoftUser getUser(String... args) throws RuntimeException {
-        Pair<String, String> token = acquireAccessToken(args[0]);
+        ImmutablePair<String, String> token = acquireAccessToken(args[0]);
         setV(0, 20, Launcher.languageManager.get("ui.msauth._02"));
         return getUserFromToken(token);
     }
-    public MicrosoftUser getUserFromToken(Pair<String, String> token) throws RuntimeException {
-        Pair<String, String> xbl_token = acquireXBLToken(token.getKey());
+    public MicrosoftUser getUserFromToken(ImmutablePair<String, String> token) throws RuntimeException {
+        
+        ImmutablePair<String, String> xbl_token = acquireXBLToken(token.getKey());
         setV(0, 40, Launcher.languageManager.get("ui.msauth._03"));
-        Pair<String, String> xsts = acquireXsts(xbl_token.getKey());
+        ImmutablePair<String, String> xsts = acquireXsts(xbl_token.getKey());
         setV(0, 60, Launcher.languageManager.get("ui.msauth._04"));
-        ValueSet3<String, Pair<String, String>, Vector<McProfileModel.McSkinModel>> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
+        ValueSet3<String, ImmutablePair<String, String>, Vector<McProfileModel.McSkinModel>> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
         setV(0, 80, Launcher.languageManager.get("ui.msauth._05"));
         MicrosoftUser msu = new MicrosoftUser(content.getValue1(), content.getValue2().getKey(), content.getValue2().getValue(), content.getValue3(), token.getValue());
         setV(0, 80, Launcher.languageManager.get("ui.msauth._06"));

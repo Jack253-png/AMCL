@@ -5,7 +5,7 @@ import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.HttpClient;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -25,7 +25,7 @@ import java.util.Vector;
 
 public class MicrosoftUser extends AbstractUser {
     final Vector<MSAuth.McProfileModel.McSkinModel> skins;
-    public Map<String, String> capes = new HashMap<>();
+    public Map<String, ImmutablePair<String, Boolean>> capes = new HashMap<>();
     public MicrosoftUser(String accessToken, String username, String uuid, Vector<MSAuth.McProfileModel.McSkinModel> skins, String refreshToken) {
         super(accessToken, username, uuid, refreshToken);
         this.skins = skins;
@@ -33,7 +33,7 @@ public class MicrosoftUser extends AbstractUser {
     public String toString(){
         return super.toString() + "\nSkins : " + skins;
     }
-    public Map<String, String> getCapes() throws Exception {
+    public Map<String, ImmutablePair<String, Boolean>> getCapes() throws Exception {
         String url = "https://api.minecraftservices.com/minecraft/profile";
         HttpClient c = HttpClient.getInstance(url);
         c.openConnection();
@@ -41,7 +41,7 @@ public class MicrosoftUser extends AbstractUser {
         JSONObject ob = c.readJSON();
         for (Object o : ob.getJSONArray("capes")){
             JSONObject t1 = (JSONObject) o;
-            capes.put(t1.getString("alias"), t1.getString("id"));
+            capes.put(t1.getString("alias"), new ImmutablePair<>(t1.getString("id"), t1.getString("state").equals("ACTIVE")));
         }
         return capes;
         // https://wiki.vg/Mojang_API
@@ -91,11 +91,9 @@ public class MicrosoftUser extends AbstractUser {
         client.conn.setRequestProperty("Authorization", "Bearer " + accessToken);
         client.conn.connect();
         client.read();
-
     }
-    public void showCape(String capeName) throws Exception {
-        if (capes.get(capeName) == null) throw new IOException();
-        Map<Object, Object> data = J8Utils.createMap("capeId", capes.get(capeName));
+    public void showCape(String capeID) throws Exception {
+        Map<Object, Object> data = J8Utils.createMap("capeId", capeID);
         String url = "https://api.minecraftservices.com/minecraft/profile/capes/active";
         HttpClient client = HttpClient.getInstance(url);
         client.openConnection();
@@ -125,7 +123,7 @@ public class MicrosoftUser extends AbstractUser {
         JSONObject ob = client.readJSON();
         this.refreshToken = ob.getString("refresh_token");
         String at = ob.getString("access_token");
-        MicrosoftUser newUser = new MSAuth().getUserFromToken(new Pair<>(at, refreshToken));
+        MicrosoftUser newUser = new MSAuth().getUserFromToken(new ImmutablePair<>(at, refreshToken));
         this.accessToken = newUser.accessToken;
     }
 

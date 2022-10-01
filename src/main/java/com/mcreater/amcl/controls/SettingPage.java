@@ -19,6 +19,7 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
     public double width, height;
     public Pane content;
     private final Region shadow = new Region();
+    public Thread lThread = null;
     public SettingPage(double width, double height, Pane content) {
         this (width, height, content, true);
     }
@@ -31,12 +32,13 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
         }
         else{
             FXUtils.ControlSize.setWidth(content, width - 30);
-            new Thread(() -> {
+            lThread = new Thread(() -> {
                 while (true) {
                     setHvalue(0);
                     Sleeper.sleep(30);
                 }
-            }).start();
+            });
+            lThread.start();
         }
         this.width = width;
         this.height = height;

@@ -11,10 +11,7 @@ import com.mcreater.amcl.config.ConfigModel;
 import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.controls.items.StringItem;
-import com.mcreater.amcl.controls.skin.SkinAnimation;
 import com.mcreater.amcl.controls.skin.SkinView;
-import com.mcreater.amcl.controls.skin.animation.SkinAniRunning;
-import com.mcreater.amcl.controls.skin.animation.SkinAniWavingArms;
 import com.mcreater.amcl.pages.dialogs.commons.ContinueDialog;
 import com.mcreater.amcl.pages.dialogs.commons.InputDialog;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
@@ -22,6 +19,7 @@ import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.dialogs.skin.CustomSkinDialog;
 import com.mcreater.amcl.pages.dialogs.skin.EditAccountContentDialog;
+import com.mcreater.amcl.pages.dialogs.skin.MicrosoftSkinManageDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.stages.NativeBrowserPage;
@@ -36,6 +34,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -50,7 +49,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
-import java.util.function.Predicate;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -321,8 +319,40 @@ public class UserSelectPage extends AbstractMenuBarPage {
                         dialog.Create();
                     });
                 }
+                else if (newValue instanceof MicrosoftUser) {
+                    edit.setOnAction(event -> {
+                        MicrosoftUser user = (MicrosoftUser) newValue;
+                        LoadingDialog di = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.loading"));
+                        di.show();
+                        new Thread(() -> {
+                            if (user.vaildate()) {
+                                Platform.runLater(() -> {
+                                    di.close();
+                                    MicrosoftSkinManageDialog dialog = new MicrosoftSkinManageDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"), user);
+                                    try {
+                                        dialog.loadCapes();
+                                    }
+                                    catch (Exception ignored){
+
+                                    }
+                                    dialog.show();
+                                    dialog.addButton.setOnAction(event111 -> {
+                                        dialog.close();
+                                        refreshSkin();
+                                    });
+                                });
+                            }
+                            else {
+                                Platform.runLater(() -> {
+                                    di.close();
+                                    SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.user_unvaildated.title"), Launcher.languageManager.get("ui.userselectpage.user_unvaildated.content"), "");
+                                });
+                            }
+                        }).start();
+                    });
+                }
                 else {
-                    edit.setOnAction(event -> {});
+                    edit.setOnAction(null);
                 }
             }
             UserHashManager.writeSafe(newValue);
