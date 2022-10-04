@@ -1,6 +1,7 @@
 package com.mcreater.amcl;
 
 import com.google.gson.Gson;
+import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.lang.PreLanguageManager;
 import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
@@ -78,6 +79,9 @@ public class StableMain {
         }
     };
     public static void main(String[] args) throws Exception {
+        System.setProperty("log4j.skipJansi", "false");
+        System.setProperty("com.sun.webkit.useHTTP2Loader", "false");
+        GithubReleases.trustAllHosts();
         Fonts.loadSwingFont();
         initPreLanguageManager();
         Timer timer = Timer.getInstance();

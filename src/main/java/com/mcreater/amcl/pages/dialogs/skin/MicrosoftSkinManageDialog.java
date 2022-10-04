@@ -131,7 +131,7 @@ public class MicrosoftSkinManageDialog extends AbstractDialog {
     }
     public void loadCapes() throws Exception {
         Platform.runLater(() -> {});
-        CapeLabel l = new CapeLabel(new ImmutablePair<>("No Cape", null));
+        CapeLabel l = new CapeLabel(new ImmutablePair<>(Launcher.languageManager.get("ui.capes.noCape"), null));
         l.setFont(Fonts.t_f);
         capes.getItems().add(l);
         capes.getSelectionModel().selectFirst();

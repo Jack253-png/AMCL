@@ -26,6 +26,9 @@ import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.net.CookieHandler;
+import java.net.CookieManager;
+
 public class NativeBrowserPage extends AbstractStage {
     Logger logger = LogManager.getLogger(NativeBrowserPage.class);
     WebView webView;
@@ -51,6 +54,9 @@ public class NativeBrowserPage extends AbstractStage {
         loadState = new JFXProgressBar(0);
 
         webView = new WebView();
+        CookieManager manager = new CookieManager();
+        CookieHandler.setDefault(manager);
+        manager.getCookieStore().removeAll();
         webView.getEngine().titleProperty().addListener((observable, oldValue, newValue) -> setTitle(newValue));
         webView.getEngine().locationProperty().addListener((observable, oldValue, newValue) -> {
             loginThread = new Thread(() -> {
@@ -81,7 +87,14 @@ public class NativeBrowserPage extends AbstractStage {
             JFXSmoothScroll.smoothScrollBarToValue(loadState, newValue.doubleValue());
             logger.info(String.format("Load precent : %.2f", newValue.doubleValue() * 100) + "%");
         });
-        webView.getEngine().getLoadWorker().messageProperty().addListener((observable, oldValue, newValue) -> logger.info("Web Engine message : " + newValue));
+        webView.getEngine().getLoadWorker().messageProperty().addListener((observable, oldValue, newValue) -> {
+            logger.info("Web Engine message : " + newValue);
+        });
+        webView.getEngine().getLoadWorker().stateProperty().addListener((o, ov, nv) -> {
+            if (nv == Worker.State.FAILED) {
+                logger.error("WebView Failed: ", webView.getEngine().getLoadWorker().getException());
+            }
+        });
 
         refresh.minWidthProperty().bind(widthProperty());
         loadState.minWidthProperty().bind(widthProperty());
