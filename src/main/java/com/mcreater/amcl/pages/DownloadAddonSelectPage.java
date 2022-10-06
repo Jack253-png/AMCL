@@ -433,6 +433,12 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             fabric.cont.clear();
             optifabric.cont.clear();
             fabricapi.cont.clear();
+
+            forge.cont.pane.setExpanded(false);
+            optifine.cont.pane.setExpanded(false);
+            fabric.cont.pane.setExpanded(false);
+            optifabric.cont.pane.setExpanded(false);
+            fabricapi.cont.pane.setExpanded(false);
         });
         CountDownLatch latch = new CountDownLatch(5);
         AtomicReference<Throwable> cause = new AtomicReference<>();
