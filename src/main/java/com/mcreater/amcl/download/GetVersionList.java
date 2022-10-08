@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.CurseAPI;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
+import com.mcreater.amcl.download.model.NewForgeItemFileModel;
+import com.mcreater.amcl.download.model.NewForgeItemModel;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.fabric.FabricListModel;
@@ -11,14 +13,12 @@ import com.mcreater.amcl.model.fabric.FabricLoaderVersionModel;
 import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
 import com.mcreater.amcl.model.original.VersionsModel;
+import com.mcreater.amcl.tasks.ForgeInstallerDownloadTask;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.xml.ForgeVersionXMLHandler;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -51,6 +51,52 @@ public class GetVersionList {
         });
         return t;
     }
+
+    public static Vector<String> getForgeMCVers() throws Exception {
+        String url = FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/minecraft", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+        Vector<String> result = new Vector<>();
+        result = new Gson().fromJson(HttpConnectionUtil.doGet(url), result.getClass());
+        return result;
+    }
+    public static Vector<NewForgeItemModel> getForgeInstallers(String version) throws Exception {
+        String url = FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/minecraft/" + version, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+        String r = HttpConnectionUtil.doGet(url);
+        Vector<NewForgeItemModel> result = new Vector<>();
+        result = new Gson().fromJson(r, result.getClass());
+
+        Vector<NewForgeItemModel> r2 = new Vector<>();
+
+        for (Object o : result) {
+            Gson gson = new Gson();
+            r2.add(gson.fromJson(gson.toJson(o), NewForgeItemModel.class));
+        }
+
+        Vector<NewForgeItemModel> rm = new Vector<>();
+        r2.forEach(newForgeItemModel -> {
+            for (NewForgeItemFileModel m : newForgeItemModel.files) {
+                if (m.format.equals("jar") && m.category.equals("installer")) {
+                    return;
+                }
+            }
+            rm.add(newForgeItemModel);
+        });
+        r2.removeAll(rm);
+//        r2.sort((o1, o2) -> {
+//            long i1 = getIntteredNum(o1);
+//
+//            return 0;
+//        });
+        return r2;
+    }
+    private static long getIntteredNum(NewForgeItemModel item) {
+        return 0;
+    }
+
+    public static String getForgeInstallerDownloadURL(NewForgeItemModel model) {
+        return FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/download/" + model.build, FasterUrls.Servers.MCBBS);
+    }
+
+
     public static Vector<String> getForgeVersionList(String version) throws Exception {
         String url = FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(url));

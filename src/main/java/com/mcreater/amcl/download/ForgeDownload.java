@@ -3,6 +3,7 @@ package com.mcreater.amcl.download;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.download.model.NewForgeItemModel;
 import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
@@ -57,20 +58,9 @@ public class ForgeDownload {
         }
         return count;
     }
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String forge_version, Runnable r, Runnable r2) throws Exception {
+    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, NewForgeItemModel forge_version, Runnable r, Runnable r2) throws Exception {
         tasks.clear();
         ForgeDownload.chunkSize = chunkSize;
-        String c = null;
-        for (String version : GetVersionList.getForgeVersionList(id)){
-            System.out.println(version);
-            if (Objects.equals(version, forge_version)){
-                c = version;
-                break;
-            }
-        }
-        if (c == null){
-            throw new IOException();
-        }
         String temp_path = "forgeTemp";
         OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
         r.run();
@@ -82,9 +72,7 @@ public class ForgeDownload {
         }
         catch (NullPointerException ignored){}
         String installer_path = FileUtils.LinkPath.link(temp_path, "installer.jar");
-        String final_version = String.format("%s-%s", id, c);
-        String installer_url = String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%s/forge-%s-installer.jar", final_version, final_version);
-        installer_url = FasterUrls.fast(installer_url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+        String installer_url = GetVersionList.getForgeInstallerDownloadURL(forge_version);
         logger.info(String.format("finded forge installer url : %s", installer_url));
         deleteDirectory(new File(temp_path), temp_path);
 //        int i = 0;

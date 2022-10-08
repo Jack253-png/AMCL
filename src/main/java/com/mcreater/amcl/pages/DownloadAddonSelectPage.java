@@ -11,6 +11,7 @@ import com.mcreater.amcl.download.ForgeDownload;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.download.OptifineDownload;
 import com.mcreater.amcl.download.OriginalDownload;
+import com.mcreater.amcl.download.model.NewForgeItemModel;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
@@ -37,8 +38,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -53,7 +52,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
     static OriginalVersionModel model;
     static Label id;
     GridPane box;
-    public BooleanListItem<Label> forge;
+    public BooleanListItem<ForgeLabel> forge;
     public BooleanListItem<Label> optifine;
     public BooleanListItem<Label> fabric;
     public BooleanListItem<CurseFileLabel> optifabric;
@@ -148,7 +147,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             boolean fabric = this.fabric.button.isSelected();
             boolean fabricapi = this.fabricapi.button.isSelected();
             boolean optifabric = this.optifabric.button.isSelected();
-            Label forgeItem = this.forge.cont.selectedItem;
+            ForgeLabel forgeItem = this.forge.cont.selectedItem;
             Label optifineItem = this.optifine.cont.selectedItem;
             Label fabricItem = this.fabric.cont.selectedItem;
             CurseFileLabel optifabricItem = this.optifabric.cont.selectedItem;
@@ -212,7 +211,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                     Launcher.configReader.configModel.selected_minecraft_dir_index,
                                     rl,
                                     Launcher.configReader.configModel.downloadChunkSize,
-                                    forgeItem.getText(),
+                                    forgeItem.model,
                                     () -> TaskManager.bind(dialog, 1),
                                     () -> TaskManager.bind(dialog, 2)
                             );
@@ -441,23 +440,19 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             fabricapi.cont.pane.setExpanded(false);
         });
         CountDownLatch latch = new CountDownLatch(5);
-        AtomicReference<Throwable> cause = new AtomicReference<>();
         Vector<Thread> t = new Vector<>();
-
-        AtomicBoolean hasException = new AtomicBoolean(false);
 
         t.addAll(J8Utils.createList(
             new Thread(() -> {
                 try {
-                    for (String forgev : GetVersionList.getForgeVersionList(model.id)){
-                        Label l = new Label(forgev);
+                    for (NewForgeItemModel model1 : GetVersionList.getForgeInstallers(model.id)){
+                        ForgeLabel l = new ForgeLabel(model1);
                         l.setFont(Fonts.t_f);
                         Platform.runLater(() -> forge.cont.addItem(l));
                     }
                 }
                 catch (Exception e){
-                    cause.set(e);
-                    hasException.set(true);
+
                 }
                 latch.countDown();
             }),
@@ -470,8 +465,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     }
                 }
                 catch (Exception e){
-                    cause.set(e);
-                    hasException.set(true);
+
                 }
                 latch.countDown();
             }),
@@ -484,8 +478,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     }
                 }
                 catch (Exception e){
-                    cause.set(e);
-                    hasException.set(true);
+
                 }
                 latch.countDown();
             }),
@@ -499,8 +492,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     }
                 }
                 catch (Exception e){
-                    cause.set(e);
-                    hasException.set(true);
+
                 }
                 latch.countDown();
             }),
@@ -514,8 +506,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     }
                 }
                 catch (Exception e){
-                    cause.set(e);
-                    hasException.set(true);
+
                 }
                 latch.countDown();
             })
@@ -525,14 +516,18 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             t1.start();
         }
         latch.await();
-        if (hasException.get()) {
-            throw new Exception("load failed", cause.get());
-        }
         checkIsNull(forge);
         checkIsNull(optifine);
         checkIsNull(fabric);
         checkIsNull(optifabric);
         checkIsNull(fabricapi);
+    }
+    public static class ForgeLabel extends Label {
+        public final NewForgeItemModel model;
+        public ForgeLabel(NewForgeItemModel model) {
+            super(model.version);
+            this.model = model;
+        }
     }
     public static class CurseFileLabel extends Label{
         public CurseModFileModel model;

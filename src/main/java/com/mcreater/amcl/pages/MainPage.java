@@ -155,7 +155,6 @@ public class MainPage extends AbstractAnimationPage {
         stopProcess.setFont(Fonts.s_f);
         stopProcess.setTextFill(Color.WHITE);
         ListChangeListener<Launch> listener = c -> {
-            stopProcess.setDisable(game.size() == 0);
             BGMManager.startOrStop(game.size() == 0);
         };
         game.addListener(listener);

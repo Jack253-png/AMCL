@@ -2,6 +2,7 @@ package com.mcreater.amcl.util.xml;
 
 import com.google.gson.internal.LinkedTreeMap;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
@@ -10,9 +11,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -22,15 +25,11 @@ public class ForgeVersionXMLHandler {
     public static Map<String, Vector<String>> result;
     public static Map<String, Vector<String>> load(String s) throws ParserConfigurationException, SAXException, IOException {
         result = new LinkedTreeMap<>();
-        BufferedWriter bw = new BufferedWriter(new FileWriter("./temp.xml"));
-        bw.write(s);
-        bw.close();
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parse = factory.newSAXParser();
         XMLReader reader=parse.getXMLReader();
         reader.setContentHandler(new PHandler());
-        reader.parse("./temp.xml");
-        new File("./temp.xml").delete();
+        reader.parse(new InputSource(new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8))));
         return result;
     }
     static class PHandler extends DefaultHandler {
