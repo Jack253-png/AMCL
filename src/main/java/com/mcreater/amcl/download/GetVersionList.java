@@ -81,19 +81,15 @@ public class GetVersionList {
             rm.add(newForgeItemModel);
         });
         r2.removeAll(rm);
-//        r2.sort((o1, o2) -> {
-//            long i1 = getIntteredNum(o1);
-//
-//            return 0;
-//        });
+        r2.sort((o1, o2) -> {
+            if (o1.build == o2.build) return 0;
+            return o1.build > o2.build ? -1 : 1;
+        });
         return r2;
-    }
-    private static long getIntteredNum(NewForgeItemModel item) {
-        return 0;
     }
 
     public static String getForgeInstallerDownloadURL(NewForgeItemModel model) {
-        return FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/download/" + model.build, FasterUrls.Servers.MCBBS);
+        return FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/download/" + model.build, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
     }
 
 
@@ -170,7 +166,6 @@ public class GetVersionList {
                 jar.name = jar.name.replace(".jar", "");
             }
             jars.sort(new Comparator<OptifineJarModel>() {
-                @Override
                 public int compare(OptifineJarModel m, OptifineJarModel t) {
                     int main = getReturn(getMainVersion(m), getMainVersion(t));
                     if (main != 0){
