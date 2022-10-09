@@ -26,6 +26,8 @@ public class ForgeExtractTask extends AbstractTask{
         this.extractPath = extractPath;
         this.jarpath = jarpath;
         this.args = args;
+
+        System.out.println(command);
     }
 
     @Override

@@ -195,7 +195,7 @@ public class ForgeDownload {
                 String p = StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name)));
                 new File(p).mkdirs();
                 if (model1.clientreq == null && model1.serverreq == null){
-                    if (model1.name.contains("net.minecraftforge:minecraftforge")) {
+                    if (model1.name.contains("net.minecraftforge:minecraftforge") || model1.name.contains("net.minecraftforge:forge")) {
                         FileUtils.ChangeDir.saveNowDir();
                         String i = FileUtils.LinkPath.link(FileUtils.ChangeDir.dirs, installer_path).replace("\\", "/");
                         FileUtils.ChangeDir.changeTo(p);
