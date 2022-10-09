@@ -22,14 +22,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Vector;
 
 public class FabricDownload {
     static int chunkSize;
     static Vector<Task> tasks = new Vector<>();
     static Logger logger = LogManager.getLogger(FabricDownload.class);
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String fabric_version, Runnable ru) throws Exception {
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String fabric_version, Runnable ru) throws Exception {
         tasks.clear();
         FabricDownload.chunkSize = chunkSize;
         String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
@@ -39,7 +38,7 @@ public class FabricDownload {
         if (vers.size() == 0 || !vers.contains(fabric_version)) {
             throw new IOException();
         }
-        OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
+        OriginalDownload.download(id, minecraft_dir, version_name, chunkSize);
         ru.run();
         String fab = FasterUrls.fast(String.format("https://meta.fabricmc.net/v2/versions/loader/%s/%s", id, fabric_version), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         String r = HttpConnectionUtil.doGet(fab);

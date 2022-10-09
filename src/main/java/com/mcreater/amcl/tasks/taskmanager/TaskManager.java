@@ -30,7 +30,7 @@ public abstract class TaskManager {
     public static void bind(ProcessDialog dialog, int index){
         TaskManager.dialog = dialog;
         TaskManager.index = index;
-        dialog.setV(index, 0);
+        if (dialog != null) dialog.setV(index, 0);
     }
     public static void bindSwing(DepencyLoadingFrame frame){
         TaskManager.frame = frame;

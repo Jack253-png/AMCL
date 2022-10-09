@@ -1,6 +1,7 @@
 package com.mcreater.amcl.util;
 
 import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.*;
 import java.net.*;
@@ -56,20 +57,9 @@ public final class NetworkUtils {
 
                 String name = decodeURL(nameValue[0]);
                 String value = nameValue.length == 2 ? decodeURL(nameValue[1]) : null;
-                Pair<String, String> p = new Pair<>(name, value);
-                result.add(new Map.Entry<String, String>() {
-                    public String getKey() {
-                        return p.getKey();
-                    }
+                ImmutablePair<String, String> p = new ImmutablePair<>(name, value);
+                result.add(p);
 
-                    public String getValue() {
-                        return p.getValue();
-                    }
-
-                    public String setValue(String value) {
-                        return null;
-                    }
-                });
             }
         }
         return result;

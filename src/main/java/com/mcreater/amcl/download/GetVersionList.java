@@ -19,8 +19,12 @@ import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.xml.ForgeVersionXMLHandler;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 
 public class GetVersionList {
@@ -87,9 +91,17 @@ public class GetVersionList {
         });
         return r2;
     }
+    public static boolean isMirror() {
+        return FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer) != FasterUrls.Servers.MOJANG;
+    }
 
-    public static String getForgeInstallerDownloadURL(NewForgeItemModel model) {
-        return FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/download/" + model.build, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+    public static String getForgeInstallerDownloadURL(NewForgeItemModel model, String ori) {
+        if (isMirror()) {
+            return FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/download/" + model.build, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+        }
+        else {
+            return String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%s-%s/forge-%s-%s-installer.jar", ori, model.version, ori, model.version);
+        }
     }
 
 
@@ -165,106 +177,22 @@ public class GetVersionList {
                 jar.name = jar.name.replace("preview_", "");
                 jar.name = jar.name.replace(".jar", "");
             }
-            jars.sort(new Comparator<OptifineJarModel>() {
-                public int compare(OptifineJarModel m, OptifineJarModel t) {
-                    int main = getReturn(getMainVersion(m), getMainVersion(t));
-                    if (main != 0){
-                        return main;
-                    }
-                    else{
-                        int major = getReturn(getMajorVersion(m), getMajorVersion(t));
-                        if (major != 0){
-                            return major;
-                        }
-                        else{
-                            if (getPreVersion(m) == 0){
-                                return -1;
-                            }
-                            else if (getPreVersion(t) == 0){
-                                return 1;
-                            }
-                            else{
-                                return getReturn(getPreVersion(m), getPreVersion(t));
-                            }
-                        }
-                    }
+            jars.sort((o1, o2) -> {
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss");
+                    Date date1 = sdf.parse(o1.time);
+                    Date date2 = sdf.parse(o2.time);
+
+                    if (date1.after(date2)) return 1;
+                    if (date2.after(date1)) return -1;
+
+                    return 0;
                 }
-                public int getReturn(int i, int j){
-                    return Integer.compare(j, i);
-                }
-                public int getPreVersion(OptifineJarModel model){
-                    if (model.isPreview){
-                        String s = J8Utils.createList(model.name.split("_")).get(3).replace("pre", "");
-                        return Integer.parseInt(s);
-                    }
-                    else{
-                        return 0;
-                    }
-                }
-                public int getMajorVersion(OptifineJarModel model){
-                    String s = J8Utils.createList(model.name.split("_")).get(2).substring(1, 2);
-                    return Integer.parseInt(s);
-                }
-                public int getMainVersion(OptifineJarModel model){
-                    String s = J8Utils.createList(model.name.split("_")).get(2).substring(0, 1);
-                    switch (s){
-                        case "A":
-                            return 1;
-                        case "B":
-                            return 2;
-                        case "C":
-                            return 3;
-                        case "D":
-                            return 4;
-                        case "E":
-                            return 5;
-                        case "F":
-                            return 6;
-                        case "G":
-                            return 7;
-                        case "H":
-                            return 8;
-                        case "I":
-                            return 9;
-                        case "J":
-                            return 10;
-                        case "K":
-                            return 11;
-                        case "L":
-                            return 12;
-                        case "M":
-                            return 13;
-                        case "N":
-                            return 14;
-                        case "O":
-                            return 15;
-                        case "P":
-                            return 16;
-                        case "Q":
-                            return 17;
-                        case "R":
-                            return 18;
-                        case "S":
-                            return 19;
-                        case "T":
-                            return 20;
-                        case "U":
-                            return 21;
-                        case "V":
-                            return 22;
-                        case "W":
-                            return 23;
-                        case "X":
-                            return 24;
-                        case "Y":
-                            return 25;
-                        case "Z":
-                            return 26;
-                        default:
-                            return 27;
-                    }
+                catch (Exception e){
+                    return 0;
                 }
             });
+            Collections.reverse(jars);
             return jars;
         }
         else{

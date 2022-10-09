@@ -17,10 +17,7 @@ public class Main {
         File f = new File("AMCL/logs/log.log");
         f.delete();
     }
-    static Logger logger = LogManager.getLogger(Main.class);
-    public static void main(String[] args) throws UnsupportedLookAndFeelException, ParserConfigurationException, IOException, InterruptedException, ClassNotFoundException, SAXException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, NoSuchFieldException {
-        start();
-    }
+    public static Logger logger = LogManager.getLogger(Main.class);
     public static void start() {
         try {
             args = new String[]{};

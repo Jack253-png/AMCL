@@ -111,7 +111,7 @@ public class StableMain {
             fixPulseTimer();
             Logger logger = LogManager.getLogger(StableMain.class);
             logger.info("Initlaze : " + timer.getTimeString());
-            Main.main(args);
+            Main.start();
         }
     }
     public static void fixPulseTimer(){

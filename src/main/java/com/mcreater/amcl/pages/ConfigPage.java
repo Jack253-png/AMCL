@@ -40,6 +40,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import oshi.hardware.UsbDevice;
 
 import java.io.File;
@@ -369,8 +370,8 @@ public class ConfigPage extends AbstractMenuBarPage {
         system.setOnAction(event -> super.setP1(1));
         FXUtils.ControlSize.setWidth(setting, this.width / 4);
         FXUtils.ControlSize.setWidth(system, this.width / 4);
-        super.addNewPair(new Pair<>(setting, p1));
-        super.addNewPair(new Pair<>(system, p2));
+        super.addNewPair(new ImmutablePair<>(setting, p1));
+        super.addNewPair(new ImmutablePair<>(system, p2));
         super.setP1(0);
         super.setButtonType(JFXButton.ButtonType.RAISED);
         nodes.add(null);

@@ -167,7 +167,12 @@ public class MainPage extends AbstractAnimationPage {
             protected int[] getPermutation() {return new int[0];}
         });
 
-        stopProcess.setOnAction(event -> stopAllProcess());
+        stopProcess.setOnAction(event -> {
+            if (game.size() == 0) {
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.stopprocess.none.title"), Launcher.languageManager.get("ui.mainpage.stopprocess.none.content"), "");
+            }
+            stopAllProcess();
+        });
 
         launchBox = new VBox();
         launchBox.setAlignment(Pos.BOTTOM_LEFT);

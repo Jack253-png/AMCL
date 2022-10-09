@@ -2,20 +2,19 @@ package com.mcreater.amcl.util;
 
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.skins.JFXTextFieldSkin;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.interfaces.AnimationPage;
-import javafx.geometry.BoundingBox;
-import javafx.geometry.Bounds;
+import com.mcreater.amcl.tasks.LambdaTask;
+import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.theme.ThemeManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
-import javafx.geometry.Point3D;
-import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.control.Control;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -26,13 +25,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class FXUtils {
-
     public static class ImageConverter {
         public static WritableImage convertToWritableImage(Image image){
             return new WritableImage(image.getPixelReader(), (int) image.getWidth(), (int) image.getHeight());
@@ -68,6 +69,7 @@ public class FXUtils {
         public static SplitPane setSplit(SplitPane s, double width){
             s.setMaxWidth(width);
             s.setMinWidth(width);
+            s.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5)");
             return s;
         }
     }
@@ -115,6 +117,7 @@ public class FXUtils {
         }
     }
     public static class ImagePreProcesser {
+        public static Logger logger = LogManager.getLogger(ImagePreProcesser.class);
         public static final SimpleFunctions.Arg2FuncNoReturn<ImageView, WritableImage> NO_TRANSPARENT = (arg1, arg2) -> {
             for (int x = 0; x < arg2.getWidth(); x++) {
                 for (int y = 0; y < arg2.getHeight(); y++) {
@@ -146,11 +149,8 @@ public class FXUtils {
         @SafeVarargs
         public static void process(WritableImage image, SimpleFunctions.Arg2FuncNoReturn<ImageView, WritableImage>... func) {
             ImageView imageView = new ImageView(image);
-//            imageView.setFitWidth(image.getWidth() / 7 * 6);
-//            imageView.setFitHeight(image.getHeight() / 12 * 11);
             imageView.setFitWidth(image.getWidth());
             imageView.setFitHeight(image.getHeight());
-//            System.out.printf("%f, %f\n", image.getWidth(), image.getHeight());
 
             for (SimpleFunctions.Arg2FuncNoReturn<ImageView, WritableImage> processor : func) {
                 processor.run(imageView, image);
@@ -159,7 +159,6 @@ public class FXUtils {
             SnapshotParameters parameters = new SnapshotParameters();
             parameters.setFill(Color.TRANSPARENT);
             image = imageView.snapshot(parameters, image);
-//            System.out.printf("%f, %f\n", image.getWidth(), image.getHeight());
         }
         public static WritableImage cutImage(Image src, int x, int y, int w, int h) {
             WritableImage result = new WritableImage(w, h);

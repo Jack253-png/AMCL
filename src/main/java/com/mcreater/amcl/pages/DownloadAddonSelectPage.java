@@ -21,6 +21,7 @@ import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.tasks.DownloadTask;
+import com.mcreater.amcl.tasks.LambdaTask;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
@@ -180,7 +181,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     long millis = System.currentTimeMillis();
                     Platform.runLater(dialog::Create);
                     try {
-                        OriginalDownload.download(Launcher.configReader.configModel.fastDownload,
+                        OriginalDownload.download(
                                 this.model.id,
                                 Launcher.configReader.configModel.selected_minecraft_dir_index,
                                 rl,
@@ -206,7 +207,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
                         try {
-                            ForgeDownload.download(Launcher.configReader.configModel.fastDownload,
+                            ForgeDownload.download(
                                     this.model.id,
                                     Launcher.configReader.configModel.selected_minecraft_dir_index,
                                     rl,
@@ -268,7 +269,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
                         try {
-                            FabricDownload.download(Launcher.configReader.configModel.fastDownload,
+                            FabricDownload.download(
                                     this.model.id,
                                     Launcher.configReader.configModel.selected_minecraft_dir_index,
                                     rl,
@@ -343,7 +344,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
                         try {
-                            OptifineDownload.download(Launcher.configReader.configModel.fastDownload,
+                            OptifineDownload.download(
                                     this.model.id,
                                     Launcher.configReader.configModel.selected_minecraft_dir_index,
                                     rl,
@@ -439,24 +440,35 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             optifabric.cont.pane.setExpanded(false);
             fabricapi.cont.pane.setExpanded(false);
         });
-        CountDownLatch latch = new CountDownLatch(5);
-        Vector<Thread> t = new Vector<>();
+        Vector<Task> t = new Vector<>();
 
         t.addAll(J8Utils.createList(
-            new Thread(() -> {
+            new LambdaTask(() -> {
                 try {
-                    for (NewForgeItemModel model1 : GetVersionList.getForgeInstallers(model.id)){
-                        ForgeLabel l = new ForgeLabel(model1);
-                        l.setFont(Fonts.t_f);
-                        Platform.runLater(() -> forge.cont.addItem(l));
+                    if (GetVersionList.isMirror()) {
+                        for (NewForgeItemModel model1 : GetVersionList.getForgeInstallers(model.id)) {
+                            ForgeLabel l = new ForgeLabel(model1);
+                            l.setFont(Fonts.t_f);
+                            Platform.runLater(() -> forge.cont.addItem(l));
+                        }
+                    }
+                    else {
+                        for (String s : GetVersionList.getForgeVersionList(model.id)) {
+                            NewForgeItemModel model2 = new NewForgeItemModel();
+                            model2.version = s;
+
+                            ForgeLabel l = new ForgeLabel(model2);
+                            l.setText(s.split("-")[0]);
+                            l.setFont(Fonts.t_f);
+                            Platform.runLater(() -> forge.cont.addItem(l));
+                        }
                     }
                 }
-                catch (Exception e){
+                catch (Exception ignored){
 
                 }
-                latch.countDown();
             }),
-            new Thread(() -> {
+            new LambdaTask(() -> {
                 try {
                     for (OptifineJarModel optiv : GetVersionList.getOptifineVersionList(model.id)){
                         Label l = new Label(optiv.name);
@@ -464,12 +476,11 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         Platform.runLater(() -> optifine.cont.addItem(l));
                     }
                 }
-                catch (Exception e){
+                catch (Exception ignored){
 
                 }
-                latch.countDown();
             }),
-            new Thread(() -> {
+            new LambdaTask(() -> {
                 try {
                     for (String fabv : GetVersionList.getFabricVersionList(model.id)){
                         Label l = new Label(fabv);
@@ -477,45 +488,48 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         Platform.runLater(() -> fabric.cont.addItem(l));
                     }
                 }
-                catch (Exception e){
+                catch (Exception ignored){
 
                 }
-                latch.countDown();
             }),
-            new Thread(() -> {
+            new LambdaTask(() -> {
                 try {
                     for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(model.id)){
-                        CurseFileLabel l = new CurseFileLabel(fabapav.fileName);
+                        String s = fabapav.fileName.replace(".jar", "").replace("fabric-api-", "");
+
+                        CurseFileLabel l = new CurseFileLabel(s);
                         l.setFont(Fonts.t_f);
                         l.model = fabapav;
                         Platform.runLater(() -> fabricapi.cont.addItem(l));
                     }
                 }
-                catch (Exception e){
+                catch (Exception ignored){
 
                 }
-                latch.countDown();
             }),
-            new Thread(() -> {
+            new LambdaTask(() -> {
                 try {
                     for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(model.id)){
-                        CurseFileLabel l = new CurseFileLabel(optfabv.fileName);
+                        String s = optfabv.fileName.replace(".jar", "").replace("optifabric-", "");
+
+                        CurseFileLabel l = new CurseFileLabel(s);
                         l.setFont(Fonts.t_f);
                         l.model = optfabv;
                         Platform.runLater(() -> optifabric.cont.addItem(l));
                     }
                 }
-                catch (Exception e){
+                catch (Exception ignored){
 
                 }
-                latch.countDown();
             })
         ));
 
-        for (Thread t1 : t) {
-            t1.start();
-        }
-        latch.await();
+        TaskManager.bind(null, 0);
+        TaskManager.addTasks(t);
+        TaskManager.execute("<load addons>");
+
+
+
         checkIsNull(forge);
         checkIsNull(optifine);
         checkIsNull(fabric);

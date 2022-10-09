@@ -28,9 +28,4 @@ public class WindowMovement {
             this.y_stage = stage.getY();
         });
     }
-
-    public static void main(String[] args) throws Throwable {
-        MCAFile f = MCAUtil.read(new File("D:\\mods\\util\\.minecraft\\versions\\1.12.2\\saves\\新的世界\\region\\r.mca"));
-        System.out.println(f.getChunk(0, 0));
-    }
 }

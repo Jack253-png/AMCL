@@ -43,6 +43,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -596,9 +597,9 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.not_logged.title"), Launcher.languageManager.get("ui.userselectpage.not_logged.content"), "");
             }
         });
-        this.addNewPair(new Pair<>(b1, p1));
-        this.addNewPair(new Pair<>(b2, p2));
-        this.addNewPair(new Pair<>(profile, p3));
+        this.addNewPair(new ImmutablePair<>(b1, p1));
+        this.addNewPair(new ImmutablePair<>(b2, p2));
+        this.addNewPair(new ImmutablePair<>(profile, p3));
         super.setP1(0);
         super.setButtonType(JFXButton.ButtonType.RAISED);
         nodes.add(null);

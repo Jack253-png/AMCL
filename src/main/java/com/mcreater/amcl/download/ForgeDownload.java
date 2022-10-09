@@ -58,11 +58,11 @@ public class ForgeDownload {
         }
         return count;
     }
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, NewForgeItemModel forge_version, Runnable r, Runnable r2) throws Exception {
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, NewForgeItemModel forge_version, Runnable r, Runnable r2) throws Exception {
         tasks.clear();
         ForgeDownload.chunkSize = chunkSize;
         String temp_path = "forgeTemp";
-        OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
+        OriginalDownload.download(id, minecraft_dir, version_name, chunkSize);
         r.run();
         String versionPath = FileUtils.LinkPath.link(temp_path, "version.json");
         versiondir = String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name);
@@ -72,7 +72,8 @@ public class ForgeDownload {
         }
         catch (NullPointerException ignored){}
         String installer_path = FileUtils.LinkPath.link(temp_path, "installer.jar");
-        String installer_url = GetVersionList.getForgeInstallerDownloadURL(forge_version);
+        String installer_url = GetVersionList.getForgeInstallerDownloadURL(forge_version, id);
+
         logger.info(String.format("finded forge installer url : %s", installer_url));
         deleteDirectory(new File(temp_path), temp_path);
 //        int i = 0;

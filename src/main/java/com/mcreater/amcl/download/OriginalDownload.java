@@ -15,11 +15,8 @@ import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.*;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
@@ -33,7 +30,7 @@ public class OriginalDownload {
     public static String getVJ(){
         return vj;
     }
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize) throws Exception {
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize) throws Exception {
         tasks.clear();
         OriginalDownload.chunkSize = chunkSize;
         String url = FasterUrls.getVersionJsonv2WithFaster(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
@@ -69,12 +66,12 @@ public class OriginalDownload {
             throw new IOException();
         }
 
-        downloadCoreJar(ver_j, faster, minecraft_dir, version_dir, version_name);
-        downloadLibs(ver_j, faster, minecraft_dir, version_dir, version_name);
+        downloadCoreJar(ver_j, minecraft_dir, version_dir, version_name);
+        downloadLibs(ver_j, minecraft_dir, version_dir, version_name);
         downloadAssets(ver_j, minecraft_dir);
         runTasks();
     }
-    private static void downloadCoreJar(VersionJsonModel model, boolean faster, String minecraft_dir, String version_dir, String version_name) throws FileNotFoundException {
+    private static void downloadCoreJar(VersionJsonModel model, String minecraft_dir, String version_dir, String version_name) throws FileNotFoundException {
         String url = FasterUrls.fast(model.downloads.get("client").url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         String path = LinkPath.link(version_dir, version_name + ".jar");
         String hash = model.downloads.get("client").sha1;
@@ -109,7 +106,7 @@ public class OriginalDownload {
         }
     }
 
-    private static void downloadLibs(VersionJsonModel model, boolean faster, String minecraft_dir, String version_dir, String version_name) throws FileNotFoundException {
+    private static void downloadLibs(VersionJsonModel model, String minecraft_dir, String version_dir, String version_name) throws FileNotFoundException {
         String lib_base_path = LinkPath.link(minecraft_dir, "libraries");
         String native_base_path = LinkPath.link(version_dir, version_name + "-natives");
         new File(lib_base_path).mkdirs();

@@ -28,6 +28,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
 import java.io.IOException;
@@ -187,8 +188,8 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
         p2 = new SettingPage(this.width / 4 * 3, this.height - t_size, b2);
 
-        super.addNewPair(new Pair<>(mainInfoButton, p1));
-        super.addNewPair(new Pair<>(modsMenu, p2));
+        super.addNewPair(new ImmutablePair<>(mainInfoButton, p1));
+        super.addNewPair(new ImmutablePair<>(modsMenu, p2));
         super.setOnAction((i) -> {
             setted = super.menubuttons.get(i);
             SettingPage p = super.pages.get(i);

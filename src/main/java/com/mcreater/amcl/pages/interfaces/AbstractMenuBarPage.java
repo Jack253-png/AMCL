@@ -8,6 +8,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,7 +71,7 @@ public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
         setType(menubuttons.get(i));
         e.run(i);
     }
-    public void addNewPair(Pair<JFXButton, SettingPage> pair){
+    public void addNewPair(ImmutablePair<JFXButton, SettingPage> pair){
         pages.add(pair.getValue());
         menubuttons.add(pair.getKey());
         totalMap.put(pair.getValue(), pair.getKey());

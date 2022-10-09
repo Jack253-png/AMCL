@@ -13,14 +13,12 @@ import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.J8Utils;
-import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import javafx.application.Platform;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +28,7 @@ import static com.mcreater.amcl.util.FileUtils.FileStringReader;
 import static com.mcreater.amcl.util.FileUtils.LinkPath;
 
 public class OptifineDownload {
-    public static void download(boolean faster, String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version) throws Exception {
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version) throws Exception {
         OptifineAPIModel model = GetVersionList.getOptifineVersionRaw();
         if (!model.versions.contains(id)){
             throw new IOException();
@@ -49,7 +47,7 @@ public class OptifineDownload {
             throw new IOException();
         }
         System.err.println(opti);
-        OriginalDownload.download(faster, id, minecraft_dir, version_name, chunkSize);
+        OriginalDownload.download(id, minecraft_dir, version_name, chunkSize);
         JSONObject ob = new JSONObject(new Gson().fromJson(OriginalDownload.getVJ(), Map.class));
         if (TaskManager.dialog != null) Platform.runLater(() -> TaskManager.dialog.l.setText(Launcher.languageManager.get("ui.download.optifine.installer")));
 
