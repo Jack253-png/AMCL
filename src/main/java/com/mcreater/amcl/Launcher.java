@@ -92,6 +92,23 @@ public class Launcher extends javafx.application.Application {
     public static Pane wrapper = new Pane();
     public static double radius = 70;
     static VBox top = new VBox();
+    public static void initConfig() {
+        try {
+            FileUtils.ChangeDir.saveNowDir();
+            File f = new File(FileUtils.ChangeDir.dirs, "AMCL");
+            boolean b = true;
+            if (!f.exists()){
+                b = f.mkdirs();
+            }
+            if (!b){
+                throw new IllegalStateException("Failed to read config");
+            }
+            configReader = new ConfigWriter(new File(FileUtils.ChangeDir.dirs, "AMCL/config.json"));
+            configReader.check_and_write();
+        } catch (Exception e) {
+            logger.error("failed to read config", e);
+        }
+    }
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
         if (OSInfo.isWin()) {
@@ -101,21 +118,7 @@ public class Launcher extends javafx.application.Application {
             setGeometry(stage, width, height);
             bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true);
             logger.info("Launcher Version : " + VersionInfo.launcher_version);
-            try {
-                FileUtils.ChangeDir.saveNowDir();
-                File f = new File(FileUtils.ChangeDir.dirs, "AMCL");
-                boolean b = true;
-                if (!f.exists()){
-                    b = f.mkdirs();
-                }
-                if (!b){
-                    throw new IllegalStateException("Failed to read config");
-                }
-                configReader = new ConfigWriter(new File(FileUtils.ChangeDir.dirs, "AMCL/config.json"));
-                configReader.check_and_write();
-            } catch (Exception e) {
-                logger.error("failed to read config", e);
-            }
+            initConfig();
             languageManager.setLanguage(LanguageManager.LanguageType.valueOf(configReader.configModel.language));
 
             MAINPAGE = new MainPage(width, height);

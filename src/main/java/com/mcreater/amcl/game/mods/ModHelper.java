@@ -4,12 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.game.versionTypeGetter;
+import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.model.mod.FabricModInfoModel;
 import com.mcreater.amcl.model.mod.ForgeModInfoModel;
 import com.mcreater.amcl.model.mod.SimpleModInfoModel;
-import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.*;
 
 import java.io.File;
@@ -40,8 +39,7 @@ public class ModHelper {
         return result;
     }
     public static boolean isModded(String dir, String version_name){
-        String v = versionTypeGetter.get(dir, version_name);
-        return v.contains("forge") || v.contains("fabric") || v.contains("liteloader");
+        return VersionTypeGetter.modded(dir, version_name);
     }
     public static CommonModInfoModel getModInfo(String path) throws IOException {
         String version = "";

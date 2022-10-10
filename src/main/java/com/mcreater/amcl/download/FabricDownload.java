@@ -31,7 +31,6 @@ public class FabricDownload {
     public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String fabric_version, Runnable ru) throws Exception {
         tasks.clear();
         FabricDownload.chunkSize = chunkSize;
-        String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         Gson g = new Gson();
         Vector<String> vers = GetVersionList.getFabricVersionList(id);
 

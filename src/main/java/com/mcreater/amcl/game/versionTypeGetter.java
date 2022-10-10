@@ -6,40 +6,70 @@ import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.util.FileUtils.*;
 import com.mcreater.amcl.util.J8Utils;
+import javafx.scene.image.Image;
 
 import java.util.*;
 
-public class versionTypeGetter {
-    public static boolean modded(String dir, String version){
-        return get(dir, version).contains("fabric") || get(dir, version).contains("forge") || get(dir, version).contains("optifine");
+import static com.mcreater.amcl.util.svg.Images.fabric;
+import static com.mcreater.amcl.util.svg.Images.forge;
+import static com.mcreater.amcl.util.svg.Images.liteloader;
+import static com.mcreater.amcl.util.svg.Images.optifine;
+import static com.mcreater.amcl.util.svg.Images.original;
+import static com.mcreater.amcl.util.svg.Images.quilt;
+
+public class VersionTypeGetter {
+    public static enum VersionType {
+        ORIGINAL,
+        FORGE,
+        FABRIC,
+        OPTIFINE,
+        LITELOADER,
+
+        QUILT;
+        public static Image getImage(VersionType type) {
+            switch (type) {
+                default:
+                case ORIGINAL:
+                    return original;
+                case FORGE:
+                    return forge;
+                case FABRIC:
+                    return fabric;
+                case LITELOADER:
+                    return liteloader;
+                case OPTIFINE:
+                    return optifine;
+                case QUILT:
+                    return quilt;
+            }
+        }
     }
-    public static String get(String dir, String version){
+
+    public static boolean modded(String dir, String version){
+        return get(dir, version) == VersionType.FABRIC || get(dir, version) == VersionType.FORGE || get(dir, version) == VersionType.OPTIFINE || get(dir, version) == VersionType.QUILT;
+    }
+    public static VersionType get(String dir, String version){
         VersionJsonModel v = getVersionModel(dir, version);
         Vector<String> forge = new Vector<>();
         forge.add("cpw.mods.modlauncher.Launcher");
         forge.add("cpw.mods.bootstraplauncher.BootstrapLauncher");
 
         if (v.mainClass.contains("net.fabricmc.loader") || getTweakClass(v).contains("net.fabricmc.loader.launch.FabricClientTweaker")){
-            return "fabric";
+            return VersionType.FABRIC;
         }
         if (getTweakClass(v).contains("net.minecraftforge.fml.common.launcher.FMLTweaker") || getTweakClass(v).contains("cpw.mods.fml.common.launcher.FMLTweaker")){
-            return "forge";
+            return VersionType.FORGE;
         }
         if (forge.contains(v.mainClass) || getTweakClass(v).contains("net.minecraftforge.fml.common.launcher.FMLTweaker")){
-            if (getTweakClass(v).contains("optifine.OptiFineForgeTweaker")){
-                return "forge-optifine";
-            }
-            else{
-                return "forge";
-            }
+            return VersionType.FORGE;
         }
         if (getTweakClass(v).contains("com.mumfrey.liteloader.launch.LiteLoaderTweaker")){
-            return "liteloader";
+            return VersionType.LITELOADER;
         }
         if (getTweakClass(v).contains("optifine.OptiFineTweaker")){
-            return "optifine";
+            return VersionType.OPTIFINE;
         }
-        return "original";
+        return VersionType.ORIGINAL;
     }
     public static Vector<String> getTweakClass(VersionJsonModel v){
         Vector<String> tweakClasses = new Vector<>();

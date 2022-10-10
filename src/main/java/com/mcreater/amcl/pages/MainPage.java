@@ -7,6 +7,7 @@ import com.jfoenix.controls.JFXTimePicker;
 import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.audio.BGMManager;
+import com.mcreater.amcl.download.QuiltDownload;
 import com.mcreater.amcl.game.getMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;

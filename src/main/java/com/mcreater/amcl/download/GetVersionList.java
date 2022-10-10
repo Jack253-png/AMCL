@@ -152,6 +152,29 @@ public class GetVersionList {
             return new Vector<>();
         }
     }
+    public static Vector<String> getQuiltVersionList(String version) throws Exception {
+        String quiltVersions = FasterUrls.fast("https://meta.quiltmc.org/v3/versions/game", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+        String loaderVersions = FasterUrls.fast("https://meta.quiltmc.org/v3/versions/loader", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+
+        Vector<Map<String, String>> s = new Vector<>();
+        s = new Gson().fromJson(HttpConnectionUtil.doGet(quiltVersions), s.getClass());
+        Vector<String> versions = new Vector<>();
+        for (Map<String, String> m : s){
+            versions.add(m.get("version"));
+        }
+        if (versions.contains(version)){
+            Vector<String> result = new Vector<>();
+            String raw = String.format("{\"versions\" : %s}", HttpConnectionUtil.doGet(loaderVersions));
+            FabricListModel vs = new Gson().fromJson(raw, FabricListModel.class);
+            for (FabricLoaderVersionModel model : vs.versions){
+                result.add(model.version);
+            }
+            return result;
+        }
+        else{
+            return new Vector<>();
+        }
+    }
     public static OptifineAPIModel getOptifineVersionRaw() throws Exception {
         String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
         Gson g = new Gson();

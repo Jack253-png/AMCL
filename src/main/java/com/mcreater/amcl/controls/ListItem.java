@@ -9,7 +9,7 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 
-public class SmoothableComboBox<T extends Region> extends SmoothableListView<T> {
+public class ListItem<T extends Region> extends SmoothableListView<T> {
     public TitledPane pane;
     public void select(int index){
         super.select(index);
@@ -22,8 +22,9 @@ public class SmoothableComboBox<T extends Region> extends SmoothableListView<T> 
         super.clear();
         pane.setText("");
     }
-    public SmoothableComboBox(double width, double height) {
+    public ListItem(double width, double height) {
         super(width, height);
+
         pane = new TitledPane();
         pane.setContent(page);
         pane.setExpanded(false);

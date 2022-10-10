@@ -8,7 +8,7 @@ import com.mcreater.amcl.controls.RemoteMod;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.game.mods.ModHelper;
-import com.mcreater.amcl.game.versionTypeGetter;
+import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
@@ -27,7 +27,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.util.Pair;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
@@ -216,9 +215,9 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         ));
     }
     public void setByview(){
-        String type;
+        VersionTypeGetter.VersionType type;
         try {
-            type = versionTypeGetter.get(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
+            type = VersionTypeGetter.get(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
         }
         catch (Exception e){
             e.printStackTrace();
@@ -228,28 +227,11 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         item.cont.setText(Launcher.configReader.configModel.selected_version_index);
         view.setFitWidth(40);
         view.setFitHeight(40);
-        switch (type) {
-            case "original":
-                view.setImage(original);
-                break;
-            case "forge":
-            case "forge-optifine":
-                view.setImage(forge);
-                break;
-            case "fabric":
-                view.setImage(fabric);
-                break;
-            case "liteloader":
-                view.setImage(liteloader);
-                break;
-            case "optifine":
-                view.setImage(optifine);
-                break;
-        }
-        fabricversion.setText(versionTypeGetter.getFabricVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
-        forgeversion.setText(versionTypeGetter.getForgeVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
-        optiversion.setText(versionTypeGetter.getOptifineVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
-        liteversion.setText(versionTypeGetter.getLiteLoaderVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
+        view.setImage(VersionTypeGetter.VersionType.getImage(type));
+        fabricversion.setText(VersionTypeGetter.getFabricVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
+        forgeversion.setText(VersionTypeGetter.getForgeVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
+        optiversion.setText(VersionTypeGetter.getOptifineVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
+        liteversion.setText(VersionTypeGetter.getLiteLoaderVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
     }
 
     public void setType(boolean b){

@@ -8,4 +8,5 @@ public interface Images {
     Image fabric = new Image("assets/icons/fabric.png");
     Image liteloader = new Image("assets/icons/liteloader.png");
     Image optifine = new Image("assets/icons/optifine.png");
+    Image quilt = new Image("assets/icons/quilt.png");
 }

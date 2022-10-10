@@ -16,7 +16,7 @@ import com.mcreater.amcl.exceptions.BadUserException;
 import com.mcreater.amcl.exceptions.BadVersionDirException;
 import com.mcreater.amcl.exceptions.ProcessException;
 import com.mcreater.amcl.game.MavenPathConverter;
-import com.mcreater.amcl.game.versionTypeGetter;
+import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.nativeInterface.EnumWindow;
@@ -166,7 +166,7 @@ public class Launch {
                     if (new File(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name))).exists()) {
                         if (!libs.contains(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)))) {
                             if (l.name.contains("org.apache.logging.log4j:log4j-api:2.8.1") || l.name.contains("org.apache.logging.log4j:log4j-core:2.8.1")) {
-                                if (versionTypeGetter.get(dir, version_name).contains("forge")) {
+                                if (VersionTypeGetter.get(dir, version_name) == VersionTypeGetter.VersionType.FORGE) {
                                     String local = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)).replace("2.8.1", "2.15.0");
                                     new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
                                     String server = FasterUrls.fast(l.downloads.artifact.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)).replace("2.8.1", "2.15.0");

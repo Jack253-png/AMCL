@@ -13,6 +13,7 @@ import com.mcreater.amcl.download.OptifineDownload;
 import com.mcreater.amcl.download.OriginalDownload;
 import com.mcreater.amcl.download.model.NewForgeItemModel;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
+import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
@@ -30,6 +31,8 @@ import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
@@ -58,6 +61,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
     public BooleanListItem<Label> fabric;
     public BooleanListItem<CurseFileLabel> optifabric;
     public BooleanListItem<CurseFileLabel> fabricapi;
+    public BooleanListItem<Label> quilt;
     StringItem versionfinalName;
     public JFXButton install;
     public void closeAll(TitledPane pane){
@@ -76,31 +80,38 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         FXUtils.ControlSize.setWidth(box, width);
         id = new Label();
         id.setFont(Fonts.s_f);
-        forge = new BooleanListItem<>("Forge", width / 5 * 4);
-        optifine = new BooleanListItem<>("OptiFine", width / 5 * 4);
-        fabric = new BooleanListItem<>("Fabric", width / 5 * 4);
-        optifabric = new BooleanListItem<>("OptiFabric", width / 5 * 4);
-        fabricapi = new BooleanListItem<>("Fabric API", width / 5 * 4);
+        forge = new BooleanListItem<>("Forge", width / 5 * 4, VersionTypeGetter.VersionType.FORGE);
+        optifine = new BooleanListItem<>("OptiFine", width / 5 * 4, VersionTypeGetter.VersionType.OPTIFINE);
+        fabric = new BooleanListItem<>("Fabric", width / 5 * 4, VersionTypeGetter.VersionType.FABRIC);
+        optifabric = new BooleanListItem<>("OptiFabric", width / 5 * 4,  VersionTypeGetter.VersionType.FABRIC);
+        fabricapi = new BooleanListItem<>("Fabric API", width / 5 * 4, VersionTypeGetter.VersionType.FABRIC);
+        quilt = new BooleanListItem<>("Quilt", width / 5 * 4, VersionTypeGetter.VersionType.QUILT);
+
         forge.cont.setDisable(true);
         optifine.cont.setDisable(true);
         fabric.cont.setDisable(true);
         fabricapi.cont.setDisable(true);
         optifabric.cont.setDisable(true);
+        quilt.cont.setDisable(true);
         bindSingle(forge.cont.pane);
         bindSingle(optifine.cont.pane);
         bindSingle(fabric.cont.pane);
         bindSingle(optifabric.cont.pane);
         bindSingle(fabricapi.cont.pane);
+        bindSingle(quilt.cont.pane);
+
         forge.button.selectedProperty().addListener(event -> {
             forge.cont.setDisable(!forge.button.isSelected());
             if (forge.button.isSelected()){
                 fabric.button.selectedProperty().set(false);
                 optifabric.button.selectedProperty().set(false);
                 fabricapi.button.selectedProperty().set(false);
+                quilt.button.selectedProperty().set(false);
             }
         });
         optifine.button.selectedProperty().addListener(event -> {
             optifine.cont.setDisable(!optifine.button.isSelected());
+            if (optifine.button.isSelected()) quilt.button.selectedProperty().set(false);
             if (fabric.button.isSelected()){
                 optifabric.button.selectedProperty().set(optifine.button.isSelected());
             }
@@ -109,6 +120,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             fabric.cont.setDisable(!fabric.button.isSelected());
             if (fabric.button.isSelected()){
                 forge.button.selectedProperty().set(false);
+                quilt.button.selectedProperty().set(false);
                 if (optifine.button.isSelected()){
                     optifabric.button.selectedProperty().set(true);
                 }
@@ -125,7 +137,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     optifabric.button.selectedProperty().set(false);
                 }
             }
-            else{
+            else {
                 if (fabric.button.isSelected()){
                     optifine.button.selectedProperty().set(false);
                 }
@@ -137,6 +149,16 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 if (!fabric.button.isSelected()){
                     fabricapi.button.selectedProperty().set(false);
                 }
+            }
+        });
+        quilt.button.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            quilt.cont.setDisable(!quilt.button.isSelected());
+            if (quilt.button.isSelected()) {
+                optifine.button.selectedProperty().set(false);
+                forge.button.selectedProperty().set(false);
+                fabric.button.selectedProperty().set(false);
+                optifabric.button.selectedProperty().set(false);
+                fabricapi.button.selectedProperty().set(false);
             }
         });
         install = new JFXButton();
@@ -374,10 +396,11 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         box.add(fabric, 0, 3, 1, 1);
         box.add(fabricapi, 0, 4, 1, 1);
         box.add(optifabric, 0, 5, 1, 1);
+        box.add(quilt, 0, 6, 1, 1);
 
-        box.add(versionfinalName, 0, 6, 1, 1);
-        box.add(install, 0, 7, 1, 1);
-        ThemeManager.loadButtonAnimates(id, forge, optifine, fabric, fabricapi, optifabric, versionfinalName, install);
+        box.add(versionfinalName, 0, 7, 1, 1);
+        box.add(install, 0, 8, 1, 1);
+        ThemeManager.loadButtonAnimates(id, forge, optifine, fabric, fabricapi, optifabric, versionfinalName, install, quilt);
         this.add(p, 0, 0, 1, 1);
 
         nodes.add(null);

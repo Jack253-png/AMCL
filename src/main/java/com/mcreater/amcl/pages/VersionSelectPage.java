@@ -6,7 +6,7 @@ import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.VersionItem;
 import com.mcreater.amcl.game.getMinecraftVersion;
-import com.mcreater.amcl.game.versionTypeGetter;
+import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -205,17 +205,17 @@ public class VersionSelectPage extends AbstractAnimationPage {
                     int ld = 0;
                     for (String s : result) {
                         logger.info(String.format("loading version %s", s));
-                        String f = "error";
+                        VersionTypeGetter.VersionType f = null;
                         if (!new File(LinkPath.link(LinkPath.link(LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "versions"), s), s + ".json")).exists()) {
                             logger.warn(String.format("Failed to load version name %s !", s));
                             continue;
                         }
                         try {
-                            f = versionTypeGetter.get(Launcher.configReader.configModel.selected_minecraft_dir_index, s);
+                            f = VersionTypeGetter.get(Launcher.configReader.configModel.selected_minecraft_dir_index, s);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        String finalF = f;
+                        VersionTypeGetter.VersionType finalF = f;
                         Platform.runLater(() -> {
                             VersionItem i = new VersionItem(s, finalF);
                             version_list.addItem(i);
