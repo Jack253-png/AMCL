@@ -2,6 +2,7 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.game.GetMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
@@ -20,6 +21,8 @@ import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;

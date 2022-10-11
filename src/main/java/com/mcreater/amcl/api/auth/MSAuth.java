@@ -13,24 +13,25 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.*;
 
 public class MSAuth implements AbstractAuth<MicrosoftUser>{
-    public static final String loginUrl = "https://login.live.com/oauth20_authorize.srf?client_id=00000000402b5328&response_type=code&scope=service%3A%3Auser.auth.xboxlive.com%3A%3AMBI_SSL&redirect_uri=https%3A%2F%2Flogin.live.com%2Foauth20_desktop.srf";
-    public static final String redirectUrlSuffix = "https://login.live.com/oauth20_desktop.srf?code=";
-    public static final String authTokenUrl = "https://login.live.com/oauth20_token.srf";
-    private static final String xblAuthUrl = "https://user.auth.xboxlive.com/user/authenticate";
-    private static final String xstsAuthUrl = "https://xsts.auth.xboxlive.com/xsts/authorize";
-    private static final String mcLoginUrl = "https://api.minecraftservices.com/authentication/login_with_xbox";
-    private static final String mcStoreUrl = "https://api.minecraftservices.com/entitlements/mcstore";
-    private static final String mcProfileUrl = "https://api.minecraftservices.com/minecraft/profile";
+    public static final MSAuth AUTH_INSTANCE = new MSAuth();
+    public static final String LOGIN_URL = "https://login.live.com/oauth20_authorize.srf?client_id=00000000402b5328&response_type=code&scope=service%3A%3Auser.auth.xboxlive.com%3A%3AMBI_SSL&redirect_uri=https%3A%2F%2Flogin.live.com%2Foauth20_desktop.srf";
+    public static final String REDIRECT_URL_SUFFIX = "https://login.live.com/oauth20_desktop.srf?code=";
+    public static final String AUTH_TOKEN_URL = "https://login.live.com/oauth20_token.srf";
+    private static final String XBL_AUTH_URL = "https://user.auth.xboxlive.com/user/authenticate";
+    private static final String XSTS_AUTH_URL = "https://xsts.auth.xboxlive.com/xsts/authorize";
+    private static final String MC_LOGIN_URL = "https://api.minecraftservices.com/authentication/login_with_xbox";
+    private static final String MC_STORE_URL = "https://api.minecraftservices.com/entitlements/mcstore";
+    private static final String MC_PROFILE_URL = "https://api.minecraftservices.com/minecraft/profile";
     ProcessDialog dialog;
     public void bindDialog(ProcessDialog dialog){
         this.dialog = dialog;
     }
+    private MSAuth() {}
     public ImmutablePair<String, String> acquireAccessToken(String authcode) {
         GithubReleases.trustAllHosts();
         Map<Object, Object> data = new HashMap<>();
@@ -40,7 +41,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         data.put("redirect_uri", "https://login.live.com/oauth20_desktop.srf");
         data.put("scope", "service::user.auth.xboxlive.com::MBI_SSL");
         try {
-            HttpClient client = HttpClient.getInstance(authTokenUrl, data);
+            HttpClient client = HttpClient.getInstance(AUTH_TOKEN_URL, data);
             client.openConnection();
             client.conn.setConnectTimeout(5000);
             client.conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -65,7 +66,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
                     "RelyingParty", "http://auth.xboxlive.com",
                     "TokenType", "JWT"
             );
-            HttpClient client = HttpClient.getInstance(xblAuthUrl);
+            HttpClient client = HttpClient.getInstance(XBL_AUTH_URL);
             client.openConnection();
             client.conn.setDoInput(true);
             client.conn.setDoOutput(true);
@@ -100,7 +101,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
                     "TokenType", "JWT"
             );
 
-            HttpClient client = HttpClient.getInstance(xstsAuthUrl);
+            HttpClient client = HttpClient.getInstance(XSTS_AUTH_URL);
             client.openConnection();
             client.conn.setDoInput(true);
             client.conn.setDoOutput(true);
@@ -128,7 +129,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             Map<Object, Object> data = J8Utils.createMap(
                     "identityToken", "XBL3.0 x=" + xblUhs + ";" + xblXsts
             );
-            HttpClient client = HttpClient.getInstance(mcLoginUrl);
+            HttpClient client = HttpClient.getInstance(MC_LOGIN_URL);
             client.openConnection();
             client.conn.setDoInput(true);
             client.conn.setDoOutput(true);
@@ -156,7 +157,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
 
     public boolean checkMcStore(String mcAccessToken) {
         try {
-            HttpClient client = HttpClient.getInstance(mcStoreUrl);
+            HttpClient client = HttpClient.getInstance(MC_STORE_URL);
             client.openConnection();
             client.conn.setRequestProperty("Authorization", String.format("Bearer %s", mcAccessToken));
             JSONObject ob = client.readJSON();
@@ -178,7 +179,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
 
     public McProfileModel checkMcProfile(String mcAccessToken) {
         try {
-            HttpClient client = HttpClient.getInstance(mcProfileUrl);
+            HttpClient client = HttpClient.getInstance(MC_PROFILE_URL);
             client.openConnection();
             client.conn.setRequestProperty("Authorization", String.format("Bearer %s", mcAccessToken));
             McProfileModel model = new Gson().fromJson(client.read(), McProfileModel.class);
@@ -198,7 +199,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         return getUserFromToken(token);
     }
     public MicrosoftUser getUserFromToken(ImmutablePair<String, String> token) throws RuntimeException {
-        
+
         ImmutablePair<String, String> xbl_token = acquireXBLToken(token.getKey());
         setV(0, 40, Launcher.languageManager.get("ui.msauth._03"));
         ImmutablePair<String, String> xsts = acquireXsts(xbl_token.getKey());

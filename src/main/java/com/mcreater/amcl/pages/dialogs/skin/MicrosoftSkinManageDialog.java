@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXRadioButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
+import com.mcreater.amcl.controls.items.RadioButtonGroup;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
@@ -24,12 +25,10 @@ import java.util.Map;
 
 public class MicrosoftSkinManageDialog extends AbstractDialog {
     public JFXButton addButton;
-
-    JFXRadioButton steve;
-    JFXRadioButton alex;
     JFXButton uploadSkin;
     MicrosoftUser user;
     JFXComboBox<CapeLabel> capes;
+    RadioButtonGroup group = new RadioButtonGroup("Steve", "Alex");
     public MicrosoftSkinManageDialog(String title, MicrosoftUser user) {
         super(Launcher.stage);
         this.user = user;
@@ -39,36 +38,26 @@ public class MicrosoftSkinManageDialog extends AbstractDialog {
         addButton.setDefaultButton(true);
         addButton.setOnAction(event -> close());
 
-        steve = new JFXRadioButton("Steve");
-        steve.setFont(Fonts.t_f);
-        steve.setOnAction(event -> {
-            if (!steve.isSelected()) steve.setSelected(true);
-            alex.setSelected(!steve.isSelected());
-        });
-        alex = new JFXRadioButton("Alex");
-        alex.setFont(Fonts.t_f);
-        alex.setOnAction(event -> {
-            if (!alex.isSelected()) alex.setSelected(true);
-            steve.setSelected(!alex.isSelected());
-        });
+        group.items.get(0).setSelected(true);
 
-        steve.setSelected(true);
         uploadSkin = new JFXButton(Launcher.languageManager.get("ui.userselectpage.skin.select"));
         uploadSkin.setFont(Fonts.t_f);
         uploadSkin.setDefaultButton(true);
         uploadSkin.setOnAction(event -> {
             FileChooser chooser = new FileChooser();
-            chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(
-                    Launcher.languageManager.get("ui.userselectpage.custom.file.desc"), "*.png"
-            ));
+            chooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter(
+                            Launcher.languageManager.get("ui.userselectpage.custom.file.desc"), "*.png"
+                    )
+            );
             chooser.setTitle(Launcher.languageManager.get("ui.userselectpage.custom.title"));
             File skin = chooser.showOpenDialog(Launcher.stage);
             LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.skin.upload"));
             dialog.show();
             new Thread(() -> {
                 try {
-                    MicrosoftUser.SkinType type = null;
-                    if (steve.isSelected()) {
+                    MicrosoftUser.SkinType type;
+                    if (group.getSelectedItem() == 0) {
                         type = MicrosoftUser.SkinType.STEVE;
                     }
                     else {
@@ -110,7 +99,7 @@ public class MicrosoftSkinManageDialog extends AbstractDialog {
             }).start();
         });
 
-        VBox v = new VBox(steve, alex, uploadSkin);
+        VBox v = new VBox(group, uploadSkin);
         v.setSpacing(20);
         HBox b = new HBox(cape, capes);
         b.setSpacing(35);
@@ -122,7 +111,7 @@ public class MicrosoftSkinManageDialog extends AbstractDialog {
 
         Label head = setFont(new Label(title), Fonts.s_f);
 
-        ThemeManager.loadButtonAnimates(addButton, head, steve, alex, uploadSkin, cape, capes);
+        ThemeManager.loadButtonAnimates(addButton, head, group, uploadSkin, cape, capes);
         layout.setActions(addButton);
         layout.setHeading(head);
         this.setOnHidden(event -> {});

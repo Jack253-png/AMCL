@@ -69,9 +69,9 @@ public class FXBrowserPage extends AbstractStage{
                 new Thread(() -> {
                     String url = event.getValidatedURL();
                     if (url.contains("The%20user%20has%20denied%20access%20to%20the%20scope%20requested%20by%20the%20client%20application.")){
-                        view.getBrowser().loadURL(MSAuth.loginUrl);
+                        view.getBrowser().loadURL(MSAuth.LOGIN_URL);
                     }
-                    else if (url.startsWith(MSAuth.redirectUrlSuffix)){
+                    else if (url.startsWith(MSAuth.REDIRECT_URL_SUFFIX)){
                         frame.dispose();
                         int start = url.indexOf("?code=");
                         String temp = url.substring(start);
@@ -84,9 +84,8 @@ public class FXBrowserPage extends AbstractStage{
 
                             System.err.println(email);
 
-                            MSAuth auth = new MSAuth();
-                            auth.bindDialog(dialog);
-                            user = auth.getUser(temp.substring(6, end));
+                            MSAuth.AUTH_INSTANCE.bindDialog(dialog);
+                            user = MSAuth.AUTH_INSTANCE.getUser(temp.substring(6, end));
                         }
                         catch (Exception e){
                             ex = e;

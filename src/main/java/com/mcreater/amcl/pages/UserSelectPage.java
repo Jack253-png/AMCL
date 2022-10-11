@@ -32,9 +32,6 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -42,7 +39,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.util.Pair;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.IOException;
@@ -494,7 +490,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
             msLogin.setDisable(true);
             ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.userselectpage.logging"));
             dialog.setV(0, 0, Launcher.languageManager.get("ui.msauth._01"));
-            NativeBrowserPage p = new NativeBrowserPage(MSAuth.loginUrl);
+            NativeBrowserPage p = new NativeBrowserPage(MSAuth.LOGIN_URL);
             p.setDialog(dialog);
             p.open();
 

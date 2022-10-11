@@ -10,15 +10,9 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -62,17 +56,16 @@ public class NativeBrowserPage extends AbstractStage {
             loginThread = new Thread(() -> {
                 logger.info("Redirected to " + newValue);
                 if (newValue.contains("The%20user%20has%20denied%20access%20to%20the%20scope%20requested%20by%20the%20client%20application.")){
-                    webView.getEngine().load(MSAuth.loginUrl);
+                    webView.getEngine().load(MSAuth.LOGIN_URL);
                 }
-                else if (newValue.startsWith(MSAuth.redirectUrlSuffix)){
+                else if (newValue.startsWith(MSAuth.REDIRECT_URL_SUFFIX)){
                     Platform.runLater(this::close);
                     int start = newValue.indexOf("?code=");
                     String temp = newValue.substring(start);
                     int end = temp.indexOf("&lc=");
                     try {
-                        MSAuth auth = new MSAuth();
-                        auth.bindDialog(dialog);
-                        user = auth.getUser(temp.substring(6, end));
+                        MSAuth.AUTH_INSTANCE.bindDialog(dialog);
+                        user = MSAuth.AUTH_INSTANCE.getUser(temp.substring(6, end));
                     }
                     catch (Exception e){
                         ex = e;

@@ -117,20 +117,20 @@ public class MicrosoftUser extends AbstractUser {
                    "grant_type", "refresh_token",
                    "redirect_uri", "https://login.live.com/oauth20_desktop.srf",
                    "scope", "service::user.auth.xboxlive.com::MBI_SSL");
-        HttpClient client = HttpClient.getInstance(MSAuth.authTokenUrl, data);
+        HttpClient client = HttpClient.getInstance(MSAuth.AUTH_TOKEN_URL, data);
         client.openConnection();
         client.conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
         JSONObject ob = client.readJSON();
         this.refreshToken = ob.getString("refresh_token");
         String at = ob.getString("access_token");
-        MicrosoftUser newUser = new MSAuth().getUserFromToken(new ImmutablePair<>(at, refreshToken));
+        MicrosoftUser newUser = MSAuth.AUTH_INSTANCE.getUserFromToken(new ImmutablePair<>(at, refreshToken));
         this.accessToken = newUser.accessToken;
     }
 
     public boolean vaildate() {
         try {
             GithubReleases.trustAllHosts();
-            new MSAuth().checkMcStore(accessToken);
+            MSAuth.AUTH_INSTANCE.checkMcStore(accessToken);
             return true;
         }
         catch (Exception e){

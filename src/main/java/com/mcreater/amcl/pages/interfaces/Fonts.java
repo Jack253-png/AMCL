@@ -15,6 +15,7 @@ public class Fonts {
     public static java.awt.Font awt_b_f;
     public static java.awt.Font awt_s_f;
     public static java.awt.Font awt_t_f;
+    public static java.awt.Font awt_ts_f;
     public static void loadFont(){
         b_f = Font.loadFont(new ResourceGetter().get("assets/fonts/GNU Unifont.ttf"), 28);
         s_f = Font.loadFont(new ResourceGetter().get("assets/fonts/GNU Unifont.ttf"), 22);
@@ -36,6 +37,10 @@ public class Fonts {
             InputStream is3 = new ResourceGetter().get("assets/fonts/GNU Unifont.ttf");
             awt_t_f = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, is3).deriveFont(16F);
             is3.close();
+
+            InputStream is4 = new ResourceGetter().get("assets/fonts/GNU Unifont.ttf");
+            awt_ts_f = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, is4).deriveFont(12F);
+            is4.close();
         }
         catch (Exception e){
             e.printStackTrace();
