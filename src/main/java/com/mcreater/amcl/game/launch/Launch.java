@@ -23,6 +23,7 @@ import com.mcreater.amcl.nativeInterface.EnumWindow;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
+import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
@@ -484,7 +485,7 @@ public class Launch {
                 line.contains("LWJGL Version") ||
                 line.contains("Turning of ImageIO disk-caching") ||
                 line.contains("Loading current icons for window from:")){
-                    MainPage.launchDialog.close();
+                    if (ClassPathInjector.version <= 8) MainPage.launchDialog.close();
                 }
             }
         } catch (IOException e) {

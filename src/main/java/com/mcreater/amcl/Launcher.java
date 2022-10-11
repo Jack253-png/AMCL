@@ -90,7 +90,7 @@ public class Launcher extends javafx.application.Application {
     public static JFXButton back;
     public static AboutDialog aboutDialog;
     public static Pane wrapper = new Pane();
-    public static double radius = 70;
+    public static double radius = 30;
     static VBox top = new VBox();
     public static void initConfig() {
         try {

@@ -11,6 +11,7 @@ import com.mcreater.amcl.download.ForgeDownload;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.download.OptifineDownload;
 import com.mcreater.amcl.download.OriginalDownload;
+import com.mcreater.amcl.download.QuiltDownload;
 import com.mcreater.amcl.download.model.NewForgeItemModel;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.game.VersionTypeGetter;
@@ -62,6 +63,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
     public BooleanListItem<CurseFileLabel> optifabric;
     public BooleanListItem<CurseFileLabel> fabricapi;
     public BooleanListItem<Label> quilt;
+    public BooleanListItem<CurseFileLabel> quiltapi;
     StringItem versionfinalName;
     public JFXButton install;
     public void closeAll(TitledPane pane){
@@ -86,6 +88,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         optifabric = new BooleanListItem<>("OptiFabric", width / 5 * 4,  VersionTypeGetter.VersionType.FABRIC);
         fabricapi = new BooleanListItem<>("Fabric API", width / 5 * 4, VersionTypeGetter.VersionType.FABRIC);
         quilt = new BooleanListItem<>("Quilt", width / 5 * 4, VersionTypeGetter.VersionType.QUILT);
+        quiltapi = new BooleanListItem<>("Quilt API", width / 5 * 4, VersionTypeGetter.VersionType.QUILT);
 
         forge.cont.setDisable(true);
         optifine.cont.setDisable(true);
@@ -93,12 +96,14 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         fabricapi.cont.setDisable(true);
         optifabric.cont.setDisable(true);
         quilt.cont.setDisable(true);
+        quiltapi.cont.setDisable(true);
         bindSingle(forge.cont.pane);
         bindSingle(optifine.cont.pane);
         bindSingle(fabric.cont.pane);
         bindSingle(optifabric.cont.pane);
         bindSingle(fabricapi.cont.pane);
         bindSingle(quilt.cont.pane);
+        bindSingle(quiltapi.cont.pane);
 
         forge.button.selectedProperty().addListener(event -> {
             forge.cont.setDisable(!forge.button.isSelected());
@@ -107,11 +112,15 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 optifabric.button.selectedProperty().set(false);
                 fabricapi.button.selectedProperty().set(false);
                 quilt.button.selectedProperty().set(false);
+                quiltapi.button.selectedProperty().set(false);
             }
         });
         optifine.button.selectedProperty().addListener(event -> {
             optifine.cont.setDisable(!optifine.button.isSelected());
-            if (optifine.button.isSelected()) quilt.button.selectedProperty().set(false);
+            if (optifine.button.isSelected()) {
+                quilt.button.selectedProperty().set(false);
+                quiltapi.button.selectedProperty().set(false);
+            }
             if (fabric.button.isSelected()){
                 optifabric.button.selectedProperty().set(optifine.button.isSelected());
             }
@@ -121,6 +130,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             if (fabric.button.isSelected()){
                 forge.button.selectedProperty().set(false);
                 quilt.button.selectedProperty().set(false);
+                quiltapi.button.selectedProperty().set(false);
                 if (optifine.button.isSelected()){
                     optifabric.button.selectedProperty().set(true);
                 }
@@ -160,6 +170,19 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 optifabric.button.selectedProperty().set(false);
                 fabricapi.button.selectedProperty().set(false);
             }
+            else {
+                if (quiltapi.button.isSelected()) {
+                    quiltapi.button.selectedProperty().set(false);
+                }
+            }
+        });
+        quiltapi.button.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            quiltapi.cont.setDisable(!quiltapi.button.isSelected());
+            if (quiltapi.button.isSelected()) {
+                if (!quilt.button.isSelected()) {
+                    quiltapi.button.selectedProperty().set(false);
+                }
+            }
         });
         install = new JFXButton();
         install.setFont(Fonts.s_f);
@@ -170,11 +193,16 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             boolean fabric = this.fabric.button.isSelected();
             boolean fabricapi = this.fabricapi.button.isSelected();
             boolean optifabric = this.optifabric.button.isSelected();
+            boolean quilt = this.quilt.button.isSelected();
+            boolean quiltapi = this.quiltapi.button.isSelected();
             ForgeLabel forgeItem = this.forge.cont.selectedItem;
             Label optifineItem = this.optifine.cont.selectedItem;
             Label fabricItem = this.fabric.cont.selectedItem;
             CurseFileLabel optifabricItem = this.optifabric.cont.selectedItem;
             CurseFileLabel fabricapiItem = this.fabricapi.cont.selectedItem;
+            Label quiltItem = this.quilt.cont.selectedItem;
+            CurseFileLabel quiltapiItem = this.quiltapi.cont.selectedItem;
+
             ProcessDialog dialog = new ProcessDialog(3, Launcher.languageManager.get("ui.install.title"));
             dialog.setV(0, 0);
             dialog.setV(1, 0);
@@ -197,7 +225,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 modDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/mods", rl));
             }
 
-            if (!(forge || optifine || fabric || fabricapi || optifabric)){
+            if (!(forge || optifine || fabric || fabricapi || optifabric || quilt)){
                 TaskManager.bind(dialog, 0);
                 new Thread(() -> {
                     long millis = System.currentTimeMillis();
@@ -304,6 +332,11 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                             Platform.runLater(dialog::close);
                             throw new RuntimeException(e);
                         }
+                        TaskManager.bind(dialog, 2);
+                        try {TaskManager.execute("");}
+                        catch (InterruptedException ignored) {}
+
+                        dialog.setV(0, 100);
                         Vector<Task> tasks = new Vector<>();
                         if (optifine){
                             OptifineAPIModel model;
@@ -331,31 +364,62 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 Platform.runLater(dialog::close);
                             }
                         }
-                        if (fabricapiItem != null) {
+                        if (fabricapi && fabricapiItem != null) {
                             CurseModFileModel m = fabricapiItem.model;
-                            try {
-                                tasks.add(new DownloadTask(m.downloadUrl, LinkPath.link(finalModDir1, m.fileName)));
-                            } catch (FileNotFoundException e) {
-                                dialog.setAll(100);
-                                Platform.runLater(dialog::close);
-                            }
+                            tasks.add(new DownloadTask(m.downloadUrl, LinkPath.link(finalModDir1, m.fileName)));
                         }
-                        if (optifabricItem != null) {
+                        if (optifabric && optifabricItem != null) {
                             CurseModFileModel m1 = optifabricItem.model;
-                            try {
-                                tasks.add(new DownloadTask(m1.downloadUrl, LinkPath.link(finalModDir1, m1.fileName)));
-                            } catch (FileNotFoundException e) {
-                                dialog.setAll(100);
-                                Platform.runLater(dialog::close);
-                            }
+                            tasks.add(new DownloadTask(m1.downloadUrl, LinkPath.link(finalModDir1, m1.fileName)));
                         }
                         TaskManager.addTasks(tasks);
-                        TaskManager.bind(dialog, 2);
                         try {
                             TaskManager.execute("<fabric addons>");
-                        } catch (Exception ignored) {
-
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
+                        Platform.runLater(() -> install.setDisable(false));
+                        dialog.setAll(100);
+                        Platform.runLater(dialog::close);
+                    }).start();
+                }
+                else if (quilt) {
+                    TaskManager.bind(dialog, 0);
+                    String finalModDir2 = modDir;
+                    new Thread(() -> {
+                        Platform.runLater(dialog::Create);
+                        try {
+                            QuiltDownload.download(
+                                    this.model.id,
+                                    Launcher.configReader.configModel.selected_minecraft_dir_index,
+                                    rl,
+                                    Launcher.configReader.configModel.downloadChunkSize,
+                                    quiltItem.getText(),
+                                    () -> TaskManager.bind(dialog, 1)
+                            );
+                        } catch (Exception e) {
+                            dialog.setAll(100);
+                            Platform.runLater(dialog::close);
+                            throw new RuntimeException(e);
+                        }
+                        TaskManager.bind(dialog, 2);
+                        try {TaskManager.execute("");}
+                        catch (InterruptedException ignored) {}
+
+                        dialog.setV(0, 100);
+
+                        Vector<Task> tasks = new Vector<>();
+                        if (quiltapi && quiltapiItem != null) {
+                            CurseModFileModel m1 = quiltapiItem.model;
+                            tasks.add(new DownloadTask(m1.downloadUrl, LinkPath.link(finalModDir2, m1.fileName)));
+                        }
+                        TaskManager.addTasks(tasks);
+                        try {
+                            TaskManager.execute("<quilt addons>");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                         Platform.runLater(() -> install.setDisable(false));
                         dialog.setAll(100);
                         Platform.runLater(dialog::close);
@@ -397,10 +461,11 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         box.add(fabricapi, 0, 4, 1, 1);
         box.add(optifabric, 0, 5, 1, 1);
         box.add(quilt, 0, 6, 1, 1);
+        box.add(quiltapi, 0, 7, 1, 1);
 
-        box.add(versionfinalName, 0, 7, 1, 1);
-        box.add(install, 0, 8, 1, 1);
-        ThemeManager.loadButtonAnimates(id, forge, optifine, fabric, fabricapi, optifabric, versionfinalName, install, quilt);
+        box.add(versionfinalName, 0, 8, 1, 1);
+        box.add(install, 0, 9, 1, 1);
+        ThemeManager.loadButtonAnimates(id, forge, optifine, fabric, fabricapi, optifabric, versionfinalName, install, quilt, quiltapi);
         this.add(p, 0, 0, 1, 1);
 
         nodes.add(null);
@@ -518,9 +583,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             new LambdaTask(() -> {
                 try {
                     for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(model.id)){
-                        String s = fabapav.fileName.replace(".jar", "").replace("fabric-api-", "");
-
-                        CurseFileLabel l = new CurseFileLabel(s);
+                        CurseFileLabel l = new CurseFileLabel(fabapav.displayName);
                         l.setFont(Fonts.t_f);
                         l.model = fabapav;
                         Platform.runLater(() -> fabricapi.cont.addItem(l));
@@ -533,9 +596,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             new LambdaTask(() -> {
                 try {
                     for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(model.id)){
-                        String s = optfabv.fileName.replace(".jar", "").replace("optifabric-", "");
-
-                        CurseFileLabel l = new CurseFileLabel(s);
+                        CurseFileLabel l = new CurseFileLabel(optfabv.displayName);
                         l.setFont(Fonts.t_f);
                         l.model = optfabv;
                         Platform.runLater(() -> optifabric.cont.addItem(l));
@@ -544,20 +605,44 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 catch (Exception ignored){
 
                 }
+            }),
+            new LambdaTask(() -> {
+                try {
+                    for (String quiv : GetVersionList.getQuiltVersionList(model.id)){
+                        Label l = new Label(quiv);
+                        l.setFont(Fonts.t_f);
+                        Platform.runLater(() -> quilt.cont.addItem(l));
+                    }
+                }
+                catch (Exception ignored){
+
+                }
+            }),
+            new LambdaTask(() -> {
+                try {
+                    for (CurseModFileModel quapv : GetVersionList.getQuiltAPIVersionList(model.id)){
+                        CurseFileLabel l = new CurseFileLabel(quapv.displayName);
+                        l.setFont(Fonts.t_f);
+                        l.model = quapv;
+                        Platform.runLater(() -> quiltapi.cont.addItem(l));
+                    }
+                }
+                catch (Exception ignored){
+
+                }
             })
         ));
-
         TaskManager.bind(null, 0);
         TaskManager.addTasks(t);
         TaskManager.execute("<load addons>");
-
-
 
         checkIsNull(forge);
         checkIsNull(optifine);
         checkIsNull(fabric);
         checkIsNull(optifabric);
         checkIsNull(fabricapi);
+        checkIsNull(quilt);
+        checkIsNull(quiltapi);
     }
     public static class ForgeLabel extends Label {
         public final NewForgeItemModel model;

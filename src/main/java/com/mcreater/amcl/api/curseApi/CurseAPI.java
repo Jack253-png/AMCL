@@ -38,7 +38,7 @@ public class CurseAPI {
     private static String response(String url) throws IOException {
         int tried = 0;
         while (true) {
-            try{
+            try {
                 long startTime = System.currentTimeMillis();
                 URL u = new URL(host + url);
                 logger.info(String.format("requesting curseApi with url %s", u));
@@ -164,7 +164,8 @@ public class CurseAPI {
         }
         Vector<CurseModFileModel> fabList = new Vector<>();
         requires.forEach(e -> {
-            if (e.modId == 306612 || e.modId == 322385){
+            // Fabric / Quilt APIs
+            if (e.modId == 306612 || e.modId == 322385 || e.modId == 634179){
                 fabList.add(e);
             }
         });
@@ -173,6 +174,15 @@ public class CurseAPI {
             System.out.println(file.fileName);
         }
         return requires;
+    }
+
+    public static void main(String[] args) throws IOException {
+        // 634179
+        for (CurseModModel model : search("Quilt", CurseResourceType.Types.MOD, CurseSortType.Types.DEFAULT, 20)) {
+            System.out.print(model.name);
+            System.out.print(": ");
+            System.out.println(model.id);
+        }
     }
     private static boolean modLoaderCanRunTogether(CurseModFileModel m1, CurseModFileModel m2){
         Vector<String> temp1 = ModFile.getModLoaders(m1.gameVersions, true);

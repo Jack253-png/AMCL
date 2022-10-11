@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.Objects;
 import java.util.Vector;
 
-public class getMinecraftVersion {
+public class GetMinecraftVersion {
     public static Vector<String> get(String p){
         Vector<String> result = new Vector<>();
         File f = new File(p);

@@ -20,12 +20,12 @@ public class DownloadTask extends AbstractTask{
     FileOutputStream fos = null;
     InputStream inputStream = null;
     public long downloadBytes;
-    public DownloadTask(String server, String local) throws FileNotFoundException{
+    public DownloadTask(String server, String local) {
         super(server, local);
         this.server = this.server.replace("http:", "https:");
         this.server = this.server.replace("maven.modmuss50.me", "maven.fabricmc.net");
     }
-    public DownloadTask(String server, String local, int chunkSize) throws FileNotFoundException {
+    public DownloadTask(String server, String local, int chunkSize) {
         super(server, local);
         this.server = this.server.replace("http:", "https:");
         this.server = this.server.replace("maven.modmuss50.me", "maven.fabricmc.net");

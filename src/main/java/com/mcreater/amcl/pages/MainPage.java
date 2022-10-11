@@ -1,14 +1,9 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXColorPicker;
-import com.jfoenix.controls.JFXDatePicker;
-import com.jfoenix.controls.JFXTimePicker;
-import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.audio.BGMManager;
-import com.mcreater.amcl.download.QuiltDownload;
-import com.mcreater.amcl.game.getMinecraftVersion;
+import com.mcreater.amcl.game.GetMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
@@ -26,11 +21,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.control.ColorPicker;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -313,7 +304,7 @@ public class MainPage extends AbstractAnimationPage {
         if (minecraft_dir_exists) {
             if (Launcher.configReader.configModel.selected_minecraft_dir.contains(Launcher.configReader.configModel.selected_minecraft_dir_index)) {
                 if (Launcher.configReader.configModel.selected_version_index != null) {
-                    if (Objects.requireNonNull(getMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index)).contains(Launcher.configReader.configModel.selected_version_index)) {
+                    if (Objects.requireNonNull(GetMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index)).contains(Launcher.configReader.configModel.selected_version_index)) {
                         if (new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/%s.json", Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)).exists()) {
                             if (!Launcher.configReader.configModel.selected_version_index.equals("")) {
                                 if (JsonUtils.isVaildJson(new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/%s.json", Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)))) {

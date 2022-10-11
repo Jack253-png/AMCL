@@ -5,7 +5,7 @@ import com.jfoenix.controls.JFXComboBox;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.VersionItem;
-import com.mcreater.amcl.game.getMinecraftVersion;
+import com.mcreater.amcl.game.GetMinecraftVersion;
 import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
@@ -121,7 +121,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
             else {
                 String path = file.getPath();
                 new File(LinkPath.link(path, "versions")).mkdirs();
-                Vector<String> result = getMinecraftVersion.get(path);
+                Vector<String> result = GetMinecraftVersion.get(path);
                 if (result == null) {
                     setDialog.run();
                 } else {
@@ -198,7 +198,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
                 Launcher.configReader.configModel.selected_minecraft_dir_index = dirs.getValue().getText();
                 Launcher.configReader.write();
 
-                result = getMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index);
+                result = GetMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index);
                 Platform.runLater(version_list::clear);
                 if (result != null) {
                     int dg = result.size();

@@ -6,6 +6,7 @@ import com.mcreater.amcl.patcher.DepencyLoadingFrame;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -90,6 +91,7 @@ public abstract class TaskManager {
                         }
                     }
                     downloadedBytes = 0;
+                    Sleeper.sleep(500);
                 }
                 while (downloaded != 0);
 

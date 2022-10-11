@@ -53,7 +53,16 @@ public class VersionTypeGetter {
         Vector<String> forge = new Vector<>();
         forge.add("cpw.mods.modlauncher.Launcher");
         forge.add("cpw.mods.bootstraplauncher.BootstrapLauncher");
-
+        if (v.mainClass.contains("org.quiltmc.loader.impl.launch.knot.KnotClient")) {
+            return VersionType.QUILT;
+        }
+        for (LibModel model : v.libraries) {
+            if (model != null) {
+                if (model.name.startsWith("org.quiltmc:")) {
+                    return VersionType.QUILT;
+                }
+            }
+        }
         if (v.mainClass.contains("net.fabricmc.loader") || getTweakClass(v).contains("net.fabricmc.loader.launch.FabricClientTweaker")){
             return VersionType.FABRIC;
         }

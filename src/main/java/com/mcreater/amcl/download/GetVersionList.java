@@ -264,4 +264,8 @@ public class GetVersionList {
     public static Vector<CurseModFileModel> getOptiFabricVersionList(String version) throws Exception {
         return CurseAPI.getModFiles(CurseAPI.getFromModId(322385), getSnap(version));
     }
+
+    public static Vector<CurseModFileModel> getQuiltAPIVersionList(String version) throws Exception {
+        return CurseAPI.getModFiles(CurseAPI.getFromModId(634179), getSnap(version));
+    }
 }
