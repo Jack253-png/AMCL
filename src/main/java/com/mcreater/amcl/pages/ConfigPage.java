@@ -109,9 +109,9 @@ public class ConfigPage extends AbstractMenuBarPage {
                 "English(US)", "ENGLISH");
 
         servers = J8Utils.createMap(String.class, String.class,
-                "mcbbs", "MCBBS",
-                "bmclAPI", "BMCLAPI",
-                "Mojang", "MOJANG");
+                "MCBBS", "MCBBS",
+                "BMCLAPI", "BMCLAPI",
+                "MOJANG", "MOJANG");
 
         title = new Label();
         title.setFont(Fonts.b_f);

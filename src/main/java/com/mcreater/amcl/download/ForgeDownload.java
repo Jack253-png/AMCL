@@ -58,7 +58,7 @@ public class ForgeDownload {
         }
         return count;
     }
-    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, NewForgeItemModel forge_version, Runnable r, Runnable r2) throws Exception {
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, NewForgeItemModel forge_version, Runnable r3, Runnable r, Runnable r2) throws Exception {
         tasks.clear();
         ForgeDownload.chunkSize = chunkSize;
         String temp_path = "forgeTemp";
@@ -81,7 +81,7 @@ public class ForgeDownload {
         if (!GetFileExists.get(installer_url)){
             throw new IOException("this version of forge cannot be automated");
         }
-        if (TaskManager.dialog != null) Platform.runLater(() -> TaskManager.dialog.l.setText(Launcher.languageManager.get("ui.download.forge.installer")));
+        r3.run();
 
         new ForgeInstallerDownloadTask(installer_url, installer_path, chunkSize).execute();
 //      int i = 0;

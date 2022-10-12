@@ -17,6 +17,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
+import java.util.function.BiConsumer;
 
 @Deprecated
 public class FXBrowserPage extends AbstractStage{
@@ -83,8 +84,7 @@ public class FXBrowserPage extends AbstractStage{
                             String email = NetworkUtils.decodeURL(emailCookie.getValue()).replace(map.get("MSPCID").getValue(), "").replace("|", "");
 
                             System.err.println(email);
-
-                            MSAuth.AUTH_INSTANCE.bindDialog(dialog);
+                            MSAuth.AUTH_INSTANCE.setUpdater((integer, s) -> dialog.setV(0, integer, s));
                             user = MSAuth.AUTH_INSTANCE.getUser(temp.substring(6, end));
                         }
                         catch (Exception e){

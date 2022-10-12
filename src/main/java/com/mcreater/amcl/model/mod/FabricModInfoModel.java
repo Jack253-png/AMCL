@@ -1,5 +1,6 @@
 package com.mcreater.amcl.model.mod;
 
+import java.util.Map;
 import java.util.Vector;
 
 public class FabricModInfoModel extends AbstractFabricModInfoModel{

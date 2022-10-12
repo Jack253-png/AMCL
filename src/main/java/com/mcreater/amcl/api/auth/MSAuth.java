@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
-import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.ValueSet3;
 import com.mcreater.amcl.util.net.HttpClient;
@@ -15,7 +14,12 @@ import org.json.JSONObject;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.*;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Vector;
+import java.util.function.BiConsumer;
 
 public class MSAuth implements AbstractAuth<MicrosoftUser>{
     public static final MSAuth AUTH_INSTANCE = new MSAuth();
@@ -27,10 +31,11 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
     private static final String MC_LOGIN_URL = "https://api.minecraftservices.com/authentication/login_with_xbox";
     private static final String MC_STORE_URL = "https://api.minecraftservices.com/entitlements/mcstore";
     private static final String MC_PROFILE_URL = "https://api.minecraftservices.com/minecraft/profile";
-    ProcessDialog dialog;
-    public void bindDialog(ProcessDialog dialog){
-        this.dialog = dialog;
+    public BiConsumer<Integer, String> updater = (value, mess) -> {};
+    public void setUpdater(BiConsumer<Integer, String> updater) {
+        this.updater = updater;
     }
+
     private MSAuth() {}
     public ImmutablePair<String, String> acquireAccessToken(String authcode) {
         GithubReleases.trustAllHosts();
@@ -182,32 +187,28 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             HttpClient client = HttpClient.getInstance(MC_PROFILE_URL);
             client.openConnection();
             client.conn.setRequestProperty("Authorization", String.format("Bearer %s", mcAccessToken));
-            McProfileModel model = new Gson().fromJson(client.read(), McProfileModel.class);
-            return model;
+            return new Gson().fromJson(client.read(), McProfileModel.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-    public void setV(int index, int value, String message){
-        if (dialog != null) dialog.setV(index, value, message);
     }
 
 
     public MicrosoftUser getUser(String... args) throws RuntimeException {
         ImmutablePair<String, String> token = acquireAccessToken(args[0]);
-        setV(0, 20, Launcher.languageManager.get("ui.msauth._02"));
+        updater.accept(20, Launcher.languageManager.get("ui.msauth._02"));
         return getUserFromToken(token);
     }
     public MicrosoftUser getUserFromToken(ImmutablePair<String, String> token) throws RuntimeException {
 
         ImmutablePair<String, String> xbl_token = acquireXBLToken(token.getKey());
-        setV(0, 40, Launcher.languageManager.get("ui.msauth._03"));
+        updater.accept(40, Launcher.languageManager.get("ui.msauth._03"));
         ImmutablePair<String, String> xsts = acquireXsts(xbl_token.getKey());
-        setV(0, 60, Launcher.languageManager.get("ui.msauth._04"));
+        updater.accept(60, Launcher.languageManager.get("ui.msauth._04"));
         ValueSet3<String, ImmutablePair<String, String>, Vector<McProfileModel.McSkinModel>> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
-        setV(0, 80, Launcher.languageManager.get("ui.msauth._05"));
+        updater.accept(80, Launcher.languageManager.get("ui.msauth._05"));
         MicrosoftUser msu = new MicrosoftUser(content.getValue1(), content.getValue2().getKey(), content.getValue2().getValue(), content.getValue3(), token.getValue());
-        setV(0, 80, Launcher.languageManager.get("ui.msauth._06"));
+        updater.accept(80, Launcher.languageManager.get("ui.msauth._06"));
         return msu;
     }
     public static class McProfileModel {

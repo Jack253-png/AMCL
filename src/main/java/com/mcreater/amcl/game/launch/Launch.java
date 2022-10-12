@@ -56,6 +56,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.function.BiConsumer;
 
 public class Launch {
     String java;
@@ -77,7 +78,7 @@ public class Launch {
         if (user == null){
             throw new BadUserException();
         }
-        TaskManager.bind(MainPage.launchDialog, 2);
+        TaskManager.setUpdater((integer, s) -> MainPage.launchDialog.setV(2, integer, s));
         MainPage.launchDialog.Create();
         MainPage.launchDialog.setV(0, 5, Launcher.languageManager.get("ui.launch._01"));
         java = java_path;

@@ -247,10 +247,15 @@ public class VersionInfoPage extends AbstractMenuBarPage {
             Platform.runLater(() -> setType(true));
             Vector<File> f = ModHelper.getMod(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
             for (File file : f) {
-                CommonModInfoModel model = ModHelper.getModInfo(file.getPath());
-                if (!Objects.equals(model.name, "")) {
-                    RemoteMod m = new RemoteMod(model);
-                    Platform.runLater(() -> modList.addItem(m));
+                try {
+                    CommonModInfoModel model = ModHelper.getModInfo(file.getPath());
+                    if (!Objects.equals(model.name, "")) {
+                        RemoteMod m = new RemoteMod(model);
+                        Platform.runLater(() -> modList.addItem(m));
+                    }
+                }
+                catch (Exception e){
+                    e.printStackTrace();
                 }
                 double d = (double) modList.vecs.size() / (double) f.size();
                 double lat = bar.getProgress();
@@ -263,7 +268,8 @@ public class VersionInfoPage extends AbstractMenuBarPage {
             sleep(50);
             Platform.runLater(() -> setType(false));
         }
-        catch (IOException ignored){
+        catch (Exception e){
+            e.printStackTrace();
         }
         finally {
             setType(setted);

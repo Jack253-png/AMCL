@@ -45,8 +45,15 @@ public class DepenciesLoader {
             frame.setVisible(true);
             StableMain.splashScreen.setVisible(false);
             TaskManager.addTasks(tasks);
-            TaskManager.bindSwing(frame);
+            TaskManager.setUpdater((integer, s) -> {
+                frame.progressBar.setValue(integer);
+                frame.progressBar.setString(s);
+                frame.progressBar.setIndeterminate(false);
+            });
             TaskManager.execute("<download depencies>");
+            frame.button.setEnabled(true);
+            frame.progressBar.setString(StableMain.manager.get("ui.depencies.downloadSuccess.name"));
+            frame.progressBar.setValue(100);
             CountDownLatch latch = new CountDownLatch(1);
             frame.button.addActionListener(actionEvent -> latch.countDown());
             latch.await();

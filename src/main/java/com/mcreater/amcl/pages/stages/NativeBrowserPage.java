@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
+import java.util.function.BiConsumer;
 
 public class NativeBrowserPage extends AbstractStage {
     Logger logger = LogManager.getLogger(NativeBrowserPage.class);
@@ -64,7 +65,7 @@ public class NativeBrowserPage extends AbstractStage {
                     String temp = newValue.substring(start);
                     int end = temp.indexOf("&lc=");
                     try {
-                        MSAuth.AUTH_INSTANCE.bindDialog(dialog);
+                        MSAuth.AUTH_INSTANCE.setUpdater((integer, s) -> dialog.setV(0, integer, s));
                         user = MSAuth.AUTH_INSTANCE.getUser(temp.substring(6, end));
                     }
                     catch (Exception e){

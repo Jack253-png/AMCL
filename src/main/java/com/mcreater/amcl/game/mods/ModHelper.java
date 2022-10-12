@@ -13,7 +13,10 @@ import com.mcreater.amcl.util.FileUtils.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 public class ModHelper {
     public static Vector<File> getMod(String dir, String version_name){
@@ -41,7 +44,7 @@ public class ModHelper {
     public static boolean isModded(String dir, String version_name){
         return VersionTypeGetter.modded(dir, version_name);
     }
-    public static CommonModInfoModel getModInfo(String path) throws IOException {
+    public static CommonModInfoModel getModInfo(String path) throws Exception {
         String version = "";
         String name = "";
         String description = "";
@@ -50,6 +53,7 @@ public class ModHelper {
         String mcmodinfoFile = ZipUtil.readTextFileInZip(path, "mcmod.info");
         String packMcMetaFile = ZipUtil.readTextFileInZip(path, "pack.mcmeta");
         String fabricModJsonFile = ZipUtil.readTextFileInZip(path, "fabric.mod.json");
+        String quiltModJsonFile = ZipUtil.readTextFileInZip(path, "quilt.mod.json");
 
         if (mcmodinfoFile != null){
             Gson g = new Gson();
@@ -84,6 +88,22 @@ public class ModHelper {
             name = model.name;
             description = model.description;
             authorList = model.authors;
+        }
+        if (quiltModJsonFile != null) {
+            JSONObject ob = JSON.parseObject(quiltModJsonFile);
+            version = ob.getJSONObject("quilt_loader").getString("version");
+            name = ob.getJSONObject("quilt_loader").getJSONObject("metadata").getString("name");
+            description = ob.getJSONObject("quilt_loader").getJSONObject("metadata").getString("description");
+            Vector<String> temp = new Vector<>();
+            ob.getJSONObject("quilt_loader").getJSONObject("metadata").getJSONObject("contributors").keySet().forEach(o -> {
+                try {
+                    temp.add((String) o);
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            });
+            authorList = temp;
         }
         CommonModInfoModel m1 = new CommonModInfoModel();
         m1.version = version;

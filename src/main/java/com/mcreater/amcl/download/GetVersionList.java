@@ -13,23 +13,22 @@ import com.mcreater.amcl.model.fabric.FabricLoaderVersionModel;
 import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
 import com.mcreater.amcl.model.original.VersionsModel;
-import com.mcreater.amcl.tasks.ForgeInstallerDownloadTask;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
-import com.mcreater.amcl.util.xml.ForgeVersionXMLHandler;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
+import com.mcreater.amcl.util.xml.ForgeVersionXMLHandler;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Vector;
 
 public class GetVersionList {
-    public static Vector<OriginalVersionModel> getOriginalList() throws Exception {
-        String url = FasterUrls.getVersionJsonv2WithFaster(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+    public static Vector<OriginalVersionModel> getOriginalList(FasterUrls.Servers server) throws Exception {
+        String url = FasterUrls.getVersionJsonv2WithFaster(server);
         VersionsModel model = new Gson().fromJson(HttpConnectionUtil.doGet(url), VersionsModel.class);
         Vector<OriginalVersionModel> t = new Vector<>();
         model.versions.forEach(s -> t.add(new OriginalVersionModel(s.id, s.type, s.releaseTime, s.url)));
@@ -56,12 +55,6 @@ public class GetVersionList {
         return t;
     }
 
-    public static Vector<String> getForgeMCVers() throws Exception {
-        String url = FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/minecraft", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
-        Vector<String> result = new Vector<>();
-        result = new Gson().fromJson(HttpConnectionUtil.doGet(url), result.getClass());
-        return result;
-    }
     public static Vector<NewForgeItemModel> getForgeInstallers(String version) throws Exception {
         String url = FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/minecraft/" + version, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
         String r = HttpConnectionUtil.doGet(url);
@@ -222,12 +215,12 @@ public class GetVersionList {
             return new Vector<>();
         }
     }
-    public static Vector<CurseModFileModel> getFabricAPIVersionList(String version) throws Exception {
-        return CurseAPI.getModFiles(CurseAPI.getFromModId(306612), getSnap(version));
+    public static Vector<CurseModFileModel> getFabricAPIVersionList(String version, FasterUrls.Servers server) throws Exception {
+        return CurseAPI.getModFiles(CurseAPI.getFromModId(306612), getSnap(version, server));
     }
-    public static String getSnapShotName(String raw_name) throws Exception {
+    public static String getSnapShotName(String raw_name, FasterUrls.Servers server) throws Exception {
         OriginalVersionModel n = null;
-        for (OriginalVersionModel model : getOriginalList()){
+        for (OriginalVersionModel model : getOriginalList(server)){
             if (Objects.equals(raw_name, model.id)){
                 n = model;
             }
@@ -243,9 +236,9 @@ public class GetVersionList {
         }
         return raw_name;
     }
-    public static String getSnap(String raw_name) throws Exception {
+    public static String getSnap(String raw_name, FasterUrls.Servers server) throws Exception {
         OriginalVersionModel n = null;
-        for (OriginalVersionModel model : getOriginalList()){
+        for (OriginalVersionModel model : getOriginalList(server)){
             if (Objects.equals(raw_name, model.id)){
                 n = model;
             }
@@ -261,11 +254,11 @@ public class GetVersionList {
         }
         return raw_name;
     }
-    public static Vector<CurseModFileModel> getOptiFabricVersionList(String version) throws Exception {
-        return CurseAPI.getModFiles(CurseAPI.getFromModId(322385), getSnap(version));
+    public static Vector<CurseModFileModel> getOptiFabricVersionList(String version, FasterUrls.Servers server) throws Exception {
+        return CurseAPI.getModFiles(CurseAPI.getFromModId(322385), getSnap(version, server));
     }
 
-    public static Vector<CurseModFileModel> getQuiltAPIVersionList(String version) throws Exception {
-        return CurseAPI.getModFiles(CurseAPI.getFromModId(634179), getSnap(version));
+    public static Vector<CurseModFileModel> getQuiltAPIVersionList(String version, FasterUrls.Servers server) throws Exception {
+        return CurseAPI.getModFiles(CurseAPI.getFromModId(634179), getSnap(version, server));
     }
 }

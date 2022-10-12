@@ -31,9 +31,8 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.net.FasterUrls;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
@@ -226,7 +225,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             }
 
             if (!(forge || optifine || fabric || fabricapi || optifabric || quilt)){
-                TaskManager.bind(dialog, 0);
+                TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                 new Thread(() -> {
                     long millis = System.currentTimeMillis();
                     Platform.runLater(dialog::Create);
@@ -252,7 +251,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             }
             else{
                 if (forge){
-                    TaskManager.bind(dialog, 0);
+                    TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                     String finalModDir = modDir;
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
@@ -263,8 +262,9 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                     rl,
                                     Launcher.configReader.configModel.downloadChunkSize,
                                     forgeItem.model,
-                                    () -> TaskManager.bind(dialog, 1),
-                                    () -> TaskManager.bind(dialog, 2)
+                                    () -> dialog.l.setText(Launcher.languageManager.get("ui.download.forge.installer")),
+                                    () -> TaskManager.setUpdater((value, mess) -> dialog.setV(1, value, mess)),
+                                    () -> TaskManager.setUpdater((value, mess) -> dialog.setV(2, value, mess))
                             );
                         } catch (Exception e) {
                             dialog.setAll(100);
@@ -314,7 +314,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     }).start();
                 }
                 else if (fabric){
-                    TaskManager.bind(dialog, 0);
+                    TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                     String finalModDir1 = modDir;
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
@@ -325,14 +325,14 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                     rl,
                                     Launcher.configReader.configModel.downloadChunkSize,
                                     fabricItem.getText(),
-                                    () -> TaskManager.bind(dialog, 1)
+                                    () -> TaskManager.setUpdater((value, mess) -> dialog.setV(1, value, mess))
                             );
                         } catch (Exception e) {
                             dialog.setAll(100);
                             Platform.runLater(dialog::close);
                             throw new RuntimeException(e);
                         }
-                        TaskManager.bind(dialog, 2);
+                        TaskManager.setUpdater((value, mess) -> dialog.setV(2, value, mess));
                         try {TaskManager.execute("");}
                         catch (InterruptedException ignored) {}
 
@@ -384,7 +384,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     }).start();
                 }
                 else if (quilt) {
-                    TaskManager.bind(dialog, 0);
+                    TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                     String finalModDir2 = modDir;
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
@@ -395,14 +395,14 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                     rl,
                                     Launcher.configReader.configModel.downloadChunkSize,
                                     quiltItem.getText(),
-                                    () -> TaskManager.bind(dialog, 1)
+                                    () -> TaskManager.setUpdater((value, mess) -> dialog.setV(1, value, mess))
                             );
                         } catch (Exception e) {
                             dialog.setAll(100);
                             Platform.runLater(dialog::close);
                             throw new RuntimeException(e);
                         }
-                        TaskManager.bind(dialog, 2);
+                        TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                         try {TaskManager.execute("");}
                         catch (InterruptedException ignored) {}
 
@@ -426,7 +426,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     }).start();
                 }
                 else if (optifine){
-                    TaskManager.bind(dialog, 0);
+                    TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
                         try {
@@ -435,7 +435,9 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                     Launcher.configReader.configModel.selected_minecraft_dir_index,
                                     rl,
                                     Launcher.configReader.configModel.downloadChunkSize,
-                                    optifineItem.getText()
+                                    optifineItem.getText(),
+                                    () -> dialog.l.setText(Launcher.languageManager.get("ui.download.optifine.installer")),
+                                    () -> dialog.l.setText(Launcher.languageManager.get("ui.download.optifine.injecting"))
                             );
                         } catch (Exception e) {
                             dialog.setAll(100);
@@ -582,7 +584,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             }),
             new LambdaTask(() -> {
                 try {
-                    for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(model.id)){
+                    for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(model.id, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer))){
                         CurseFileLabel l = new CurseFileLabel(fabapav.displayName);
                         l.setFont(Fonts.t_f);
                         l.model = fabapav;
@@ -595,7 +597,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             }),
             new LambdaTask(() -> {
                 try {
-                    for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(model.id)){
+                    for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(model.id, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer))){
                         CurseFileLabel l = new CurseFileLabel(optfabv.displayName);
                         l.setFont(Fonts.t_f);
                         l.model = optfabv;
@@ -620,7 +622,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             }),
             new LambdaTask(() -> {
                 try {
-                    for (CurseModFileModel quapv : GetVersionList.getQuiltAPIVersionList(model.id)){
+                    for (CurseModFileModel quapv : GetVersionList.getQuiltAPIVersionList(model.id, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer))){
                         CurseFileLabel l = new CurseFileLabel(quapv.displayName);
                         l.setFont(Fonts.t_f);
                         l.model = quapv;
@@ -632,7 +634,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 }
             })
         ));
-        TaskManager.bind(null, 0);
+        TaskManager.setUpdater((value, mess) -> {});
         TaskManager.addTasks(t);
         TaskManager.execute("<load addons>");
 

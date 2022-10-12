@@ -17,6 +17,7 @@ import com.mcreater.amcl.util.FXUtils;
 //import javafx.application.Platform;
 import com.mcreater.amcl.util.FXUtils.Platform;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.net.FasterUrls;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -113,7 +114,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
             mainBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.50)");
             Vector<OriginalVersionModel> vs = null;
             try {
-                vs = GetVersionList.getOriginalList();
+                vs = GetVersionList.getOriginalList(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
             } catch (Exception e) {
                 load.setDisable(false);
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content"));

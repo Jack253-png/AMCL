@@ -4,16 +4,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.api.reflect.ReflectedJar;
 import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.J8Utils;
-import javafx.application.Platform;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -28,7 +25,7 @@ import static com.mcreater.amcl.util.FileUtils.FileStringReader;
 import static com.mcreater.amcl.util.FileUtils.LinkPath;
 
 public class OptifineDownload {
-    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version) throws Exception {
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version, Runnable r1, Runnable r2) throws Exception {
         OptifineAPIModel model = GetVersionList.getOptifineVersionRaw();
         if (!model.versions.contains(id)){
             throw new IOException();
@@ -49,16 +46,13 @@ public class OptifineDownload {
         System.err.println(opti);
         OriginalDownload.download(id, minecraft_dir, version_name, chunkSize);
         JSONObject ob = new JSONObject(new Gson().fromJson(OriginalDownload.getVJ(), Map.class));
-        if (TaskManager.dialog != null) Platform.runLater(() -> TaskManager.dialog.l.setText(Launcher.languageManager.get("ui.download.optifine.installer")));
+        r1.run();
 
         new OptiFineInstallerDownloadTask(opti, "opti.jar").execute();
         FileUtils.ChangeDir.saveNowDir();
         ReflectedJar jar = ReflectHelper.getReflectedJar("opti.jar");
         int installer = jar.createNewInstance(jar.getJarClass("optifine.Installer"));
-
-        if (TaskManager.dialog != null) Platform.runLater(() -> TaskManager.dialog.l.setText(Launcher.languageManager.get("ui.download.optifine.injecting")));
-
-
+        r2.run();
 
         String ofVer = (String) jar.invokeNoArgsMethod(
                 installer,
