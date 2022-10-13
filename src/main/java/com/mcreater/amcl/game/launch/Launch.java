@@ -270,7 +270,7 @@ public class Launch {
         }
         arguments = arguments.replace("${auth_player_name}","\""+user.username+"\"");
         arguments = arguments.replace("${user_type}","mojang");
-        arguments = arguments.replace("${version_type}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
+        arguments = arguments.replace("${version_type}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_full_version));
         File gamedir;
         if (!ie) {gamedir = new File(dir);} else{gamedir = f;}
         arguments = arguments.replace("${game_directory}", String.format("\"%s\"", gamedir.getPath()));
@@ -279,7 +279,7 @@ public class Launch {
         arguments = arguments.replace("${auth_access_token}",user.accessToken);
         arguments = arguments.replace("${auth_session}",user.accessToken);
         arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
-        arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
+        arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_full_version));
 
         arguments = arguments.replace("${resolution_width}",String.valueOf(854));
         arguments = arguments.replace("${resolution_height}",String.valueOf(480));
@@ -314,7 +314,7 @@ public class Launch {
         jvm = jvm.replace("${jar_path}", String.format("\"%s\"", jar_file.getPath()));
         jvm = jvm.replace("${native_path}",String.format("\"%s\"", nativef.getPath()));
         jvm = jvm.replace("${launcher_brand}", VersionInfo.launcher_name);
-        jvm = jvm.replace("${launcher_version}", VersionInfo.launcher_version);
+        jvm = jvm.replace("${launcher_version}", VersionInfo.launcher_full_version);
 
         if (r.arguments != null){
             if (r.arguments.jvm != null){

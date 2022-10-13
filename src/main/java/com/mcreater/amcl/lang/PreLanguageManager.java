@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Vector;
 
-public class PreLanguageManager {
+public class PreLanguageManager extends AbstractLanguageManager {
     Properties prp;
     public static Vector<String> vaild_languages = new Vector<>();
     public enum LanguageType {

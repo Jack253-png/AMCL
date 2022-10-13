@@ -1,0 +1,4 @@
+.arrow-button .arrow {
+    -fx-background-color: black;
+    -fx-shape: "M 0 0 h 7 l -3.5 4 z";
+}

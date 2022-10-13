@@ -50,7 +50,7 @@ public class DepenciesLoader {
                 frame.progressBar.setString(s);
                 frame.progressBar.setIndeterminate(false);
             });
-            TaskManager.execute("<download depencies>");
+            TaskManager.execute("<download depencies>", true);
             frame.button.setEnabled(true);
             frame.progressBar.setString(StableMain.manager.get("ui.depencies.downloadSuccess.name"));
             frame.progressBar.setValue(100);

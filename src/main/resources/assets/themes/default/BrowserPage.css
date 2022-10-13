@@ -20,7 +20,7 @@
     -fx-height: 0;
 }
 .scroll-bar .increment-arrow,
-.scroll-bar .decrement-arrow,
+.scroll-bar .decrement-arrow
 {
     -fx-background-color:rgba(0,0,0, 0.0);
 }

@@ -216,7 +216,7 @@ public class GetVersionList {
         }
     }
     public static Vector<CurseModFileModel> getFabricAPIVersionList(String version, FasterUrls.Servers server) throws Exception {
-        return CurseAPI.getModFiles(CurseAPI.getFromModId(306612), getSnap(version, server));
+        return CurseAPI.getModFiles(CurseAPI.getFromModId(306612), getSnap(version, server), server);
     }
     public static String getSnapShotName(String raw_name, FasterUrls.Servers server) throws Exception {
         OriginalVersionModel n = null;
@@ -255,10 +255,10 @@ public class GetVersionList {
         return raw_name;
     }
     public static Vector<CurseModFileModel> getOptiFabricVersionList(String version, FasterUrls.Servers server) throws Exception {
-        return CurseAPI.getModFiles(CurseAPI.getFromModId(322385), getSnap(version, server));
+        return CurseAPI.getModFiles(CurseAPI.getFromModId(322385), getSnap(version, server), server);
     }
 
     public static Vector<CurseModFileModel> getQuiltAPIVersionList(String version, FasterUrls.Servers server) throws Exception {
-        return CurseAPI.getModFiles(CurseAPI.getFromModId(634179), getSnap(version, server));
+        return CurseAPI.getModFiles(CurseAPI.getFromModId(634179), getSnap(version, server), server);
     }
 }

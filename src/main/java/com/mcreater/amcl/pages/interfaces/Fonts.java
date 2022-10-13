@@ -16,29 +16,30 @@ public class Fonts {
     public static java.awt.Font awt_s_f;
     public static java.awt.Font awt_t_f;
     public static java.awt.Font awt_ts_f;
+    public static final String path = "assets/fonts/GNU Unifont.ttf";
     public static void loadFont(){
-        b_f = Font.loadFont(new ResourceGetter().get("assets/fonts/GNU Unifont.ttf"), 28);
-        s_f = Font.loadFont(new ResourceGetter().get("assets/fonts/GNU Unifont.ttf"), 22);
-        t_f = Font.loadFont(new ResourceGetter().get("assets/fonts/GNU Unifont.ttf"), 16);
-        ts_f = Font.loadFont(new ResourceGetter().get("assets/fonts/GNU Unifont.ttf"), 12);
+        b_f = Font.loadFont(new ResourceGetter().get(path), 28);
+        s_f = Font.loadFont(new ResourceGetter().get(path), 22);
+        t_f = Font.loadFont(new ResourceGetter().get(path), 16);
+        ts_f = Font.loadFont(new ResourceGetter().get(path), 12);
         loadSwingFont();
         patchJavaFXDefaultFont();
     }
     public static void loadSwingFont(){
         try {
-            InputStream is = new ResourceGetter().get("assets/fonts/GNU Unifont.ttf");
+            InputStream is = new ResourceGetter().get(path);
             awt_b_f = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, is).deriveFont(28F);
             is.close();
 
-            InputStream is2 = new ResourceGetter().get("assets/fonts/GNU Unifont.ttf");
+            InputStream is2 = new ResourceGetter().get(path);
             awt_s_f = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, is2).deriveFont(22F);
             is2.close();
 
-            InputStream is3 = new ResourceGetter().get("assets/fonts/GNU Unifont.ttf");
+            InputStream is3 = new ResourceGetter().get(path);
             awt_t_f = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, is3).deriveFont(16F);
             is3.close();
 
-            InputStream is4 = new ResourceGetter().get("assets/fonts/GNU Unifont.ttf");
+            InputStream is4 = new ResourceGetter().get(path);
             awt_ts_f = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, is4).deriveFont(12F);
             is4.close();
         }

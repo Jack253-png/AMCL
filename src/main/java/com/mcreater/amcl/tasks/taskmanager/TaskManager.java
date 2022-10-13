@@ -1,6 +1,8 @@
 package com.mcreater.amcl.tasks.taskmanager;
 
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.StableMain;
+import com.mcreater.amcl.lang.AbstractLanguageManager;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
@@ -29,7 +31,7 @@ public abstract class TaskManager {
     public static void addTasks(Collection<Task> t){
         tasks.addAll(t);
     }
-    public synchronized static void execute1Thread(String reason) throws IOException {
+    public synchronized static void executeForge(String reason) throws IOException {
         Logger logger = LogManager.getLogger(TaskManager.class);
         int executed = 0;
         logger.info(String.format("executing tasks %s", reason));
@@ -49,9 +51,20 @@ public abstract class TaskManager {
         tasks.clear();
     }
     public synchronized static void execute(String reason) throws InterruptedException {
+        execute(reason, false);
+    }
+    public synchronized static void execute(String reason, boolean isSwingEnv) throws InterruptedException {
         int size = tasks.size();
         CountDownLatch latch = new CountDownLatch(size);
-        updater.accept(0, String.format(Launcher.languageManager.get("ui.fix._02"), reason, 0, tasks.size()));
+        AbstractLanguageManager lang;
+        if (isSwingEnv) lang = StableMain.manager;
+        else lang = Launcher.languageManager;
+        String key;
+        if (isSwingEnv) key = "ui.fix._02.swing";
+        else key = "ui.fix._02";
+
+        updater.accept(0, String.format(lang.get(key), 0, tasks.size()));
+
         new Thread("Manager Counting Thread"){
             public void run(){
                 long downloaded;
@@ -64,7 +77,10 @@ public abstract class TaskManager {
                     System.out.print(J8Utils.repeat("\b", cc.length()) + cc);
                     if (temp != latch.getCount()) {
                         if (tasks.size() != 0) {
-                            updater.accept((int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._02"), reason, tasks.size() - downloaded, tasks.size()));
+                            updater.accept((int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(lang.get(key), tasks.size() - downloaded, tasks.size()));
+                        }
+                        else {
+                            updater.accept(100, String.format(lang.get(key), tasks.size(), tasks.size()));
                         }
                     }
                     temp = downloaded;
@@ -81,7 +97,7 @@ public abstract class TaskManager {
             new Thread(String.format("pool %s task %s", t.pool, t.toString())){
                 public void run(){
                     while (true){
-                        try{
+                        try {
                             t.execute();
                             latch.countDown();
                             break;
@@ -97,7 +113,7 @@ public abstract class TaskManager {
             }.start();
         }
         latch.await();
-        updater.accept(100, String.format(Launcher.languageManager.get("ui.fix._02"), reason, tasks.size(), tasks.size()));
+        updater.accept(100, String.format(lang.get(key), tasks.size(), tasks.size()));
         tasks.clear();
         downloadedBytes = 0;
     }

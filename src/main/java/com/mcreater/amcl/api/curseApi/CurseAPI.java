@@ -180,15 +180,6 @@ public class CurseAPI {
         }
         return requires;
     }
-
-    public static void main(String[] args) throws IOException {
-        // 634179
-        for (CurseModModel model : search("Quilt", CurseResourceType.Types.MOD, CurseSortType.Types.DEFAULT, 20)) {
-            System.out.print(model.name);
-            System.out.print(": ");
-            System.out.println(model.id);
-        }
-    }
     private static boolean modLoaderCanRunTogether(CurseModFileModel m1, CurseModFileModel m2){
         Vector<String> temp1 = ModFile.getModLoaders(m1.gameVersions, true);
         Vector<String> temp2 = ModFile.getModLoaders(m2.gameVersions, true);
@@ -216,7 +207,7 @@ public class CurseAPI {
         LinkedTreeMap<?, ?> a = (LinkedTreeMap<?, ?>) m.get("data");
         return g.fromJson(g.toJson(a), CurseModModel.class);
     }
-    public static Vector<CurseModFileModel> getModFiles(CurseModModel mod, String version){
+    public static Vector<CurseModFileModel> getModFiles(CurseModModel mod, String version, FasterUrls.Servers server){
         Vector<CurseModFileModel> files = new Vector<>();
         boolean cd = false;
         for (Map<String, String> m : mod.latestFilesIndexes){
@@ -244,7 +235,7 @@ public class CurseAPI {
             Vector<CurseModFileModel> forRemoval = new Vector<>();
             files.forEach(e -> {
                 try {
-                    if (!e.gameVersions.contains(GetVersionList.getSnapShotName(version, FasterUrls.Servers.MCBBS))) {
+                    if (!e.gameVersions.contains(GetVersionList.getSnapShotName(version, server))) {
                         forRemoval.add(e);
                     }
                 }

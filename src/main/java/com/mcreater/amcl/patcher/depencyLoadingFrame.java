@@ -14,10 +14,8 @@ public class DepencyLoadingFrame extends JFrame {
         setTitle(StableMain.manager.get("ui.pre.depencies.title"));
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
         setBounds((int) (dimension.getWidth() / 2 - 300 / 2), (int) (dimension.getHeight() / 2 - 150 / 2), 300, 150);
+        setAlwaysOnTop(true);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-
-
         progressBar = new JProgressBar();
         progressBar.setStringPainted(true);
         progressBar.setIndeterminate(true);

@@ -24,7 +24,6 @@ import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.net.GetFileExists;
-import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -178,7 +177,7 @@ public class ForgeDownload {
                 }
             }
             TaskManager.addTasks(tasks2);
-            TaskManager.execute1Thread("<forge build>");
+            TaskManager.executeForge("<forge build>");
         }
         else{
             String rr = FileUtils.LinkPath.link(temp_path, "install_profile.json");

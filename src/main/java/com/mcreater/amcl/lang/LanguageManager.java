@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.Vector;
 
-public class LanguageManager {
+public class LanguageManager extends AbstractLanguageManager {
     Properties prp;
     public static Vector<String> vaild_languages = new Vector<>();
     private static final Vector<AbstractAnimationPage> bindedPages = new Vector<>();
