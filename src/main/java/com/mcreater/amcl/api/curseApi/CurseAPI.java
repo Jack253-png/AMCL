@@ -5,8 +5,11 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModRequireModel;
+import com.mcreater.amcl.controls.CurseMod;
 import com.mcreater.amcl.controls.ModFile;
 import com.mcreater.amcl.download.GetVersionList;
+import com.mcreater.amcl.tasks.LambdaTask;
+import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +32,7 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class CurseAPI {
     public static Vector<String> versions_list;
@@ -112,7 +116,31 @@ public class CurseAPI {
             return -1;
         }
     }
-    public static Vector<CurseModFileModel> getModFileRequiredMods(CurseModFileModel model, String gameVersion, String firstname) throws IOException{
+    public static Vector<CurseModModel> getModFileRequiredMods(CurseModFileModel model) throws Exception {
+        Vector<CurseModModel> result = new Vector<>();
+        TaskManager.setUpdater((integer, s) -> {});
+        AtomicReference<Exception> exception = new AtomicReference<>();
+        for (CurseModRequireModel m : model.dependencies) {
+            if (m.relationType == 3.0) {
+                TaskManager.addTasks(new LambdaTask(() -> {
+                    try {
+                        result.add(getFromModId(m.modId));
+                    } catch (IOException e) {
+                        exception.set(e);
+                    }
+                }));
+            }
+        }
+        try {
+            TaskManager.execute("<mod relation>");
+        }
+        catch (Exception e){
+            exception.set(e);
+        }
+        if (exception.get() != null) throw exception.get();
+        return result;
+    }
+    public static Vector<CurseModFileModel> getModFileRequiredModFiles(CurseModFileModel model, String gameVersion, String firstname) throws IOException{
         logger.info(String.format("Finding %s require mods", model.fileName));
         Vector<CurseModFileModel> requires = new Vector<>();
         Vector<Thread> requestingThreads = new Vector<>();
@@ -141,7 +169,7 @@ public class CurseAPI {
                                     requires.add(model1);
                                     if (model1.dependencies.size() >= 1){
                                         logger.info(String.format("mod %s has more requires, loading...", model1.fileName));
-                                        Vector<CurseModFileModel> reqsreq = getModFileRequiredMods(model1, gameVersion, firstname);
+                                        Vector<CurseModFileModel> reqsreq = getModFileRequiredModFiles(model1, gameVersion, firstname);
                                         requires.addAll(reqsreq);
                                     }
                                 }

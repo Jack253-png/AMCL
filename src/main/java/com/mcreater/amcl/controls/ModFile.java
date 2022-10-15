@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXCheckBox;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.theme.ThemeManager;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
@@ -40,7 +41,7 @@ public class ModFile extends HBox implements Comparable<ModFile>{
             checkBox.setUnCheckedColor(Color.RED);
         }
 
-        checkBox.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+        checkBox.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
         Label name = new Label(model.fileName);
         name.setFont(Fonts.s_f);
 

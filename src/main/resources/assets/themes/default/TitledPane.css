@@ -30,7 +30,7 @@
     -fx-background-color: rgb(0,0,0);
     -fx-background-insets: 1 0 -1 0, 0;
     -fx-padding: 0.25em 0.25em 0.25em 0.25em;
-    /*-fx-shape: "M 0 0 0 0 0 0";*/
+    -fx-shape: "M 0 0 0 0 0 0";
 }
 
 .titled-pane:collapsed > .title > .arrow-button .arrow

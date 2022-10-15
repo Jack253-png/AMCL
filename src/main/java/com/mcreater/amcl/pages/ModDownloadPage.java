@@ -6,9 +6,12 @@ import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.curseApi.CurseAPI;
 import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
 import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
+import com.mcreater.amcl.controls.CurseMod;
 import com.mcreater.amcl.controls.ModFile;
+import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
+import com.mcreater.amcl.pages.dialogs.mod.RequiredModDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.controls.SettingPage;
@@ -35,6 +38,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -56,11 +60,18 @@ public class ModDownloadPage extends AbstractAnimationPage {
     ModFile last;
     Thread loadThread;
     GridPane p;
-    public JFXToggleButton installRequires;
     public JFXButton install;
     CurseModModel content;
+    JFXButton getrc;
 
     boolean loadSuccess = false;
+    public static class DepencyModPage extends ModDownloadPage {
+        public DepencyModPage(double width, double height, AbstractAnimationPage last) {
+            super(width, height);
+            l = last;
+            ThemeManager.loadButtonAnimates(this);
+        }
+    }
     public ModDownloadPage(double width, double height) {
         super(width, height);
         reqMods = new Vector<>();
@@ -69,9 +80,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
         v = new VBox();
         FXUtils.ControlSize.set(p, width, height);
         p.add(new SettingPage(800, 480 - 45 - 70, v, false), 0, 0, 1, 1);
-        installRequires = new JFXToggleButton();
-        installRequires.selectedProperty().set(true);
-        installRequires.setFont(Fonts.t_f);
+
         install = new JFXButton();
         install.setButtonType(JFXButton.ButtonType.RAISED);
         install.setFont(Fonts.t_f);
@@ -84,24 +93,19 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     try {
                         dialog.Create();
                         dialog.setV(0, 7, Launcher.languageManager.get("ui.downloadmod._02"));
-                        if (installRequires.isSelected()) {
-                            requireMods.set(CurseAPI.getModFileRequiredMods(last.model, last.version, last.model.fileName));
-                        }
                         requireMods.get().add(last.model);
                         dialog.setV(0, 10, Launcher.languageManager.get("ui.downloadmod._03"));
                         Vector<DownloadTask> tasks = new Vector<>();
-                        for (CurseModFileModel model : requireMods.get()){
-                            String modPath;
-                            if (Launcher.configReader.configModel.change_game_dir){
-                                modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "versions/" + Launcher.configReader.configModel.selected_version_index + "/mods");
-                            }
-                            else {
-                                modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "mods");
-                            }
-                            if (model.downloadUrl != null) {
-                                if (!model.fileName.endsWith(".zip")) {
-                                    tasks.add(new DownloadTask(model.downloadUrl, LinkPath.link(modPath, model.fileName), 2048));
-                                }
+                        String modPath;
+                        if (Launcher.configReader.configModel.change_game_dir){
+                            modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "versions/" + Launcher.configReader.configModel.selected_version_index + "/mods");
+                        }
+                        else {
+                            modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "mods");
+                        }
+                        if (last.model.downloadUrl != null) {
+                            if (!last.model.fileName.endsWith(".zip")) {
+                                tasks.add(new DownloadTask(last.model.downloadUrl, LinkPath.link(modPath, last.model.fileName), Launcher.configReader.configModel.downloadChunkSize));
                             }
                         }
                         AtomicInteger downloaded = new AtomicInteger();
@@ -122,12 +126,9 @@ public class ModDownloadPage extends AbstractAnimationPage {
                             dialog.setV(0, (int) (10 + 90 * processTemp), String.format(Launcher.languageManager.get("ui.downloadmod._04"), downloaded.get(), tasks.size()));
                         } while (downloaded.get() != tasks.size());
                     }
-                    catch (IOException e) {
+                    catch (Exception e) {
                         Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), ""));
-                    } catch (InterruptedException ignored) {
-                        ignored.printStackTrace();
-                    }
-                    finally {
+                    } finally {
                         Platform.runLater(dialog::close);
                     }
                 });
@@ -137,10 +138,48 @@ public class ModDownloadPage extends AbstractAnimationPage {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
             }
         });
-        HBox box = new HBox(installRequires, install);
+        getrc = new JFXButton(Launcher.languageManager.get("ui.moddownloadpage.getrequire.name"));
+        getrc.setOnAction(event -> {
+            LoadingDialog dialog2 = new LoadingDialog(Launcher.languageManager.get("ui.moddownloadpage.getrequire.process.name"));
+            dialog2.Create();
+            CountDownLatch latch = new CountDownLatch(1);
+            RequiredModDialog dialog = new RequiredModDialog(Launcher.languageManager.get("ui.moddownloadpage.getrequire.dialog.title"));
+            new Thread(() -> {
+                try {
+                    if (last != null) {
+                        for (CurseModModel model : CurseAPI.getModFileRequiredMods(last.model)) {
+                            Platform.runLater(() -> dialog.items.addItem(new CurseMod(model)));
+                        }
+                        DepencyModPage page = new DepencyModPage(width, height, MODDOWNLOADPAGE);
+
+                        dialog.items.setOnAction(() -> {
+                            dialog.close();
+                            page.setModContent(dialog.items.selectedItem.model);
+                            Launcher.setPage(page, this);
+                        });
+                        dialog.Create();
+                    }
+                    else {
+                        Platform.runLater(() -> {
+                            SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
+                        });
+                    }
+                }
+                catch (Exception e){
+                    Platform.runLater(() -> SimpleDialogCreater.exception(e));
+                }
+                finally {
+                    latch.countDown();
+                    Platform.runLater(dialog2::close);
+                }
+            }).start();
+        });
+
+        HBox box = new HBox(install, getrc);
         box.setSpacing(10);
         box.setAlignment(Pos.CENTER_LEFT);
         HBox t = new HBox(new Label("    "), box);
+        t.getStylesheets().add(String.format(ThemeManager.getPath(), "HBox"));
         t.setId("modinstall");
         FXUtils.ControlSize.set(t, this.width, 70);
         p.add(t, 0, 1, 1, 1);
@@ -167,9 +206,9 @@ public class ModDownloadPage extends AbstractAnimationPage {
             do {
                 try {
                     Thread.sleep(10);
-                } catch (InterruptedException ignored) {
-                }
+                } catch (InterruptedException ignored) {}
             } while (this.v.getChildren().size() != 0);
+
             loadThread = new Thread(() -> {
                 try {
                     Vector<String> versions = new Vector<>();
@@ -219,6 +258,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                             };
                             file.checkBox.selectedProperty().addListener(this.changeListener);
                         }
+                        pane.getStylesheets().add(String.format(ThemeManager.getPath(), "TitledPane"));
                         FXUtils.ControlSize.setWidth(pane, this.width - 15);
                         FXUtils.ControlSize.setWidth(b, this.width - 15);
                         FXUtils.ControlSize.setWidth(v, this.width - 15);
@@ -228,16 +268,13 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     }
                     this.setDisable(false);
                     loadSuccess = true;
-                } catch (IOException e) {
+                } catch (Exception e) {
                     Platform.runLater(() -> {
                         SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), "");
                         Launcher.setPage(Launcher.ADDMODSPAGE, this);
                     });
-                } catch (ParseException e) {
-
                 }
-            }
-            );
+            });
             loadThread.start();
         }
     }
@@ -246,7 +283,6 @@ public class ModDownloadPage extends AbstractAnimationPage {
     }
     public void refreshLanguage() {
         this.name = Launcher.languageManager.get("ui.moddownloadpage.name");
-        installRequires.setText(Launcher.languageManager.get("ui.moddownloadpage.installReq.name"));
         install.setText(Launcher.languageManager.get("ui.moddownloadpage.install.name"));
     }
     public void refreshType() {

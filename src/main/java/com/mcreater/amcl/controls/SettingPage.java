@@ -48,6 +48,7 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
         init();
         JFXSmoothScroll.smoothScrolling(this, 0.8);
         ThemeManager.loadButtonAnimates(this.content);
+        getStylesheets().add(String.format(ThemeManager.getPath(), "SettingPage"));
     }
     private void init() {
         skinProperty().addListener(it -> getChildren().addAll(shadow));

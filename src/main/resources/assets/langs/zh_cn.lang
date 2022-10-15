@@ -221,3 +221,6 @@ ui.capes.change=更换披风中...
 ui.capes.noCape=无披风
 ui.mainpage.stopprocess.none.title = 无进程
 ui.mainpage.stopprocess.none.content = 无正在运行的 Minecraft 进程
+ui.moddownloadpage.getrequire.name=获取前置模组
+ui.moddownloadpage.getrequire.process.name=获取前置模组中...
+ui.moddownloadpage.getrequire.dialog.title=前置模组
