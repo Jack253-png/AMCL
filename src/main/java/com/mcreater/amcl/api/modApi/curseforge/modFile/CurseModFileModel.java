@@ -1,8 +1,10 @@
-package com.mcreater.amcl.api.curseApi.modFile;
+package com.mcreater.amcl.api.modApi.curseforge.modFile;
+
+import com.mcreater.amcl.api.modApi.common.AbstractModFileModel;
 
 import java.util.Vector;
 
-public class CurseModFileModel {
+public class CurseModFileModel extends AbstractModFileModel {
     public long id;
     public String fileName;
     public String displayName;

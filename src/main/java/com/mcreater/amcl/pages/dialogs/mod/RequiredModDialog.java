@@ -3,19 +3,15 @@ package com.mcreater.amcl.pages.dialogs.mod;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.controls.CurseMod;
+import com.mcreater.amcl.controls.ServerMod;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
-import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Label;
-import javafx.stage.Stage;
 
 public class RequiredModDialog extends AbstractDialog {
-    public SmoothableListView<CurseMod> items;
+    public SmoothableListView<ServerMod> items;
     public RequiredModDialog(String title) {
         super(Launcher.stage);
         JFXDialogLayout layout = new JFXDialogLayout();

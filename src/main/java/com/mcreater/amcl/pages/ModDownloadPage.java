@@ -1,26 +1,32 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXToggleButton;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.api.curseApi.CurseAPI;
-import com.mcreater.amcl.api.curseApi.mod.CurseModModel;
-import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
-import com.mcreater.amcl.controls.CurseMod;
+import com.mcreater.amcl.api.modApi.common.AbstractModFileModel;
+import com.mcreater.amcl.api.modApi.common.AbstractModModel;
+import com.mcreater.amcl.api.modApi.curseforge.CurseAPI;
+import com.mcreater.amcl.api.modApi.curseforge.mod.CurseModModel;
+import com.mcreater.amcl.api.modApi.modrinth.ModrinthAPI;
+import com.mcreater.amcl.api.modApi.modrinth.mod.ModrinthModModel;
+import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileItemModel;
+import com.mcreater.amcl.controls.ServerMod;
 import com.mcreater.amcl.controls.ModFile;
+import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.download.GetVersionList;
+import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
-import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.dialogs.mod.RequiredModDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
+import com.mcreater.amcl.util.net.FasterUrls;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
@@ -37,10 +43,10 @@ import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -61,8 +67,9 @@ public class ModDownloadPage extends AbstractAnimationPage {
     Thread loadThread;
     GridPane p;
     public JFXButton install;
-    CurseModModel content;
+    AbstractModModel content;
     JFXButton getrc;
+    SettingPage page;
 
     boolean loadSuccess = false;
     public static class DepencyModPage extends ModDownloadPage {
@@ -79,21 +86,20 @@ public class ModDownloadPage extends AbstractAnimationPage {
         p = new GridPane();
         v = new VBox();
         FXUtils.ControlSize.set(p, width, height);
-        p.add(new SettingPage(800, 480 - 45 - 70, v, false), 0, 0, 1, 1);
+        page = new SettingPage(800, 480 - 45 - 70, v, false);
+        p.add(page, 0, 0, 1, 1);
 
         install = new JFXButton();
         install.setButtonType(JFXButton.ButtonType.RAISED);
         install.setFont(Fonts.t_f);
         install.setOnAction(event -> {
             if (coreSelected) {
-                AtomicReference<Vector<CurseModFileModel>> requireMods = new AtomicReference<>();
                 ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.moddownloadpage.downloadingMods.title"));
                 dialog.setV(0, 5, Launcher.languageManager.get("ui.downloadmod._01"));
                 Thread t = new Thread(() -> {
                     try {
                         dialog.Create();
                         dialog.setV(0, 7, Launcher.languageManager.get("ui.downloadmod._02"));
-                        requireMods.get().add(last.model);
                         dialog.setV(0, 10, Launcher.languageManager.get("ui.downloadmod._03"));
                         Vector<DownloadTask> tasks = new Vector<>();
                         String modPath;
@@ -103,9 +109,26 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         else {
                             modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "mods");
                         }
-                        if (last.model.downloadUrl != null) {
-                            if (!last.model.fileName.endsWith(".zip")) {
-                                tasks.add(new DownloadTask(last.model.downloadUrl, LinkPath.link(modPath, last.model.fileName), Launcher.configReader.configModel.downloadChunkSize));
+                        if (last.model.isCurseFile()) {
+                            if (last.model.toCurseFile().downloadUrl != null) {
+                                if (!last.model.toCurseFile().fileName.endsWith(".zip")) {
+                                    tasks.add(new DownloadTask(last.model.toCurseFile().downloadUrl, LinkPath.link(modPath, last.model.toCurseFile().fileName), Launcher.configReader.configModel.downloadChunkSize));
+                                }
+                            }
+                        }
+                        else {
+                            ModrinthModFileItemModel model = null;
+                            if (last.model.toModrinthFile().files.size() >= 1) {
+                                for (ModrinthModFileItemModel m : last.model.toModrinthFile().files) {
+                                    if (!m.filename.endsWith(".zip")) {
+                                        model = m;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (model != null) {
+                                tasks.add(new DownloadTask(model.url, LinkPath.link(modPath, model.filename), Launcher.configReader.configModel.downloadChunkSize));
                             }
                         }
                         AtomicInteger downloaded = new AtomicInteger();
@@ -128,6 +151,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     }
                     catch (Exception e) {
                         Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), ""));
+                        e.printStackTrace();
                     } finally {
                         Platform.runLater(dialog::close);
                     }
@@ -147,16 +171,40 @@ public class ModDownloadPage extends AbstractAnimationPage {
             new Thread(() -> {
                 try {
                     if (last != null) {
-                        for (CurseModModel model : CurseAPI.getModFileRequiredMods(last.model)) {
-                            Platform.runLater(() -> dialog.items.addItem(new CurseMod(model)));
-                        }
-                        DepencyModPage page = new DepencyModPage(width, height, MODDOWNLOADPAGE);
+                        if (last.model.isCurseFile()) {
+                            Vector<? extends AbstractModModel> models = last.model.isCurseFile() ? CurseAPI.getModFileRequiredMods(last.model.toCurseFile()) : ModrinthAPI.getModFileRequiredMods(last.model.toModrinthFile());
 
-                        dialog.items.setOnAction(() -> {
-                            dialog.close();
-                            page.setModContent(dialog.items.selectedItem.model);
-                            Launcher.setPage(page, this);
-                        });
+                            for (AbstractModModel model : models) {
+                                Platform.runLater(() -> dialog.items.addItem(new ServerMod(model)));
+                            }
+
+                            DepencyModPage page = new DepencyModPage(width, height, MODDOWNLOADPAGE);
+
+                            dialog.items.setOnAction(() -> {
+                                dialog.close();
+                                page.setModContent(dialog.items.selectedItem.model);
+                                Launcher.setPage(page, this);
+                            });
+                        }
+                        else {
+                            if (last.model.isCurseFile()) {
+                                for (CurseModModel model : CurseAPI.getModFileRequiredMods(last.model.toCurseFile())) {
+                                    Platform.runLater(() -> dialog.items.addItem(new ServerMod(model)));
+                                }
+                            }
+                            else {
+                                for (ModrinthModModel model : ModrinthAPI.getModFileRequiredMods(last.model.toModrinthFile())) {
+                                    Platform.runLater(() -> dialog.items.addItem(new ServerMod(model)));
+                                }
+                            }
+                            DepencyModPage page = new DepencyModPage(width, height, MODDOWNLOADPAGE);
+
+                            dialog.items.setOnAction(() -> {
+                                dialog.close();
+                                page.setModContent(dialog.items.selectedItem.model);
+                                Launcher.setPage(page, this);
+                            });
+                        }
                         dialog.Create();
                     }
                     else {
@@ -196,13 +244,15 @@ public class ModDownloadPage extends AbstractAnimationPage {
                 VERSIONSELECTPAGE
         ));
     }
-    public void setModContent(CurseModModel model){
+    public void setModContent(AbstractModModel model){
         if (this.content != model || !loadSuccess) {
             this.uis.clear();
             this.v.getChildren().clear();
             this.content = model;
             loadSuccess = false;
-            this.setDisable(true);
+            v.setDisable(true);
+            install.setDisable(true);
+            getrc.setDisable(true);
             do {
                 try {
                     Thread.sleep(10);
@@ -211,28 +261,26 @@ public class ModDownloadPage extends AbstractAnimationPage {
 
             loadThread = new Thread(() -> {
                 try {
-                    Vector<String> versions = new Vector<>();
-                    Vector<CurseModFileModel> files = CurseAPI.getModFiles(model);
-                    for (CurseModFileModel m : files) {
-                        for (String s : ModFile.getModLoaders(m.gameVersions, false)) {
-                            if (!versions.contains(s)) {
-                                versions.add(s);
-                            }
-                        }
+                    Map<String, ? extends Vector<? extends AbstractModFileModel>> files;
+                    if (model.isCurseMod()) {
+                        files = CurseAPI.getModFiles(model.toCurseMod());
                     }
-                    versions.sort(new VersionComparsion());
-                    for (String s1 : versions) {
+                    else {
+                        files = ModrinthAPI.getModFiles(model.toModrinthMod());
+                    }
+
+                    Vector<String> vers = new Vector<>(files.keySet());
+                    vers.sort(new VersionComparsion(GetVersionList.getOriginalList(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer))));
+
+                    for (String s1 : vers) {
                         TitledPane pane = new TitledPane();
                         pane.setText(s1);
                         pane.setExpanded(false);
                         pane.setFont(Fonts.t_f);
                         FXUtils.ControlSize.setWidth(pane, 800);
                         VBox b = new VBox();
-                        for (CurseModFileModel u : files) {
-                            getTimeTick(u.fileDate);
-                            if (u.gameVersions.contains(s1)) {
-                                b.getChildren().add(new ModFile(u, s1));
-                            }
+                        for (AbstractModFileModel u : files.get(s1)) {
+                            b.getChildren().add(new ModFile(u, s1));
                         }
                         List<Node> list = new Vector<>(b.getChildren());
                         list.sort(Comparator.comparing(node -> ((ModFile) node)));
@@ -264,15 +312,20 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         FXUtils.ControlSize.setWidth(v, this.width - 15);
                         Platform.runLater(() -> v.getChildren().add(pane));
                         Platform.runLater(() -> ThemeManager.loadButtonAnimates(pane));
-                        Sleeper.sleep(100);
+                        Sleeper.sleep(25);
                     }
-                    this.setDisable(false);
+                    Platform.runLater(() -> {
+                        v.setDisable(false);
+                        install.setDisable(false);
+                        getrc.setDisable(false);
+                    });
                     loadSuccess = true;
                 } catch (Exception e) {
                     Platform.runLater(() -> {
                         SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), "");
                         Launcher.setPage(Launcher.ADDMODSPAGE, this);
                     });
+                    e.printStackTrace();
                 }
             });
             loadThread.start();
@@ -302,25 +355,26 @@ public class ModDownloadPage extends AbstractAnimationPage {
         return simpleDateFormat1.parse(J8Utils.createList(time.split("\\.")).get(0).replace("T", " "));
     }
     public static class VersionComparsion implements Comparator<String> {
-        public int compare(String compareValue1, String compareValue2) {
-            compareValue1 = clearSnapShotVersion(compareValue1);
-            compareValue2 = clearSnapShotVersion(compareValue2);
-            String[] valueSplit1 = compareValue1.split("[.]");
-            String[] valueSplit2 = compareValue2.split("[.]");
-            int minLength = valueSplit1.length;
-            if (minLength > valueSplit2.length) {
-                minLength = valueSplit2.length;
-            }
-            for (int i = 0; i < minLength; i++) {
-                int value1 = Integer.parseInt(valueSplit1[i]);
-                int value2 = Integer.parseInt(valueSplit2[i]);
-                if(value1 > value2){
-                    return 1;
-                }else if(value1 < value2){
-                    return -1;
+        Vector<OriginalVersionModel> vers;
+        public VersionComparsion(Vector<OriginalVersionModel> vers) {
+            this.vers = vers;
+        }
+        private int getIndex(String ver) {
+            int l = -1;
+            for (int g = 0; g < vers.size(); g++) {
+                if (vers.get(g).id.equals(ver.replace("1.14-pre", "1.14 Pre-Release ").replace("1.14.1-pre", "1.14.1 Pre-Release ").replace("1.14.2-pre", "1.14.2 Pre-Release "))) {
+                    l = g;
+                    break;
                 }
             }
-            return valueSplit1.length - valueSplit2.length;
+            return l;
+        }
+        public int compare(String compareValue1, String compareValue2) {
+            int id1 = getIndex(clearSnapShotVersion(compareValue1));
+            int id2 = getIndex(clearSnapShotVersion(compareValue2));
+
+            if (id1 == id2) return 0;
+            return id1 > id2 ? -1 : 1;
         }
         public String clearSnapShotVersion(String raw){
             return raw.replace("-Snapshot", "");

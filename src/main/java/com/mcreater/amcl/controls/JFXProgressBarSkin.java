@@ -1,14 +1,12 @@
 package com.mcreater.amcl.controls;
 
 import com.jfoenix.utils.JFXNodeUtils;
-import com.sun.javafx.scene.NodeHelper;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.skin.ProgressIndicatorSkin;
 import javafx.scene.layout.Background;
@@ -35,41 +33,27 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
             this.updateProgress();
             this.updateSecondaryProgress();
         });
-        this.registerChangeListener(bar.progressProperty(), (obs) -> {
-            this.updateProgress();
-        });
-        this.registerChangeListener(bar.secondaryProgressProperty(), (obs) -> {
-            this.updateSecondaryProgress();
-        });
-        this.registerChangeListener(bar.visibleProperty(), (obs) -> {
-            this.updateAnimation();
-        });
-        this.registerChangeListener(bar.parentProperty(), (obs) -> {
-            this.updateAnimation();
-        });
-        this.registerChangeListener(bar.sceneProperty(), (obs) -> {
-            this.updateAnimation();
-        });
-        this.registerChangeListener(bar.indeterminateProperty(), (obs) -> {
-            this.initialize();
-        });
+        this.registerChangeListener(bar.progressProperty(), (obs) -> this.updateProgress());
+        this.registerChangeListener(bar.secondaryProgressProperty(), (obs) -> this.updateSecondaryProgress());
+        this.registerChangeListener(bar.visibleProperty(), (obs) -> this.updateAnimation());
+        this.registerChangeListener(bar.parentProperty(), (obs) -> this.updateAnimation());
+        this.registerChangeListener(bar.sceneProperty(), (obs) -> this.updateAnimation());
+        this.registerChangeListener(bar.indeterminateProperty(), (obs) -> this.initialize());
         this.initialize();
-        ((ProgressIndicator)this.getSkinnable()).requestLayout();
+        this.getSkinnable().requestLayout();
     }
 
     protected void initialize() {
         this.track = new StackPane();
-        this.track.getStyleClass().setAll(new String[]{"track"});
+        this.track.getStyleClass().setAll("track");
         this.bar = new StackPane();
-        this.bar.getStyleClass().setAll(new String[]{"bar"});
+        this.bar.getStyleClass().setAll("bar");
         this.secondaryBar = new StackPane();
-        this.secondaryBar.getStyleClass().setAll(new String[]{"secondary-bar"});
+        this.secondaryBar.getStyleClass().setAll("secondary-bar");
         this.clip = new Region();
-        this.clip.setBackground(new Background(new BackgroundFill[]{new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)}));
-        this.bar.backgroundProperty().addListener((observable) -> {
-            JFXNodeUtils.updateBackground(this.bar.getBackground(), this.clip);
-        });
-        this.getChildren().setAll(new Node[]{this.track, this.secondaryBar, this.bar});
+        this.clip.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
+        this.bar.backgroundProperty().addListener((observable) -> JFXNodeUtils.updateBackground(this.bar.getBackground(), this.clip));
+        this.getChildren().setAll(this.track, this.secondaryBar, this.bar);
     }
 
     public double computeBaselineOffset(double topInset, double rightInset, double bottomInset, double leftInset) {
@@ -77,7 +61,7 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
     }
 
     protected double computePrefWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
-        return Math.max(100.0, leftInset + this.bar.prefWidth(((ProgressIndicator)this.getSkinnable()).getWidth()) + rightInset);
+        return Math.max(100.0, leftInset + this.bar.prefWidth(this.getSkinnable().getWidth()) + rightInset);
     }
 
     protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
@@ -85,17 +69,17 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
     }
 
     protected double computeMaxWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
-        return ((ProgressIndicator)this.getSkinnable()).prefWidth(height);
+        return this.getSkinnable().prefWidth(height);
     }
 
     protected double computeMaxHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
-        return ((ProgressIndicator)this.getSkinnable()).prefHeight(width);
+        return this.getSkinnable().prefHeight(width);
     }
 
     protected void layoutChildren(double x, double y, double w, double h) {
         this.track.resizeRelocate(x, y, w, h);
         this.secondaryBar.resizeRelocate(x, y, this.secondaryBarWidth, h);
-        this.bar.resizeRelocate(x, y, ((ProgressIndicator)this.getSkinnable()).isIndeterminate() ? w : this.barWidth, h);
+        this.bar.resizeRelocate(x, y, this.getSkinnable().isIndeterminate() ? w : this.barWidth, h);
         this.clip.resizeRelocate(0.0, 0.0, w, h);
         if (this.getSkinnable().isIndeterminate()) {
             this.createIndeterminateTimeline();
@@ -106,7 +90,7 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
             this.bar.setClip(this.clip);
         } else if (this.indeterminateTransition != null) {
             this.clearAnimation();
-            this.bar.setClip((Node)null);
+            this.bar.setClip(null);
         }
 
     }
@@ -133,7 +117,7 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
     }
 
     private void updateAnimation() {
-        ProgressIndicator control = (ProgressIndicator)this.getSkinnable();
+        ProgressIndicator control = this.getSkinnable();
         boolean isTreeVisible = control.isVisible() && control.getParent() != null && control.getScene() != null;
         if (this.indeterminateTransition != null) {
             this.pauseTimeline(!isTreeVisible);
@@ -144,7 +128,7 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
     }
 
     private void updateProgress() {
-        ProgressIndicator control = (ProgressIndicator)this.getSkinnable();
+        ProgressIndicator control = this.getSkinnable();
         boolean isIndeterminate = control.isIndeterminate();
         if (!isIndeterminate || !this.wasIndeterminate) {
             this.barWidth = (double)((int)(control.getWidth() - this.snappedLeftInset() - this.snappedRightInset()) * 2) * Math.min(1.0, Math.max(0.0, control.getProgress())) / 2.0;
@@ -160,7 +144,7 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
         }
 
         double dur = 1.0;
-        ProgressIndicator control = (ProgressIndicator)this.getSkinnable();
+        ProgressIndicator control = this.getSkinnable();
         double w = control.getWidth() - (this.snappedLeftInset() + this.snappedRightInset());
         this.indeterminateTransition = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(this.clip.scaleXProperty(), 0.0, Interpolator.EASE_IN), new KeyValue(this.clip.translateXProperty(), -w / 2.0, Interpolator.LINEAR)), new KeyFrame(Duration.seconds(0.5 * dur), new KeyValue(this.clip.scaleXProperty(), 0.4, Interpolator.LINEAR)), new KeyFrame(Duration.seconds(0.9 * dur), new KeyValue(this.clip.translateXProperty(), w / 2.0, Interpolator.LINEAR)), new KeyFrame(Duration.seconds(dur), new KeyValue(this.clip.scaleXProperty(), 0.0, Interpolator.EASE_OUT)));
         this.indeterminateTransition.setCycleCount(-1);

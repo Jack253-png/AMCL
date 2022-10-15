@@ -2,8 +2,8 @@ package com.mcreater.amcl.download;
 
 import com.google.gson.Gson;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.api.curseApi.CurseAPI;
-import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
+import com.mcreater.amcl.api.modApi.curseforge.CurseAPI;
+import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModFileModel;
 import com.mcreater.amcl.download.model.NewForgeItemFileModel;
 import com.mcreater.amcl.download.model.NewForgeItemModel;
 import com.mcreater.amcl.download.model.OriginalVersionModel;

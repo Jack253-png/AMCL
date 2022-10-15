@@ -1,4 +1,4 @@
-package com.mcreater.amcl.api.curseApi.mod;
+package com.mcreater.amcl.api.modApi.curseforge.mod;
 
 public class CurseModScreenShotModel {
     public String title;

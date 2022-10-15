@@ -1,4 +1,4 @@
-package com.mcreater.amcl.api.curseApi.mod;
+package com.mcreater.amcl.api.modApi.curseforge.mod;
 
 public class CurseModLinkModel {
     public String websiteUrl;

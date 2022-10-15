@@ -1,11 +1,12 @@
-package com.mcreater.amcl.api.curseApi.mod;
+package com.mcreater.amcl.api.modApi.curseforge.mod;
 
-import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
+import com.mcreater.amcl.api.modApi.common.AbstractModModel;
+import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModFileModel;
 
 import java.util.Map;
 import java.util.Vector;
 
-public class CurseModModel {
+public class CurseModModel extends AbstractModModel {
     public int id;
     public String name;
     public CurseModLinkModel links;

@@ -59,6 +59,7 @@ public abstract class TaskManager {
         AbstractLanguageManager lang;
         if (isSwingEnv) lang = StableMain.manager;
         else lang = Launcher.languageManager;
+
         String key;
         if (isSwingEnv) key = "ui.fix._02.swing";
         else key = "ui.fix._02";

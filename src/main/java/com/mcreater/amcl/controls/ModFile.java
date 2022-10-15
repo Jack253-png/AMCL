@@ -2,9 +2,8 @@ package com.mcreater.amcl.controls;
 
 import com.jfoenix.controls.JFXCheckBox;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.api.curseApi.modFile.CurseModFileModel;
+import com.mcreater.amcl.api.modApi.common.AbstractModFileModel;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.theme.ThemeManager;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Background;
@@ -22,32 +21,45 @@ import static com.mcreater.amcl.pages.ModDownloadPage.getTimeTick;
 
 public class ModFile extends HBox implements Comparable<ModFile>{
     public JFXCheckBox checkBox;
-    public CurseModFileModel model;
+    public AbstractModFileModel model;
     public String version;
-    public ModFile(CurseModFileModel model, String version){
+    public ModFile(AbstractModFileModel model, String version){
         this.model = model;
         this.version = version;
         checkBox = new JFXCheckBox();
-        if (model.releaseType == 1){
-            checkBox.setCheckedColor(Color.LIGHTGREEN);
-            checkBox.setUnCheckedColor(Color.LIGHTGREEN);
+        if (model.isCurseFile()) {
+            if (model.toCurseFile().releaseType == 1) {
+                checkBox.setCheckedColor(Color.LIGHTGREEN);
+                checkBox.setUnCheckedColor(Color.LIGHTGREEN);
+            } else if (model.toCurseFile().releaseType == 2) {
+                checkBox.setCheckedColor(Color.LIGHTBLUE);
+                checkBox.setUnCheckedColor(Color.LIGHTBLUE);
+            } else {
+                checkBox.setCheckedColor(Color.RED);
+                checkBox.setUnCheckedColor(Color.RED);
+            }
         }
-        else if (model.releaseType == 2){
-            checkBox.setCheckedColor(Color.LIGHTBLUE);
-            checkBox.setUnCheckedColor(Color.LIGHTBLUE);
-        }
-        else{
-            checkBox.setCheckedColor(Color.RED);
-            checkBox.setUnCheckedColor(Color.RED);
+        else {
+            if (model.toModrinthFile().version_type.equals("release")) {
+                checkBox.setCheckedColor(Color.LIGHTGREEN);
+                checkBox.setUnCheckedColor(Color.LIGHTGREEN);
+            } else if (model.toModrinthFile().version_type.equals("beta")) {
+                checkBox.setCheckedColor(Color.LIGHTBLUE);
+                checkBox.setUnCheckedColor(Color.LIGHTBLUE);
+            } else {
+                checkBox.setCheckedColor(Color.RED);
+                checkBox.setUnCheckedColor(Color.RED);
+            }
         }
 
         checkBox.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
-        Label name = new Label(model.fileName);
+        Label name = new Label();
+        name.setText(model.isCurseFile() ? model.toCurseFile().fileName : model.toModrinthFile().name);
         name.setFont(Fonts.s_f);
 
-        Label loaders = new Label(Launcher.languageManager.get("ui.mod.loader") + String.join(", ", getModLoaders(model.gameVersions, true)));
+        Label loaders = new Label(Launcher.languageManager.get("ui.mod.loader") + (model.isCurseFile() ? String.join(", ", getModLoaders(model.toCurseFile().gameVersions, true)) : String.join(", ", model.toModrinthFile().loaders)));
         loaders.setFont(Fonts.t_f);
-        Label versions = new Label(Launcher.languageManager.get("ui.mod.version") + String.join(", ", getModLoaders(model.gameVersions, false)));
+        Label versions = new Label(Launcher.languageManager.get("ui.mod.version") + (model.isCurseFile() ? String.join(", ", getModLoaders(model.toCurseFile().gameVersions, false)) : String.join(", ", model.toModrinthFile().game_versions)));
         versions.setFont(Fonts.t_f);
 
         VBox v = new VBox();
@@ -63,7 +75,7 @@ public class ModFile extends HBox implements Comparable<ModFile>{
                     loaders.add(s);
                 }
             }
-            else{
+            else {
                 if (s.contains(".")) {
                     loaders.add(s);
                 }
@@ -74,8 +86,15 @@ public class ModFile extends HBox implements Comparable<ModFile>{
     public int compareTo(@NotNull ModFile aLong) {
         Date time1, time2;
         try {
-            time1 = getTimeTick(this.model.fileDate);
-            time2 = getTimeTick(aLong.model.fileDate);
+            if (model.isCurseFile()) {
+                time1 = getTimeTick(this.model.toCurseFile().fileName);
+                time2 = getTimeTick(aLong.model.toCurseFile().fileDate);
+            }
+            else {
+                time1 = getTimeTick(this.model.toModrinthFile().date_published);
+                time2 = getTimeTick(aLong.model.toModrinthFile().date_published);
+            }
+
         } catch (ParseException e) {
             return 0;
         }
