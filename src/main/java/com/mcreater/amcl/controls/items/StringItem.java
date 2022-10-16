@@ -13,18 +13,27 @@ import javafx.scene.paint.Color;
 public class StringItem extends HBox {
     public Label title;
     public JFXTextField cont;
+    HBox left;
+    HBox right;
+    double width;
     public StringItem(String title, double width){
+        this(title, width, false);
+    }
+    public StringItem(String title, double width, boolean isSearch){
         this.title = new Label(title);
         this.title.setFont(Fonts.t_f);
         cont = new JFXTextField();
         cont.setFont(Fonts.t_f);
         FXUtils.fixJFXTextField(cont);
-        HBox left = new HBox(this.title);
+        double wv = isSearch ? width / 5 * 4 : width / 2;
+        FXUtils.ControlSize.setWidth(cont, wv);
+        left = new HBox(this.title);
         left.setAlignment(Pos.CENTER_LEFT);
-        FXUtils.ControlSize.setWidth(left, width / 2);
-        HBox right = new HBox(cont);
+        FXUtils.ControlSize.setWidth(left, isSearch ? width / 5 : width / 2);
+        right = new HBox(cont);
         right.setAlignment(Pos.CENTER_RIGHT);
-        FXUtils.ControlSize.setWidth(right, width / 2);
+        FXUtils.ControlSize.setWidth(right, wv);
         this.getChildren().addAll(left, right);
+        this.width = width;
     }
 }

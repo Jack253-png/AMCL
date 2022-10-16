@@ -224,3 +224,5 @@ ui.mainpage.stopprocess.none.content = No running Minecraft Process
 ui.moddownloadpage.getrequire.name=Get Require Mods
 ui.moddownloadpage.getrequire.process.name=Getting Require Mods...
 ui.moddownloadpage.getrequire.dialog.title=Require Mods
+ui.moddownloadpage.modserver.name=Mod Server
+ui.moddownloadpage.search.name=Search

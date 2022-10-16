@@ -5,6 +5,8 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.api.modApi.curseforge.mod.CurseModModel;
 import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModFileModel;
 import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModRequireModel;
+import com.mcreater.amcl.controls.ModFile;
+import com.mcreater.amcl.controls.ServerMod;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.tasks.LambdaTask;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
@@ -177,10 +179,9 @@ public final class CurseAPI {
             }
         }
         CountDownLatch latch = new CountDownLatch(versions_list.size());
-        Map<String, Vector<CurseModFileModel>> re = new HashMap<>();
+        Vector<CurseModFileModel> re = new Vector<>();
 
         for (String v : versions_list) {
-            re.put(v, new Vector<>());
             new Thread(() -> {
                 Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionsCaughter());
                 String url = String.format("/v1/mods/%s/files?gameVersion=%s", mod.id, v);
@@ -199,7 +200,7 @@ public final class CurseAPI {
                         if (model.downloadUrl == null){
                             model.downloadUrl = String.format("https://edge.forgecdn.net/files/%d/%d/%s", model.id / 1000, model.id % 1000, model.fileName);
                         }
-                        re.get(v).add(model);
+                        re.add(model);
                     }
                 }
                 latch.countDown();
@@ -211,7 +212,14 @@ public final class CurseAPI {
             errored = false;
             throw new IOException();
         }
-        return re;
+        Map<String, Vector<CurseModFileModel>> result = new HashMap<>();
+        for (CurseModFileModel model : re) {
+            for (String ver : ModFile.getModLoaders(model.gameVersions, false)) {
+                if (result.get(ver) == null) result.put(ver, new Vector<>());
+                if (result.get(ver) != null) result.get(ver).add(model);
+            }
+        }
+        return result;
     }
     public static class UncaughtExceptionsCaughter implements Thread.UncaughtExceptionHandler {
         public void uncaughtException(Thread thread, Throwable throwable) {

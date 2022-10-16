@@ -14,6 +14,7 @@ import com.mcreater.amcl.api.modApi.curseforge.CurseSortType;
 import com.mcreater.amcl.controls.ServerMod;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.items.ListItem;
+import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -40,23 +41,25 @@ import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
 
 public class AddModsPage extends AbstractAnimationPage {
     GridPane pane;
-    public JFXTextField in;
     public JFXButton submit;
     public ListItem<Label> server;
     public SmoothableListView<ServerMod> modlist;
     public com.jfoenix.controls.JFXProgressBar bar;
+
+    StringItem item;
     Thread searchThread = new Thread(() -> {});
     public AddModsPage(double width, double height) {
         super(width, height);
         l = Launcher.VERSIONINFOPAGE;
         pane = new GridPane();
         FXUtils.ControlSize.set(pane, this.width, this.height);
-        in = new JFXTextField();
-        FXUtils.fixJFXTextField(in);
+
+        item = new StringItem("", width, true);
+
         submit = new JFXButton();
         bar = JFXProgressBar.createProgressBar(0);
 
-        server = new ListItem<>("test", width);
+        server = new ListItem<>("", width);
         Label curse = new Label("Curseforge");
         curse.setFont(Fonts.t_f);
         Label modri = new Label("Modrinth");
@@ -64,10 +67,10 @@ public class AddModsPage extends AbstractAnimationPage {
         server.cont.getItems().addAll(curse, modri);
         server.cont.getSelectionModel().selectFirst();
 
-        in.setFont(Fonts.t_f);
+        item.cont.setFont(Fonts.t_f);
         submit.setFont(Fonts.t_f);
         submit.setButtonType(JFXButton.ButtonType.RAISED);
-        FXUtils.ControlSize.set(in, this.width, 25);
+        FXUtils.ControlSize.set(item, this.width, 25);
         FXUtils.ControlSize.set(submit, this.width, 45);
         FXUtils.ControlSize.setHeight(server, 50);
         FXUtils.ControlSize.set(bar, this.width, 10);
@@ -86,7 +89,7 @@ public class AddModsPage extends AbstractAnimationPage {
 
         submit.setOnAction(event -> search());
         pane.setAlignment(Pos.TOP_CENTER);
-        add(in, 0, 0, 1, 1);
+        add(item, 0, 0, 1, 1);
         add(submit, 0, 2, 1, 1);
         add(server, 0, 1, 1, 1);
         add(modlist.page, 0, 3, 2, 1);
@@ -123,7 +126,7 @@ public class AddModsPage extends AbstractAnimationPage {
         Platform.runLater(() -> modlist.setDisable(true));
         Platform.runLater(modlist::clear);
         JFXSmoothScroll.smoothScrollBarToValue(bar, -1);
-        Vector<? extends AbstractModModel> mods = server.cont.getSelectionModel().getSelectedIndex() == 0 ? CurseAPI.search(in.getText(), CurseResourceType.Types.MOD, CurseSortType.Types.DESCENDING, 20) : ModrinthAPI.search(in.getText(), CurseResourceType.Types.MOD, CurseSortType.Types.DEFAULT, 20);
+        Vector<? extends AbstractModModel> mods = server.cont.getSelectionModel().getSelectedIndex() == 0 ? CurseAPI.search(item.cont.getText(), CurseResourceType.Types.MOD, CurseSortType.Types.DESCENDING, 20) : ModrinthAPI.search(item.cont.getText(), 20);
         double loaded = 0;
         for (AbstractModModel model : mods){
             loaded += 1;
@@ -152,7 +155,9 @@ public class AddModsPage extends AbstractAnimationPage {
     }
     public void refreshLanguage() {
         this.name = Launcher.languageManager.get("ui.addmodspage.name");
+        server.name.setText(Launcher.languageManager.get("ui.moddownloadpage.modserver.name"));
         submit.setText(Launcher.languageManager.get("ui.addmodspage.search.name"));
+        item.title.setText(Launcher.languageManager.get("ui.moddownloadpage.search.name"));
         for (ServerMod m : modlist.vecs){
             m.refreshLang();
         }

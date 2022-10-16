@@ -96,7 +96,7 @@ public class ServerMod extends GridPane {
             this.add(image, 0, 0, 1, 1);
             this.add(name, 1, 0, 1, 1);
             this.add(desc, 1, 1, 1, 1);
-            this.add(authors, 1, 2, 1, 1);
+            if (raw.author != null) this.add(authors, 1, 2, 1, 1);
         }
     }
     public void refreshLang(){

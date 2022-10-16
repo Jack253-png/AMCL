@@ -323,7 +323,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                 } catch (Exception e) {
                     Platform.runLater(() -> {
                         SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), "");
-                        Launcher.setPage(Launcher.ADDMODSPAGE, this);
+                        Launcher.setPage(l, this);
                     });
                     e.printStackTrace();
                 }
@@ -377,7 +377,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
             return id1 > id2 ? -1 : 1;
         }
         public String clearSnapShotVersion(String raw){
-            return raw.replace("-Snapshot", "");
+            return raw.replace("-Snapshot", "-pre1");
         }
     }
 }

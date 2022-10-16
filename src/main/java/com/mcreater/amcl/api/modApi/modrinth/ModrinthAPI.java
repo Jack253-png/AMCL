@@ -4,11 +4,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.mcreater.amcl.api.modApi.curseforge.CurseAPI;
-import com.mcreater.amcl.api.modApi.curseforge.CurseResourceType;
-import com.mcreater.amcl.api.modApi.curseforge.CurseSortType;
-import com.mcreater.amcl.api.modApi.curseforge.mod.CurseModModel;
-import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModFileModel;
-import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModRequireModel;
 import com.mcreater.amcl.api.modApi.modrinth.mod.ModrinthModModel;
 import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileDepencymModel;
 import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileModel;
@@ -78,7 +73,7 @@ public class ModrinthAPI {
         }
     }
 
-    public static Vector<ModrinthModModel> search(String name, CurseResourceType.Types res, CurseSortType.Types sort, int pageSize) throws IOException {
+    public static Vector<ModrinthModModel> search(String name, int pageSize) throws IOException {
         String url = String.format("/v2/search?query=%s&limit=%d&index=downloads&facets=", name, pageSize);
         String re = response(url + URLEncoder.encode("[[\"project_type:mod\"]]", "UTF-8"));
         Gson g = new Gson();
@@ -93,18 +88,16 @@ public class ModrinthAPI {
         return resu;
     }
     public static Map<String, Vector<ModrinthModFileModel>> getModFiles(ModrinthModModel model) throws IOException {
-        String url = String.format("/v2/project/%s/version", model.project_id);
+        String url = String.format("/v2/project/%s/version", model.slug);
         String re = response(url);
         Gson g = new Gson();
 
         Map<String, Vector<ModrinthModFileModel>> result = new HashMap<>();
-        for (String s : model.versions) {
-            result.put(s, new Vector<>());
-        }
 
         for (Object o : JSONArray.parseArray(re)) {
             ModrinthModFileModel model2 = g.fromJson(o.toString(), ModrinthModFileModel.class);
             for (String ver : model2.game_versions) {
+                if (result.get(ver) == null) result.put(ver, new Vector<>());
                 if (result.get(ver) != null) result.get(ver).add(model2);
             }
         }
@@ -113,8 +106,7 @@ public class ModrinthAPI {
 
     public static ModrinthModModel getFromModId(String modid) throws IOException {
         String url = "/v2/project/" + modid;
-        ModrinthModModel model = new Gson().fromJson(response(url), ModrinthModModel.class);
-        return search(model.slug, CurseResourceType.Types.MOD, CurseSortType.Types.DEFAULT, 1).get(0);
+        return new Gson().fromJson(response(url), ModrinthModModel.class);
     }
 
     public static Vector<ModrinthModModel> getModFileRequiredMods(ModrinthModFileModel model) throws Exception {
