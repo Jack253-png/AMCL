@@ -3,9 +3,6 @@ package com.mcreater.amcl.util;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.skins.JFXTextFieldSkin;
 import com.mcreater.amcl.pages.interfaces.AnimationPage;
-import com.mcreater.amcl.tasks.LambdaTask;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
-import com.mcreater.amcl.theme.ThemeManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.SnapshotParameters;
@@ -13,8 +10,6 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
@@ -31,7 +26,6 @@ import org.apache.logging.log4j.Logger;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class FXUtils {
     public static class ImageConverter {
@@ -100,20 +94,15 @@ public class FXUtils {
 
     public static class Platform {
         public static void runLater(Runnable runnable) {
-//            try {
-//                Field f = Toolkit.class.getDeclaredField("fxUserThread");
-//                f.setAccessible(true);
-//                Thread CURRENT_THREAD = (Thread) f.get(Toolkit.getToolkit());
-//                f.set(Toolkit.getToolkit(), Thread.currentThread());
-//
-//                runnable.run();
-//
-//                f.set(Toolkit.getToolkit(), CURRENT_THREAD);
-//            }
-//            catch (Throwable e) {
-//                javafx.application.Platform.runLater(runnable);
-//            }
-            javafx.application.Platform.runLater(runnable);
+            javafx.application.Platform.runLater(() -> {
+                while (true) {
+                    try {
+                        runnable.run();
+                        break;
+                    }
+                    catch (Exception ignored){}
+                }
+            });
         }
     }
     public static class ImagePreProcesser {

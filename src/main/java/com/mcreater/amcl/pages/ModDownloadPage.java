@@ -27,7 +27,7 @@ import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.net.FasterUrls;
-import javafx.application.Platform;
+import com.mcreater.amcl.util.FXUtils.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
