@@ -54,7 +54,7 @@ public class ModFile extends HBox implements Comparable<ModFile>{
 
         checkBox.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
         Label name = new Label();
-        name.setText(model.isCurseFile() ? model.toCurseFile().fileName : model.toModrinthFile().name);
+        name.setText(model.isCurseFile() ? model.toCurseFile().displayName : model.toModrinthFile().name);
         name.setFont(Fonts.s_f);
 
         Label loaders = new Label(Launcher.languageManager.get("ui.mod.loader") + (model.isCurseFile() ? String.join(", ", getModLoaders(model.toCurseFile().gameVersions, true)) : String.join(", ", model.toModrinthFile().loaders)));

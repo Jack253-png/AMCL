@@ -1,5 +1,6 @@
 package com.mcreater.amcl.pages;
 
+import com.google.gson.Gson;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.modApi.common.AbstractModFileModel;
@@ -47,6 +48,7 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -118,16 +120,21 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         }
                         else {
                             ModrinthModFileItemModel model = null;
-                            if (last.model.toModrinthFile().files.size() >= 1) {
-                                for (ModrinthModFileItemModel m : last.model.toModrinthFile().files) {
-                                    if (!m.filename.endsWith(".zip")) {
-                                        model = m;
-                                        break;
-                                    }
-                                }
-                            }
+                            Vector<ModrinthModFileItemModel> files = new Vector<>(last.model.toModrinthFile().files);
 
-                            if (model != null) {
+                            files.removeIf(modrinthModFileItemModel -> !modrinthModFileItemModel.filename.endsWith(".jar"));
+
+//                            if (last.model.toModrinthFile().files.size() >= 1) {
+//                                for (ModrinthModFileItemModel m : last.model.toModrinthFile().files) {
+//                                    if (m.filename.endsWith(".jar")) {
+//                                        model = m;
+//                                        break;
+//                                    }
+//                                }
+//                            }
+
+                            if (files.size() >= 1) {
+                                model = files.get(0);
                                 tasks.add(new DownloadTask(model.url, LinkPath.link(modPath, model.filename), Launcher.configReader.configModel.downloadChunkSize));
                             }
                         }
