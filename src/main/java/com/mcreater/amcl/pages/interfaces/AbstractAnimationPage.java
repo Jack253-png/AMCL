@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 import java.util.List;
@@ -41,12 +42,6 @@ public abstract class AbstractAnimationPage extends GridPane implements Animatio
         this.width = width;
         this.height = height;
         set(Launcher.stage.opacityProperty());
-    }
-
-    public void setTypeAll(boolean t) {
-        for (Node n : this.getChildrenUnmodifiable()) {
-            n.setDisable(t);
-        }
     }
     public boolean getCanMovePage() {
         return Launcher.stage.opacityProperty().get() == 1;

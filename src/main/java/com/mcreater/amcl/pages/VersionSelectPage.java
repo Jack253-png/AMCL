@@ -16,11 +16,17 @@ import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
+import jnr.ffi.annotations.In;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -106,7 +112,6 @@ public class VersionSelectPage extends AbstractAnimationPage {
             update_version_name();
             load_list();
         });
-        dirs.setStyle("-fx-background-color: transparent");
 
         add_dir = new JFXButton();
         add_dir.setFont(Fonts.t_f);
@@ -149,10 +154,13 @@ public class VersionSelectPage extends AbstractAnimationPage {
         FXUtils.ControlSize.set(version_list.page, this.width / 4 * 3,this.height - t_size);
         FXUtils.ControlSize.setWidth(version_list, this.width / 4 * 3 - 25);
         versionlist.getChildren().add(version_list.page);
+        versionlist.setId("game-menu");
 
         dot_minecraft_dir.getChildren().addAll(title,dirs,new MainPage.Spacer(),select_version,new MainPage.Spacer(),buttons);
 
         add_dir.setButtonType(JFXButton.ButtonType.RAISED);
+
+        dirs.getStylesheets().add(String.format(ThemeManager.getPath(), "JFXComboBox"));
 
         SettingPage p = new SettingPage(width / 4, height, dot_minecraft_dir);
         ThemeManager.loadButtonAnimates(title, dirs, select_version, buttons);
@@ -193,7 +201,9 @@ public class VersionSelectPage extends AbstractAnimationPage {
     public void load_list(){
         Runnable load = () -> {
             Platform.runLater(MainPage.l::show);
-            setTypeAll(true);
+            dirs.setDisable(true);
+            add_dir.setDisable(true);
+            version_list.setDisable(true);
             if (!Objects.equals(dirs.getValue(), null)) {
                 Launcher.configReader.configModel.selected_minecraft_dir_index = dirs.getValue().getText();
                 Launcher.configReader.write();
@@ -226,11 +236,12 @@ public class VersionSelectPage extends AbstractAnimationPage {
                     }
                 }
             }
-            setTypeAll(false);
+            dirs.setDisable(false);
+            add_dir.setDisable(false);
+            version_list.setDisable(false);
             MainPage.l.setV(0, 100, "");
             Platform.runLater(MainPage.l::close);
         };
-//        load.run();
         new Thread(load).start();
     }
     public void update_version_name(){
