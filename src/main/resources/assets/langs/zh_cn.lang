@@ -226,3 +226,4 @@ ui.moddownloadpage.getrequire.process.name=获取前置模组中...
 ui.moddownloadpage.getrequire.dialog.title=前置模组
 ui.moddownloadpage.modserver.name=模组服务器
 ui.moddownloadpage.search.name=搜索
+ui.moddownloadpage.modrinth.multifile.title=选择一个模组文件

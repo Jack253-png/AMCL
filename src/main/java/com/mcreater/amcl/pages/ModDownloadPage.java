@@ -1,6 +1,5 @@
 package com.mcreater.amcl.pages;
 
-import com.google.gson.Gson;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.modApi.common.AbstractModFileModel;
@@ -18,6 +17,7 @@ import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
+import com.mcreater.amcl.pages.dialogs.mod.ModrinthMultiFileDialog;
 import com.mcreater.amcl.pages.dialogs.mod.RequiredModDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -47,8 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -133,8 +133,26 @@ public class ModDownloadPage extends AbstractAnimationPage {
 //                                }
 //                            }
 
+                            Vector<String> f = new Vector<>();
+                            files.forEach(modrinthModFileItemModel -> f.add(modrinthModFileItemModel.filename));
+
+                            AtomicInteger index = new AtomicInteger();
+                            AtomicBoolean selected = new AtomicBoolean(false);
+
+                            if (files.size() > 1) {
+                                Platform.runLater(() -> {
+                                    index.set(new ModrinthMultiFileDialog(f, Launcher.languageManager.get("ui.moddownloadpage.modrinth.multifile.title")).getIndex());
+                                    selected.set(true);
+                                });
+                            }
+                            else {
+                                selected.set(true);
+                            }
+
+                            do {} while (!selected.get());
+
                             if (files.size() >= 1) {
-                                model = files.get(0);
+                                model = files.get(index.get());
                                 tasks.add(new DownloadTask(model.url, LinkPath.link(modPath, model.filename), Launcher.configReader.configModel.downloadChunkSize));
                             }
                         }
