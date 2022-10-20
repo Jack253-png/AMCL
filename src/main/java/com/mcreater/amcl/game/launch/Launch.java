@@ -314,7 +314,7 @@ public class Launch {
         jvm = jvm.replace("${jar_path}", String.format("\"%s\"", jar_file.getPath()));
         jvm = jvm.replace("${native_path}",String.format("\"%s\"", nativef.getPath()));
         jvm = jvm.replace("${launcher_brand}", VersionInfo.launcher_name);
-        jvm = jvm.replace("${launcher_version}", VersionInfo.launcher_full_version);
+        jvm = jvm.replace("${launcher_version}", "\"" + VersionInfo.launcher_full_version + "\"");
 
         if (r.arguments != null){
             if (r.arguments.jvm != null){
@@ -428,7 +428,7 @@ public class Launch {
                     arguments);
             MainPage.launchDialog.setV(0, 90, Launcher.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
-//            logger.info(String.format("Getted Command Line : %s", command));
+            logger.info(String.format("Getted Command Line : %s", command));
             MainPage.launchDialog.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
             try {
                 p = Runtime.getRuntime().exec(command, null, new File(dir));
