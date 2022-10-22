@@ -19,6 +19,7 @@ import com.mcreater.amcl.pages.dialogs.commons.AboutDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.AnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.stages.NativeBrowserPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
@@ -65,6 +66,8 @@ public class Launcher extends javafx.application.Application {
     public static Scene s = new Scene(new Pane(), Color.TRANSPARENT);
     public static Stage stage;
     static AbstractAnimationPage last;
+
+
     public static MainPage MAINPAGE;
     public static ConfigPage CONFIGPAGE;
     public static VersionSelectPage VERSIONSELECTPAGE;
@@ -74,6 +77,8 @@ public class Launcher extends javafx.application.Application {
     public static DownloadMcPage DOWNLOADMCPAGE;
     public static DownloadAddonSelectPage DOWNLOADADDONSELECTPAGE;
     public static UserSelectPage USERSELECTPAGE;
+
+
     public static ThemeManager themeManager;
     public static ConfigWriter configReader;
     public static LanguageManager languageManager;

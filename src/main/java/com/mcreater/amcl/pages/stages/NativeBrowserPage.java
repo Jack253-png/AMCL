@@ -2,6 +2,7 @@ package com.mcreater.amcl.pages.stages;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.utils.JFXSmoothScroll;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.controls.JFXProgressBar;
@@ -10,10 +11,13 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.concurrent.Worker;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -22,7 +26,10 @@ import org.apache.logging.log4j.Logger;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
+import java.net.HttpCookie;
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class NativeBrowserPage extends AbstractStage {
     Logger logger = LogManager.getLogger(NativeBrowserPage.class);
@@ -42,7 +49,8 @@ public class NativeBrowserPage extends AbstractStage {
         initOwner(new Stage());
         initStyle(StageStyle.DECORATED);
 
-        refresh = new JFXButton("Refresh");
+        refresh = new JFXButton();
+        refresh.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 20, 20));
         refresh.setOnAction(event -> webView.getEngine().reload());
         refresh.setFont(Fonts.t_f);
 
@@ -51,6 +59,7 @@ public class NativeBrowserPage extends AbstractStage {
         webView = new WebView();
         CookieManager manager = new CookieManager();
         CookieHandler.setDefault(manager);
+        manager.getCookieStore().getCookies().forEach(httpCookie -> System.out.println(httpCookie.getValue()));
         manager.getCookieStore().removeAll();
         webView.getEngine().titleProperty().addListener((observable, oldValue, newValue) -> setTitle(newValue));
         webView.getEngine().locationProperty().addListener((observable, oldValue, newValue) -> {

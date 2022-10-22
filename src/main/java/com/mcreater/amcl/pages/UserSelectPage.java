@@ -486,13 +486,13 @@ public class UserSelectPage extends AbstractMenuBarPage {
         msLogin = new JFXButton();
         msLogin.setFont(Fonts.s_f);
         msLogin.setOnAction(event -> {
-            Launcher.stage.hide();
             msLogin.setDisable(true);
             ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.userselectpage.logging"));
             dialog.setV(0, 0, Launcher.languageManager.get("ui.msauth._01"));
             NativeBrowserPage p = new NativeBrowserPage(MSAuth.LOGIN_URL);
             p.setDialog(dialog);
             p.open();
+            Launcher.stage.hide();
 
             Thread t = new Thread(() -> {
                 while (p.user == null && p.ex == null) {
