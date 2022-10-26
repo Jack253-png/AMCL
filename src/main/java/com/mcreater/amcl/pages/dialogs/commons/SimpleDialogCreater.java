@@ -12,23 +12,17 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 
 import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-
-import static com.mcreater.amcl.Launcher.height;
-import static com.mcreater.amcl.Launcher.radius;
-import static com.mcreater.amcl.Launcher.width;
+import java.util.Optional;
 
 public class SimpleDialogCreater {
-    public static void create(String Title, String HeaderText, String ContentText){
+    public static Optional<String> create(String Title, String HeaderText, String ContentText){
         AbstractDialog alert = new AbstractDialog(Launcher.stage) {};
 
         JFXDialogLayout layout = new JFXDialogLayout();
@@ -45,9 +39,10 @@ public class SimpleDialogCreater {
 
         alert.setContent(layout);
         ThemeManager.loadButtonAnimates(title, body, addButton);
-        alert.showAndWait();
+        alert.show();
+        return alert.showAndWait();
     }
-    public static void exception(Throwable cause) {
+    public static Optional<String> exception(Throwable cause) {
         cause.printStackTrace();
         JFXAlert<String> alert = new JFXAlert<>(Launcher.stage);
         alert.setAnimation(JFXAlertAnimation.BOTTOM_ANIMATION);
@@ -96,7 +91,7 @@ public class SimpleDialogCreater {
 
         alert.setContent(layout);
         ThemeManager.loadButtonAnimates(title, addButton);
-        alert.showAndWait();
+        return alert.showAndWait();
     }
     private static Label setFont(Label l, Font font){
         l.setFont(font);

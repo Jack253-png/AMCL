@@ -7,8 +7,8 @@ import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.GaussianBlur;
@@ -16,6 +16,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.lang.reflect.Field;
 import java.util.Vector;
 
 import static com.mcreater.amcl.Launcher.height;
@@ -27,7 +28,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
     final double radius = 8;
     public AbstractDialog(Stage stage) {
         super(stage);
-        this.setAnimation(JFXAlertAnimation.BOTTOM_ANIMATION);
+        this.setAnimation(JFXAlertAnimation.SMOOTH);
         this.initModality(Modality.APPLICATION_MODAL);
         this.setOverlayClose(false);
         getDialogPane().setClip(FXUtils.generateRect(width, height, radius));
@@ -61,7 +62,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
     public void outAnimation() {
         if (animationThread != null) animationThread.get().stop();
         animationThread.set(new Thread(() -> {
-            for (double i2 = getBlurRadius(); i2 >= 0; i2 -= radius / 160) {
+            for (double i2 = getBlurRadius(); i2 >= 0; i2 -= radius / 80) {
                 double finalI = i2;
                 FXUtils.Platform.runLater(() -> Launcher.wrapper.setEffect(new GaussianBlur(finalI)));
                 Sleeper.sleep(1);
@@ -74,7 +75,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         if (animationThread != null) animationThread.get().stop();
         animationThread.set(new Thread(() -> {
             FXUtils.Platform.runLater(() -> Launcher.wrapper.setEffect(null));
-            for (double i2 = getBlurRadius(); i2 <= radius; i2 += radius / 160) {
+            for (double i2 = getBlurRadius(); i2 <= radius; i2 += radius / 80) {
                 double finalI = i2;
                 FXUtils.Platform.runLater(() -> Launcher.wrapper.setEffect(new GaussianBlur(finalI)));
                 Sleeper.sleep(1);
