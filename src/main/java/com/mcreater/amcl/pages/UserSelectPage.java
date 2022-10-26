@@ -55,6 +55,7 @@ import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
 import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
+import static com.mcreater.amcl.pages.dialogs.AbstractDialog.dialogs;
 
 public class UserSelectPage extends AbstractMenuBarPage {
     public ImageView view;
@@ -202,7 +203,11 @@ public class UserSelectPage extends AbstractMenuBarPage {
             if (newValue != null){
                 if (newValue instanceof OffLineUser) {
                     edit.setOnAction(event -> {
-                        EditAccountContentDialog dialog = new EditAccountContentDialog(Launcher.languageManager.get("ui.userselectpage.account.edit"));
+                        EditAccountContentDialog dialog = new EditAccountContentDialog(Launcher.languageManager.get("ui.userselectpage.account.edit")) {
+                            public void outAnimation() {
+
+                            }
+                        };
                         OffLineUser temp_user = (OffLineUser) user_object.get();
                         dialog.item2.cont.getSelectionModel().select(getUserTypeIndex.run());
                         dialog.item.cont.setText(temp_user.username);
@@ -325,7 +330,11 @@ public class UserSelectPage extends AbstractMenuBarPage {
                             if (user.vaildate()) {
                                 Platform.runLater(() -> {
                                     di.close();
-                                    MicrosoftSkinManageDialog dialog = new MicrosoftSkinManageDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"), user);
+                                    MicrosoftSkinManageDialog dialog = new MicrosoftSkinManageDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"), user) {
+                                        public void outAnimation() {
+
+                                        }
+                                    };
                                     try {
                                         dialog.loadCapes();
                                     }

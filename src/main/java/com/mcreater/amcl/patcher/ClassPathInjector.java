@@ -55,7 +55,7 @@ public class ClassPathInjector {
             method.invoke(ucp, url);
         }
         else if (!url.toString().contains("openjfx")){
-            method.invoke((URLClassLoader) ClassLoader.getSystemClassLoader(), url);
+            method.invoke(ClassLoader.getSystemClassLoader(), url);
         }
     }
 }

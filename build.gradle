@@ -69,15 +69,13 @@ dependencies {
     implementation('net.java.dev.jna:jna-platform:5.12.1')
     implementation('com.github.jnr:jnr-posix:3.1.15')
     implementation('com.github.oshi:oshi-core:6.2.2')
-    implementation files('jxbrowser-6.18.jar')
-    implementation files('jxbrowser-win32-6.18.jar')
-    implementation files('jfxrt.jar')
     implementation('org.apache.commons:commons-lang3:3.5')
     implementation('org.nanohttpd:nanohttpd:2.3.1')
     implementation('org.fusesource.jansi:jansi:2.4.0')
     implementation('org.apache.httpcomponents:httpclient:4.4.1')
     implementation('org.apache.httpcomponents:httpcore:4.4.1')
     implementation('org.apache.httpcomponents:httpmime:4.4.1')
+    implementation files('jfxrt.jar')
 }
 
 test {

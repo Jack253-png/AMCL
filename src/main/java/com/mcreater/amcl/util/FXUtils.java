@@ -18,6 +18,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
@@ -240,5 +241,13 @@ public class FXUtils {
             }
         }
         return false;
+    }
+    public static Rectangle generateRect(double width, double height, double radius) {
+        Rectangle rect = new Rectangle();
+        rect.setWidth(width);
+        rect.setHeight(height);
+        rect.setArcWidth(radius);
+        rect.setArcHeight(radius);
+        return rect;
     }
 }

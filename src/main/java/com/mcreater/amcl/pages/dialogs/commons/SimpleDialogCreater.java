@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
@@ -13,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 
@@ -21,12 +23,13 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 
+import static com.mcreater.amcl.Launcher.height;
+import static com.mcreater.amcl.Launcher.radius;
+import static com.mcreater.amcl.Launcher.width;
+
 public class SimpleDialogCreater {
     public static void create(String Title, String HeaderText, String ContentText){
-        JFXAlert<String> alert = new JFXAlert<>(Launcher.stage);
-        alert.setAnimation(JFXAlertAnimation.BOTTOM_ANIMATION);
-        alert.initModality(Modality.APPLICATION_MODAL);
-        alert.setOverlayClose(false);
+        AbstractDialog alert = new AbstractDialog(Launcher.stage) {};
 
         JFXDialogLayout layout = new JFXDialogLayout();
         Label title = setFont(new Label(Title), Fonts.s_f);

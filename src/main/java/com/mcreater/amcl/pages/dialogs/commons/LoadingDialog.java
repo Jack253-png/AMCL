@@ -26,8 +26,6 @@ public class LoadingDialog extends AbstractDialog {
         Label title1 = setFont(new Label(title), Fonts.s_f);
         layout.setHeading(title1);
         layout.setBody(b);
-        this.setOnHidden(event -> {});
-        this.setOnHiding(event -> {});
         this.setContent(layout);
         ThemeManager.loadButtonAnimates(title1, spinner);
     }

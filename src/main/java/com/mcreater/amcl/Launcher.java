@@ -19,7 +19,6 @@ import com.mcreater.amcl.pages.dialogs.commons.AboutDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.AnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.stages.NativeBrowserPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
@@ -385,7 +384,7 @@ public class Launcher extends javafx.application.Application {
                     (view, image) -> {
                         if (!last.nodes.contains(null)) {
                             List<AnimationPage.NodeInfo> nodes = new Vector<>(last.nodes);
-                            nodes.add(new AnimationPage.NodeInfo(0, 0, width, barSize));
+                            nodes.add(new AnimationPage.NodeInfo(0, 0, width, barSize / 100 * 97));
                             for (int x = 0; x < image.getWidth(); x++) {
                                 for (int y = 0; y < image.getHeight(); y++) {
                                     if (!FXUtils.gemotryInned(new Point2D(x / widthRadius, y / heightRadius), nodes)) {
@@ -417,37 +416,10 @@ public class Launcher extends javafx.application.Application {
                 BackgroundPosition.DEFAULT,
                 bs);
         bg = new Background(im);
-        top.setStyle("-fx-border-radius: " + radius + "px; ");
 
         WritableImage image = FXUtils.ImagePreProcesser.getColorImage(
                 new Color(1, 1, 1, 0.5),
                 width, (int) barSize
-        );
-
-        FXUtils.ImagePreProcesser.process(
-                image,
-                (view, image1) -> {
-                    Rectangle clip = new Rectangle(
-                            width,
-                            barSize
-                    );
-                    clip.setArcWidth(radius / 3 * 2 - radius / 10);
-                    clip.setArcHeight(radius / 3 * 2 - radius / 10);
-                    view.setClip(clip);
-                }
-        );
-
-        FXUtils.ImagePreProcesser.process(
-                image,
-                (arg1, arg2) -> {
-                    for (int x = 0; x < arg2.getWidth(); x++) {
-                        for (int y = (int) (arg2.getHeight() / 2); y < arg2.getHeight(); y++) {
-                            arg2.getPixelWriter().setColor(x, y, new Color(
-                                    1, 1, 1, 0.5
-                            ));
-                        }
-                    }
-                }
         );
         top.setBackground(new Background(new BackgroundImage(
                 image,
@@ -458,5 +430,12 @@ public class Launcher extends javafx.application.Application {
         )));
 
         p.setBackground(bg);
+
+        Rectangle rect = new Rectangle();
+        rect.setWidth(width);
+        rect.setHeight(height);
+        rect.setArcWidth(radius);
+        rect.setArcHeight(radius);
+        wrapper.setClip(rect);
     }
 }
