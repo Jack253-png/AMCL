@@ -22,7 +22,7 @@ import java.io.StringWriter;
 import java.util.Optional;
 
 public class SimpleDialogCreater {
-    public static Optional<String> create(String Title, String HeaderText, String ContentText){
+    public static void create(String Title, String HeaderText, String ContentText){
         AbstractDialog alert = new AbstractDialog(Launcher.stage) {};
 
         JFXDialogLayout layout = new JFXDialogLayout();
@@ -39,10 +39,9 @@ public class SimpleDialogCreater {
 
         alert.setContent(layout);
         ThemeManager.loadButtonAnimates(title, body, addButton);
-        alert.show();
-        return alert.showAndWait();
+        alert.showAndWait();
     }
-    public static Optional<String> exception(Throwable cause) {
+    public static void exception(Throwable cause) {
         cause.printStackTrace();
         JFXAlert<String> alert = new JFXAlert<>(Launcher.stage);
         alert.setAnimation(JFXAlertAnimation.BOTTOM_ANIMATION);
@@ -91,7 +90,7 @@ public class SimpleDialogCreater {
 
         alert.setContent(layout);
         ThemeManager.loadButtonAnimates(title, addButton);
-        return alert.showAndWait();
+        alert.showAndWait();
     }
     private static Label setFont(Label l, Font font){
         l.setFont(font);
