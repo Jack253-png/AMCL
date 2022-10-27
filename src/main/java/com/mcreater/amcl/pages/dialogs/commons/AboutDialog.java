@@ -41,7 +41,7 @@ public class AboutDialog extends AbstractDialog {
 
         VBox v = new VBox();
         SettingPage page = new SettingPage(400, 300, v, false);
-        page.getStylesheets().add(String.format(ThemeManager.getPath(), "SettingPage"));
+        ThemeManager.applyNode(page);
 
         Hyperlink hyperlink = new Hyperlink(Launcher.languageManager.get("ui.about.opensource.name"));
         hyperlink.setOnAction(event -> SystemActions.openBrowser("https://github.com/Jack253-png/AMCL"));

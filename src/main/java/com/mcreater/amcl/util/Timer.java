@@ -24,22 +24,22 @@ public abstract class Timer {
                 DecimalFormat df = new DecimalFormat("0.00");
                 current = System.currentTimeMillis();
                 if (time < 60 * 1000){
-                    return df.format(g(time, 1000)) + " s";
+                    return df.format(division(time, 1000)) + " s";
                 }
                 else if (time < 60 * 60 * 1000){
-                    return df.format(g(time, 60 * 1000)) + " m";
+                    return df.format(division(time, 60 * 1000)) + " m";
                 }
                 else {
-                    return df.format(g(time, 60 * 60 * 1000)) + " h";
+                    return df.format(division(time, 60 * 60 * 1000)) + " h";
                 }
             }
         };
 
     }
-    public static double g(long time, int data){
+    public static double division(long time, int data){
         return ((double) time) / data;
     }
-    public static double g(long a, long b){
+    public static double division(long a, long b){
         return ((double) a) / b;
     }
 }

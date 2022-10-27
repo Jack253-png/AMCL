@@ -15,11 +15,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
+import javafx.scene.control.Button;
 
 import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Optional;
 
 public class SimpleDialogCreater {
     public static void create(String Title, String HeaderText, String ContentText){
@@ -75,7 +75,8 @@ public class SimpleDialogCreater {
         page.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         page.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         page.lThread.stop();
-        page.getStylesheets().add(String.format(ThemeManager.getPath(), "SettingPage"));
+
+        ThemeManager.applyNode(page);
 
         JFXDialogLayout layout = new JFXDialogLayout();
         Label title = setFont(new Label(Launcher.languageManager.get("ui.common.exception.title")), Fonts.s_f);

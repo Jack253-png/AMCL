@@ -17,8 +17,8 @@ import com.mcreater.amcl.pages.dialogs.commons.InputDialog;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
-import com.mcreater.amcl.pages.dialogs.skin.CustomSkinDialog;
-import com.mcreater.amcl.pages.dialogs.skin.EditAccountContentDialog;
+import com.mcreater.amcl.pages.dialogs.skin.OfflineSkinManageDialog;
+import com.mcreater.amcl.pages.dialogs.skin.OfflineEditAccountContentDialog;
 import com.mcreater.amcl.pages.dialogs.skin.MicrosoftSkinManageDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -55,7 +55,6 @@ import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
 import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
-import static com.mcreater.amcl.pages.dialogs.AbstractDialog.dialogs;
 
 public class UserSelectPage extends AbstractMenuBarPage {
     public ImageView view;
@@ -146,7 +145,11 @@ public class UserSelectPage extends AbstractMenuBarPage {
 
         refresh.setOnAction(event -> {
             refresh.setDisable(true);
-            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.refresh.title"));
+            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.refresh.title")) {
+                public void outAnimation() {
+
+                }
+            };
             dialog.Create();
             new Thread(() -> {
                 Runnable run = () -> {
@@ -203,7 +206,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
             if (newValue != null){
                 if (newValue instanceof OffLineUser) {
                     edit.setOnAction(event -> {
-                        EditAccountContentDialog dialog = new EditAccountContentDialog(Launcher.languageManager.get("ui.userselectpage.account.edit")) {
+                        OfflineEditAccountContentDialog dialog = new OfflineEditAccountContentDialog(Launcher.languageManager.get("ui.userselectpage.account.edit")) {
                             public void outAnimation() {
 
                             }
@@ -285,7 +288,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                                     break;
                                 case 3:
                                     Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
-                                    CustomSkinDialog d2 = new CustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"));
+                                    OfflineSkinManageDialog d2 = new OfflineSkinManageDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"));
                                     d2.changeModelSelect.cont.getSelectionModel().select(castIntToBoolean.run(Launcher.configReader.configModel.last_is_slim));
                                     d2.skin = handleNullString(Launcher.configReader.configModel.last_skin_path);
                                     d2.skin_ui.cont.setText(handleNullString(Launcher.configReader.configModel.last_skin_path));
@@ -433,7 +436,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                     break;
                 case 3:
                     Launcher.configReader.configModel.last_uuid = OffLineUser.ALEX;
-                    CustomSkinDialog d2 = new CustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"));
+                    OfflineSkinManageDialog d2 = new OfflineSkinManageDialog(Launcher.languageManager.get("ui.userselectpage.custom.title"));
                     d2.setCancel(event15 -> d2.close());
                     d2.setEvent(event12 -> {
                         switch (d2.changeModelSelect.cont.getSelectionModel().getSelectedIndex()) {

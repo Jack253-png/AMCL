@@ -130,7 +130,8 @@ public class DownloadMcPage extends AbstractAnimationPage {
             AtomicInteger loaded = new AtomicInteger();
             for (String t : types) {
                 TitledPane pane = new TitledPane();
-                pane.getStylesheets().add(String.format(ThemeManager.getPath(), "TitledPane"));
+
+                ThemeManager.applyNode(pane);
                 panes.add(pane);
                 pane.setText(Launcher.languageManager.get("ui.downloadmcpage.types." + t));
                 pane.setFont(Fonts.s_f);

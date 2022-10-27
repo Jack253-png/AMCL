@@ -252,7 +252,8 @@ public class ModDownloadPage extends AbstractAnimationPage {
         box.setSpacing(10);
         box.setAlignment(Pos.CENTER_LEFT);
         HBox t = new HBox(new Label("    "), box);
-        t.getStylesheets().add(String.format(ThemeManager.getPath(), "HBox"));
+
+        ThemeManager.applyNode(t);
         t.setId("modinstall");
         FXUtils.ControlSize.set(t, this.width, 70);
         p.add(t, 0, 1, 1, 1);
@@ -331,7 +332,8 @@ public class ModDownloadPage extends AbstractAnimationPage {
                             };
                             file.checkBox.selectedProperty().addListener(this.changeListener);
                         }
-                        pane.getStylesheets().add(String.format(ThemeManager.getPath(), "TitledPane"));
+
+                        ThemeManager.applyNode(pane);
                         FXUtils.ControlSize.setWidth(pane, this.width - 15);
                         FXUtils.ControlSize.setWidth(b, this.width - 15);
                         FXUtils.ControlSize.setWidth(v, this.width - 15);

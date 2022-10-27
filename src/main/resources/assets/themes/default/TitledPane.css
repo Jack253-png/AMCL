@@ -52,3 +52,19 @@
 .titled-pane > *.content {
     -fx-background-color: transparent
 }
+#update-is-prerelease > *.content {
+    -fx-background-color:rgb(245, 80, 102);
+    -fx-background-insets: 0, 0 1 1 1;
+    -fx-padding: 0.167em;
+}
+#update-is-prerelease .title {
+    -fx-background-color: rgb(245, 80, 102);
+}
+#update-is-not-prerelease > *.content {
+    -fx-background-color:rgb(173, 216, 246);
+    -fx-background-insets: 0, 0 1 1 1;
+    -fx-padding: 0.167em;
+}
+#update-is-not-prerelease .title {
+    -fx-background-color: rgb(173, 216, 246);
+}

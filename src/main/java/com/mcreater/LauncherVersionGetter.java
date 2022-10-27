@@ -15,7 +15,7 @@ public class LauncherVersionGetter {
 //        works.add("d");
 //        works.add("e");
 //        works.add("f");
-//        works.add("g");
+//        works.add("division");
 //        System.out.printf("%dw%d%s%n", c.get(Calendar.YEAR) % 100, c.get(Calendar.WEEK_OF_YEAR), works.get(0));
     }
 }

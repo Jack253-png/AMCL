@@ -51,25 +51,25 @@ public class MicrosoftSkinManageDialog extends AbstractDialog {
             );
             chooser.setTitle(Launcher.languageManager.get("ui.userselectpage.custom.title"));
             File skin = chooser.showOpenDialog(Launcher.stage);
-            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.skin.upload"));
-            dialog.show();
-            new Thread(() -> {
-                try {
-                    MicrosoftUser.SkinType type;
-                    if (group.getSelectedItem() == 0) {
-                        type = MicrosoftUser.SkinType.STEVE;
+            if (skin != null) {
+                LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.skin.upload"));
+                dialog.show();
+                new Thread(() -> {
+                    try {
+                        MicrosoftUser.SkinType type;
+                        if (group.getSelectedItem() == 0) {
+                            type = MicrosoftUser.SkinType.STEVE;
+                        } else {
+                            type = MicrosoftUser.SkinType.ALEX;
+                        }
+                        user.upload(type, skin);
+                        Platform.runLater(dialog::close);
+                    } catch (Exception e) {
+                        Platform.runLater(dialog::close);
+                        Platform.runLater(() -> SimpleDialogCreater.exception(e));
                     }
-                    else {
-                        type = MicrosoftUser.SkinType.ALEX;
-                    }
-                    user.upload(type, skin);
-                    Platform.runLater(dialog::close);
-                }
-                catch (Exception e){
-                    Platform.runLater(dialog::close);
-                    Platform.runLater(() -> SimpleDialogCreater.exception(e));
-                }
-            }).start();
+                }).start();
+            }
         });
 
         Label cape = new Label(Launcher.languageManager.get("ui.userselectpage.cape.select"));

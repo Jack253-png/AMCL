@@ -659,7 +659,7 @@ public class Chunk implements Iterable<Section> {
 
 	/**
 	 * Provides a reference to the full chunk data.
-	 * @return The full chunk data or null if there is none, e.g. when this chunk has only been loaded partially.
+	 * @return The full chunk data or null if there is none, e.division. when this chunk has only been loaded partially.
 	 */
 	public CompoundTag getHandle() {
 		return data;

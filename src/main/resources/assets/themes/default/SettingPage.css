@@ -1,8 +1,14 @@
+* {
+    -fx-slider-background: rgba(0, 0, 0, 0.2);
+    -fx-slider-hover-background: rgba(0, 0, 0, 0.4);
+    -fx-slider-pressed-background: rgba(0, 0, 0);
+}
+
 .viewport {
-    -fx-background-color : rgba(255, 255, 255, 0.00);
+    -fx-background-color: transparent;
 }
 .scroll-pane {
-    -fx-background-color : rgba(255, 255, 255, 0.5);
+    -fx-background-color: rgba(255, 255, 255, 0.5);
 }
 .scroll-bar:horizontal .track,
 .scroll-bar:vertical .track{
@@ -15,7 +21,7 @@
 .scroll-bar:vertical .decrement-button,
 .scroll-bar:horizontal .increment-button,
 .scroll-bar:horizontal .decrement-button {
-    -fx-background-color:rgba(0, 0, 0, .2);
+    -fx-background-color:transparent;
     -fx-pref-height: 0;
 }
 
@@ -23,7 +29,7 @@
 .scroll-bar:vertical .decrement-button:hover,
 .scroll-bar:horizontal .increment-button:hover,
 .scroll-bar:horizontal .decrement-button:hover {
-    -fx-background-color:rgba(0, 0, 0, .4);
+    -fx-background-color:transparent;
     -fx-pref-height: 0;
 }
 
@@ -31,7 +37,7 @@
 .scroll-bar:vertical .decrement-button:pressed,
 .scroll-bar:horizontal .increment-button:pressed,
 .scroll-bar:horizontal .decrement-button:pressed {
-    -fx-background-color:rgba(0, 0, 0);
+    -fx-background-color:transparent;
     -fx-pref-height: 0;
 }
 
@@ -65,19 +71,19 @@
 
 .scroll-bar:horizontal .thumb,
 .scroll-bar:vertical .thumb {
-    -fx-background-color: rgba(0, 0, 0, 0.2);
+    -fx-background-color: -fx-slider-background;
     -fx-border-radius: 0;
     -fx-background-radius: 0;
 }
 .scroll-bar:horizontal .thumb:hover,
 .scroll-bar:vertical .thumb:hover{
-    -fx-background-color: rgba(0, 0, 0, 0.4);
+    -fx-background-color: -fx-slider-hover-background;
     -fx-border-radius: 0;
     -fx-background-radius: 0;
 }
 .scroll-bar:horizontal .thumb:pressed,
 .scroll-bar:vertical .thumb:pressed{
-    -fx-background-color: rgba(0, 0, 0);
+    -fx-background-color: -fx-slider-pressed-background;
     -fx-border-radius: 0;
     -fx-background-radius: 0;
 }

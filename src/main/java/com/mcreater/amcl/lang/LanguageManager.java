@@ -15,7 +15,7 @@ import java.util.Vector;
 public class LanguageManager extends AbstractLanguageManager {
     Properties prp;
     public static Vector<String> vaild_languages = new Vector<>();
-    private static final Vector<AbstractAnimationPage> bindedPages = new Vector<>();
+    public static final Vector<AbstractAnimationPage> bindedPages = new Vector<>();
     public enum LanguageType {
         ENGLISH,
         CHINESE

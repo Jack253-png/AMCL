@@ -5,22 +5,28 @@ import com.jfoenix.controls.JFXAlert;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Bounds;
-import javafx.scene.Node;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.control.DialogEvent;
 import javafx.scene.control.Label;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.GaussianBlur;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.lang.reflect.Field;
 import java.util.Vector;
 
 import static com.mcreater.amcl.Launcher.height;
 import static com.mcreater.amcl.Launcher.width;
+import static javafx.application.Application.setUserAgentStylesheet;
 
 public abstract class AbstractDialog extends JFXAlert<String> {
     public static final Vector<AbstractDialog> dialogs = new Vector<>();
@@ -31,7 +37,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         this.setAnimation(JFXAlertAnimation.SMOOTH);
         this.initModality(Modality.APPLICATION_MODAL);
         this.setOverlayClose(false);
-        getDialogPane().setClip(FXUtils.generateRect(width, height, radius));
+        getDialogPane().setClip(FXUtils.generateRect(width, height, Launcher.radius));
         setOnShowing(event -> {
             dialogs.add(this);
             inAnimation();

@@ -29,7 +29,7 @@ public class ListItem<T extends Region> extends SmoothableListView<T> {
         pane.setContent(page);
         pane.setExpanded(false);
         pane.setFont(Fonts.t_f);
-        pane.getStylesheets().add(String.format(ThemeManager.getPath(), "TitledPane"));
+        ThemeManager.applyNode(pane);
         pane.setBorder(FXUtils.generateBorder(Color.BLACK, BorderStrokeStyle.SOLID, false, false, true, false, 1));
         setOnAction(() -> {
             try {

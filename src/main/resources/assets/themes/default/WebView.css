@@ -10,6 +10,7 @@
 .scroll-bar:horizontal .increment-button,
 .scroll-bar:horizontal .decrement-button {
     -fx-background-color:rgba(0, 0, 0, .2);
+    -fx-pref-height: 0;
 }
 
 .scroll-bar:vertical .increment-button:hover,
@@ -17,6 +18,7 @@
 .scroll-bar:horizontal .increment-button:hover,
 .scroll-bar:horizontal .decrement-button:hover {
     -fx-background-color:rgba(0, 0, 0, .4);
+    -fx-pref-height: 0;
 }
 
 .scroll-bar:vertical .increment-button:pressed,
@@ -24,6 +26,7 @@
 .scroll-bar:horizontal .increment-button:pressed,
 .scroll-bar:horizontal .decrement-button:pressed {
     -fx-background-color:rgba(0, 0, 0);
+    -fx-pref-height: 0;
 }
 
 .scroll-bar:vertical .increment-arrow,
@@ -66,8 +69,10 @@
     -fx-background-radius: 0;
 }
 
-.scroll-bar:horizontal,
-.scroll-bar:vertical{
-    -fx-pref-height: 0;
+.scroll-bar:horizontal ,
+.scroll-bar:vertical {
+    -fx-pref-width: 10;
+    -fx-min-width: 10;
+    -fx-max-width: 10;
     -fx-background-color: transparent;
 }

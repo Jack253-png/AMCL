@@ -108,11 +108,13 @@ public class NativeBrowserPage extends AbstractStage {
         FXUtils.ControlSize.setHeight(loadState, 3);
 
         this.getIcons().add(new Image("assets/icons/grass.png"));
-        webView.getStylesheets().add(String.format(ThemeManager.getPath(), "WebView"));
+
+        ThemeManager.applyNode(webView);
         setResizable(false);
 
         v.getChildren().addAll(refresh, loadState, webView);
         ThemeManager.loadButtonAnimates(v);
+        setOnCloseRequest(event -> webView.getEngine().load("about::blank"));
     }
     public void open() {
         Scene s = new Scene(v);

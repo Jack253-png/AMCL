@@ -17,7 +17,7 @@ import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-public class EditAccountContentDialog extends AbstractDialog {
+public class OfflineEditAccountContentDialog extends AbstractDialog {
     JFXButton addButton;
     EventHandler<ActionEvent> event = event -> {};
     EventHandler<ActionEvent> cancel = event -> {};
@@ -37,7 +37,7 @@ public class EditAccountContentDialog extends AbstractDialog {
         cancelButton.setOnAction(this.cancel);
     }
 
-    public EditAccountContentDialog(String title){
+    public OfflineEditAccountContentDialog(String title){
         super(Launcher.stage);
 
         item = new StringItem(Launcher.languageManager.get("ui.userselectpage.account.edit.username.name"), 400);

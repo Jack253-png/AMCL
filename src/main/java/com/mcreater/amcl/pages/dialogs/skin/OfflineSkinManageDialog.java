@@ -24,7 +24,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class CustomSkinDialog extends AbstractDialog {
+public class OfflineSkinManageDialog extends AbstractDialog {
     EventHandler<ActionEvent> event = event -> {};
     EventHandler<ActionEvent> cancel = event -> {};
     JFXButton addButton;
@@ -46,7 +46,7 @@ public class CustomSkinDialog extends AbstractDialog {
         cancelButton.setOnAction(this.cancel);
     }
 
-    public CustomSkinDialog(String title){
+    public OfflineSkinManageDialog(String title){
         super(Launcher.stage);
         JFXDialogLayout layout = new JFXDialogLayout();
 

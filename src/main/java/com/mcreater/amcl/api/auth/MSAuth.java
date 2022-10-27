@@ -25,7 +25,11 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
     public static final MSAuth AUTH_INSTANCE = new MSAuth();
     public static final String LOGIN_URL = "https://login.live.com/oauth20_authorize.srf?client_id=00000000402b5328&response_type=code&scope=service%3A%3Auser.auth.xboxlive.com%3A%3AMBI_SSL&redirect_uri=https%3A%2F%2Flogin.live.com%2Foauth20_desktop.srf";
     public static final String REDIRECT_URL_SUFFIX = "https://login.live.com/oauth20_desktop.srf?code=";
+    private static final String SCOPE = "service%3A%3Auser.auth.xboxlive.com%3A%3AMBI_SSL";
     public static final String AUTH_TOKEN_URL = "https://login.live.com/oauth20_token.srf";
+
+    private static final String CLIENT_ID = "e16699bb-2aa8-46da-b5e3-45cbcce29091";
+    private static final String DEVICE_CODE_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode";
     private static final String XBL_AUTH_URL = "https://user.auth.xboxlive.com/user/authenticate";
     private static final String XSTS_AUTH_URL = "https://xsts.auth.xboxlive.com/xsts/authorize";
     private static final String MC_LOGIN_URL = "https://api.minecraftservices.com/authentication/login_with_xbox";

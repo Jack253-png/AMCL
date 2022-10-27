@@ -3,8 +3,6 @@ package com.mcreater.amcl.theme;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
-import com.jfoenix.skins.JFXComboBoxListViewSkin;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
@@ -13,18 +11,12 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.value.WritableValue;
-import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.scene.control.skin.ComboBoxListViewSkin;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
@@ -33,17 +25,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 public class ThemeManager {
     public static String themeName = "default";
-    Logger logger = LogManager.getLogger(ThemeManager.class);
+    static Logger logger = LogManager.getLogger(ThemeManager.class);
     static Vector<JFXButton> buttons = new Vector<>();
-    public void setThemeName(String name){
+    static Vector<Parent> simpleParents = new Vector<>();
+    public static void setThemeName(String name){
         themeName = name;
     }
-    public void applyTopBar(VBox topBar){
-        String cssPath = String.format("assets/themes/%s/topBar.css", themeName);
+    public static void applyTopBar(VBox topBar){
+        String cssPath = String.format("assets/themes/%s/TopBar.css", themeName);
         if (new ResourceGetter().get(cssPath) == null){
             logger.warn("failed to load css file for top bar!");
         }
@@ -61,18 +56,16 @@ public class ThemeManager {
             }
         }
     }
-    public void apply(Launcher launcher) throws IllegalAccessException{
+    public static void applyNode(Parent... n) {
+        for (Parent n1 : n) {
+            n1.getStylesheets().add(String.format(ThemeManager.getPath(), n1.getClass().getSimpleName()));
+        }
+        simpleParents.addAll(Arrays.asList(n));
+    }
+    public static void apply(Vector<AbstractAnimationPage> pages) throws IllegalAccessException{
         Object o;
-        Vector<AbstractAnimationPage> pages = new Vector<>();
         Vector<Node> controls = new Vector<>();
         String theme_base_path = "assets/themes/%s/%s.css";
-        for (Field f : ReflectHelper.getFields(launcher)) {
-            f.setAccessible(true);
-            o = f.get(launcher);
-            if (o instanceof AbstractAnimationPage) {
-                pages.add((AbstractAnimationPage) o);
-            }
-        }
         for (AbstractAnimationPage page : pages){
             controls.addAll(GetAllNodes(page));
             for (Field f : ReflectHelper.getFields(page)){
@@ -89,25 +82,21 @@ public class ThemeManager {
             String sheetPath = String.format(theme_base_path, themeName, n.getClass().getSimpleName());
             logger.info(String.format("loading style for control %s", n.getClass().getSimpleName()));
             if (!(new ResourceGetter().get(sheetPath) == null)){
+                ((Parent) n).getStylesheets().clear();
                 ((Parent) n).getStylesheets().add(sheetPath);
             }
             else {
                 logger.warn(String.format("failed load style for control %s !", n.getClass().getSimpleName()));
             }
         }
+        simpleParents.forEach(parent -> parent.getStylesheets().clear());
+        applyNode(simpleParents.toArray(new Parent[0]));
     }
     public static Node loadSingleNodeAnimate(Node node){
         loadButtonAnimates(node);
         return node;
     }
-    public static Timeline generateAni(KeyValue v1, KeyValue v2, double duration){
-        Timeline Mousein = new Timeline();
-        Mousein.setCycleCount(1);
-        Mousein.getKeyFrames().clear();
-        Mousein.getKeyFrames().add(new KeyFrame(Duration.ZERO, v1));
-        Mousein.getKeyFrames().add(new KeyFrame(new Duration(duration), v2));
-        return Mousein;
-    }
+
     public static void loadButtonAnimateParent(Node node){
         generateAnimations(node, 0.6D, 1D, 200, node.opacityProperty());
     }
@@ -141,7 +130,7 @@ public class ThemeManager {
             }
         }
     }
-    public static <T> T generateAnimations(@NotNull Node button, T va1, T va2, double duration, WritableValue<T> target){
+    public static <T> void generateAnimations(@NotNull Node button, T va1, T va2, double duration, WritableValue<T> target){
         if (target == button.opacityProperty()){
             button.setOpacity((double) va1);
         }
@@ -166,7 +155,6 @@ public class ThemeManager {
             in.stop();
             out.playFromStart();
         });
-        return null;
     }
     public static String getPath(){
         return "assets/themes/" + ThemeManager.themeName + "/%s.css";

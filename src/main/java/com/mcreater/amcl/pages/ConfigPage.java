@@ -39,7 +39,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import javafx.util.Pair;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import oshi.hardware.UsbDevice;
 
@@ -244,24 +243,27 @@ public class ConfigPage extends AbstractMenuBarPage {
 
         new Thread(() -> {
             while (true){
-                double d = item2.cont.getValue();
+                double targetMCMem = item2.cont.getValue();
 
-                double value = Timer.g(MemoryReader.getUsedMemory() + Launcher.configReader.configModel.max_memory * 1024 * 1024L, MemoryReader.getTotalMemory());
-                double value2 = Timer.g(MemoryReader.getUsedMemory(), MemoryReader.getTotalMemory());
+                double targetMCMemPercent = Timer.division(MemoryReader.getUsedMemory() + Launcher.configReader.configModel.max_memory * 1024 * 1024L, MemoryReader.getTotalMemory());
+                double sysMemPercent = Timer.division(MemoryReader.getUsedMemory(), MemoryReader.getTotalMemory());
+
                 String totalS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.total.name"), MemoryReader.convertMemToString(MemoryReader.getTotalMemory()));
                 String usedS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.used.name"), MemoryReader.convertMemToString(MemoryReader.getUsedMemory()));
-                String jvmmemS;
-                if (MemoryReader.getUsedMemory() + d * 1024 * 1024L < MemoryReader.getTotalMemory()){
-                    jvmmemS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.name"), MemoryReader.convertMemToString((long) (d * 1024 * 1024L)));
+
+                String targetMcMemS;
+                if (MemoryReader.getUsedMemory() + targetMCMem * 1024 * 1024L < MemoryReader.getTotalMemory()){
+                    targetMcMemS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.name"), MemoryReader.convertMemToString((long) (targetMCMem * 1024 * 1024L)));
                 }
                 else {
-                    jvmmemS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.out.name"), MemoryReader.convertMemToString((long) (d * 1024 * 1024L)), MemoryReader.convertMemToString(MemoryReader.getFreeMemory()));
+                    targetMcMemS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.out.name"), MemoryReader.convertMemToString((long) (targetMCMem * 1024 * 1024L)), MemoryReader.convertMemToString(MemoryReader.getFreeMemory()));
                 }
-                JFXSmoothScroll.smoothScrollBarToValue(bar2, value2);
-                Platform.runLater(() -> bar1.setProgress(value));
+                Platform.runLater(() -> bar2.setProgress(sysMemPercent));
+                Platform.runLater(() -> bar1.setProgress(targetMCMemPercent));
+
                 Platform.runLater(() -> total.setText(totalS));
                 Platform.runLater(() -> used.setText(usedS));
-                Platform.runLater(() -> jvmmem.setText(jvmmemS));
+                Platform.runLater(() -> jvmmem.setText(targetMcMemS));
                 Sleeper.sleep(10);
             }
         }).start();

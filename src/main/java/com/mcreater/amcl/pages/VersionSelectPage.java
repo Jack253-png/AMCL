@@ -160,7 +160,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
 
         add_dir.setButtonType(JFXButton.ButtonType.RAISED);
 
-        dirs.getStylesheets().add(String.format(ThemeManager.getPath(), "JFXComboBox"));
+        ThemeManager.applyNode(dirs);
 
         SettingPage p = new SettingPage(width / 4, height, dot_minecraft_dir);
         ThemeManager.loadButtonAnimates(title, dirs, select_version, buttons);

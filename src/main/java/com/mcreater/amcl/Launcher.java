@@ -78,7 +78,6 @@ public class Launcher extends javafx.application.Application {
     public static UserSelectPage USERSELECTPAGE;
 
 
-    public static ThemeManager themeManager;
     public static ConfigWriter configReader;
     public static LanguageManager languageManager;
     static Background bg;
@@ -116,7 +115,6 @@ public class Launcher extends javafx.application.Application {
         Fonts.loadFont();
         if (OSInfo.isWin()) {
             languageManager = new LanguageManager(null);
-            themeManager = new ThemeManager();
             stage = new Stage();
             setGeometry(stage, width, height);
             bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true);
@@ -136,7 +134,7 @@ public class Launcher extends javafx.application.Application {
 
             languageManager.bindAll(MAINPAGE, CONFIGPAGE, VERSIONSELECTPAGE, VERSIONINFOPAGE, ADDMODSPAGE, MODDOWNLOADPAGE, DOWNLOADMCPAGE, DOWNLOADADDONSELECTPAGE, USERSELECTPAGE);
 
-            themeManager.apply(this);
+            ThemeManager.apply(LanguageManager.bindedPages);
 
             USERSELECTPAGE.view.setOnMouseEntered(event -> {});
             USERSELECTPAGE.decorator.setOnMouseEntered(event -> {});
@@ -268,7 +266,7 @@ public class Launcher extends javafx.application.Application {
 
         new WindowMovement().windowMove(top, stage);
 
-        themeManager.applyTopBar(top);
+        ThemeManager.applyTopBar(top);
         VBox v = new VBox();
         v.getChildren().addAll(top, last);
         v.setStyle("-fx-background-color: transparent");

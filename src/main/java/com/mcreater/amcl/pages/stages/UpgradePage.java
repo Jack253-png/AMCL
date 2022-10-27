@@ -37,14 +37,17 @@ public class UpgradePage extends AbstractStage {
             }
             TitledPane pane = new TitledPane(String.format("%s %s", model.tag_name, Launcher.languageManager.get(String.format("ui.mainpage.versionChecker.isCurrent.%s", model.iscurrent))), b);
             pane.setAnimated(true);
-            pane.getStylesheets().add(String.format(ThemeManager.getPath(), String.format("TitledPane%s", model.prerelease)));
+            pane.setId(model.prerelease ? "update-is-prerelease" : "update-is-not-prerelease");
+            ThemeManager.applyNode(pane);
+
             FXUtils.ControlSize.setWidth(pane, 800);
             pane.setExpanded(false);
             pane.setDisable(model.outdated);
             c.getChildren().add(pane);
         }
         content = new SettingPage(800, 500, c, false);
-        content.getStylesheets().add(String.format(ThemeManager.getPath(), "SettingPage"));
+
+        ThemeManager.applyNode(content);
         this.setWidth(800);
         this.setHeight(600);
         this.setResizable(false);
