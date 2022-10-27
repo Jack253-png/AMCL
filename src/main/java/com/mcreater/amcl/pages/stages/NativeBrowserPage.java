@@ -10,6 +10,7 @@ import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.svg.Icons;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.concurrent.Worker;
@@ -26,10 +27,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
-import java.net.HttpCookie;
 import java.util.concurrent.Callable;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class NativeBrowserPage extends AbstractStage {
     Logger logger = LogManager.getLogger(NativeBrowserPage.class);
@@ -107,7 +105,7 @@ public class NativeBrowserPage extends AbstractStage {
         FXUtils.ControlSize.setHeight(refresh, 50);
         FXUtils.ControlSize.setHeight(loadState, 3);
 
-        this.getIcons().add(new Image("assets/icons/grass.png"));
+        this.getIcons().add(Icons.fxIcon.get());
 
         ThemeManager.applyNode(webView);
         setResizable(false);

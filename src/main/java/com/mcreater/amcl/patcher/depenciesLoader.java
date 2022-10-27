@@ -4,7 +4,7 @@ import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.J8Utils;
-import com.mcreater.amcl.util.svg.SwingIcons;
+import com.mcreater.amcl.util.svg.Icons;
 
 import javax.swing.*;
 import java.io.File;
@@ -35,7 +35,7 @@ public class DepenciesLoader {
         Vector<Task> tasks = new Vector<>(J8Utils.createList(items));
         frame = new DepencyLoadingFrame();
         frame.setResizable(false);
-        frame.setIconImage(SwingIcons.swingIcon);
+        frame.setIconImage(Icons.swingIcon);
         if (tasks.size() > 0) {
             if (!isConnectable()){
                 StableMain.splashScreen.setVisible(false);

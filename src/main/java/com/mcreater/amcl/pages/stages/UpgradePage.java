@@ -10,6 +10,7 @@ import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.svg.Icons;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
@@ -23,7 +24,7 @@ public class UpgradePage extends AbstractStage {
     public VBox c;
     public UpgradePage(){
         this.setTitle(Launcher.languageManager.get("ui.upgradepage.title"));
-        this.getIcons().add(new Image("assets/icons/grass.png"));
+        this.getIcons().add(Icons.fxIcon.get());
         c = new VBox();
         for (ReleaseModel model : GithubReleases.getReleases()) {
             VBox b = new VBox();

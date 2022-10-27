@@ -16,8 +16,8 @@ import javafx.scene.transform.Translate;
 import org.jetbrains.annotations.Nullable;
 
 public class SkinView extends Group {
-    public static final Image ALEX = new Image(new ResourceGetter().get("assets/skins/default/alex.png"));
-    public static final Image STEVE = new Image(new ResourceGetter().get("assets/skins/default/steve.png"));
+    public static final Image ALEX = new Image(ResourceGetter.get("assets/skins/default/alex.png"));
+    public static final Image STEVE = new Image(ResourceGetter.get("assets/skins/default/steve.png"));
     public static final SkinCube ALEX_LARM = new SkinCube(3, 12, 4, 14F / 64F, 16F / 64F, 32F / 64F, 48F / 64F, 0F, true);
     public static final SkinCube ALEX_RARM = new SkinCube(3, 12, 4, 14F / 64F, 16F / 64F, 40F / 64F, 16F / 64F, 0F, true);
 

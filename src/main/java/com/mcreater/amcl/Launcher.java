@@ -27,6 +27,7 @@ import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
+import com.mcreater.amcl.util.svg.Icons;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -45,7 +46,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -113,6 +113,7 @@ public class Launcher extends javafx.application.Application {
     }
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
+        Icons.initFXIcon();
         if (OSInfo.isWin()) {
             languageManager = new LanguageManager(null);
             stage = new Stage();
@@ -163,7 +164,7 @@ public class Launcher extends javafx.application.Application {
             stage.initStyle(StageStyle.TRANSPARENT);
             refresh();
             stage.setScene(s);
-            stage.getIcons().add(new Image("assets/icons/grass.png"));
+            stage.getIcons().add(Icons.fxIcon.get());
 
             new Thread(VersionChecker::check).start();
             aboutDialog = new AboutDialog();
@@ -216,11 +217,14 @@ public class Launcher extends javafx.application.Application {
         back = new JFXButton();
         close.setPrefWidth(t_size / 6 * 5);
         close.setPrefHeight(t_size / 6 * 5);
-        close.setGraphic(getSVGManager().close(Bindings.createObjectBinding(() -> Paint.valueOf("#000000")), t_size / 3 * 2, t_size / 3 * 2));
+        close.setGraphic(getSVGManager().close(Bindings.createObjectBinding(() -> Color.BLACK), t_size / 3 * 2, t_size / 3 * 2));
         close.setButtonType(JFXButton.ButtonType.RAISED);
         close.setOnAction(event -> {
-            stage.close();
-            System.exit(0);
+            last.out.setOnFinished(event1 -> {
+                stage.close();
+                System.exit(0);
+            });
+            last.out.play();
         });
         min.setPrefWidth(t_size / 2.5);
         min.setPrefHeight(t_size / 2.5);

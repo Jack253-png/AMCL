@@ -366,7 +366,7 @@ public class Launch {
         }
 
         try {
-            InputStream stream = new ResourceGetter().get("authlib-injector.jar");
+            InputStream stream = ResourceGetter.get("authlib-injector.jar");
             File target = new File("authlib-injector.jar");
 
             OutputStream output = Files.newOutputStream(target.toPath());

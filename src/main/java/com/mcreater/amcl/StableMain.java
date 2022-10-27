@@ -134,7 +134,7 @@ public class StableMain {
     }
     public static Vector<Task> loadJXBrowserTasks() throws FileNotFoundException {
         Vector<Task> tasks = new Vector<>();
-        InputStream s = new ResourceGetter().get("assets/JXBrowserDepency.json");
+        InputStream s = ResourceGetter.get("assets/JXBrowserDepency.json");
         BufferedReader r = new BufferedReader(new InputStreamReader(s));
         JXBrowserModel model = new Gson().fromJson(r, JXBrowserModel.class);
         String dir = "AMCL/depencies/JXBrowser";
@@ -150,7 +150,7 @@ public class StableMain {
         TaskManager.execute("<JXBrowser Download>");
     }
     public static void injectJXBrowserJARs() throws MalformedURLException, InvocationTargetException, IllegalAccessException {
-        InputStream s = new ResourceGetter().get("assets/JXBrowserDepency.json");
+        InputStream s = ResourceGetter.get("assets/JXBrowserDepency.json");
         BufferedReader r = new BufferedReader(new InputStreamReader(s));
         JXBrowserModel model = new Gson().fromJson(r, JXBrowserModel.class);
         String dir = "AMCL/depencies/JXBrowser";

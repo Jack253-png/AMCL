@@ -16,7 +16,7 @@ import java.util.Vector;
 
 public class DepenciesXMLHandler {
     public static Vector<DepencyItem> load() throws ParserConfigurationException, SAXException, IOException {
-        return load(new ResourceGetter().get("assets/depencies.json"));
+        return load(ResourceGetter.get("assets/depencies.json"));
     }
     public static Vector<DepencyItem> load(InputStream is) throws ParserConfigurationException, SAXException, IOException {
         DepencyModel model = new Gson().fromJson(new InputStreamReader(is), DepencyModel.class);

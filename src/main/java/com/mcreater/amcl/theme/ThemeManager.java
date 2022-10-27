@@ -39,7 +39,7 @@ public class ThemeManager {
     }
     public static void applyTopBar(VBox topBar){
         String cssPath = String.format("assets/themes/%s/TopBar.css", themeName);
-        if (new ResourceGetter().get(cssPath) == null){
+        if (ResourceGetter.get(cssPath) == null){
             logger.warn("failed to load css file for top bar!");
         }
         else{
@@ -50,7 +50,7 @@ public class ThemeManager {
             loadButtonAnimates(n);
             if (n instanceof JFXButton){
                 String sheetPath = String.format(theme_base_path, themeName, n.getClass().getSimpleName());
-                if (!(new ResourceGetter().get(sheetPath) == null)){
+                if (!(ResourceGetter.get(sheetPath) == null)){
                     ((Parent) n).getStylesheets().add(sheetPath);
                 }
             }
@@ -81,7 +81,7 @@ public class ThemeManager {
             loadButtonAnimates(n);
             String sheetPath = String.format(theme_base_path, themeName, n.getClass().getSimpleName());
             logger.info(String.format("loading style for control %s", n.getClass().getSimpleName()));
-            if (!(new ResourceGetter().get(sheetPath) == null)){
+            if (!(ResourceGetter.get(sheetPath) == null)){
                 ((Parent) n).getStylesheets().clear();
                 ((Parent) n).getStylesheets().add(sheetPath);
             }

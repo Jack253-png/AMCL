@@ -3,8 +3,7 @@ package com.mcreater.amcl.util;
 import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.util.svg.SwingIcons;
-import javafx.scene.ImageCursor;
+import com.mcreater.amcl.util.svg.Icons;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -37,7 +36,7 @@ public class SwingUtils {
         dialog.add(label);
         dialog.add(button);
 
-        dialog.setIconImage(SwingIcons.swingIcon);
+        dialog.setIconImage(Icons.swingIcon);
         dialog.setVisible(true);
         dialog.setAlwaysOnTop(true);
         dialog.setResizable(false);
@@ -65,8 +64,8 @@ public class SwingUtils {
             setBackground(new Color(0, 0, 0, 0));
             setSize(width, height);
             setLocation((int) (screenWidth / 2 - width / 2), (int) (screenHeight / 2 - height / 2));
-            add(new ImageView(new ResourceGetter().getUrl("assets/icons/grass.png")));
-            setIconImage(SwingIcons.swingIcon);
+            add(new ImageView(ResourceGetter.getUrl(Icons.iconPath)));
+            setIconImage(Icons.swingIcon);
             setAlwaysOnTop(true);
             setVisible(false);
             setTitle("AMCL");

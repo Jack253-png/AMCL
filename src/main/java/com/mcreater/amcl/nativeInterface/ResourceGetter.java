@@ -4,10 +4,10 @@ import java.io.InputStream;
 import java.net.URL;
 
 public class ResourceGetter {
-    public InputStream get(String s){
-        return this.getClass().getClassLoader().getResourceAsStream(s);
+    public static InputStream get(String s){
+        return ResourceGetter.class.getClassLoader().getResourceAsStream(s);
     }
-    public URL getUrl(String s){
-        return this.getClass().getClassLoader().getResource(s);
+    public static URL getUrl(String s){
+        return ResourceGetter.class.getClassLoader().getResource(s);
     }
 }
