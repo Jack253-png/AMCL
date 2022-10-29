@@ -13,7 +13,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Vector;
 
-public class ConfigWriter{
+public class ConfigWriter {
     public ConfigModel configModel;
     File file;
     GsonBuilder gsonBuilder = new GsonBuilder();

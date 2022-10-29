@@ -1,40 +1,53 @@
 package com.mcreater.amcl.util.xml;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.patcher.ClassPathInjector;
-import com.mcreater.amcl.util.SimpleFunctions;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Vector;
 
 public class DepenciesXMLHandler {
-    public static Vector<DepencyItem> load() throws ParserConfigurationException, SAXException, IOException {
+    public static Vector<DepencyItem> load() throws Exception {
         return load(ResourceGetter.get("assets/depencies.json"));
     }
-    public static Vector<DepencyItem> load(InputStream is) throws ParserConfigurationException, SAXException, IOException {
+    public static Vector<DepencyItem> load(InputStream is) throws Exception {
         DepencyModel model = new Gson().fromJson(new InputStreamReader(is), DepencyModel.class);
         Vector<DepencyItem> items = new Vector<>();
         for (DepencyModel.ItemModel item : model.depencies){
-            if (ClassPathInjector.version < 9 && item.old != null) {
-                if (item.maven != null) items.add(new DepencyItem(item.old, item.maven));
-                else items.add(new DepencyItem(item.old, model.maven));
+            if (item.isMultiPlatform) {
+                switch (OSInfo.getOSType()) {
+                    default:
+                    case WINDOWS:
+                        items.add(new DepencyItem(item.name, model.maven));
+                        break;
+                    case WINDOWS_X86:
+                        items.add(new DepencyItem(item.winX86, model.maven));
+                        break;
+                    case MACOS:
+                        items.add(new DepencyItem(item.mac, model.maven));
+                        break;
+                    case MACOS_ARM64:
+                        items.add(new DepencyItem(item.macArm64, model.maven));
+                        break;
+                    case LINUX:
+                        items.add(new DepencyItem(item.linux, model.maven));
+                        break;
+                    case LINUX_ARM32:
+                        items.add(new DepencyItem(item.linuxArm32, model.maven));
+                        break;
+                    case LINUX_ARM64:
+                        items.add(new DepencyItem(item.linuxArm64, model.maven));
+                        break;
+                }
             }
             else {
-                if (OSInfo.isWin()) {
-                    items.add(new DepencyItem(item.name, model.maven));
-                }
-                else if (OSInfo.isMac() && item.mac != null){
-                    items.add(new DepencyItem(item.mac, model.maven));
-                }
-                else if (OSInfo.isLinux() && item.linux != null){
-                    items.add(new DepencyItem(item.linux, model.maven));
+                if (ClassPathInjector.version < 9 && item.old != null) {
+                    items.add(new DepencyItem(item.old, model.maven));
                 }
                 else {
                     items.add(new DepencyItem(item.name, model.maven));
@@ -47,11 +60,19 @@ public class DepenciesXMLHandler {
         public String maven;
         public List<ItemModel> depencies;
         public static class ItemModel {
+            public boolean isMultiPlatform;
             public String name;
             public String old;
             public String mac;
             public String linux;
-            public String maven;
+            @SerializedName("win-x86")
+            public String winX86;
+            @SerializedName("mac-arm64")
+            public String macArm64;
+            @SerializedName("linux-arm32")
+            public String linuxArm32;
+            @SerializedName("linux-arm64")
+            public String linuxArm64;
         }
     }
 }

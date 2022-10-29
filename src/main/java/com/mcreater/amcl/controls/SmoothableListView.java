@@ -36,7 +36,7 @@ public class SmoothableListView<T extends Region> extends VBox{
         this.setSpacing(5);
         ThemeManager.loadButtonAnimates(this);
 
-        ThemeManager.applyNode(page);
+        ThemeManager.applyNode(page, "SmoothableListView");
         FXUtils.ControlSize.setWidth(this, width - 15);
     }
     public void setOnAction(@NotNull Runnable r){

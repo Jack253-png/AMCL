@@ -2,7 +2,6 @@ package com.mcreater.amcl.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
 
 import java.io.*;
 
@@ -29,7 +28,7 @@ public class ConfigReader {
     public void writeDefault(){
         try {
             FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(new GsonBuilder().setPrettyPrinting().create().toJson(new ConfigModel().getI(), ConfigModel.class));
+            fileWriter.write(new GsonBuilder().setPrettyPrinting().create().toJson(new ConfigModel().toDefault(), ConfigModel.class));
             fileWriter.close();
         }
         catch (Exception e){

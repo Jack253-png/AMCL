@@ -143,6 +143,7 @@ public class Launch {
                 if (!(l.name.contains("3.2.1") && has_322)) {
                     if (l.downloads != null) {
                         if (l.downloads.classifiers != null) {
+                            if (l.downloads.classifiers.containsKey("natives-osx")) nativeName = nativeName.replace("natives-macos", "natives-osx").replace("-arm64", "");
                             if (l.downloads.classifiers.get(nativeName) != null) {
                                 if (new File(LinkPath.link(libf.getPath(), l.downloads.classifiers.get(nativeName).path)).exists()) {
                                     natives.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get(nativeName).path));

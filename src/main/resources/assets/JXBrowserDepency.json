@@ -1,7 +1,0 @@
-{
-  "url" : "http://cloud.teamdev.com/downloads/jxbrowser/jxbrowser-6.18-cross-desktop-win_mac_linux.zip?utm_campaign=jxbrowser-6-18-release&utm_medium=download&utm_source=support",
-  "win": "lib/jxbrowser-win32-6.18.jar",
-  "mac": "lib/jxbrowser-mac-6.18.jar",
-  "linux": "lib/jxbrowser-linux64-6.18.jar",
-  "common": "lib/jxbrowser-6.18.jar"
-}

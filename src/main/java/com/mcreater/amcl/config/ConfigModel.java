@@ -1,7 +1,7 @@
 package com.mcreater.amcl.config;
 
-import com.mcreater.amcl.api.auth.MSAuth;
-import com.mcreater.amcl.lang.LanguageManager;
+import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.Tag;
 
 import java.util.Vector;
 
@@ -28,7 +28,7 @@ public class ConfigModel {
     public String last_cape_path;
     public boolean last_is_slim;
     public String last_elytra_path;
-    public ConfigModel getI(){
+    public ConfigModel toDefault(){
         selected_java = new Vector<>();
         selected_minecraft_dir = new Vector<>();
         selected_minecraft_dir_index = "";

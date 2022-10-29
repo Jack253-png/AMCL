@@ -4,9 +4,9 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
+import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
-import com.mcreater.amcl.controls.SettingPage;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -14,7 +14,7 @@ import javafx.beans.value.WritableValue;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.*;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
@@ -25,15 +25,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Map;
 import java.util.Vector;
-import java.util.function.Consumer;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ThemeManager {
     public static String themeName = "default";
     static Logger logger = LogManager.getLogger(ThemeManager.class);
     static Vector<JFXButton> buttons = new Vector<>();
-    static Vector<Parent> simpleParents = new Vector<>();
+    static Map<Parent, String> simpleParentsConstable = new ConcurrentHashMap<>();
     public static void setThemeName(String name){
         themeName = name;
     }
@@ -56,11 +56,13 @@ public class ThemeManager {
             }
         }
     }
-    public static void applyNode(Parent... n) {
-        for (Parent n1 : n) {
-            n1.getStylesheets().add(String.format(ThemeManager.getPath(), n1.getClass().getSimpleName()));
-        }
-        simpleParents.addAll(Arrays.asList(n));
+    public static void applyNode(Parent n) {
+        n.getStylesheets().add(String.format(ThemeManager.getPath(), n.getClass().getSimpleName()));
+        simpleParentsConstable.put(n, n.getClass().getSimpleName());
+    }
+    public static void applyNode(Parent n, String clazz) {
+        n.getStylesheets().add(String.format(ThemeManager.getPath(), clazz));
+        simpleParentsConstable.put(n, clazz);
     }
     public static void apply(Vector<AbstractAnimationPage> pages) throws IllegalAccessException{
         Object o;
@@ -89,8 +91,8 @@ public class ThemeManager {
                 logger.warn(String.format("failed load style for control %s !", n.getClass().getSimpleName()));
             }
         }
-        simpleParents.forEach(parent -> parent.getStylesheets().clear());
-        applyNode(simpleParents.toArray(new Parent[0]));
+        simpleParentsConstable.forEach((parent, s) -> parent.getStylesheets().clear());
+        simpleParentsConstable.forEach(ThemeManager::applyNode);
     }
     public static Node loadSingleNodeAnimate(Node node){
         loadButtonAnimates(node);

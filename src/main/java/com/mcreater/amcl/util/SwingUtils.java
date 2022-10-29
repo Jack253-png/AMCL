@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 
@@ -64,6 +65,7 @@ public class SwingUtils {
             setBackground(new Color(0, 0, 0, 0));
             setSize(width, height);
             setLocation((int) (screenWidth / 2 - width / 2), (int) (screenHeight / 2 - height / 2));
+
             add(new ImageView(ResourceGetter.getUrl(Icons.iconPath)));
             setIconImage(Icons.swingIcon);
             setAlwaysOnTop(true);
@@ -89,9 +91,12 @@ public class SwingUtils {
 
             g.clearRect(0, 0, width, height);
             try {
-                g.drawImage(ImageIO.read(imageURL), 0, 0, width, height, null);
+                BufferedImage image = ImageIO.read(imageURL);
+                g.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
             }
-            catch (IOException ignored) {}
+            catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
