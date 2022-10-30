@@ -81,7 +81,7 @@ public abstract class TaskManager {
                             updater.accept((int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(lang.get(key), tasks.size() - downloaded, tasks.size()));
                         }
                         else {
-                            updater.accept(100, String.format(lang.get(key), tasks.size(), tasks.size()));
+                            updater.accept(100, String.format(lang.get(key), temp, temp));
                         }
                     }
                     temp = downloaded;
@@ -90,7 +90,7 @@ public abstract class TaskManager {
                 }
                 while (downloaded != 0);
 
-                System.out.print(J8Utils.repeat("\b", cc.length()) + reason + String.format(" %d / %d", all, all));
+                System.out.print(J8Utils.repeat("\b", cc.length()) + String.format("%s %d / %d", reason, all, all));
                 System.out.println();
             }
         }.start();
@@ -114,14 +114,8 @@ public abstract class TaskManager {
             }.start();
         }
         latch.await();
-        updater.accept(100, String.format(lang.get(key), tasks.size(), tasks.size()));
+        if (tasks.size() != 0) updater.accept(100, String.format(lang.get(key), tasks.size(), tasks.size()));
         tasks.clear();
         downloadedBytes = 0;
-    }
-    public static Vector<Task> changeTasksPool(Vector<Task> tasks, String name){
-        for (Task t : tasks){
-            t.pool.setName(name);
-        }
-        return tasks;
     }
 }

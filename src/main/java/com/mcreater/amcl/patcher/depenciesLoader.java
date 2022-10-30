@@ -31,7 +31,7 @@ public class DepenciesLoader {
     public static String convertNameToUrl(String name){
         return convertName(name).replace(File.separator, "/");
     }
-    public static void checkAndDownload(Task... items) throws IOException, InterruptedException {
+    public static void checkAndDownload(Task... items) throws Exception {
         Vector<Task> tasks = new Vector<>(J8Utils.createList(items));
         frame = new DepencyLoadingFrame();
         frame.setResizable(false);
@@ -40,7 +40,7 @@ public class DepenciesLoader {
             if (!isConnectable()){
                 StableMain.splashScreen.setVisible(false);
                 JOptionPane.showMessageDialog(frame, StableMain.manager.get("ui.pre.depencies.network.fail.title"), StableMain.manager.get("ui.pre.depencies.network.fail.mess"), JOptionPane.ERROR_MESSAGE);
-                System.exit(0);
+                System.exit(1);
             }
             frame.setVisible(true);
             StableMain.splashScreen.setVisible(false);
@@ -52,9 +52,15 @@ public class DepenciesLoader {
             });
             TaskManager.execute("<download depencies>", true);
             frame.button.setEnabled(true);
-            frame.progressBar.setString(StableMain.manager.get("ui.depencies.downloadSuccess.name"));
-            frame.progressBar.setValue(100);
             CountDownLatch latch = new CountDownLatch(1);
+            new Thread(() -> {
+                do {
+                    SwingUtilities.invokeLater(() -> {
+                        frame.progressBar.setString(StableMain.manager.get("ui.depencies.downloadSuccess.name"));
+                    });
+                } while (latch.getCount() != 0);
+            }).start();
+            frame.progressBar.setValue(100);
             frame.button.addActionListener(actionEvent -> latch.countDown());
             latch.await();
         }

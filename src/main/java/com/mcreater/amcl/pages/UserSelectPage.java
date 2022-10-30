@@ -2,6 +2,7 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
@@ -501,6 +502,17 @@ public class UserSelectPage extends AbstractMenuBarPage {
             msLogin.setDisable(true);
             ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.userselectpage.logging"));
             dialog.setV(0, 0, Launcher.languageManager.get("ui.msauth._01"));
+            try {
+                StableMain.checkJXBrowser2();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() -> {
+                    dialog.close();
+                    SimpleDialogCreater.exception(e);
+                    msLogin.setDisable(false);
+                });
+                return;
+            }
             NativeBrowserPage p = new NativeBrowserPage(MSAuth.LOGIN_URL);
             p.setDialog(dialog);
             p.open();

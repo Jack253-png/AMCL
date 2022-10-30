@@ -117,7 +117,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 vs = GetVersionList.getOriginalList(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
             } catch (Exception e) {
                 load.setDisable(false);
-                SimpleDialogCreater.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content"));
+                Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content")));
                 return;
             }
             Vector<String> types = new Vector<>();

@@ -75,6 +75,9 @@ public class SwingUtils {
         public void setVisible(boolean visible) {
             super.setVisible(getShowSplash() && visible);
         }
+        public void processWindowEvent(final WindowEvent e) {
+
+        }
     }
     public static class ImageView extends JPanel {
         URL imageURL;

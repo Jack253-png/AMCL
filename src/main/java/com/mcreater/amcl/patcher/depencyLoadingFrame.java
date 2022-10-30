@@ -4,6 +4,7 @@ import com.mcreater.amcl.StableMain;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
 
 public class DepencyLoadingFrame extends JFrame {
     public final JProgressBar progressBar;
@@ -34,5 +35,8 @@ public class DepencyLoadingFrame extends JFrame {
         gridBagConstraints_2.gridy = 0;
         gridBagConstraints_2.gridx = 1;
         getContentPane().add(button, gridBagConstraints_2);
+    }
+    public void processWindowEvent(final WindowEvent e) {
+
     }
 }

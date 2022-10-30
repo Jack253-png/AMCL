@@ -152,7 +152,6 @@ public class Launcher extends javafx.application.Application {
             CONFIGPAGE.bar1.setOpacity(0.5);
             CONFIGPAGE.bar2.setOpacity(1);
 
-
             ThemeManager.loadButtonAnimateParent(USERSELECTPAGE.p);
             ThemeManager.loadButtonAnimateParent(CONFIGPAGE.p);
             last = MAINPAGE;

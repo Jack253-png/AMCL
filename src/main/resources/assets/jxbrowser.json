@@ -1,0 +1,15 @@
+{
+  "COMMON": "lib/jxbrowser-7.21.jar",
+
+  "WINDOWS": "lib/jxbrowser-win64-7.21.jar",
+  "WINDOWS_X86": "lib/jxbrowser-win32-7.21.jar",
+  "MACOS": "lib/jxbrowser-mac-7.21.jar",
+  "MACOS_ARM64": "lib/jxbrowser-mac-arm-7.21.jar",
+  "LINUX": "lib/jxbrowser-linux64-7.21.jar",
+  "LINUX_ARM32": "lib/jxbrowser-linux64-arm-7.21.jar",
+  "LINUX_ARM64": "lib/jxbrowser-linux64-arm-7.21.jar",
+
+  "JAVAFX": "lib/jxbrowser-javafx-7.21.jar",
+  "SWING": "lib/jxbrowser-swing-7.21.jar",
+  "SWT": "lib/jxbrowser-swt-7.21.jar"
+}
