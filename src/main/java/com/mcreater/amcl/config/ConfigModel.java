@@ -28,6 +28,7 @@ public class ConfigModel {
     public String last_cape_path;
     public boolean last_is_slim;
     public String last_elytra_path;
+    public boolean use_chuoumium_core;
     public ConfigModel toDefault(){
         selected_java = new Vector<>();
         selected_minecraft_dir = new Vector<>();

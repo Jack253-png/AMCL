@@ -1,10 +1,9 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.utils.JFXSmoothScroll;
-import com.mcreater.amcl.controls.JFXProgressBar;
-import com.jfoenix.controls.JFXTreeView;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.controls.JFXProgressBar;
+import com.mcreater.amcl.controls.SettingPage;
 import com.mcreater.amcl.controls.items.BooleanItem;
 import com.mcreater.amcl.controls.items.IntItem;
 import com.mcreater.amcl.controls.items.ListItem;
@@ -13,17 +12,15 @@ import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.Timer;
-import com.mcreater.amcl.util.java.JavaInfoGetter;
-import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
+import com.mcreater.amcl.util.java.JavaInfoGetter;
 import com.mcreater.amcl.util.system.CpuReader;
 import com.mcreater.amcl.util.system.JavaHeapMemoryReader;
 import com.mcreater.amcl.util.system.MemoryReader;
-import com.mcreater.amcl.util.system.UsbDeviceReader;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -35,16 +32,13 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
-import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import oshi.hardware.UsbDevice;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
@@ -75,7 +69,6 @@ public class ConfigPage extends AbstractMenuBarPage {
     public ListItem<Label> item5;
     public IntItem item6;
     JFXButton system;
-    JFXTreeView<Label> view;
     XYChart.Series<Number, Number> usedMemory;
     XYChart.Series<Number, Number> totalMemory;
     XYChart.Series<Number, Number> freeMemory;
@@ -96,6 +89,7 @@ public class ConfigPage extends AbstractMenuBarPage {
     public com.jfoenix.controls.JFXProgressBar bar1;
     public com.jfoenix.controls.JFXProgressBar bar2;
     Label ltitle;
+    BooleanItem item8;
     public ConfigPage(int width, int height) throws NoSuchFieldException, IllegalAccessException {
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -213,6 +207,10 @@ public class ConfigPage extends AbstractMenuBarPage {
         item7.cont.setOrientation(Orientation.HORIZONTAL);
         item7.cont.valueProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.showingUpdateSpped = newValue.intValue());
 
+        item8 = new BooleanItem("", this.width / 4 * 3);
+        item8.cont.setSelected(Launcher.configReader.configModel.use_chuoumium_core);
+        item8.cont.selectedProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.use_chuoumium_core = newValue);
+
         FXUtils.ControlSize.setHeight(item, 30);
         FXUtils.ControlSize.setHeight(item2, 30);
         FXUtils.ControlSize.setHeight(item2, 30);
@@ -221,6 +219,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         FXUtils.ControlSize.setHeight(item5, 30);
         FXUtils.ControlSize.setHeight(item6, 30);
         FXUtils.ControlSize.setHeight(item7, 30);
+        FXUtils.ControlSize.setHeight(item8, 60);
 
         p = new Pane();
         bar1 = JFXProgressBar.createProgressBar();
@@ -274,20 +273,13 @@ public class ConfigPage extends AbstractMenuBarPage {
 
         configs_box = new VBox();
         configs_box.setSpacing(10);
-        configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6, item7, vo);
+        configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6, item7, item8, vo);
         configs_box.setId("config-box");
 
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
         java_add.setButtonType(JFXButton.ButtonType.RAISED);
 
         mainBox = new VBox();
-
-        view = new JFXTreeView<>();
-        TreeItem<Label> rootItem = new TreeItem<>(new Label("USB Devices"));
-//        loadAllDevice(rootItem);
-        view.setRoot(rootItem);
-        view.setShowRoot(false);
-        view.setStyle("-fx-vbar-policy: always");
 
         NumberAxis xAxis = new NumberAxis();
         NumberAxis yAxis = new NumberAxis();
@@ -327,8 +319,7 @@ public class ConfigPage extends AbstractMenuBarPage {
                 ((Node) f.get(cpu)).setStyle("-fx-background-color: transparent");
                 ((Node) f.get(jvm)).setStyle("-fx-background-color: transparent");
             }
-            catch (Exception e){
-            }
+            catch (Exception ignored){}
         };
 
         transparent.run("plotBackground");
@@ -356,12 +347,11 @@ public class ConfigPage extends AbstractMenuBarPage {
         cpu.setLegendVisible(false);
         jvm.setLegendVisible(false);
 
-        FXUtils.ControlSize.set(view, this.width / 4 * 2.95, 400);
         VBox v = new VBox(startListen, memory, cpu, jvm);
         v.setAlignment(Pos.CENTER_LEFT);
         FXUtils.ControlSize.setWidth(v, this.width / 4 * 3);
 
-        p1 = new SettingPage(this.width / 4 * 3, this.height - t_size, configs_box);
+        p1 = new SettingPage(this.width / 4 * 3, this.height - t_size, configs_box, false);
         p2 = new SettingPage(this.width / 4 * 3, this.height - t_size, v, false);
 
         setting = new JFXButton();
@@ -447,27 +437,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         };
         r.run();
     }
-    public static void loadAllDevice(TreeItem<Label> root){
-        List<UsbDevice> devices = UsbDeviceReader.getDevices();
-        for (UsbDevice d : devices){
-            Label l = new Label(d.getName());
-            l.setFont(Fonts.t_f);
-            TreeItem<Label> child = new TreeItem<>(l);
-            root.getChildren().add(child);
-            loadNodeDevice(child, d);
-        }
-    }
-    public static void loadNodeDevice(TreeItem<Label> root, UsbDevice device){
-        if (device.getConnectedDevices().size() > 0){
-            for (UsbDevice d : device.getConnectedDevices()){
-                Label l = new Label(d.getName());
-                l.setFont(Fonts.t_f);
-                TreeItem<Label> child = new TreeItem<>(l);
-                root.getChildren().add(child);
-                loadNodeDevice(child, d);
-            }
-        }
-    }
+
     public void load_java_list(){
         item4.cont.getItems().clear();
         for (String s : Launcher.configReader.configModel.selected_java) {
@@ -498,6 +468,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         item5.name.setText(Launcher.languageManager.get("ui.configpage.item5.name"));
         item6.name.setText(Launcher.languageManager.get("ui.configpage.item6.name"));
         item7.name.setText(Launcher.languageManager.get("ui.configpage.item7.name"));
+        item8.name.setText(Launcher.languageManager.get("ui.configpage.item8.name"));
 
         java_get.setText(Launcher.languageManager.get("ui.configpage.java_get.name"));
         java_add.setText(Launcher.languageManager.get("ui.configpage.java_add.name"));

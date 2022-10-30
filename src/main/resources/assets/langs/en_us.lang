@@ -227,3 +227,4 @@ ui.moddownloadpage.getrequire.dialog.title=Require Mods
 ui.moddownloadpage.modserver.name=Mod Server
 ui.moddownloadpage.search.name=Search
 ui.moddownloadpage.modrinth.multifile.title=Select a mod file
+ui.configpage.item8.name=Use Chroumium kernel internal web browser

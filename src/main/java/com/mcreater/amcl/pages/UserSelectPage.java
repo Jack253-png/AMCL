@@ -18,12 +18,14 @@ import com.mcreater.amcl.pages.dialogs.commons.InputDialog;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
-import com.mcreater.amcl.pages.dialogs.skin.OfflineSkinManageDialog;
-import com.mcreater.amcl.pages.dialogs.skin.OfflineEditAccountContentDialog;
 import com.mcreater.amcl.pages.dialogs.skin.MicrosoftSkinManageDialog;
+import com.mcreater.amcl.pages.dialogs.skin.OfflineEditAccountContentDialog;
+import com.mcreater.amcl.pages.dialogs.skin.OfflineSkinManageDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.pages.stages.NativeBrowserPage;
+import com.mcreater.amcl.pages.stages.browser.AbstractWebBrowser;
+import com.mcreater.amcl.pages.stages.browser.ChroumiumWebBrowser;
+import com.mcreater.amcl.pages.stages.browser.WebkitWebBrowser;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
@@ -500,11 +502,19 @@ public class UserSelectPage extends AbstractMenuBarPage {
         msLogin.setFont(Fonts.s_f);
         msLogin.setOnAction(event -> {
             msLogin.setDisable(true);
-            ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.userselectpage.logging"));
+            ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.userselectpage.logging")) {
+                public void outAnimation() {
+
+                }
+            };
             dialog.setV(0, 0, Launcher.languageManager.get("ui.msauth._01"));
+
+
+            AbstractWebBrowser p;
             try {
-                StableMain.checkJXBrowser2();
-            } catch (Exception e) {
+                p = AbstractWebBrowser.getBrowserImpl(MSAuth.LOGIN_URL, Launcher.configReader.configModel.use_chuoumium_core ? AbstractWebBrowser.BrowserType.CHROUMIUM : AbstractWebBrowser.BrowserType.WEBKIT);
+            }
+            catch (Exception e) {
                 e.printStackTrace();
                 Platform.runLater(() -> {
                     dialog.close();
@@ -513,9 +523,11 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 });
                 return;
             }
-            NativeBrowserPage p = new NativeBrowserPage(MSAuth.LOGIN_URL);
             p.setDialog(dialog);
             p.open();
+
+
+
             Launcher.stage.hide();
 
             Thread t = new Thread(() -> {
@@ -793,8 +805,8 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 }
             }
         }
-        catch (Exception ignored){
-            ignored.printStackTrace();
+        catch (Exception e){
+            e.printStackTrace();
             if (isSlim){
                 setImage(SkinView.ALEX, true);
             }

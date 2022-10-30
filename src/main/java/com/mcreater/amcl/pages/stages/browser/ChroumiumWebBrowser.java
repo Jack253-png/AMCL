@@ -1,15 +1,6 @@
-package com.mcreater.amcl.pages.stages;
+package com.mcreater.amcl.pages.stages.browser;
 
-import com.google.gson.Gson;
-import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.api.auth.MSAuth;
-import com.mcreater.amcl.api.auth.users.MicrosoftUser;
-import com.mcreater.amcl.nativeInterface.OSInfo;
-import com.mcreater.amcl.nativeInterface.ResourceGetter;
-import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
-import com.mcreater.amcl.patcher.DepenciesLoader;
-import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.svg.Icons;
 import com.teamdev.jxbrowser.browser.Browser;
@@ -22,28 +13,13 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-import java.io.InputStreamReader;
 import java.net.CookieHandler;
 import java.net.CookieManager;
-import java.util.Map;
-import java.util.Vector;
 
-import static com.mcreater.amcl.StableMain.checkJXBrowser;
-
-public class NativeBrowserPage extends AbstractStage {
-    Logger logger = LogManager.getLogger(NativeBrowserPage.class);
-    public MicrosoftUser user;
-    public Exception ex;
-    ProcessDialog dialog;
-    public void setDialog(ProcessDialog dialog){
-        this.dialog = dialog;
-    }
-    public Thread loginThread = new Thread(() -> {});
+public class ChroumiumWebBrowser extends AbstractWebBrowser {
     boolean started;
-    public NativeBrowserPage(String url){
+    public ChroumiumWebBrowser(String url) {
         initOwner(new Stage());
         initStyle(StageStyle.DECORATED);
 

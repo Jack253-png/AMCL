@@ -227,3 +227,4 @@ ui.moddownloadpage.getrequire.dialog.title=前置模组
 ui.moddownloadpage.modserver.name=模组服务器
 ui.moddownloadpage.search.name=搜索
 ui.moddownloadpage.modrinth.multifile.title=选择一个模组文件
+ui.configpage.item8.name=使用 Chroumium 内核的内置浏览器

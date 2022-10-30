@@ -1,7 +1,5 @@
 package com.mcreater.amcl.util.operatingSystem;
 
-import com.mcreater.amcl.pages.stages.NativeBrowserPage;
-
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
@@ -18,8 +16,6 @@ public class SystemActions {
                 e.printStackTrace();
             }
         });
-        NativeBrowserPage page = new NativeBrowserPage(url);
-        page.open();
     }
 
     private static boolean supportAction(Desktop.Action action){

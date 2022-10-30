@@ -3,7 +3,6 @@ package com.mcreater.amcl;
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.google.gson.Gson;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
-import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.lang.PreLanguageManager;
 import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
@@ -12,7 +11,6 @@ import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.patcher.DepenciesLoader;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
-import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.SwingUtils;
@@ -21,25 +19,19 @@ import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
 import com.mcreater.amcl.util.xml.DepencyItem;
 import com.sun.javafx.tk.quantum.QuantumToolkit;
-import javafx.beans.binding.MapExpression;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Vector;
-import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -189,7 +181,7 @@ public class StableMain {
 
 
         public JXBrowserDownloadTask(String[] jars) {
-            super(JXBROWSER_URL, DEFAULT_PATH);
+            super(JXBROWSER_URL, DEFAULT_PATH, 16 * 1024 * 1024);
             new File(DEFAULT_DIR).mkdirs();
             this.jars = jars;
         }
