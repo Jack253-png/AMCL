@@ -188,9 +188,7 @@ public class GetVersionList {
             });
             for (OptifineJarModel jar : jars){
                 jar.isPreview = jar.name.contains("preview");
-                jar.name = jar.name.replace("OptiFine_"+jar.version+"_", "");
-                jar.name = jar.name.replace("preview_", "");
-                jar.name = jar.name.replace(".jar", "");
+                jar.name = jar.name.replace("OptiFine_"+jar.version+"_", "").replace("preview_", "").replace(".jar", "");
             }
             jars.sort((o1, o2) -> {
                 try {

@@ -6,7 +6,7 @@ import java.io.IOException;
 public class LibDownloadTask extends DownloadTask{
     public int chunkSize = 512;
     String hash;
-    public LibDownloadTask(String server, String local) throws FileNotFoundException {
+    public LibDownloadTask(String server, String local) {
         super(server, local);
     }
     public LibDownloadTask(String server, String local, int chunkSize) throws FileNotFoundException {

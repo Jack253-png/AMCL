@@ -150,14 +150,7 @@ public class MainPage extends AbstractAnimationPage {
         stopProcess.setTextFill(Color.WHITE);
         ListChangeListener<Launch> listener = c -> BGMManager.startOrStop(game.size() == 0);
         game.addListener(listener);
-        listener.onChanged(new ListChangeListener.Change<Launch>(game) {
-            public boolean next() {return false;}
-            public void reset() {}
-            public int getFrom() {return 0;}
-            public int getTo() {return 0;}
-            public List<Launch> getRemoved() {return null;}
-            public int[] getPermutation() {return new int[0];}
-        });
+        listener.onChanged(null);
 
         stopProcess.setOnAction(event -> {
             if (game.size() == 0) {

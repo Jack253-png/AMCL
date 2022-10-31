@@ -73,7 +73,7 @@ public class OptifineDownload {
         jar.invokeMethod(
                 installer,
                 "installOptiFineLibrary",
-                new Object[]{version_name, ofEd, new File(LinkPath.link(minecraft_dir, "libraries")), false},
+                new Object[]{id, ofEd, new File(LinkPath.link(minecraft_dir, "libraries")), false},
                 String.class, String.class, File.class, boolean.class);
 
         // from 1.13
@@ -101,7 +101,7 @@ public class OptifineDownload {
             Map<String, String> s = (Map<String, String>) o;
             if (s.get("name").contains("optifine:OptiFine")){
                 List<String> l = new ArrayList<>(J8Utils.createList(s.get("name").split(":")));
-                l.set(2, String.format("%s_%s", version_name, ofEd));
+                l.set(2, String.format("%s_%s", id, ofEd));
                 s.put("name", String.join(":", l));
             }
             oflibs.add(s);

@@ -8,6 +8,7 @@ import com.mcreater.amcl.controls.items.BooleanListItem;
 import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.download.FabricDownload;
 import com.mcreater.amcl.download.ForgeDownload;
+import com.mcreater.amcl.download.ForgeOptifineDownload;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.download.OptifineDownload;
 import com.mcreater.amcl.download.OriginalDownload;
@@ -253,66 +254,55 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             else{
                 if (forge){
                     TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
-                    String finalModDir = modDir;
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
-                        try {
-                            ForgeDownload.download(
-                                    this.model.id,
-                                    Launcher.configReader.configModel.selected_minecraft_dir_index,
-                                    rl,
-                                    Launcher.configReader.configModel.downloadChunkSize,
-                                    forgeItem.model,
-                                    () -> dialog.setV(Launcher.languageManager.get("ui.download.forge.installer")),
-                                    () -> TaskManager.setUpdater((value, mess) -> dialog.setV(1, value, mess)),
-                                    () -> TaskManager.setUpdater((value, mess) -> dialog.setV(2, value, mess)),
-                                    FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)
-                            );
-                        } catch (Exception e) {
-                            dialog.setAll(100);
-                            Platform.runLater(dialog::close);
-                            throw new RuntimeException(e);
-                        }
-                        latch.countDown();
-                        if (optifine){
-                            {
-                                OptifineAPIModel model;
-                                try {
-                                    model = GetVersionList.getOptifineVersionRaw();
-                                }
-                                catch (Exception e){
-                                    e.printStackTrace();
-                                    dialog.close();
-                                    SimpleDialogCreater.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content"));
-                                    return;
-                                }
-                                String opti = null;
-                                for (OptifineJarModel m : model.files){
-                                    if (m.name.contains(this.model.id.replace("beta ", "beta_")) && m.name.contains(optifineItem.getText()))
-                                    {
-                                        opti = m.name;
-                                        break;
-                                    }
-                                }
-                                dialog.setV(0, 99, Launcher.languageManager.get("ui.install.optifine"));
-                                new File(finalModDir).mkdirs();
-                                try {
-                                    new OptiFineInstallerDownloadTask(opti, LinkPath.link(finalModDir, opti)).execute();
-                                } catch (Exception e) {
-                                    dialog.setAll(100);
-                                    Platform.runLater(dialog::close);
-                                    throw new RuntimeException(e);
-                                }
-                                Platform.runLater(() -> install.setDisable(false));
+                        if (!optifine) {
+                            try {
+                                ForgeDownload.download(
+                                        this.model.id,
+                                        Launcher.configReader.configModel.selected_minecraft_dir_index,
+                                        rl,
+                                        Launcher.configReader.configModel.downloadChunkSize,
+                                        forgeItem.model,
+                                        () -> dialog.setV(Launcher.languageManager.get("ui.download.forge.installer")),
+                                        () -> TaskManager.setUpdater((value, mess) -> dialog.setV(1, value, mess)),
+                                        () -> TaskManager.setUpdater((value, mess) -> dialog.setV(2, value, mess)),
+                                        FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)
+                                );
+                            } catch (Exception e) {
                                 dialog.setAll(100);
                                 Platform.runLater(dialog::close);
+                                SimpleDialogCreater.exception(e);
+                                return;
                             }
+                            latch.countDown();
                         }
                         else {
-                            Platform.runLater(() -> install.setDisable(false));
-                            dialog.setAll(100);
-                            Platform.runLater(dialog::close);
+                            try {
+                                ForgeOptifineDownload.download(
+                                        this.model.id,
+                                        Launcher.configReader.configModel.selected_minecraft_dir_index,
+                                        rl,
+                                        Launcher.configReader.configModel.downloadChunkSize,
+                                        forgeItem.model,
+                                        () -> dialog.setV(Launcher.languageManager.get("ui.download.forge.installer")),
+                                        () -> TaskManager.setUpdater((value, mess) -> dialog.setV(1, value, mess)),
+                                        () -> TaskManager.setUpdater((value, mess) -> dialog.setV(2, value, mess)),
+                                        optifineItem.getText(),
+                                        () -> dialog.setV(Launcher.languageManager.get("ui.download.optifine.installer")),
+                                        () -> dialog.setV(Launcher.languageManager.get("ui.download.optifine.injecting")),
+                                        FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)
+                                );
+                            } catch (Exception e) {
+                                dialog.setAll(100);
+                                Platform.runLater(dialog::close);
+                                SimpleDialogCreater.exception(e);
+                                return;
+                            }
                         }
+                        Platform.runLater(() -> install.setDisable(false));
+                        dialog.setAll(100);
+                        Platform.runLater(dialog::close);
                     }).start();
                 }
                 else if (fabric){
@@ -333,7 +323,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         } catch (Exception e) {
                             dialog.setAll(100);
                             Platform.runLater(dialog::close);
-                            throw new RuntimeException(e);
+                            SimpleDialogCreater.exception(e);
+                            return;
                         }
                         TaskManager.setUpdater((value, mess) -> dialog.setV(2, value, mess));
                         try {TaskManager.execute("");}
@@ -360,12 +351,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 }
                             }
                             dialog.setV(0, 99, Launcher.languageManager.get("ui.install.optifine"));
-                            try {
-                                tasks.add(new OptiFineInstallerDownloadTask(opti, LinkPath.link(finalModDir1, opti)));
-                            } catch (FileNotFoundException e) {
-                                dialog.setAll(100);
-                                Platform.runLater(dialog::close);
-                            }
+                            tasks.add(new OptiFineInstallerDownloadTask(opti, LinkPath.link(finalModDir1, opti)));
                         }
                         if (fabricapi && fabricapiItem != null) {
                             CurseModFileModel m = fabricapiItem.model;
@@ -404,7 +390,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         } catch (Exception e) {
                             dialog.setAll(100);
                             Platform.runLater(dialog::close);
-                            throw new RuntimeException(e);
+                            SimpleDialogCreater.exception(e);
+                            return;
                         }
                         TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                         try {TaskManager.execute("");}
@@ -447,7 +434,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         } catch (Exception e) {
                             dialog.setAll(100);
                             Platform.runLater(dialog::close);
-                            throw new RuntimeException(e);
+                            SimpleDialogCreater.exception(e);
+                            return;
                         }
                         latch.countDown();
                         Platform.runLater(() -> install.setDisable(false));

@@ -151,8 +151,16 @@ public class VersionTypeGetter {
             if (model.name.contains("optifine:OptiFine:")) {
                 String f = J8Utils.createList(model.name.split(":")).get(2);
                 Vector<String> f2 = new Vector<>(J8Utils.createList(f.split("_")));
-                f2.remove(0);
-                opti = String.format(Launcher.languageManager.get("ui.versioninfopage.hasoptifine"), String.join("-", f2), f);
+                int idHD = f2.indexOf("HD");
+                if (idHD >= 0) {
+                    if (idHD > 0) {
+                        f2.subList(0, idHD).clear();
+                        opti = String.format(Launcher.languageManager.get("ui.versioninfopage.hasoptifine"), String.join("_", f2));
+                    }
+                    else {
+                        opti = String.format(Launcher.languageManager.get("ui.versioninfopage.hasoptifine"), f);
+                    }
+                }
             }
         }
         return opti;

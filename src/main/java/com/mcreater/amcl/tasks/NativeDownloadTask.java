@@ -10,11 +10,11 @@ public class NativeDownloadTask extends DownloadTask{
     String native_path;
     int chunkSize = 512;
     String hash;
-    public NativeDownloadTask(String server, String local, String native_path) throws FileNotFoundException {
+    public NativeDownloadTask(String server, String local, String native_path) {
         super(server, local);
         this.native_path = native_path;
     }
-    public NativeDownloadTask(String server, String local, String native_path, int chunkSize) throws FileNotFoundException {
+    public NativeDownloadTask(String server, String local, String native_path, int chunkSize) {
         super(server, local);
         this.native_path = native_path;
         this.chunkSize = chunkSize;

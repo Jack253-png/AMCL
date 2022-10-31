@@ -67,10 +67,10 @@ public class ForgeOptifineDownload {
         jar.invokeMethod(
                 installer,
                 "installOptiFineLibrary",
-                new Object[]{version_name, ofEd, new File(FileUtils.LinkPath.link(minecraft_dir, "libraries")), false},
+                new Object[]{id, ofEd, new File(FileUtils.LinkPath.link(minecraft_dir, "libraries")), false},
                 String.class, String.class, File.class, boolean.class);
 
-        String libPath = String.format("optifine:OptiFine:%s_%s", version_name, ofEd);
+        String libPath = String.format("optifine:OptiFine:%s_%s", id, ofEd);
         JSONObject ob = JSON.parseObject(vj);
 
         JSONObject obj2 = new JSONObject();
