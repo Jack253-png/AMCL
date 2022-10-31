@@ -54,6 +54,7 @@ public class MinecraftFixer {
     public static void runTasks() throws InterruptedException {
         TaskManager.addTasks(tasks);
         TaskManager.execute("<full files>");
+        tasks.clear();
     }
     public static void checkAssets(int chunk, String assets, VersionJsonModel model, String minecraft_dir, FasterUrls.Servers server) throws IOException {
         String index = assets + model.assetIndex.get("id") + ".json";
