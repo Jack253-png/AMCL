@@ -11,6 +11,7 @@ import com.mcreater.amcl.model.optifine.OptifineJarModel;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.net.FasterUrls;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,7 +26,7 @@ import static com.mcreater.amcl.util.FileUtils.FileStringReader;
 import static com.mcreater.amcl.util.FileUtils.LinkPath;
 
 public class OptifineDownload {
-    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version, Runnable r1, Runnable r2) throws Exception {
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version, Runnable r1, Runnable r2, FasterUrls.Servers server) throws Exception {
         OptifineAPIModel model = GetVersionList.getOptifineVersionRaw();
         if (!model.versions.contains(id)){
             throw new IOException();
@@ -43,8 +44,7 @@ public class OptifineDownload {
         if (opti.contains("legacy")){
             throw new IOException();
         }
-        System.err.println(opti);
-        OriginalDownload.download(id, minecraft_dir, version_name, chunkSize);
+        OriginalDownload.download(id, minecraft_dir, version_name, chunkSize, server);
         JSONObject ob = new JSONObject(new Gson().fromJson(OriginalDownload.getVJ(), Map.class));
         r1.run();
 

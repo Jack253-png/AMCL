@@ -2,16 +2,21 @@ package com.mcreater.amcl.game.launch;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.model.JarModel;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.original.AssetsModel;
-import com.mcreater.amcl.pages.MainPage;
+import com.mcreater.amcl.tasks.AbstractTask;
+import com.mcreater.amcl.tasks.AssetsDownloadTask;
+import com.mcreater.amcl.tasks.DownloadTask;
+import com.mcreater.amcl.tasks.LibDownloadTask;
+import com.mcreater.amcl.tasks.NativeDownloadTask;
+import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
-import com.mcreater.amcl.tasks.*;
+import com.mcreater.amcl.util.FileUtils.FileStringReader;
+import com.mcreater.amcl.util.FileUtils.HashHelper;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.net.FasterUrls;
-import com.mcreater.amcl.util.FileUtils.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -24,9 +29,8 @@ import static com.mcreater.amcl.download.OriginalDownload.createNewDir;
 
 public class MinecraftFixer {
     static Vector<Task> tasks = new Vector<>();
-    public static void fix(boolean faster, int chunkSize, String dir, String versionName) throws IOException, InterruptedException {
+    public static void fix(int chunkSize, String dir, String versionName, FasterUrls.Servers server) throws IOException, InterruptedException {
         String versionDir = LinkPath.link(dir, String.format("versions/%s", versionName));
-        String libDir = String.format("%s/libraries", dir).replace("\\", "/");
         String assetsDir = String.format("%s/assets/indexes/", dir).replace("\\", "/");
         if (!new File(versionDir).exists()){
             throw new IOException("version dir does not exists");
@@ -42,25 +46,22 @@ public class MinecraftFixer {
         if (model == null){
             throw new IOException("failed to read version json");
         }
-        checkLibs(faster, chunkSize, dir, model.libraries, versionDir, versionName);
-        checkCoreJar(faster, chunkSize, versionDir, versionName, model.downloads.get("client"));
-        checkAssets(chunkSize, assetsDir, model, dir);
+        checkLibs(chunkSize, dir, model.libraries, versionDir, versionName, server);
+        checkCoreJar(chunkSize, versionDir, versionName, model.downloads.get("client"), server);
+        checkAssets(chunkSize, assetsDir, model, dir, server);
         runTasks();
     }
     public static void runTasks() throws InterruptedException {
-        for (Task t : tasks){
-            System.out.println(((AbstractTask) t).server);
-        }
         TaskManager.addTasks(tasks);
         TaskManager.execute("<full files>");
     }
-    public static void checkAssets(int chunk, String assets, VersionJsonModel model, String minecraft_dir) throws IOException {
+    public static void checkAssets(int chunk, String assets, VersionJsonModel model, String minecraft_dir, FasterUrls.Servers server) throws IOException {
         String index = assets + model.assetIndex.get("id") + ".json";
         String assets_root = LinkPath.link(minecraft_dir, "assets");
         String assets_objects = LinkPath.link(assets_root, "objects");
         new File(assets_objects).mkdirs();
         if (!HashHelper.getFileSHA1(new File(index)).equals(model.assetIndex.get("sha1"))){
-            new DownloadTask(FasterUrls.fast(model.assetIndex.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), index, chunk).setHash(model.assetIndex.get("sha1")).execute();
+            new DownloadTask(FasterUrls.fast(model.assetIndex.get("url"), server), index, chunk).setHash(model.assetIndex.get("sha1")).execute();
         }
         AssetsModel m = new Gson().fromJson(FileStringReader.read(index), AssetsModel.class);
         for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()){
@@ -75,20 +76,20 @@ public class MinecraftFixer {
                     }
                 }
                 if (!contained) {
-                    tasks.add(new AssetsDownloadTask(hash, assets_objects, chunk));
+                    tasks.add(new AssetsDownloadTask(hash, assets_objects, chunk, server));
                 }
             }
         }
     }
-    public static void checkCoreJar(boolean faster, int chunk, String versionDir, String versionName, JarModel model) throws FileNotFoundException {
+    public static void checkCoreJar(int chunk, String versionDir, String versionName, JarModel model, FasterUrls.Servers server) throws FileNotFoundException {
         String path = LinkPath.link(versionDir, String.format("%s.jar", versionName));
         String url = model.url;
         String hash = model.sha1;
         if (!HashHelper.getFileSHA1(new File(path)).equals(hash)){
-            tasks.add(new LibDownloadTask(FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), path, chunk).setHash(hash));
+            tasks.add(new LibDownloadTask(FasterUrls.fast(url, server), path, chunk).setHash(hash));
         }
     }
-    public static void checkLibs(boolean faster, int chunk, String dir, Vector<LibModel> libs, String version_dir, String version_name) throws FileNotFoundException {
+    public static void checkLibs(int chunk, String dir, Vector<LibModel> libs, String version_dir, String version_name, FasterUrls.Servers server) throws FileNotFoundException {
         String lib_base_path = LinkPath.link(dir, "libraries");
         String native_base_path = LinkPath.link(version_dir, version_name + "-natives");
         new File(lib_base_path).mkdirs();
@@ -118,7 +119,7 @@ public class MinecraftFixer {
                             String nhash = model1.downloads.classifiers.get("natives-windows").sha1;
                             createNewDir(npath);
                             if (!HashHelper.getFileSHA1(new File(npath)).equals(nhash)) {
-                                tasks.add(new NativeDownloadTask(FasterUrls.fast(nurl, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), npath, native_base_path, chunk).setHash(nhash));
+                                tasks.add(new NativeDownloadTask(FasterUrls.fast(nurl, server), npath, native_base_path, chunk).setHash(nhash));
                             }
                         }
                     }
@@ -132,9 +133,9 @@ public class MinecraftFixer {
                     if (b0) {
                         if (!HashHelper.getFileSHA1(new File(path)).equals(hash)) {
                             if (model1.name.contains("natives-windows")) {
-                                tasks.add(new NativeDownloadTask(FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), path, native_base_path, chunk).setHash(hash));
+                                tasks.add(new NativeDownloadTask(FasterUrls.fast(url, server), path, native_base_path, chunk).setHash(hash));
                             } else {
-                                tasks.add(new LibDownloadTask(FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), path, chunk).setHash(hash));
+                                tasks.add(new LibDownloadTask(FasterUrls.fast(url, server), path, chunk).setHash(hash));
                             }
                         }
                     }

@@ -16,17 +16,11 @@ import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
 import javafx.application.Platform;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
-import jnr.ffi.annotations.In;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -200,7 +194,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
     }
     public void load_list(){
         Runnable load = () -> {
-            Platform.runLater(MainPage.l::show);
+            Platform.runLater(MainPage.versionLoadDialog::show);
             dirs.setDisable(true);
             add_dir.setDisable(true);
             version_list.setDisable(true);
@@ -232,15 +226,15 @@ public class VersionSelectPage extends AbstractAnimationPage {
                             ThemeManager.loadButtonAnimates(i);
                         });
                         ld += 1;
-                        MainPage.l.setV(0, ld * 100 / dg, String.format(Launcher.languageManager.get("ui.versionListLoad._01"), s));
+                        MainPage.versionLoadDialog.setV(0, ld * 100 / dg, String.format(Launcher.languageManager.get("ui.versionListLoad._01"), s));
                     }
                 }
             }
             dirs.setDisable(false);
             add_dir.setDisable(false);
             version_list.setDisable(false);
-            MainPage.l.setV(0, 100, "");
-            Platform.runLater(MainPage.l::close);
+            MainPage.versionLoadDialog.setV(0, 100, "");
+            Platform.runLater(MainPage.versionLoadDialog::close);
         };
         new Thread(load).start();
     }

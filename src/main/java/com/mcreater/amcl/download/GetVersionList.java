@@ -1,7 +1,6 @@
 package com.mcreater.amcl.download;
 
 import com.google.gson.Gson;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.modApi.curseforge.CurseAPI;
 import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModFileModel;
 import com.mcreater.amcl.download.model.NewForgeItemFileModel;
@@ -55,8 +54,8 @@ public class GetVersionList {
         return t;
     }
 
-    public static Vector<NewForgeItemModel> getForgeInstallers(String version) throws Exception {
-        String url = FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/minecraft/" + version, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+    public static Vector<NewForgeItemModel> getForgeInstallers(String version, FasterUrls.Servers server) throws Exception {
+        String url = FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/minecraft/" + version, server);
         String r = HttpConnectionUtil.doGet(url);
         Vector<NewForgeItemModel> result = new Vector<>();
         result = new Gson().fromJson(r, result.getClass());
@@ -84,13 +83,13 @@ public class GetVersionList {
         });
         return r2;
     }
-    public static boolean isMirror() {
-        return FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer) != FasterUrls.Servers.MOJANG;
+    public static boolean isMirror(FasterUrls.Servers server) {
+        return server != FasterUrls.Servers.MOJANG;
     }
 
-    public static String getForgeInstallerDownloadURL(NewForgeItemModel model, String ori) {
-        if (isMirror()) {
-            return FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/download/" + model.build, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+    public static String getForgeInstallerDownloadURL(NewForgeItemModel model, String ori, FasterUrls.Servers server) {
+        if (isMirror(server)) {
+            return FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/download/" + model.build, server);
         }
         else {
             return String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%s-%s/forge-%s-%s-installer.jar", ori, model.version, ori, model.version);
@@ -98,8 +97,8 @@ public class GetVersionList {
     }
 
 
-    public static Vector<String> getForgeVersionList(String version) throws Exception {
-        String url = FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+    public static Vector<String> getForgeVersionList(String version, FasterUrls.Servers server) throws Exception {
+        String url = FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", server);
         Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(url));
         vectorMap.remove("1.1");
         vectorMap.remove("1.2.3");
@@ -123,9 +122,9 @@ public class GetVersionList {
             return new Vector<>();
         }
     }
-    public static Vector<String> getFabricVersionList(String version) throws Exception {
-        String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/game", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
-        String loaderVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+    public static Vector<String> getFabricVersionList(String version, FasterUrls.Servers server) throws Exception {
+        String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/game", server);
+        String loaderVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", server);
         Vector<Map<String, String>> s = new Vector<>();
         s = new Gson().fromJson(HttpConnectionUtil.doGet(fabricVersions), s.getClass());
         Vector<String> versions = new Vector<>();
@@ -145,9 +144,9 @@ public class GetVersionList {
             return new Vector<>();
         }
     }
-    public static Vector<String> getQuiltVersionList(String version) throws Exception {
-        String quiltVersions = FasterUrls.fast("https://meta.quiltmc.org/v3/versions/game", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
-        String loaderVersions = FasterUrls.fast("https://meta.quiltmc.org/v3/versions/loader", FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+    public static Vector<String> getQuiltVersionList(String version, FasterUrls.Servers server) throws Exception {
+        String quiltVersions = FasterUrls.fast("https://meta.quiltmc.org/v3/versions/game", server);
+        String loaderVersions = FasterUrls.fast("https://meta.quiltmc.org/v3/versions/loader", server);
 
         Vector<Map<String, String>> s = new Vector<>();
         s = new Gson().fromJson(HttpConnectionUtil.doGet(quiltVersions), s.getClass());

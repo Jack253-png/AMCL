@@ -21,7 +21,14 @@ public abstract class TaskManager {
     public static BiConsumer<Integer, String> updater = (value, mess) -> {};
     public static Runnable finishRunnable = () -> {};
     public static void setUpdater(@NotNull BiConsumer<Integer, String> updater) {
-        TaskManager.updater = updater;
+        synchronized (TaskManager.class) {
+            TaskManager.updater = updater;
+        }
+    }
+    public static void setFinishRunnable(@NotNull Runnable runnable) {
+        synchronized (TaskManager.class) {
+            TaskManager.finishRunnable = runnable;
+        }
     }
     public static long downloadedBytes;
     private TaskManager(){}
@@ -32,90 +39,95 @@ public abstract class TaskManager {
         tasks.addAll(t);
     }
     public synchronized static void executeForge(String reason) throws IOException {
-        Logger logger = LogManager.getLogger(TaskManager.class);
-        int executed = 0;
-        logger.info(String.format("executing tasks %s", reason));
-        for (Task t : tasks){
-            Integer exit = t.execute();
-            if (exit != null){
-                if (exit != 0){
-                    throw new IOException();
+        synchronized (TaskManager.class) {
+            Logger logger = LogManager.getLogger(TaskManager.class);
+            int executed = 0;
+            logger.info(String.format("executing tasks %s", reason));
+            for (Task t : tasks){
+                Integer exit = t.execute();
+                if (exit != null){
+                    if (exit != 0){
+                        throw new IOException();
+                    }
+                }
+                executed += 1;
+                logger.info(String.format("executed %d of %d", executed, tasks.size()));
+                if (tasks.size() != 0) {
+                    updater.accept((int) ((double) executed) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._03"), executed, tasks.size()));
                 }
             }
-            executed += 1;
-            logger.info(String.format("executed %d of %d", executed, tasks.size()));
-            if (tasks.size() != 0) {
-                updater.accept((int) ((double) executed) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._03"), executed, tasks.size()));
-            }
+            tasks.clear();
         }
-        tasks.clear();
     }
     public synchronized static void execute(String reason) throws InterruptedException {
         execute(reason, false);
     }
     public synchronized static void execute(String reason, boolean isSwingEnv) throws InterruptedException {
-        int size = tasks.size();
-        CountDownLatch latch = new CountDownLatch(size);
-        AbstractLanguageManager lang;
-        if (isSwingEnv) lang = StableMain.manager;
-        else lang = Launcher.languageManager;
+        synchronized (TaskManager.class) {
+            int size = tasks.size();
+            CountDownLatch latch = new CountDownLatch(size);
+            AbstractLanguageManager lang;
+            if (isSwingEnv) lang = StableMain.manager;
+            else lang = Launcher.languageManager;
 
-        String key;
-        if (isSwingEnv) key = "ui.fix._02.swing";
-        else key = "ui.fix._02";
+            String key;
+            if (isSwingEnv) key = "ui.fix._02.swing";
+            else key = "ui.fix._02";
 
-        updater.accept(0, String.format(lang.get(key), 0, tasks.size()));
+            updater.accept(0, String.format(lang.get(key), 0, tasks.size()));
 
-        new Thread("Manager Counting Thread"){
-            public void run(){
-                long downloaded;
-                long all = tasks.size();
-                String cc;
-                long temp = size;
-                do {
-                    downloaded = latch.getCount();
-                    cc = String.format("%s %d / %d", reason, tasks.size() - downloaded, tasks.size());
-                    System.out.print(J8Utils.repeat("\b", cc.length()) + cc);
-                    if (temp != latch.getCount()) {
-                        if (tasks.size() != 0) {
-                            updater.accept((int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(lang.get(key), tasks.size() - downloaded, tasks.size()));
+            new Thread("Manager Counting Thread") {
+                public void run() {
+                    long downloaded;
+                    long all = tasks.size();
+                    String cc;
+                    long temp = size;
+                    do {
+                        downloaded = latch.getCount();
+                        if (temp != latch.getCount()) {
+                            if (tasks.size() != 0) {
+                                updater.accept((int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(lang.get(key), tasks.size() - downloaded, tasks.size()));
+                            } else {
+                                updater.accept(100, String.format(lang.get(key), all, all));
+                            }
                         }
-                        else {
-                            updater.accept(100, String.format(lang.get(key), temp, temp));
-                        }
+                        temp = downloaded;
+                        downloadedBytes = 0;
+                        Sleeper.sleep(500);
+                        cc = String.format("%s %d / %d", reason, tasks.size() - downloaded, tasks.size());
+                        System.out.print(J8Utils.repeat("\b", cc.length()) + cc);
                     }
-                    temp = downloaded;
-                    downloadedBytes = 0;
-                    Sleeper.sleep(500);
-                }
-                while (downloaded != 0);
+                    while (downloaded != 0);
 
-                System.out.print(J8Utils.repeat("\b", cc.length()) + String.format("%s %d / %d", reason, all, all));
-                System.out.println();
-            }
-        }.start();
-        for (Task t : tasks){
-            new Thread(String.format("pool %s task %s", t.pool, t.toString())){
-                public void run(){
-                    while (true){
-                        try {
-                            t.execute();
-                            latch.countDown();
-                            break;
-                        }
-                        catch (Error e1){
-                            break;
-                        }
-                        catch (IOException e){
-                            e.printStackTrace();
-                        }
-                    }
+                    cc = String.format("%s %d / %d", reason, all, all);
+
+                    System.out.print(J8Utils.repeat("\b", cc.length()));
+                    System.out.print(cc);
+                    System.out.println();
                 }
             }.start();
+            for (Task t : tasks) {
+                new Thread(String.format("pool %s task %s", t.pool.getName(), t.toString())) {
+                    public void run() {
+                        while (true) {
+                            try {
+                                t.execute();
+                                latch.countDown();
+                                break;
+                            } catch (Error e1) {
+                                break;
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }.start();
+            }
+            latch.await();
+            if (tasks.size() != 0) updater.accept(100, String.format(lang.get(key), tasks.size(), tasks.size()));
+            tasks.clear();
+            downloadedBytes = 0;
+            finishRunnable.run();
         }
-        latch.await();
-        if (tasks.size() != 0) updater.accept(100, String.format(lang.get(key), tasks.size(), tasks.size()));
-        tasks.clear();
-        downloadedBytes = 0;
     }
 }

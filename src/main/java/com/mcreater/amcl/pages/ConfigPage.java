@@ -22,6 +22,7 @@ import com.mcreater.amcl.util.system.CpuReader;
 import com.mcreater.amcl.util.system.JavaHeapMemoryReader;
 import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -34,6 +35,8 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.stage.FileChooser;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -42,6 +45,7 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
@@ -109,11 +113,11 @@ public class ConfigPage extends AbstractMenuBarPage {
         title = new Label();
         title.setFont(Fonts.b_f);
 
-        item = new BooleanItem("", this.width / 4 * 3);
+        item = new BooleanItem("", this.width / 4 * 3 - 10);
         item.cont.setSelected(Launcher.configReader.configModel.change_game_dir);
         item.cont.selectedProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.change_game_dir = newValue);
 
-        item2 = new IntItem("", this.width / 4 * 3);
+        item2 = new IntItem("", this.width / 4 * 3 - 10);
         item2.cont.setMax(J8Utils.getMcMaxMemory());
         item2.cont.setMin(16);
         item2.cont.setValue(Launcher.configReader.configModel.max_memory);
@@ -157,7 +161,7 @@ public class ConfigPage extends AbstractMenuBarPage {
             java_get.setDisable(false);
         }).start());
 
-        item4 = new MuiltButtonListItem<>("", this.width / 4 * 3);
+        item4 = new MuiltButtonListItem<>("", this.width / 4 * 3 - 10);
         item4.addButtons(java_get, java_add);
         item4.cont.setOnAction(event -> {
             if (item4.cont.getValue() == null && item4.cont.getItems().size() > 0) {
@@ -171,7 +175,7 @@ public class ConfigPage extends AbstractMenuBarPage {
 
         load_java_list();
 
-        item3 = new ListItem<>("", this.width / 4 * 3);
+        item3 = new ListItem<>("", this.width / 4 * 3 - 10);
         for (Map.Entry<String, String> entry : langs.entrySet()) {
             Label l = new Label(entry.getKey());
             l.setFont(Fonts.t_f);
@@ -184,7 +188,7 @@ public class ConfigPage extends AbstractMenuBarPage {
             Launcher.setTitle();
         });
 
-        item5 = new ListItem<>("", this.width / 4 * 3);
+        item5 = new ListItem<>("", this.width / 4 * 3 - 10);
         for (Map.Entry<String, String> entry : servers.entrySet()){
             Label l = new Label(entry.getKey());
             l.setFont(Fonts.t_f);
@@ -193,21 +197,21 @@ public class ConfigPage extends AbstractMenuBarPage {
         item5.cont.getSelectionModel().select(getKey2(Launcher.configReader.configModel.downloadServer));
         item5.cont.setOnAction(event -> Launcher.configReader.configModel.downloadServer = servers.get(item5.cont.getValue().getText()));
 
-        item6 = new IntItem("", this.width / 4 * 3);
+        item6 = new IntItem("", this.width / 4 * 3 - 10);
         item6.cont.setMax(8192);
         item6.cont.setMin(512);
         item6.cont.setValue(Launcher.configReader.configModel.downloadChunkSize);
         item6.cont.setOrientation(Orientation.HORIZONTAL);
         item6.cont.valueProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.downloadChunkSize = newValue.intValue());
 
-        item7 = new IntItem("", this.width / 4 * 3);
+        item7 = new IntItem("", this.width / 4 * 3 - 10);
         item7.cont.setMax(1000);
         item7.cont.setMin(500);
         item7.cont.setValue(Launcher.configReader.configModel.showingUpdateSpped);
         item7.cont.setOrientation(Orientation.HORIZONTAL);
         item7.cont.valueProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.showingUpdateSpped = newValue.intValue());
 
-        item8 = new BooleanItem("", this.width / 4 * 3);
+        item8 = new BooleanItem("", this.width / 4 * 3 - 10);
         item8.cont.setSelected(Launcher.configReader.configModel.use_chuoumium_core);
         item8.cont.selectedProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.use_chuoumium_core = newValue);
 
@@ -278,6 +282,9 @@ public class ConfigPage extends AbstractMenuBarPage {
 
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
         java_add.setButtonType(JFXButton.ButtonType.RAISED);
+
+        java_add.setGraphic(Launcher.getSVGManager().plus(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 15, 15));
+        java_get.setGraphic(Launcher.getSVGManager().dotsHorizontal(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 15, 15));
 
         mainBox = new VBox();
 
@@ -470,8 +477,6 @@ public class ConfigPage extends AbstractMenuBarPage {
         item7.name.setText(Launcher.languageManager.get("ui.configpage.item7.name"));
         item8.name.setText(Launcher.languageManager.get("ui.configpage.item8.name"));
 
-        java_get.setText(Launcher.languageManager.get("ui.configpage.java_get.name"));
-        java_add.setText(Launcher.languageManager.get("ui.configpage.java_add.name"));
         setting.setText(Launcher.languageManager.get("ui.configpage.menu._01"));
         system.setText(Launcher.languageManager.get("ui.configpage.menu._02"));
         startListen.setText(Launcher.languageManager.get("ui.configpage.systemInfo.listen.start"));

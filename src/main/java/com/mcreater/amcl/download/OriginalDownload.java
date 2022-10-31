@@ -30,14 +30,14 @@ public class OriginalDownload {
     public static String getVJ(){
         return vj;
     }
-    public static void download(String id, String minecraft_dir, String version_name, int chunkSize) throws Exception {
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, FasterUrls.Servers server) throws Exception {
         tasks.clear();
         OriginalDownload.chunkSize = chunkSize;
-        String url = FasterUrls.getVersionJsonv2WithFaster(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+        String url = FasterUrls.getVersionJsonv2WithFaster(server);
         gb = new GsonBuilder();
         gb.setPrettyPrinting();
         Gson g = gb.create();
-        url = FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+        url = FasterUrls.fast(url, server);
         String result = HttpConnectionUtil.doGet(url);
 
         VersionsModel model = g.fromJson(result, VersionsModel.class);
@@ -53,8 +53,8 @@ public class OriginalDownload {
         String version_dir = LinkPath.link(minecraft_dir, "versions/" + version_name);
         new File(version_dir).mkdirs();
 
-        String version_json = HttpConnectionUtil.doGet(FasterUrls.fast(version_url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)));
-        System.out.println(FasterUrls.fast(version_url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)));
+        String version_json = HttpConnectionUtil.doGet(FasterUrls.fast(version_url, server));
+        System.out.println(FasterUrls.fast(version_url, server));
         vj = version_json;
 
         BufferedWriter bw = new BufferedWriter(new FileWriter(LinkPath.link(version_dir, version_name + ".json")));
@@ -66,13 +66,13 @@ public class OriginalDownload {
             throw new IOException();
         }
 
-        downloadCoreJar(ver_j, minecraft_dir, version_dir, version_name);
-        downloadLibs(ver_j, minecraft_dir, version_dir, version_name);
-        downloadAssets(ver_j, minecraft_dir);
+        downloadCoreJar(ver_j, minecraft_dir, version_dir, version_name, server);
+        downloadLibs(ver_j, minecraft_dir, version_dir, version_name, server);
+        downloadAssets(ver_j, minecraft_dir, server);
         runTasks();
     }
-    private static void downloadCoreJar(VersionJsonModel model, String minecraft_dir, String version_dir, String version_name) throws FileNotFoundException {
-        String url = FasterUrls.fast(model.downloads.get("client").url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+    private static void downloadCoreJar(VersionJsonModel model, String minecraft_dir, String version_dir, String version_name, FasterUrls.Servers server) throws FileNotFoundException {
+        String url = FasterUrls.fast(model.downloads.get("client").url, server);
         String path = LinkPath.link(version_dir, version_name + ".jar");
         String hash = model.downloads.get("client").sha1;
         tasks.add(new LibDownloadTask(url, path, chunkSize).setHash(hash));
@@ -85,14 +85,14 @@ public class OriginalDownload {
         Vector<String> paths = new Vector<>(J8Utils.createList(path.replace("/", "\\").split("\\\\")));
         new File(path.replace(paths.get(paths.size() - 1), "")).mkdirs();
     }
-    private static void downloadAssets(VersionJsonModel model, String minecraft_dir) throws Exception {
+    private static void downloadAssets(VersionJsonModel model, String minecraft_dir, FasterUrls.Servers server) throws Exception {
         String assets_root = LinkPath.link(minecraft_dir, "assets");
         String assets_indexes = LinkPath.link(assets_root, "indexes");
         String assets_objects = LinkPath.link(assets_root, "objects");
         new File(assets_root).mkdirs();
         new File(assets_indexes).mkdirs();
         new File(assets_objects).mkdirs();
-        String result = HttpConnectionUtil.doGet(FasterUrls.fast(model.assetIndex.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)));
+        String result = HttpConnectionUtil.doGet(FasterUrls.fast(model.assetIndex.get("url"), server));
         String assets_index_path = LinkPath.link(assets_indexes, model.assetIndex.get("id") + ".json");
         BufferedWriter bw = new BufferedWriter(new FileWriter(assets_index_path));
         bw.write(result);
@@ -102,11 +102,11 @@ public class OriginalDownload {
         for (Map<String, String> h : model1.objects.values()){
             String hh = h.get("hash");
             new File(String.format("%s/%s", assets_objects, hh.substring(0, 2))).mkdirs();
-            tasks.add(new AssetsDownloadTask(hh, assets_objects, chunkSize).setHash(hh));
+            tasks.add(new AssetsDownloadTask(hh, assets_objects, chunkSize, server).setHash(hh));
         }
     }
 
-    private static void downloadLibs(VersionJsonModel model, String minecraft_dir, String version_dir, String version_name) throws FileNotFoundException {
+    private static void downloadLibs(VersionJsonModel model, String minecraft_dir, String version_dir, String version_name, FasterUrls.Servers server) throws FileNotFoundException {
         String lib_base_path = LinkPath.link(minecraft_dir, "libraries");
         String native_base_path = LinkPath.link(version_dir, version_name + "-natives");
         new File(lib_base_path).mkdirs();
@@ -134,7 +134,7 @@ public class OriginalDownload {
                         String nurl = model1.downloads.classifiers.get(nativeName).url;
                         String nhash = model1.downloads.classifiers.get(nativeName).sha1;
                         createNewDir(npath);
-                        tasks.add(new NativeDownloadTask(FasterUrls.fast(nurl, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), npath, native_base_path, chunkSize).setHash(nhash));
+                        tasks.add(new NativeDownloadTask(FasterUrls.fast(nurl, server), npath, native_base_path, chunkSize).setHash(nhash));
                     }
                 }
             }
@@ -146,9 +146,9 @@ public class OriginalDownload {
 
                 if (b0) {
                     if (model1.name.contains(nativeName)) {
-                        tasks.add(new NativeDownloadTask(FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), path, native_base_path, chunkSize).setHash(hash));
+                        tasks.add(new NativeDownloadTask(FasterUrls.fast(url, server), path, native_base_path, chunkSize).setHash(hash));
                     } else {
-                        tasks.add(new LibDownloadTask(FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), path, chunkSize).setHash(hash));
+                        tasks.add(new LibDownloadTask(FasterUrls.fast(url, server), path, chunkSize).setHash(hash));
                     }
                 }
             }

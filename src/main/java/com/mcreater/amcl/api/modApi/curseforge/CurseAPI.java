@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -84,7 +85,7 @@ public final class CurseAPI {
         }
     }
     public static Vector<CurseModModel> search(String name, CurseResourceType.Types res, CurseSortType.Types sort, int pageSize) throws IOException {
-        String url = String.format("/v1/mods/search?gameId=432&searchFilter=%s&classId=%d&sortOrder=%s&pageSize=%d", name, CurseResourceType.get(res), CurseSortType.get(sort), pageSize);
+        String url = String.format("/v1/mods/search?gameId=432&searchFilter=%s&classId=%d&sortOrder=%s&pageSize=%d", URLEncoder.encode(name, "UTF-8"), CurseResourceType.get(res), CurseSortType.get(sort), pageSize);
         Gson g = new Gson();
         Map<? , ?> m = g.fromJson(response(url), Map.class);
         Vector<CurseModModel> result = new Vector<>();

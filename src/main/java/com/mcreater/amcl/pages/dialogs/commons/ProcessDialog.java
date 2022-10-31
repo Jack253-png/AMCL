@@ -50,4 +50,7 @@ public class ProcessDialog extends AbstractDialog {
         setV(index, progress);
         Platform.runLater(() -> l.setText(s));
     }
+    public void setV(String s) {
+        Platform.runLater(() -> l.setText(s));
+    }
 }

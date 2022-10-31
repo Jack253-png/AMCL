@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -248,14 +249,18 @@ public class VersionInfoPage extends AbstractMenuBarPage {
             Vector<File> f = ModHelper.getMod(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
             for (File file : f) {
                 try {
-                    CommonModInfoModel model = ModHelper.getModInfo(file.getPath());
-                    if (!Objects.equals(model.name, "")) {
-                        RemoteMod m = new RemoteMod(model);
+                    Vector<CommonModInfoModel> model = ModHelper.getModInfo(file.getPath());
+                    model.forEach(commonModInfoModel -> {
+                        RemoteMod m = new RemoteMod(commonModInfoModel);
                         Platform.runLater(() -> modList.addItem(m));
-                    }
+                    });
                 }
                 catch (Exception e){
                     e.printStackTrace();
+                    CommonModInfoModel model = new CommonModInfoModel();
+                    model.path = file.getPath();
+                    RemoteMod m = new RemoteMod(model);
+                    Platform.runLater(() -> modList.addItem(m));
                 }
                 double d = (double) modList.vecs.size() / (double) f.size();
                 double lat = bar.getProgress();

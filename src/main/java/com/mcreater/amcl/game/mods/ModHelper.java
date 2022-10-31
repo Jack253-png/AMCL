@@ -3,17 +3,23 @@ package com.mcreater.amcl.game.mods;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.model.mod.FabricModInfoModel;
 import com.mcreater.amcl.model.mod.ForgeModInfoModel;
+import com.mcreater.amcl.model.mod.LiteLoaderModInfoModel;
+import com.mcreater.amcl.model.mod.OldForgeModInfoModel;
 import com.mcreater.amcl.model.mod.SimpleModInfoModel;
 import com.mcreater.amcl.util.FileUtils.*;
+import com.mcreater.amcl.util.J8Utils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import java.util.function.Consumer;
@@ -33,7 +39,7 @@ public class ModHelper {
         if (d.exists()) {
             for (File f : d.listFiles()) {
                 if (f.isFile()) {
-                    if (f.getPath().endsWith(".jar") || f.getPath().endsWith(".litemod")) {
+                    if (f.getPath().endsWith(".jar") || f.getPath().endsWith(".litemod") || f.getPath().endsWith(".zip")) {
                         result.add(f);
                     }
                 }
@@ -44,7 +50,7 @@ public class ModHelper {
     public static boolean isModded(String dir, String version_name){
         return VersionTypeGetter.modded(dir, version_name);
     }
-    public static CommonModInfoModel getModInfo(String path) throws Exception {
+    public static Vector<CommonModInfoModel> getModInfo(String path) throws Exception {
         String version = "";
         String name = "";
         String description = "";
@@ -55,16 +61,55 @@ public class ModHelper {
         String fabricModJsonFile = ZipUtil.readTextFileInZip(path, "fabric.mod.json");
         String quiltModJsonFile = ZipUtil.readTextFileInZip(path, "quilt.mod.json");
 
+        String liteloaderInfoFile = ZipUtil.readTextFileInZip(path, "litemod.json");
+
         if (mcmodinfoFile != null){
             Gson g = new Gson();
-            String j = mcmodinfoFile;
-            j = j.substring(1, j.length() - 2);
-            ForgeModInfoModel model = g.fromJson(j, ForgeModInfoModel.class);
 
-            version = model.version;
+            if (mcmodinfoFile.startsWith("[")) {
+                Vector<LinkedTreeMap<?, ?>> commonInfo = new Vector<>();
+                commonInfo = g.fromJson(mcmodinfoFile, commonInfo.getClass());
+
+                Vector<ForgeModInfoModel> cm = new Vector<>();
+                commonInfo.forEach(linkedTreeMap -> cm.add(g.fromJson(g.toJson(linkedTreeMap), ForgeModInfoModel.class)));
+
+                Vector<CommonModInfoModel> vec = new Vector<>();
+
+                cm.forEach(mi -> {
+                    CommonModInfoModel m2 = new CommonModInfoModel();
+                    m2.path = path;
+                    m2.name = mi.name;
+                    m2.version = mi.version;
+                    m2.authorList = mi.authorList;
+                    m2.description = mi.description;
+                    vec.add(m2);
+                });
+
+                return vec;
+            }
+            else {
+                OldForgeModInfoModel model = g.fromJson(mcmodinfoFile, OldForgeModInfoModel.class);
+                Vector<CommonModInfoModel> vec = new Vector<>();
+                model.modlist.forEach(mu -> {
+                    CommonModInfoModel m2 = new CommonModInfoModel();
+                    m2.path = path;
+                    m2.name = mu.name;
+                    m2.version = mu.version;
+                    m2.authorList = mu.authorList;
+                    m2.description = mu.description;
+                    vec.add(m2);
+                });
+                return vec;
+            }
+        }
+        else if (liteloaderInfoFile != null) {
+            Gson g = new Gson();
+            LiteLoaderModInfoModel model = g.fromJson(liteloaderInfoFile, LiteLoaderModInfoModel.class);
+
+            version = model.revision;
             name = model.name;
             description = model.description;
-            authorList = model.authorList;
+            authorList = new Vector<>(Collections.singletonList(model.author));
         }
         else if (packMcMetaFile != null){
             SimpleModInfoModel model = new Gson().fromJson(packMcMetaFile, SimpleModInfoModel.class);
@@ -82,7 +127,7 @@ public class ModHelper {
                 mode.name = ob.getString("name");
                 mode.description = ob.getString("description");
                 mode.version = ob.getString("version");
-                return mode;
+                return new Vector<>(J8Utils.createList(mode));
             }
             version = model.version;
             name = model.name;
@@ -105,12 +150,13 @@ public class ModHelper {
             });
             authorList = temp;
         }
+
         CommonModInfoModel m1 = new CommonModInfoModel();
         m1.version = version;
         m1.name = name;
         m1.description = description;
         m1.authorList = authorList.size() == 0 ? null : authorList;
         m1.path = path;
-        return m1;
+        return new Vector<>(J8Utils.createList(m1));
     }
 }

@@ -18,16 +18,20 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.util.Duration;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.Vector;
 import java.util.function.Function;
 
 public class JFXSmoothScroll {
     private static final double[] percents = {0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64, 0.8, 0.86,
     0.9, 0.92, 0.94, 0.96, 1.00};
-    private static final Map<ProgressBar, Thread> barLoadThreads = new HashMap<>();
+    public static final Map<ProgressBar, BarUpdateThread> barMap = new HashMap<>();
     private static void customScrolling(ScrollPane scrollPane, DoubleProperty scrollDriection, Function<Bounds, Double> sizeFunc, double speed) {
         final double[] frictions = {0.99, 0.1, 0.05, 0.04, 0.03, 0.02, 0.01, 0.04, 0.01, 0.008, 0.008, 0.008, 0.008, 0.0006, 0.0005, 0.00003, 0.00001};
         final double[] pushes = {speed};
@@ -101,24 +105,37 @@ public class JFXSmoothScroll {
         customScrolling(scrollPane, scrollPane.hvalueProperty(), Bounds::getWidth, speed);
     }
     public static void smoothScrollBarToValue(ProgressBar bar, double value){
-        Thread t = new Thread(() -> {
-            synchronized (bar) {
+        if (barMap.containsKey(bar)) barMap.get(bar).setTarget(value);
+        else {
+            BarUpdateThread t = new BarUpdateThread(bar, value);
+            barMap.put(bar, t);
+            barMap.get(bar).setTarget(value);
+            barMap.get(bar).start();
+        }
+    }
+    public static class BarUpdateThread extends Thread {
+        ProgressBar bar;
+        double target;
+        public BarUpdateThread(ProgressBar bar, double target) {
+            this.bar = bar;
+            this.target = target;
+        }
+        public void setTarget(double target) {
+            this.target = target;
+        }
+        public void run() {
+            while (true) {
                 double nowValue = bar.getProgress();
+                if (nowValue == target) continue;
                 for (double percent : percents) {
-                    Platform.runLater(() -> {
-                        if (nowValue < value) {
-                            bar.setProgress(nowValue + (value - nowValue) * percent);
-                        } else if (nowValue > value) {
-                            bar.setProgress(nowValue - (nowValue - value) * percent);
-                        }
-                    });
+                    if (nowValue < target) {
+                        Platform.runLater(() -> bar.setProgress(nowValue + (target - nowValue) * percent));
+                    } else {
+                        Platform.runLater(() -> bar.setProgress(nowValue - (nowValue - target) * percent));
+                    }
                     Sleeper.sleep(10);
                 }
-                Platform.runLater(() -> bar.setProgress(value));
             }
-        });
-        if (barLoadThreads.get(bar) != null) barLoadThreads.get(bar).stop();
-        if (!barLoadThreads.containsKey(bar)) barLoadThreads.put(bar, t);
-        t.start();
+        }
     }
 }

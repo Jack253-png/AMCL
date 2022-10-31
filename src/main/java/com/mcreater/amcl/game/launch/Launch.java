@@ -56,7 +56,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Vector;
-import java.util.function.BiConsumer;
 
 public class Launch {
     String java;
@@ -71,21 +70,26 @@ public class Launch {
     SimpleObjectProperty<StringBuilder> logProperty = new SimpleObjectProperty<>(new StringBuilder());
 
     public Long exitCode;
-    public void launch(String java_path, String dir, String version_name, boolean ie, int m, AbstractUser user) throws Exception {
+    public void launch(String java_path, String dir, String version_name, boolean ie, int m, AbstractUser user, FasterUrls.Servers dlserver) throws Exception {
+        MainPage.launchDialog.setV(1, 0);
         if (MemoryReader.getFreeMemory() < (long) m * 1024 * 1024){
             m = (int) (MemoryReader.getFreeMemory() / 1024 / 1204);
         }
         if (user == null){
             throw new BadUserException();
         }
-        TaskManager.setUpdater((integer, s) -> MainPage.launchDialog.setV(2, integer, s));
         MainPage.launchDialog.Create();
         MainPage.launchDialog.setV(0, 5, Launcher.languageManager.get("ui.launch._01"));
         java = java_path;
         MainPage.launchDialog.setV(0, 10, Launcher.languageManager.get("ui.launch._02"));
         Platform.runLater(() -> MainPage.launchDialog.l.setText(Launcher.languageManager.get("ui.fix._01")));
+        TaskManager.setUpdater((integer, s) -> MainPage.launchDialog.setV(1, integer, s));
+        TaskManager.setFinishRunnable(() -> {
+            MainPage.launchDialog.setV(1, 100);
+            TaskManager.setFinishRunnable(() -> {});
+        });
         try {
-            MinecraftFixer.fix(Launcher.configReader.configModel.fastDownload, Launcher.configReader.configModel.downloadChunkSize, dir, version_name);
+            MinecraftFixer.fix(Launcher.configReader.configModel.downloadChunkSize, dir, version_name, dlserver);
         }
         catch (IOException e){
             Platform.runLater(() -> {
@@ -172,7 +176,7 @@ public class Launch {
                                 if (VersionTypeGetter.get(dir, version_name) == VersionTypeGetter.VersionType.FORGE) {
                                     String local = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)).replace("2.8.1", "2.15.0");
                                     new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
-                                    String server = FasterUrls.fast(l.downloads.artifact.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)).replace("2.8.1", "2.15.0");
+                                    String server = FasterUrls.fast(l.downloads.artifact.get("url"), dlserver).replace("2.8.1", "2.15.0");
                                     if (!Objects.equals(l.downloads.artifact.get("sha1"), FileUtils.HashHelper.getFileSHA1(new File(local)))) {
                                         new DownloadTask(server, local, 1024).setHash(l.downloads.artifact.get("sha1")).execute();
                                     }
@@ -189,9 +193,7 @@ public class Launch {
             }
             s0 += 1;
             MainPage.launchDialog.setV(0, 75 + 5 * s0 / r.libraries.size(), String.format(Launcher.languageManager.get("ui.launch._04"), l.name));
-            MainPage.launchDialog.setV(1, (int) ((double) s0 / r.libraries.size() * 100));
         }
-        MainPage.launchDialog.setV(1, 100);
         MainPage.launchDialog.setV(0, 80, String.format(Launcher.languageManager.get("ui.launch._05"), r.libraries.size()));
         File nativef = new File(LinkPath.link(f.getPath(),version_name + "-natives"));
         if (!nativef.exists()){

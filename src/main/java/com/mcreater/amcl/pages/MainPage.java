@@ -2,12 +2,11 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.game.GetMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
-import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
@@ -16,13 +15,12 @@ import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.JsonUtils;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.Sleeper;
+import com.mcreater.amcl.util.net.FasterUrls;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
@@ -59,7 +57,7 @@ public class MainPage extends AbstractAnimationPage {
     public static ObservableList<Launch> game;
     public static Logger logger = LogManager.getLogger(MainPage.class);
     public static ProcessDialog launchDialog;
-    public static ProcessDialog l;
+    public static ProcessDialog versionLoadDialog;
     public static JFXButton users;
     public static JFXButton stopProcess;
     public static final AtomicBoolean clearingThread = new AtomicBoolean(false);
@@ -80,7 +78,7 @@ public class MainPage extends AbstractAnimationPage {
     }
     public MainPage(double width,double height) {
         super(width, height);
-        l = null;
+        versionLoadDialog = null;
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::stopAllProcess));
 
@@ -94,7 +92,7 @@ public class MainPage extends AbstractAnimationPage {
             FileUtils.ChangeDir.saveNowDir();
             if (!Objects.equals(launchButton.getText(), Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
                 Launcher.configReader.check_and_write();
-                launchDialog = new ProcessDialog(3, Launcher.languageManager.get("ui.mainpage.launch._01")) {
+                launchDialog = new ProcessDialog(2, Launcher.languageManager.get("ui.mainpage.launch._01")) {
                     public void setAll(int progress){
                         progresses.forEach(bar -> Platform.runLater(() -> bar.setProgress((double) progress / 100)));
                     }
@@ -118,7 +116,8 @@ public class MainPage extends AbstractAnimationPage {
                             game.get(game.size() - 1).launch(
                                     Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir,
                                     Launcher.configReader.configModel.max_memory,
-                                    UserSelectPage.user_object.get());
+                                    UserSelectPage.user_object.get(),
+                                    FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
                             logger.info("started launch thread");
                         } else {
                             Launcher.configReader.configModel.selected_java.remove(Launcher.configReader.configModel.selected_java_index);
@@ -149,9 +148,7 @@ public class MainPage extends AbstractAnimationPage {
         stopProcess.setId("launch-button");
         stopProcess.setFont(Fonts.s_f);
         stopProcess.setTextFill(Color.WHITE);
-        ListChangeListener<Launch> listener = c -> {
-            BGMManager.startOrStop(game.size() == 0);
-        };
+        ListChangeListener<Launch> listener = c -> BGMManager.startOrStop(game.size() == 0);
         game.addListener(listener);
         listener.onChanged(new ListChangeListener.Change<Launch>(game) {
             public boolean next() {return false;}
@@ -159,7 +156,7 @@ public class MainPage extends AbstractAnimationPage {
             public int getFrom() {return 0;}
             public int getTo() {return 0;}
             public List<Launch> getRemoved() {return null;}
-            protected int[] getPermutation() {return new int[0];}
+            public int[] getPermutation() {return new int[0];}
         });
 
         stopProcess.setOnAction(event -> {
@@ -202,8 +199,8 @@ public class MainPage extends AbstractAnimationPage {
         is_vaild_minecraft_dir = Launcher.configReader.configModel.selected_minecraft_dir.contains(Launcher.configReader.configModel.selected_minecraft_dir_index) && new File(Launcher.configReader.configModel.selected_minecraft_dir_index).exists();
 
         choose_version.setOnAction(event -> {
-            l = new ProcessDialog(1, Launcher.languageManager.get("ui.versionListLoad._02"));
-            l.setV(0, 0, Launcher.languageManager.get("ui.mainpage.loadlist.name"));
+            versionLoadDialog = new ProcessDialog(1, Launcher.languageManager.get("ui.versionListLoad._02"));
+            versionLoadDialog.setV(0, 0, Launcher.languageManager.get("ui.mainpage.loadlist.name"));
             Launcher.setPage(Launcher.VERSIONSELECTPAGE, this);
         });
 
@@ -312,7 +309,7 @@ public class MainPage extends AbstractAnimationPage {
                             if (!Launcher.configReader.configModel.selected_version_index.equals("")) {
                                 if (JsonUtils.isVaildJson(new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/%s.json", Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)))) {
                                     Platform.runLater(() -> {
-                                        version_settings.setText(" " + Launcher.configReader.configModel.selected_version_index);
+                                        version_settings.setText(" _" + Launcher.configReader.configModel.selected_version_index);
                                         launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.hasVersion"));
                                         version_settings.setDisable(false);
                                         downloadMc.setDisable(false);

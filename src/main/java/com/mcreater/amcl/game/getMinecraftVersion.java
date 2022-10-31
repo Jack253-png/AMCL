@@ -13,7 +13,7 @@ public class GetMinecraftVersion {
         if (!f.exists()){
             return null;
         }
-        File f1 = new File(LinkPath.link(p,"versions"));
+        File f1 = new File(LinkPath.link(p, "versions"));
         if (!f1.exists()){
             return null;
         }

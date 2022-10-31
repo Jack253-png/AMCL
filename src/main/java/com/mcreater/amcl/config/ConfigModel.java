@@ -1,8 +1,5 @@
 package com.mcreater.amcl.config;
 
-import net.querz.nbt.tag.CompoundTag;
-import net.querz.nbt.tag.Tag;
-
 import java.util.Vector;
 
 public class ConfigModel {

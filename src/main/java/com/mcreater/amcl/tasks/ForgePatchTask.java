@@ -4,15 +4,14 @@ import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.api.reflect.ReflectedJar;
 import com.mcreater.amcl.download.ForgeDownload;
 import com.mcreater.amcl.game.launch.Launch;
-import com.mcreater.amcl.nativeInterface.NoExitSecurityManager;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.StringUtils;
-import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.java.GetJarMainClass;
+import com.mcreater.amcl.util.net.FasterUrls;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
@@ -22,7 +21,8 @@ public class ForgePatchTask extends AbstractTask{
     public String jar;
     public Vector<String> classpath = new Vector<>();
     public String[] args_array;
-    public ForgePatchTask(String lib_base, String jar, Vector<String> classpath, String args, String[] args_array) throws IOException {
+    FasterUrls.Servers server;
+    public ForgePatchTask(String lib_base, String jar, Vector<String> classpath, String args, String[] args_array, FasterUrls.Servers server) throws IOException {
         super("");
         Vector<String> jars = new Vector<>();
         String mainjar = LinkPath.link(lib_base, StringUtils.GetFileBaseDir.forgeGet(jar));
@@ -40,6 +40,7 @@ public class ForgePatchTask extends AbstractTask{
         this.command = String.format("\"%s\" %s %s %s", LinkPath.link(System.getProperty("java.home"), "bin/java.exe"), b, mainClass, args);
         this.jar = mainjar;
         this.args_array = args_array;
+        this.server = server;
     }
     public Integer execute() throws IOException {
         if (!command.contains("DOWNLOAD_MOJMAPS")) {
@@ -48,7 +49,7 @@ public class ForgePatchTask extends AbstractTask{
         }
         else{
             List<String> l = J8Utils.createList(command.split(" "));
-            ForgeDownload.download_mojmaps(l.get(l.size() - 1));
+            ForgeDownload.download_mojmaps(l.get(l.size() - 1), server);
             return 0;
         }
     }

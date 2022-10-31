@@ -2,7 +2,6 @@ package com.mcreater.amcl.download;
 
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.download.model.NewForgeItemModel;
 import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.model.LibModel;
@@ -48,34 +47,25 @@ public class ForgeDownload {
     static Logger logger = LogManager.getLogger(ForgeDownload.class);
     static String versiondir;
     static String u = "";
-    private static int getCont(String raw){
-        int count = 0;
-        int index = 0;
-        while ((index = raw.indexOf("-", index)) != -1) {
-            index = index + 1;
-            count++;
-        }
-        return count;
-    }
-    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, NewForgeItemModel forge_version, Runnable r3, Runnable r, Runnable r2) throws Exception {
+
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, NewForgeItemModel forge_version, Runnable r3, Runnable r, Runnable r2, FasterUrls.Servers server) throws Exception {
         tasks.clear();
         ForgeDownload.chunkSize = chunkSize;
         String temp_path = "forgeTemp";
-        OriginalDownload.download(id, minecraft_dir, version_name, chunkSize);
+        OriginalDownload.download(id, minecraft_dir, version_name, chunkSize, server);
         r.run();
         String versionPath = FileUtils.LinkPath.link(temp_path, "version.json");
         versiondir = String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name);
         VersionJsonModel model225 = new Gson().fromJson(FileUtils.FileStringReader.read(versiondir), VersionJsonModel.class);
         try {
-            u = FasterUrls.fast(model225.downloads.get("client_mappings").url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+            u = FasterUrls.fast(model225.downloads.get("client_mappings").url, server);
         }
         catch (NullPointerException ignored){}
         String installer_path = FileUtils.LinkPath.link(temp_path, "installer.jar");
-        String installer_url = GetVersionList.getForgeInstallerDownloadURL(forge_version, id);
+        String installer_url = GetVersionList.getForgeInstallerDownloadURL(forge_version, id, server);
 
         logger.info(String.format("finded forge installer url : %s", installer_url));
         deleteDirectory(new File(temp_path), temp_path);
-//        int i = 0;
         new File(temp_path).mkdirs();
         if (!GetFileExists.get(installer_url)){
             throw new IOException("this version of forge cannot be automated");
@@ -83,7 +73,6 @@ public class ForgeDownload {
         r3.run();
 
         new ForgeInstallerDownloadTask(installer_url, installer_path, chunkSize).execute();
-//      int i = 0;
         if (new File(temp_path).exists()) {
             FileUtils.ZipUtil.unzipAll(installer_path, temp_path);
         }
@@ -112,7 +101,7 @@ public class ForgeDownload {
                 }
                 else {
                     new File(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path"))).mkdirs();
-                    tasks.add(new LibDownloadTask(FasterUrls.fast(m.downloads.artifact.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path").replace("/", "\\")), chunkSize).setHash(m.downloads.artifact.get("sha1")));
+                    tasks.add(new LibDownloadTask(FasterUrls.fast(m.downloads.artifact.get("url"), server), FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path").replace("/", "\\")), chunkSize).setHash(m.downloads.artifact.get("sha1")));
                 }
             }
             if (model.minecraftArguments != null){
@@ -135,7 +124,7 @@ public class ForgeDownload {
             ForgeInjectModel model1 = g.fromJson(FileUtils.FileStringReader.read(FileUtils.LinkPath.link(temp_path, "install_profile.json")), ForgeInjectModel.class);
             for (LibModel m1 : model1.libraries){
                 new File(StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")))).mkdirs();
-                tasks.add(new LibDownloadTask(FasterUrls.fast(m1.downloads.artifact.get("url"), FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")), chunkSize).setHash(m1.downloads.artifact.get("sha1")));
+                tasks.add(new LibDownloadTask(FasterUrls.fast(m1.downloads.artifact.get("url"), server), FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")), chunkSize).setHash(m1.downloads.artifact.get("sha1")));
             }
             TaskManager.addTasks(tasks);
             TaskManager.execute("<forge>");
@@ -173,7 +162,7 @@ public class ForgeDownload {
                             args.add(a);
                         }
                     }
-                    tasks2.add(new ForgePatchTask(lib_base, model2.jar, model2.classpath, argstr.toString(), args.toArray(new String[0])));
+                    tasks2.add(new ForgePatchTask(lib_base, model2.jar, model2.classpath, argstr.toString(), args.toArray(new String[0]), server));
                 }
             }
             TaskManager.addTasks(tasks2);
@@ -187,7 +176,6 @@ public class ForgeDownload {
             JSONObject ao = new JSONObject(FileUtils.FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
             ao = ao.put("mainClass", model.versionInfo.mainClass);
             ao = ao.put("minecraftArguments", model.versionInfo.minecraftArguments);
-            Vector<Object> rem = new Vector<>();
 
             Gson g1 = new Gson();
             for (OldForgeLibModel model1 : model.versionInfo.libraries){
@@ -219,10 +207,10 @@ public class ForgeDownload {
                         String path = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name));
                         String url;
                         url = "https://maven.minecraftforge.net/" + MavenPathConverter.get(model1.name).replace("\\", "/");
-                        url = FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+                        url = FasterUrls.fast(url, server);
                         if (!GetFileExists.get(url)){
                             url = "https://libraries.minecraft.net/" + MavenPathConverter.get(model1.name).replace("\\", "/");
-                            url = FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+                            url = FasterUrls.fast(url, server);
                         }
                         if (model1.name.contains("guava")){
                             Iterator<Object> t = ao.getJSONArray("libraries").iterator();
@@ -234,7 +222,7 @@ public class ForgeDownload {
                             }
                         }
                         ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
-                        LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), path, chunkSize);
+                        LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, server), path, chunkSize);
                         if (model1.checksums != null){
                             te.setHash(model1.checksums.get(0));
                         }
@@ -245,12 +233,12 @@ public class ForgeDownload {
                     String path = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name));
                     String url;
                     url = "https://maven.minecraftforge.net/" + MavenPathConverter.get(model1.name).replace("\\", "/");
-                    url = FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+                    url = FasterUrls.fast(url, server);
                     if (!GetFileExists.get(url)){
                         url = "https://libraries.minecraft.net/" + MavenPathConverter.get(model1.name).replace("\\", "/");
-                        url = FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+                        url = FasterUrls.fast(url, server);
                     }
-                    url = FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+                    url = FasterUrls.fast(url, server);
                     if (model1.name.contains("guava")){
                         Iterator<Object> t = ao.getJSONArray("libraries").iterator();
                         while (t.hasNext()){
@@ -261,7 +249,7 @@ public class ForgeDownload {
                         }
                     }
                     ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
-                    LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), path, chunkSize);
+                    LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, server), path, chunkSize);
                     if (model1.checksums != null){
                         te.setHash(model1.checksums.get(0));
                     }
@@ -293,9 +281,9 @@ public class ForgeDownload {
             f.delete();
         }
     }
-    public static void download_mojmaps(String local) throws IOException {
-        logger.info(String.format("download mojmaps : %s", FasterUrls.fast(u, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer))));
+    public static void download_mojmaps(String local, FasterUrls.Servers server) throws IOException {
+        logger.info(String.format("download mojmaps : %s", FasterUrls.fast(u, server)));
         new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
-        new DownloadTask(FasterUrls.fast(u, FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)), local, 1024).execute();
+        new DownloadTask(FasterUrls.fast(u, server), local, 1024).execute();
     }
 }

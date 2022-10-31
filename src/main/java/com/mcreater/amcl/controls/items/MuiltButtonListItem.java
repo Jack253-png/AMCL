@@ -14,7 +14,7 @@ import javafx.scene.paint.Color;
 import java.util.List;
 import java.util.Vector;
 
-public class MuiltButtonListItem<T> extends HBox{
+public class MuiltButtonListItem<T> extends HBox {
     public Label name;
     public JFXComboBox<T> cont;
     public HBox group;

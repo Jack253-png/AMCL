@@ -23,6 +23,6 @@ public abstract class AbstractTask implements Task {
     }
     public abstract Integer execute() throws IOException;
     public String toString(){
-        return this.server;
+        return this.getClass().getSimpleName();
     }
 }

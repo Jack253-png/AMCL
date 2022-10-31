@@ -149,7 +149,10 @@ public class VersionTypeGetter {
         String opti = Launcher.languageManager.get("ui.versioninfopage.noOptifine");
         for (LibModel model : v.libraries){
             if (model.name.contains("optifine:OptiFine:")) {
-                opti = String.format(Launcher.languageManager.get("ui.versioninfopage.hasoptifine"), J8Utils.createList(model.name.split(":")).get(2));
+                String f = J8Utils.createList(model.name.split(":")).get(2);
+                Vector<String> f2 = new Vector<>(J8Utils.createList(f.split("_")));
+                f2.remove(0);
+                opti = String.format(Launcher.languageManager.get("ui.versioninfopage.hasoptifine"), String.join("-", f2), f);
             }
         }
         return opti;
