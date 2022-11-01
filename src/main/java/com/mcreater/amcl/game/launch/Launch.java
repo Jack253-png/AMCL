@@ -414,7 +414,7 @@ public class Launch {
                             }
                         }
                     }
-                    authLibInjectorArg = "-javaagent:" + "authlib-injector.jar" + "=http://localhost:" + port + " -Dauthlibinjector.side=client";
+                    authLibInjectorArg = "-javaagent:" + "\"" + target.getAbsolutePath() + "\"" + "=http://localhost:" + port + " -Dauthlibinjector.side=client";
                 }
             }
 
