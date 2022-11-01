@@ -24,6 +24,7 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
@@ -286,7 +287,9 @@ public class Launcher extends javafx.application.Application {
         s.setFill(Color.TRANSPARENT);
         s.setRoot(wrapper);
         stage.setScene(s);
+        Timer timer = Timer.getInstance();
         refreshBackground();
+        logger.info("background generate/set used " + timer.getTimeString());
         s.setOnKeyPressed(event -> System.out.println(event.getCode()));
     }
     public static void setTitle(){
@@ -324,14 +327,13 @@ public class Launcher extends javafx.application.Application {
             }
         }
 
-        WritableImage ima;
+        WritableImage result;
         if (last.getBufferedBackground() == null && !hasBinded) {
-            ima = FXUtils.ImageConverter.convertToWritableImage(new Image(wallpaper));
-            WritableImage ima2 = FXUtils.ImagePreProcesser.cutImage(ima, 0, 0, (int) ima.getWidth(), (int) ima.getHeight());
-            WritableImage ima3 = FXUtils.ImagePreProcesser.cutImage(ima, 0, 0, (int) ima.getWidth(), (int) ima.getHeight());
+            result = FXUtils.ImageConverter.convertToWritableImage(new Image(wallpaper));
+            WritableImage original = FXUtils.ImagePreProcesser.cutImage(result, 0, 0, (int) result.getWidth(), (int) result.getHeight());
 
             FXUtils.ImagePreProcesser.process(
-                    ima2,
+                    result,
                     (view, image) -> view.setEffect(new GaussianBlur(100)),
                     (view, image) -> {
                         Rectangle clip = new Rectangle(
@@ -340,82 +342,45 @@ public class Launcher extends javafx.application.Application {
                         );
                         clip.setArcWidth(0);
                         clip.setArcHeight(0);
-                        view.setClip(clip);
-                    },
-                    FXUtils.ImagePreProcesser.NO_TRANSPARENT
-            );
-            FXUtils.ImagePreProcesser.process(
-                    ima3,
-                    (view, image) -> {
-                        Rectangle clip = new Rectangle(
-                                view.getFitWidth() / 7 * 6,
-                                view.getFitHeight() / 12 * 11
-                        );
-                        clip.setArcWidth(0);
-                        clip.setArcHeight(0);
-                        view.setClip(clip);
-                    },
-                    FXUtils.ImagePreProcesser.NO_TRANSPARENT
-            );
-
-            FXUtils.ImagePreProcesser.process(
-                    ima,
-                    (view, image) -> view.setEffect(new GaussianBlur(100)),
-                    (view, image) -> {
-                        Rectangle clip = new Rectangle(
-                                view.getFitWidth() / 7 * 6,
-                                view.getFitHeight() / 12 * 11
-                        );
-                        clip.setArcWidth(radius);
-                        clip.setArcHeight(radius);
                         view.setClip(clip);
                     }
             );
+
             FXUtils.ImagePreProcesser.process(
-                    ima,
+                    result,
                     (view, image) -> {
-                        if (ima2 != null) {
-                            for (int x = 0; x < image.getWidth(); x++) {
-                                for (int y = (int) (image.getHeight() / 2); y < image.getHeight(); y++) {
+                        List<AnimationPage.NodeInfo> nodes = new Vector<>(last.nodes);
+                        nodes.add(new AnimationPage.NodeInfo(0, 0, width, barSize / 100 * 95));
+                        for (int x = 0; x < image.getWidth(); x++) {
+                            for (int y = 0; y < image.getHeight(); y++) {
+                                if (!last.nodes.contains(null) && !FXUtils.gemotryInned(new Point2D(x / widthRadius, y / heightRadius), nodes)) {
                                     image.getPixelWriter().setColor(
-                                            x,
-                                            y,
-                                            ima2.getPixelReader().getColor(x, y)
+                                            x, y,
+                                            original.getPixelReader().getColor(x, y)
+                                    );
+                                }
+                                else {
+                                    image.getPixelWriter().setColor(
+                                            x, y,
+                                            FXUtils.ImagePreProcesser.noTransparent(image.getPixelReader().getColor(x, y))
                                     );
                                 }
                             }
                         }
-                    },
-                    (view, image) -> {
-                        if (!last.nodes.contains(null)) {
-                            List<AnimationPage.NodeInfo> nodes = new Vector<>(last.nodes);
-                            nodes.add(new AnimationPage.NodeInfo(0, 0, width, barSize / 100 * 97));
-                            for (int x = 0; x < image.getWidth(); x++) {
-                                for (int y = 0; y < image.getHeight(); y++) {
-                                    if (!FXUtils.gemotryInned(new Point2D(x / widthRadius, y / heightRadius), nodes)) {
-                                        image.getPixelWriter().setColor(
-                                                x, y,
-                                                ima3.getPixelReader().getColor(x, y)
-                                        );
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    FXUtils.ImagePreProcesser.NO_TRANSPARENT
+                    }
             );
 
-            last.setBufferedBackground(ima);
+            last.setBufferedBackground(result);
             for (AbstractAnimationPage pag : last.BindedPageproperty().get()) {
-                if (pag != null) pag.setBufferedBackground(ima);
+                if (pag != null) pag.setBufferedBackground(result);
             }
         }
         else {
-            ima = ha.getBufferedBackground();
+            result = ha.getBufferedBackground();
         }
 
         BackgroundImage im = new BackgroundImage(
-                ima,
+                result,
                 BackgroundRepeat.ROUND,
                 BackgroundRepeat.ROUND,
                 BackgroundPosition.DEFAULT,

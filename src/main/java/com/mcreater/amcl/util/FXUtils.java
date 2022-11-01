@@ -108,6 +108,14 @@ public class FXUtils {
     }
     public static class ImagePreProcesser {
         public static Logger logger = LogManager.getLogger(ImagePreProcesser.class);
+        public static Color noTransparent(Color ori) {
+            return new Color(
+                    ori.getRed(),
+                    ori.getGreen(),
+                    ori.getBlue(),
+                    1.0
+            );
+        }
         public static final SimpleFunctions.Arg2FuncNoReturn<ImageView, WritableImage> NO_TRANSPARENT = (arg1, arg2) -> {
             for (int x = 0; x < arg2.getWidth(); x++) {
                 for (int y = 0; y < arg2.getHeight(); y++) {
