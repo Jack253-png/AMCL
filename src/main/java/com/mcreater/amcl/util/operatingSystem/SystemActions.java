@@ -1,5 +1,7 @@
 package com.mcreater.amcl.util.operatingSystem;
 
+import com.mcreater.amcl.pages.stages.browser.ChroumiumWebBrowser;
+
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
@@ -15,7 +17,7 @@ public class SystemActions {
             catch (IOException e){
                 e.printStackTrace();
             }
-        });
+        }).start();
     }
 
     private static boolean supportAction(Desktop.Action action){

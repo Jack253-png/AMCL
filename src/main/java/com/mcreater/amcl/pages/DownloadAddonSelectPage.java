@@ -272,7 +272,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                             } catch (Exception e) {
                                 dialog.setAll(100);
                                 Platform.runLater(dialog::close);
-                                SimpleDialogCreater.exception(e);
+                                SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.mcdownload"));
                                 return;
                             }
                             latch.countDown();
@@ -296,7 +296,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                             } catch (Exception e) {
                                 dialog.setAll(100);
                                 Platform.runLater(dialog::close);
-                                SimpleDialogCreater.exception(e);
+                                SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.mcdownload"));
                                 return;
                             }
                         }
@@ -323,7 +323,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         } catch (Exception e) {
                             dialog.setAll(100);
                             Platform.runLater(dialog::close);
-                            SimpleDialogCreater.exception(e);
+                            SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.mcdownload"));
                             return;
                         }
                         TaskManager.setUpdater((value, mess) -> dialog.setV(2, value, mess));
@@ -338,9 +338,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 model = GetVersionList.getOptifineVersionRaw();
                             }
                             catch (Exception e){
-                                e.printStackTrace();
                                 dialog.close();
-                                SimpleDialogCreater.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content"));
+                                SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"));
                                 return;
                             }
                             String opti = null;
@@ -390,7 +389,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         } catch (Exception e) {
                             dialog.setAll(100);
                             Platform.runLater(dialog::close);
-                            SimpleDialogCreater.exception(e);
+                            SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.mcdownload"));
                             return;
                         }
                         TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
@@ -434,7 +433,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         } catch (Exception e) {
                             dialog.setAll(100);
                             Platform.runLater(dialog::close);
-                            SimpleDialogCreater.exception(e);
+                            SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.mcdownload"));
                             return;
                         }
                         latch.countDown();
@@ -499,11 +498,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 loadVers();
             }
             catch (Exception e){
-                e.printStackTrace();
-                Platform.runLater(() -> {
-                    SimpleDialogCreater.create(Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"), Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.content"));
-                    dialog.close();
-                });
+                Platform.runLater(dialog::close);
+                SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"));
                 Launcher.setPage(Launcher.DOWNLOADMCPAGE, this);
             }
             Platform.runLater(dialog::close);

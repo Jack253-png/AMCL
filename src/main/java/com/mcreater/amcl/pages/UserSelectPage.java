@@ -2,7 +2,6 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
@@ -24,8 +23,6 @@ import com.mcreater.amcl.pages.dialogs.skin.OfflineSkinManageDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.pages.stages.browser.AbstractWebBrowser;
-import com.mcreater.amcl.pages.stages.browser.ChroumiumWebBrowser;
-import com.mcreater.amcl.pages.stages.browser.WebkitWebBrowser;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
@@ -49,6 +46,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -172,8 +170,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                         }
                         Launcher.configReader.write();
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"), e.toString(), ""));
+                        SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"));
                     }
                     finally {
                         run.run();
@@ -357,7 +354,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                             else {
                                 Platform.runLater(() -> {
                                     di.close();
-                                    SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.user_unvaildated.title"), Launcher.languageManager.get("ui.userselectpage.user_unvaildated.content"), "");
+                                    SimpleDialogCreater.createWithNoSync(Launcher.languageManager.get("ui.userselectpage.user_unvaildated.title"), Launcher.languageManager.get("ui.userselectpage.user_unvaildated.content"), "");
                                 });
                             }
                         }).start();
@@ -388,7 +385,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                         Launcher.configReader.configModel.last_cape_path,
                         Launcher.configReader.configModel.last_elytra_path
                 ));
-                SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.content"), "");
+                SimpleDialogCreater.createWithNoSync(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.content"), "");
                 refreshSkin();
                 setP1(2);
             };
@@ -518,7 +515,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 e.printStackTrace();
                 Platform.runLater(() -> {
                     dialog.close();
-                    SimpleDialogCreater.exception(e);
+                    SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.mslogin.fail"));
                     msLogin.setDisable(false);
                 });
                 return;
@@ -553,7 +550,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                     Launcher.configReader.write();
                     Platform.runLater(() -> {
                         dialog.close();
-                        SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.ms.content"), "");
+                        SimpleDialogCreater.createWithNoSync(Launcher.languageManager.get("ui.userselectpage.login.success.title"), Launcher.languageManager.get("ui.userselectpage.login.success.ms.content"), "");
                         msLogin.setDisable(false);
                         refreshSkin();
                         setP1(2);
@@ -562,7 +559,7 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 else {
                     Platform.runLater(() -> {
                         dialog.close();
-                        SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.login.failed"), p.ex.toString(), "");
+                        SimpleDialogCreater.exception(p.ex, Launcher.languageManager.get("ui.userselectpage.login.failed"));
                         msLogin.setDisable(false);
                     });
                 }
@@ -576,11 +573,13 @@ public class UserSelectPage extends AbstractMenuBarPage {
                 t.stop();
                 msLogin.setDisable(false);
             });
+            AtomicBoolean closed = new AtomicBoolean(false);
             p.setOnHiding(event1 -> {
-                dialog.Create();
+                if (!closed.get()) dialog.Create();
                 Launcher.stage.show();
             });
             p.setOnCloseRequest(event1 -> {
+                closed.set(true);
                 dialog.close();
                 t.stop();
                 msLogin.setDisable(false);

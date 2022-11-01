@@ -66,7 +66,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         }
     }
     public void outAnimation() {
-        if (animationThread != null) animationThread.get().stop();
+        if (animationThread != null && animationThread.get() != null) animationThread.get().stop();
         animationThread.set(new Thread(() -> {
             for (double i2 = getBlurRadius(); i2 >= 0; i2 -= radius / 80) {
                 double finalI = i2;
@@ -78,7 +78,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         if (dialogs.size() == 0) animationThread.get().start();
     }
     public void inAnimation() {
-        if (animationThread != null) animationThread.get().stop();
+        if (animationThread != null && animationThread.get() != null) animationThread.get().stop();
         animationThread.set(new Thread(() -> {
             FXUtils.Platform.runLater(() -> Launcher.wrapper.setEffect(null));
             for (double i2 = getBlurRadius(); i2 <= radius; i2 += radius / 80) {

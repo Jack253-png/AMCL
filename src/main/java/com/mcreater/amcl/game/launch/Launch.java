@@ -92,10 +92,8 @@ public class Launch {
             MinecraftFixer.fix(Launcher.configReader.configModel.downloadChunkSize, dir, version_name, dlserver);
         }
         catch (IOException e){
-            Platform.runLater(() -> {
-                MainPage.launchDialog.close();
-                SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString());
-            });
+            Platform.runLater(() -> MainPage.launchDialog.close());
+            SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"));
             return;
         }
 
@@ -416,7 +414,7 @@ public class Launch {
                             }
                         }
                     }
-                    authLibInjectorArg = "-javaagent:" + target.getAbsolutePath() + "=http://localhost:" + port + " -Dauthlibinjector.side=client";
+                    authLibInjectorArg = "-javaagent:" + "authlib-injector.jar" + "=http://localhost:" + port + " -Dauthlibinjector.side=client";
                 }
             }
 

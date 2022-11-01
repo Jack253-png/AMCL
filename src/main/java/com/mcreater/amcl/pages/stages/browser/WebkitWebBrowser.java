@@ -63,7 +63,7 @@ public class WebkitWebBrowser extends AbstractWebBrowser {
         this.getIcons().add(Icons.fxIcon.get());
         webView.getStylesheets().add(String.format(ThemeManager.getPath(), "WebView"));
 
-        setOnCloseRequest(event -> webView.getEngine().load("about::blank"));
+        setOnHiding(event -> webView.getEngine().load("about::blank"));
     }
     public void open() {
         Scene s = new Scene(webView);

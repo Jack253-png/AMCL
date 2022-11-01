@@ -153,10 +153,10 @@ public class ConfigPage extends AbstractMenuBarPage {
                 } catch (ExecutionException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.java_info.title"), String.format(Launcher.languageManager.get("ui.configpage.java_info.Headercontent"), v.get(0), v.get(1), v.get(2), v.get(3)), ""));
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.java_info.title"), String.format(Launcher.languageManager.get("ui.configpage.java_info.Headercontent"), v.get(0), v.get(1), v.get(2), v.get(3)), "");
             }
             else{
-                Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.select_java.title"), Launcher.languageManager.get("ui.configpage.select_java.Headercontent"), ""));
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.select_java.title"), Launcher.languageManager.get("ui.configpage.select_java.Headercontent"), "");
             }
             java_get.setDisable(false);
         }).start());
@@ -317,19 +317,6 @@ public class ConfigPage extends AbstractMenuBarPage {
         heapUsed = new XYChart.Series<>();
         heapMax = new XYChart.Series<>();
         jvm.getData().addAll(heapUsed, heapMax);
-
-        SimpleFunctions.Arg1FuncNoReturn<String> transparent = arg1 -> {
-            try {
-                Field f = XYChart.class.getDeclaredField(arg1);
-                f.setAccessible(true);
-                ((Node) f.get(memory)).setStyle("-fx-background-color: transparent");
-                ((Node) f.get(cpu)).setStyle("-fx-background-color: transparent");
-                ((Node) f.get(jvm)).setStyle("-fx-background-color: transparent");
-            }
-            catch (Exception ignored){}
-        };
-
-        transparent.run("plotBackground");
 
         start = event -> {
             addMem();

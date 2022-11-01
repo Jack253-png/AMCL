@@ -21,6 +21,8 @@ import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
@@ -32,6 +34,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -123,13 +126,13 @@ public class MainPage extends AbstractAnimationPage {
                             Launcher.configReader.configModel.selected_java.remove(Launcher.configReader.configModel.selected_java_index);
                             Launcher.configReader.configModel.selected_java_index = "";
                             Launcher.configReader.write();
-                            Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.launch.javaChecker.name"), Launcher.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), ""));
+                            SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.launch.javaChecker.name"), Launcher.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), "");
                         }
                     }
                     catch (Exception e) {
                         launchDialog.close();
                         logger.error("failed to launch", e);
-                        Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"), Launcher.languageManager.get("ui.mainpage.launch.launchFailed.Headcontent"), e.toString()));
+                        SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"));
                     }
                 });
                 stopAction.setOnAction(event1 -> {
@@ -271,7 +274,6 @@ public class MainPage extends AbstractAnimationPage {
         if (launchCore.exitCode != null){
             logger.info("Minecraft exited with code " + launchCore.exitCode);
             if (launchCore.exitCode != 0){
-
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.minecraftExit.title"), String.format(Launcher.languageManager.get("ui.mainpage.minecraftExit.Headercontent"), launchCore),String.format(Launcher.languageManager.get("ui.mainpage.minecraftExit.content"), launchCore.exitCode));
             }
         }

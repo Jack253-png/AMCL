@@ -66,7 +66,7 @@ public class MicrosoftSkinManageDialog extends AbstractDialog {
                         Platform.runLater(dialog::close);
                     } catch (Exception e) {
                         Platform.runLater(dialog::close);
-                        Platform.runLater(() -> SimpleDialogCreater.exception(e));
+                        SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.msaccount.skin.fail"));
                     }
                 }).start();
             }
@@ -90,10 +90,8 @@ public class MicrosoftSkinManageDialog extends AbstractDialog {
                     Platform.runLater(dialog::close);
                 }
                 catch (Exception e){
-                    Platform.runLater(() -> {
-                        dialog.close();
-                        SimpleDialogCreater.exception(e);
-                    });
+                    Platform.runLater(dialog::close);
+                    SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.msaccount.cape.fail"));
                 }
             }).start();
         });

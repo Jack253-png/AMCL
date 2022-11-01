@@ -175,7 +175,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         } while (downloaded.get() != tasks.size());
                     }
                     catch (Exception e) {
-                        Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), ""));
+                        SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"));
                         e.printStackTrace();
                     } finally {
                         Platform.runLater(dialog::close);
@@ -233,13 +233,11 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         dialog.Create();
                     }
                     else {
-                        Platform.runLater(() -> {
-                            SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
-                        });
+                        SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
                     }
                 }
                 catch (Exception e){
-                    Platform.runLater(() -> SimpleDialogCreater.exception(e));
+                    SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.mod.load"));
                 }
                 finally {
                     latch.countDown();
@@ -349,7 +347,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     loadSuccess = true;
                 } catch (Exception e) {
                     Platform.runLater(() -> {
-                        SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"), String.format(Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.content"), e), "");
+                        SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"));
                         Launcher.setPage(l, this);
                     });
                     e.printStackTrace();

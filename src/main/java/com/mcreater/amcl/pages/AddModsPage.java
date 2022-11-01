@@ -114,7 +114,7 @@ public class AddModsPage extends AbstractAnimationPage {
             try {
                 this.searchMods();
             } catch (IOException e) {
-                Platform.runLater(() -> SimpleDialogCreater.create(Launcher.languageManager.get("ui.addmodspage.loadmods.fail.title"), String.format(Launcher.languageManager.get("ui.addmodspage.loadmods.fail.content"), e), ""));
+                SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.addmodspage.loadmods.fail.title"));
             }
             finally {
                 submit.setDisable(false);

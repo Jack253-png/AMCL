@@ -1,7 +1,5 @@
 package com.mcreater.amcl.pages.dialogs.commons;
 
-import com.jfoenix.animation.alert.JFXAlertAnimation;
-import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
@@ -11,18 +9,21 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
-import javafx.scene.control.Button;
 
 import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public class SimpleDialogCreater {
-    public static void create(String Title, String HeaderText, String ContentText){
+    public static void create(String Title, String HeaderText, String ContentText) {
+        FXUtils.Platform.runLater(() -> createImpl(Title, HeaderText, ContentText));
+    }
+    public static void createWithNoSync(String Title, String HeaderText, String ContentText) {
+        createImpl(Title, HeaderText, ContentText);
+    }
+    private static void createImpl(String Title, String HeaderText, String ContentText){
         AbstractDialog alert = new AbstractDialog(Launcher.stage) {};
 
         JFXDialogLayout layout = new JFXDialogLayout();
@@ -41,13 +42,15 @@ public class SimpleDialogCreater {
         ThemeManager.loadButtonAnimates(title, body, addButton);
         alert.showAndWait();
     }
+    public static void exception(Throwable cause, String subtitle) {
+        FXUtils.Platform.runLater(() -> exceptionImpl(cause, subtitle));
+    }
     public static void exception(Throwable cause) {
+        exception(cause, Launcher.languageManager.get("ui.dialogs.exception.sub"));
+    }
+    private static void exceptionImpl(Throwable cause, String subtitle) {
         cause.printStackTrace();
-        JFXAlert<String> alert = new JFXAlert<>(Launcher.stage);
-        alert.setAnimation(JFXAlertAnimation.BOTTOM_ANIMATION);
-        alert.initModality(Modality.APPLICATION_MODAL);
-        alert.setOverlayClose(false);
-
+        AbstractDialog alert = new AbstractDialog(Launcher.stage) {};
 
         StringWriter writer = new StringWriter();
         PrintWriter printer = new PrintWriter(writer);
@@ -55,7 +58,7 @@ public class SimpleDialogCreater {
 
         VBox box = new VBox();
         box.setSpacing(2);
-        int width = 300;
+        int width = 180;
         for (String j : writer.getBuffer().toString().split("\n")) {
             try {
                 Object o = Class.forName("sun.font.FontDesignMetrics").getDeclaredMethod("getMetrics", java.awt.Font.class).invoke(null, Fonts.awt_t_f);
@@ -64,22 +67,22 @@ public class SimpleDialogCreater {
             }
             catch (Exception ignored){}
         }
+        width += 20;
         for (String i : writer.getBuffer().toString().split("\n")) {
             Label stack = new Label(i);
             stack.setFont(Fonts.t_f);
             box.getChildren().add(stack);
         }
+
         FXUtils.ControlSize.setWidth(box, width);
 
         SettingPage page = new SettingPage(400, 300, box, false);
-        page.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        page.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         page.lThread.stop();
 
         ThemeManager.applyNode(page);
 
         JFXDialogLayout layout = new JFXDialogLayout();
-        Label title = setFont(new Label(Launcher.languageManager.get("ui.common.exception.title")), Fonts.s_f);
+        Label title = setFont(new Label(Launcher.languageManager.get("ui.common.exception.title") + " - " + subtitle), Fonts.s_f);
         layout.setHeading(title);
 
         JFXButton addButton = new JFXButton(Launcher.languageManager.get("ui.dialogs.information.ok.name"));

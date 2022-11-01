@@ -20,16 +20,20 @@ public class SettingPage extends ScrollPane implements SettingsAnimationPage {
     private final Region shadow = new Region();
     public Thread lThread = null;
     public SettingPage(double width, double height, Pane content) {
-        this (width, height, content, true);
+        this (width, height, content, true, true);
     }
     public SettingPage(double width, double height, Pane content, boolean neededHeight) {
+        this (width, height, content, neededHeight, true);
+    }
+    public SettingPage(double width, double height, Pane content, boolean neededHeight, boolean neededWidth) {
         super(content);
         setShowShadow(!neededHeight);
         FXUtils.ControlSize.set(this, width, height);
         if (neededHeight) {
             FXUtils.ControlSize.set(content, width - 30, height - 10);
         }
-        else{
+
+        if (neededWidth)  {
             FXUtils.ControlSize.setWidth(content, width - 30);
             lThread = new Thread(() -> {
                 while (true) {
