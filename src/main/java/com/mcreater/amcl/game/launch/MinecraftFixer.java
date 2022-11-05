@@ -2,6 +2,7 @@ package com.mcreater.amcl.game.launch;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.model.JarModel;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.download.OriginalDownload.createNewDir;
 
@@ -120,19 +122,25 @@ public class MinecraftFixer {
                             String nhash = model1.downloads.classifiers.get("natives-windows").sha1;
                             createNewDir(npath);
                             if (!HashHelper.getFileSHA1(new File(npath)).equals(nhash)) {
+                                if (nhash == null && !HashHelper.getFileSHA1(new File(npath)).equals("")) {
+                                    continue;
+                                }
                                 tasks.add(new NativeDownloadTask(FasterUrls.fast(nurl, server), npath, native_base_path, chunk).setHash(nhash));
                             }
                         }
                     }
                 }
                 if (model1.downloads.artifact != null) {
-                    String path = LinkPath.link(lib_base_path, model1.downloads.artifact.get("path").replace("\\", File.separator));
+                    String path = model1.downloads.artifact.get("path") != null ? LinkPath.link(lib_base_path, model1.downloads.artifact.get("path").replace("\\", File.separator)) : LinkPath.link(lib_base_path, MavenPathConverter.get(model1.name));
                     String url = model1.downloads.artifact.get("url");
                     String hash = model1.downloads.artifact.get("sha1");
                     createNewDir(path);
 
                     if (b0) {
                         if (!HashHelper.getFileSHA1(new File(path)).equals(hash)) {
+                            if (hash == null && !HashHelper.getFileSHA1(new File(path)).equals("")) {
+                                continue;
+                            }
                             if (model1.name.contains("natives-windows")) {
                                 tasks.add(new NativeDownloadTask(FasterUrls.fast(url, server), path, native_base_path, chunk).setHash(hash));
                             } else {

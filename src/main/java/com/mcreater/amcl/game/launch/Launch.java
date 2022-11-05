@@ -38,6 +38,8 @@ import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.EventHandler;
+import javafx.scene.control.DialogEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -430,7 +432,13 @@ public class Launch {
             MainPage.launchDialog.setV(0, 90, Launcher.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
             logger.info(String.format("Getted Command Line : %s", command));
-            MainPage.launchDialog.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
+            Thread lT = new Thread(() -> {
+                while (true) {
+                    if (!MainPage.launchDialog.l.getText().equals(Launcher.languageManager.get("ui.launch._08"))) MainPage.launchDialog.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
+
+                }
+            });
+            lT.start();
             try {
                 p = Runtime.getRuntime().exec(command, null, new File(dir));
             }
