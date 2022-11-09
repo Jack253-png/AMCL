@@ -1,48 +1,25 @@
 package com.mcreater.amcl.config;
 
+import com.mcreater.amcl.api.auth.users.AbstractUser;
+
 import java.util.Vector;
 
 public class ConfigModel {
-    public Vector<String> selected_java;
-    public Vector<String> selected_minecraft_dir;
-    public String selected_minecraft_dir_index;
-    public String selected_java_index;
-    public String selected_version_index;
-    public boolean change_game_dir;
-    public int max_memory;
-    public String language;
-    public boolean fastDownload;
-    public int downloadChunkSize;
-    public int showingUpdateSpped;
-    public String downloadServer;
-    public String last_uuid;
-    public String last_name;
-    public String last_accessToken;
-    public String last_refreshToken;
-    public String last_userType;
-
-    public String last_skin_path;
-    public String last_cape_path;
-    public boolean last_is_slim;
-    public String last_elytra_path;
-    public boolean use_chuoumium_core;
-    public ConfigModel toDefault(){
-        selected_java = new Vector<>();
-        selected_minecraft_dir = new Vector<>();
-        selected_minecraft_dir_index = "";
-        selected_java_index = "";
-        selected_version_index = "";
-        change_game_dir = false;
-        max_memory = 1024;
-        language = "CHINESE";
-        fastDownload = true;
-        downloadChunkSize = 2048;
-        showingUpdateSpped = 500;
-        downloadServer = "MCBBS";
-        return this;
-    }
-    public enum UserType {
-        OFFLINE,
-        MICROSOFT
+    public Vector<String> selected_java = new Vector<>();
+    public Vector<String> selected_minecraft_dir = new Vector<>();
+    public String selected_minecraft_dir_index = "";
+    public String selected_java_index = "";
+    public String selected_version_index = "";
+    public boolean change_game_dir = false;
+    public int max_memory = 1024;
+    public String language = "CHINESE";
+    public boolean fastDownload = true;
+    public int downloadChunkSize = 2048;
+    public int showingUpdateSpped = 500;
+    public String downloadServer = "MCBBS";
+    public boolean use_chuoumium_core = false;
+    public Vector<AbstractUser> accounts = new Vector<>();
+    public static ConfigModel getDefault(){
+        return new ConfigModel();
     }
 }

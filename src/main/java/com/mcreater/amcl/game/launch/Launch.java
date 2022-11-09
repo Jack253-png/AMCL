@@ -386,13 +386,11 @@ public class Launch {
             LocalYggdrasilServer server = null;
             if (user instanceof OffLineUser){
                 OffLineUser temp_user = (OffLineUser) user;
-                if (temp_user.skinUseable() || temp_user.capeUseable() || temp_user.elytraUseable()){
+                if (temp_user.skinUseable() || temp_user.capeUseable()){
                     File skin = null;
                     File cape = null;
-                    File elytra = null;
                     if (temp_user.skinUseable()) skin = new File(temp_user.skin);
                     if (temp_user.capeUseable()) cape = new File(temp_user.cape);
-                    if (temp_user.elytraUseable()) elytra = new File(temp_user.elytra);
 
                     while (true){
                         try {
@@ -403,8 +401,7 @@ public class Launch {
                                     user.username,
                                     skin,
                                     cape,
-                                    temp_user.is_slim,
-                                    elytra
+                                    temp_user.is_slim
                             ));
                             server.start();
                             break;

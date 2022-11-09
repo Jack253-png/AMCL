@@ -3,7 +3,6 @@ package com.mcreater.amcl;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
-import com.mcreater.amcl.download.ForgeOptifineDownload;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.pages.AddModsPage;
@@ -17,7 +16,6 @@ import com.mcreater.amcl.pages.VersionInfoPage;
 import com.mcreater.amcl.pages.VersionSelectPage;
 import com.mcreater.amcl.pages.dialogs.SimpleDialog;
 import com.mcreater.amcl.pages.dialogs.commons.AboutDialog;
-import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.AnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -141,14 +139,6 @@ public class Launcher extends javafx.application.Application {
 
             ThemeManager.apply(LanguageManager.bindedPages);
 
-            USERSELECTPAGE.view.setOnMouseEntered(event -> {});
-            USERSELECTPAGE.decorator.setOnMouseEntered(event -> {});
-            USERSELECTPAGE.view.setOnMouseExited(event -> {});
-            USERSELECTPAGE.decorator.setOnMouseExited(event -> {});
-
-            USERSELECTPAGE.view.setOpacity(1);
-            USERSELECTPAGE.decorator.setOpacity(1);
-
             CONFIGPAGE.bar1.setOnMouseEntered(event -> {});
             CONFIGPAGE.bar1.setOnMouseExited(event -> {});
             CONFIGPAGE.bar2.setOnMouseEntered(event -> {});
@@ -156,7 +146,6 @@ public class Launcher extends javafx.application.Application {
             CONFIGPAGE.bar1.setOpacity(0.5);
             CONFIGPAGE.bar2.setOpacity(1);
 
-            ThemeManager.loadButtonAnimateParent(USERSELECTPAGE.p);
             ThemeManager.loadButtonAnimateParent(CONFIGPAGE.p);
             last = MAINPAGE;
             setPage(last, last);

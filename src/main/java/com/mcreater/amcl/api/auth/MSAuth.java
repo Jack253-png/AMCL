@@ -129,7 +129,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         }
     }
 
-    public ValueSet3<String, ImmutablePair<String, String>, Vector<McProfileModel.McSkinModel>> acquireMinecraftToken(String xblUhs, String xblXsts) {
+    public ValueSet3<String, ImmutablePair<String, String>, McProfileModel.McSkinModel> acquireMinecraftToken(String xblUhs, String xblXsts) {
         try {
             Map<Object, Object> data = J8Utils.createMap(
                     "identityToken", "XBL3.0 x=" + xblUhs + ";" + xblXsts
@@ -150,7 +150,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             String accessToken = ob.getString("access_token");
             McProfileModel contents = checkMcProfile(accessToken);
             if (contents.checkProfile() && checkMcStore(accessToken)){
-                return new ValueSet3<>(accessToken, new ImmutablePair<>(contents.name, contents.id), contents.skins);
+                return new ValueSet3<>(accessToken, new ImmutablePair<>(contents.name, contents.id), contents.skin);
             }
             else {
                 throw new IOException("This user didn't had minecraft");
@@ -205,7 +205,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         updater.accept(40, Launcher.languageManager.get("ui.msauth._03"));
         ImmutablePair<String, String> xsts = acquireXsts(xbl_token.getKey());
         updater.accept(60, Launcher.languageManager.get("ui.msauth._04"));
-        ValueSet3<String, ImmutablePair<String, String>, Vector<McProfileModel.McSkinModel>> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
+        ValueSet3<String, ImmutablePair<String, String>, McProfileModel.McSkinModel> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
         updater.accept(80, Launcher.languageManager.get("ui.msauth._05"));
         MicrosoftUser msu = new MicrosoftUser(content.getValue1(), content.getValue2().getKey(), content.getValue2().getValue(), content.getValue3(), token.getValue());
         updater.accept(80, Launcher.languageManager.get("ui.msauth._06"));
@@ -214,7 +214,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
     public static class McProfileModel {
         public String id;
         public String name;
-        public Vector<McSkinModel> skins;
+        public McSkinModel skin;
         public boolean checkProfile(){
             return id != null && name != null;
         }
@@ -284,8 +284,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             model1.isSlim = false;
         }
         McProfileModel model = new Gson().fromJson(objj.toString(), McProfileModel.class);
-        model.skins = new Vector<>();
-        model.skins.add(model1);
+        model.skin = model1;
         return model;
     }
 }

@@ -1,7 +1,7 @@
 package com.mcreater.amcl.config;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.mcreater.amcl.api.auth.MSAuth;
+import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.util.J8Utils;
@@ -13,24 +13,21 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Vector;
 
+import static com.mcreater.amcl.config.ConfigReader.GSON_PRASER;
+
 public class ConfigWriter {
     public ConfigModel configModel;
     File file;
-    GsonBuilder gsonBuilder = new GsonBuilder();
-    Gson g;
     public String p;
     public ConfigWriter(File f) throws IOException {
         p = f.getPath();
-        ConfigReader configReader = new ConfigReader(f);
-        configModel = configReader.read();
-        gsonBuilder.setPrettyPrinting();
-        g = gsonBuilder.create();
+        configModel = new ConfigReader(f).read();
         file = f;
     }
     public void write(){
         try {
             FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(g.toJson(configModel));
+            fileWriter.write(GSON_PRASER.toJson(configModel));
             fileWriter.close();
         }
         catch (IOException e){
@@ -75,12 +72,6 @@ public class ConfigWriter {
             }
         });
         configModel.selected_minecraft_dir = dirs;
-        try {
-            ConfigModel.UserType.valueOf(configModel.last_userType);
-        }
-        catch (Exception e){
-            configModel.last_userType = "OFFLINE";
-        }
         write();
     }
 }

@@ -92,16 +92,14 @@ public class LocalYggdrasilServer extends NanoHTTPD {
         public String cape_hash;
         public String elytra_hash;
 
-        public Player(String uuid, String name, File skin, File cape, boolean is_slim, File elytra) throws IOException {
+        public Player(String uuid, String name, File skin, File cape, boolean is_slim) throws IOException {
             this.uuid = uuid;
             this.name = name;
             this.skin = skin;
             this.cape = cape;
-            this.elytra = elytra;
             this.is_slim = is_slim;
             if (skin != null) skin_hash = computeTextureHash(ImageIO.read(skin));
             if (cape != null) cape_hash = computeTextureHash(ImageIO.read(cape));
-            if (elytra != null) elytra_hash = computeTextureHash(ImageIO.read(elytra));
         }
     }
     public Response serve(IHTTPSession session) {

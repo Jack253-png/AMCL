@@ -2,6 +2,7 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.game.GetMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
@@ -119,7 +120,7 @@ public class MainPage extends AbstractAnimationPage {
                             game.get(game.size() - 1).launch(
                                     Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir,
                                     Launcher.configReader.configModel.max_memory,
-                                    UserSelectPage.user_object.get(),
+                                    new OffLineUser("123", "0000", false, null, null),
                                     FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
                             logger.info("started launch thread");
                         } else {

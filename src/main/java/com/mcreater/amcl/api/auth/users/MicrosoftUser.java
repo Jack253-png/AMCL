@@ -21,19 +21,19 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 
 public class MicrosoftUser extends AbstractUser {
-    final Vector<MSAuth.McProfileModel.McSkinModel> skins;
-    public Map<String, ImmutablePair<String, Boolean>> capes = new HashMap<>();
-    public MicrosoftUser(String accessToken, String username, String uuid, Vector<MSAuth.McProfileModel.McSkinModel> skins, String refreshToken) {
+    public final MSAuth.McProfileModel.McSkinModel skin;
+    public MicrosoftUser(String accessToken, String username, String uuid, MSAuth.McProfileModel.McSkinModel skin, String refreshToken) {
         super(accessToken, username, uuid, refreshToken);
-        this.skins = skins;
+        this.skin = skin;
     }
     public String toString(){
-        return super.toString() + "\nSkins : " + skins;
+        return super.toString() + "\nSkins : " + skin;
     }
     public Map<String, ImmutablePair<String, Boolean>> getCapes() throws Exception {
+        Map<String, ImmutablePair<String, Boolean>> capes = new HashMap<>();
+
         String url = "https://api.minecraftservices.com/minecraft/profile";
         HttpClient c = HttpClient.getInstance(url);
         c.openConnection();
