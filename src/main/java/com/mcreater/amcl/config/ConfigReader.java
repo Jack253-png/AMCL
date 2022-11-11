@@ -22,25 +22,29 @@ public class ConfigReader {
                 public void write(JsonWriter out, AbstractUser value) throws IOException {
                     if (value instanceof MicrosoftUser) {
                         MicrosoftUser userM = (MicrosoftUser) value;
+
                         out.beginObject()
+                                .name("active").value(userM.active)
                                 .name("user_type").value(1)
                                 .name("access_token").value(userM.accessToken)
                                 .name("refresh_token").value(userM.refreshToken)
                                 .name("uuid").value(userM.uuid)
                                 .name("user_name").value(userM.username)
-                                .name("skin").beginObject()
+                                .name("skin")
+                                .beginObject()
                                     .name("id").value(userM.skin.id)
                                     .name("state").value(userM.skin.state)
                                     .name("url").value(userM.skin.url)
                                     .name("variant").value(userM.skin.variant)
                                     .name("cape_url").value(userM.skin.cape)
                                     .name("is_slim").value(userM.skin.isSlim)
-                                    .endObject()
-                                .endObject();
+                                .endObject()
+                           .endObject();
                     }
                     else if (value instanceof OffLineUser) {
                         OffLineUser userO = (OffLineUser) value;
                         out.beginObject()
+                                .name("active").value(userO.active)
                                 .name("user_type").value(0)
                                 .name("access_token").value(userO.accessToken)
                                 .name("refresh_token").value(userO.refreshToken)
@@ -50,14 +54,16 @@ public class ConfigReader {
                                     .name("skin").value(userO.skin)
                                     .name("cape").value(userO.cape)
                                     .name("is_slim").value(userO.is_slim)
-                                    .endObject()
-                                .endObject();
+                                .endObject()
+                           .endObject();
                     }
                 }
 
                 public AbstractUser read(JsonReader in) throws IOException {
                     String last_name = "<empty>";
                     int user_type = -1;
+
+                    boolean active = false;
 
                     String access_token = null;
                     String refresh_token = null;
@@ -75,7 +81,9 @@ public class ConfigReader {
                     String skin_cape = null;
                     boolean skin_is_slim = false;
 
-                    while (in.peek() != JsonToken.END_ARRAY) {
+                    boolean readedUser = true;
+
+                    while (in.peek() != JsonToken.END_ARRAY && readedUser) {
                         try {
                             JsonToken tk = in.peek();
                             switch (tk) {
@@ -141,6 +149,9 @@ public class ConfigReader {
                                             custom_is_slim = b;
                                             skin_is_slim = b;
                                             break;
+                                        case "active":
+                                            active = in.nextBoolean();
+                                            break;
                                         default:
                                             in.nextBoolean();
                                             break;
@@ -150,7 +161,10 @@ public class ConfigReader {
                                     in.beginArray();
                                     break;
                                 case BEGIN_OBJECT:
-                                    in.beginObject();
+                                    if (user_type != -1 && in.getPreviousPath().endsWith("]")) {
+                                        readedUser = false;
+                                    }
+                                    else in.beginObject();
                                     break;
                                 case END_ARRAY:
                                     in.endArray();
@@ -168,10 +182,11 @@ public class ConfigReader {
                             in.skipValue();
                         }
                     }
-                    System.out.println(user_type);
                     switch (user_type) {
                         case 0:
-                            return new OffLineUser(user_name, uuid, custom_is_slim, custom_skin, custom_cape);
+                            OffLineUser user = new OffLineUser(user_name, uuid, custom_is_slim, custom_skin, custom_cape);
+                            user.active = active;
+                            return user;
                         case 1:
                             MSAuth.McProfileModel.McSkinModel model = new MSAuth.McProfileModel.McSkinModel();
                             model.isSlim = skin_is_slim;
@@ -180,7 +195,9 @@ public class ConfigReader {
                             model.cape = skin_cape;
                             model.state = skin_state;
                             model.variant = skin_variant;
-                            return new MicrosoftUser(access_token, user_name, uuid, model, refresh_token);
+                            MicrosoftUser user1 = new MicrosoftUser(access_token, user_name, uuid, model, refresh_token);
+                            user1.active = active;
+                            return user1;
                         default:
                             return null;
                     }

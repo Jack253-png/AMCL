@@ -3,7 +3,7 @@ package com.mcreater.amcl.pages.dialogs.commons;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
@@ -76,7 +76,7 @@ public class SimpleDialogCreater {
 
         FXUtils.ControlSize.setWidth(box, width);
 
-        SettingPage page = new SettingPage(400, 300, box, false);
+        AdvancedScrollPane page = new AdvancedScrollPane(400, 300, box, false);
         page.lThread.stop();
 
         ThemeManager.applyNode(page);

@@ -6,7 +6,7 @@ import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.DepencyItem;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
@@ -40,7 +40,7 @@ public class AboutDialog extends AbstractDialog {
         });
 
         VBox v = new VBox();
-        SettingPage page = new SettingPage(400, 300, v, false);
+        AdvancedScrollPane page = new AdvancedScrollPane(400, 300, v, false);
         ThemeManager.applyNode(page);
 
         Hyperlink hyperlink = new Hyperlink(Launcher.languageManager.get("ui.about.opensource.name"));

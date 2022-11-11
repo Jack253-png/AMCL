@@ -2,12 +2,11 @@ package com.mcreater.amcl.pages.interfaces;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.layout.VBox;
-import javafx.util.Pair;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.HashMap;
@@ -15,10 +14,10 @@ import java.util.Map;
 import java.util.Vector;
 
 public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
-    public Vector<SettingPage> pages;
+    public Vector<AdvancedScrollPane> pages;
     public Vector<JFXButton> menubuttons;
-    public Map<SettingPage, JFXButton> totalMap;
-    public SettingPage last;
+    public Map<AdvancedScrollPane, JFXButton> totalMap;
+    public AdvancedScrollPane last;
     public VBox mainBox;
     public JFXButton setted;
     public VBox menu;
@@ -47,7 +46,7 @@ public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
         }
     }
     public void setP1(int i){
-        SettingPage p = pages.get(i);
+        AdvancedScrollPane p = pages.get(i);
         if (p.CanMovePage() && last != p) {
             Runnable r = () -> {
                 last = p;
@@ -71,7 +70,7 @@ public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
         setType(menubuttons.get(i));
         e.run(i);
     }
-    public void addNewPair(ImmutablePair<JFXButton, SettingPage> pair){
+    public void addNewPair(ImmutablePair<JFXButton, AdvancedScrollPane> pair){
         pages.add(pair.getValue());
         menubuttons.add(pair.getKey());
         totalMap.put(pair.getValue(), pair.getKey());

@@ -10,7 +10,7 @@ import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
@@ -156,7 +156,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
 
         ThemeManager.applyNode(dirs);
 
-        SettingPage p = new SettingPage(width / 4, height, dot_minecraft_dir);
+        AdvancedScrollPane p = new AdvancedScrollPane(width / 4, height, dot_minecraft_dir);
         ThemeManager.loadButtonAnimates(title, dirs, select_version, buttons);
 
         this.add(p, 0, 0, 1, 1);

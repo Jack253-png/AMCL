@@ -9,6 +9,7 @@ public abstract class AbstractUser implements Serializable {
     public String username;
     public String uuid;
     public String refreshToken;
+    public boolean active = false;
     public AbstractUser(String accessToken, String username, String uuid, String refreshToken){
         this.accessToken = accessToken;
         this.username = username;

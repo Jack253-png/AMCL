@@ -6,7 +6,7 @@ import com.mcreater.amcl.api.githubApi.models.AssetsModel;
 import com.mcreater.amcl.api.githubApi.models.ReleaseModel;
 import com.mcreater.amcl.controls.UpdateItem;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
@@ -14,13 +14,12 @@ import com.mcreater.amcl.util.svg.Icons;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
-import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
 
 public class UpgradePage extends AbstractStage {
-    public SettingPage content;
+    public AdvancedScrollPane content;
     public VBox c;
     public UpgradePage(){
         this.setTitle(Launcher.languageManager.get("ui.upgradepage.title"));
@@ -46,7 +45,7 @@ public class UpgradePage extends AbstractStage {
             pane.setDisable(model.outdated);
             c.getChildren().add(pane);
         }
-        content = new SettingPage(800, 500, c, false);
+        content = new AdvancedScrollPane(800, 500, c, false);
 
         ThemeManager.applyNode(content);
         this.setWidth(800);

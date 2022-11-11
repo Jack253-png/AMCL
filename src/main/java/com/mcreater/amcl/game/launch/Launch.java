@@ -311,7 +311,8 @@ public class Launch {
                 JVMArgs.INTEL_PERFORMANCE,
                 JVMArgs.JAVA_LIBRARY_PATH,
                 JVMArgs.MINECRAFT_LAUNCHER_BRAND,
-                JVMArgs.MINECRAFT_LAUNCHER_VERSION
+                JVMArgs.MINECRAFT_LAUNCHER_VERSION,
+                JVMArgs.STD_ENCODING
         ));
 
         jvm = jvm.replace("${jar_path}", String.format("\"%s\"", jar_file.getPath()));
@@ -472,7 +473,7 @@ public class Launch {
             }).start();
             readProcessOutput(p);
         } catch (Exception e){
-            throw new ProcessException();
+            throw new ProcessException(e);
         }
     }
     public void readProcessOutput(final Process process) {

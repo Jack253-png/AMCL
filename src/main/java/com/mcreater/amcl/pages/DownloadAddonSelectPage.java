@@ -3,7 +3,7 @@ package com.mcreater.amcl.pages;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModFileModel;
-import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.controls.items.BooleanListItem;
 import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.download.FabricDownload;
@@ -40,7 +40,6 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.GridPane;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
@@ -445,7 +444,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 install.setDisable(false);
             }
         });
-        SettingPage p = new SettingPage(width, height - Launcher.barSize, box, false);
+        AdvancedScrollPane p = new AdvancedScrollPane(width, height - Launcher.barSize, box, false);
         versionfinalName = new StringItem("", width / 2);
         box.add(id, 0, 0, 1, 1);
 

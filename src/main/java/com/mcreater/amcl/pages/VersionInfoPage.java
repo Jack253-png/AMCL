@@ -14,7 +14,7 @@ import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FileUtils.RemoveFileToTrash;
@@ -30,10 +30,7 @@ import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Objects;
 import java.util.Vector;
-import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -44,11 +41,10 @@ import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
 import static com.mcreater.amcl.pages.DownloadAddonSelectPage.isValidFileName;
-import static com.mcreater.amcl.util.svg.Images.*;
 
 public class VersionInfoPage extends AbstractMenuBarPage {
     public JFXButton mainInfoButton;
-    public SettingPage p1;
+    public AdvancedScrollPane p1;
     public VBox b;
     public GridPane info;
     public ImageView view;
@@ -57,7 +53,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     public Label forgeversion;
     public Label optiversion;
     public Label liteversion;
-    public SettingPage p2;
+    public AdvancedScrollPane p2;
     public VBox b2;
     public JFXButton modsMenu;
     public GridPane mods;
@@ -143,7 +139,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         });
         HBox b1 = new HBox(delVer, changeName);
         b.getChildren().addAll(info, item, b1);
-        p1 = new SettingPage(this.width / 4 * 3, this.height - t_size, b);
+        p1 = new AdvancedScrollPane(this.width / 4 * 3, this.height - t_size, b);
 
         b2 = new VBox();
         mods = new GridPane();
@@ -186,13 +182,13 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         mods.add(modList.page, 0, 2, 3, 1);
         b2.getChildren().addAll(mods);
 
-        p2 = new SettingPage(this.width / 4 * 3, this.height - t_size, b2);
+        p2 = new AdvancedScrollPane(this.width / 4 * 3, this.height - t_size, b2);
 
         super.addNewPair(new ImmutablePair<>(mainInfoButton, p1));
         super.addNewPair(new ImmutablePair<>(modsMenu, p2));
         super.setOnAction((i) -> {
             setted = super.menubuttons.get(i);
-            SettingPage p = super.pages.get(i);
+            AdvancedScrollPane p = super.pages.get(i);
             if (p == p2){
                 p.setDisable(!ModHelper.isModded(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
                 if (p.isDisabled()) {

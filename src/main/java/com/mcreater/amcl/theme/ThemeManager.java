@@ -4,7 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
-import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import javafx.animation.KeyFrame;
@@ -73,9 +73,9 @@ public class ThemeManager {
             for (Field f : ReflectHelper.getFields(page)){
                 f.setAccessible(true);
                 Object o1 = f.get(page);
-                if (o1 instanceof SettingPage){
+                if (o1 instanceof AdvancedScrollPane){
                     ((Parent) o1).getStylesheets().add(String.format(theme_base_path, themeName, o1.getClass().getSimpleName()));
-                    controls.addAll(GetAllNodes(((SettingPage) o1).content));
+                    controls.addAll(GetAllNodes(((AdvancedScrollPane) o1).content));
                 }
             }
         }
@@ -121,7 +121,7 @@ public class ThemeManager {
                 button.setCursor(Cursor.HAND);
             }
 
-            if (!(button instanceof Pane) && !(button instanceof SettingPage) && !(button instanceof WebView)) {
+            if (!(button instanceof Pane) && !(button instanceof AdvancedScrollPane) && !(button instanceof WebView)) {
                 generateAnimations(button, 0.6D, 1D, 200, button.opacityProperty());
             }
             else if (button instanceof Pane){

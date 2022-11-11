@@ -7,6 +7,8 @@ public interface JVMArgs {
     // gc choose
     String USE_G1GC = "-XX:+UseG1GC";
     String USE_ZGC = "-XX:+UseZGC";
+
+    String STD_ENCODING = "-Dsun.stdout.encoding=GBK -Dsun.stderr.encoding=GBK";
     // G1GC options
     String YOUNG_SIZE_PERCENT = "-XX:G1NewSizePercent=20";
     String RESERVE_SIZE_PERCENT = "-XX:G1ReservePercent=20";

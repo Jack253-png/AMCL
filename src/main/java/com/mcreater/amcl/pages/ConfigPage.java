@@ -3,7 +3,7 @@ package com.mcreater.amcl.pages;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.JFXProgressBar;
-import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.controls.items.BooleanItem;
 import com.mcreater.amcl.controls.items.IntItem;
 import com.mcreater.amcl.controls.items.ListItem;
@@ -14,7 +14,6 @@ import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
-import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.java.JavaInfoGetter;
@@ -27,7 +26,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.chart.Chart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -64,8 +62,8 @@ public class ConfigPage extends AbstractMenuBarPage {
     public JFXButton java_get;
     final Map<String, String> langs;
     JFXButton setting;
-    SettingPage p1;
-    SettingPage p2;
+    AdvancedScrollPane p1;
+    AdvancedScrollPane p2;
     public BooleanItem item;
     public IntItem item2;
     public ListItem<Label> item3;
@@ -345,8 +343,8 @@ public class ConfigPage extends AbstractMenuBarPage {
         v.setAlignment(Pos.CENTER_LEFT);
         FXUtils.ControlSize.setWidth(v, this.width / 4 * 3);
 
-        p1 = new SettingPage(this.width / 4 * 3, this.height - t_size, configs_box, false);
-        p2 = new SettingPage(this.width / 4 * 3, this.height - t_size, v, false);
+        p1 = new AdvancedScrollPane(this.width / 4 * 3, this.height - t_size, configs_box, false);
+        p2 = new AdvancedScrollPane(this.width / 4 * 3, this.height - t_size, v, false);
 
         setting = new JFXButton();
         setting.setFont(Fonts.s_f);

@@ -3,6 +3,10 @@ package com.mcreater.amcl.util;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.skins.JFXTextFieldSkin;
 import com.mcreater.amcl.pages.interfaces.AnimationPage;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.beans.value.WritableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.SnapshotParameters;
@@ -21,6 +25,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -95,6 +100,7 @@ public class FXUtils {
 
     public static class Platform {
         public static void runLater(Runnable runnable) {
+            System.out.println("Platform delegating : " + runnable);
             javafx.application.Platform.runLater(() -> {
                 while (true) {
                     try {

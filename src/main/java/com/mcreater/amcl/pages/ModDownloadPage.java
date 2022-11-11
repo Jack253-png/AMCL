@@ -11,7 +11,7 @@ import com.mcreater.amcl.api.modApi.modrinth.mod.ModrinthModModel;
 import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileItemModel;
 import com.mcreater.amcl.controls.ServerMod;
 import com.mcreater.amcl.controls.ModFile;
-import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
@@ -71,7 +71,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
     public JFXButton install;
     AbstractModModel content;
     JFXButton getrc;
-    SettingPage page;
+    AdvancedScrollPane page;
 
     boolean loadSuccess = false;
     public static class DepencyModPage extends ModDownloadPage {
@@ -88,7 +88,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
         p = new GridPane();
         v = new VBox();
         FXUtils.ControlSize.set(p, width, height);
-        page = new SettingPage(800, 480 - 45 - 70, v, false);
+        page = new AdvancedScrollPane(800, 480 - 45 - 70, v, false);
         p.add(page, 0, 0, 1, 1);
 
         install = new JFXButton();

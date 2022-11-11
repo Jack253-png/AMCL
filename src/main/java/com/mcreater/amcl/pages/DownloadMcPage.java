@@ -11,7 +11,7 @@ import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.controls.SettingPage;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 //import javafx.application.Platform;
@@ -44,8 +44,8 @@ public class DownloadMcPage extends AbstractAnimationPage {
     VBox menu;
     JFXButton setting;
     JFXButton load;
-    SettingPage last;
-    public SettingPage p1;
+    AdvancedScrollPane last;
+    public AdvancedScrollPane p1;
     Parent setted;
     public Vector<TitledPane> panes = new Vector<>();
     com.jfoenix.controls.JFXProgressBar bar;
@@ -63,7 +63,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
         mainBox = new VBox();
         mainBox.getChildren().add(bar);
 
-        p1 = new SettingPage(this.width / 4 * 3, this.height - t_size, mainBox);
+        p1 = new AdvancedScrollPane(this.width / 4 * 3, this.height - t_size, mainBox);
 
         last = null;
 
@@ -186,7 +186,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
             bs.setStyle(bs == b ? "-fx-background-color: rgba(0, 0, 0, .3)" : "-fx-background-color: transparent");
         }
     }
-    public void setP1(SettingPage p){
+    public void setP1(AdvancedScrollPane p){
         if (p.CanMovePage() && last != p) {
             load.setDisable(p != p1);
             if (last != null) {
