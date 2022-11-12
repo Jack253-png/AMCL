@@ -218,10 +218,11 @@ public class Launcher extends javafx.application.Application {
             });
             last.out.play();
         });
+        Rectangle rect = new Rectangle(t_size / 2.5, t_size / 15, Color.BLACK);
         stage.setOnCloseRequest(event -> close.getOnAction().handle(new ActionEvent()));
         min.setPrefWidth(t_size / 2.5);
         min.setPrefHeight(t_size / 2.5);
-        min.setGraphic(new Rectangle(t_size / 2.5, t_size / 15, Color.BLACK));
+        min.setGraphic(rect);
         min.setButtonType(JFXButton.ButtonType.RAISED);
         min.setOnAction(event -> Launcher.stage.setIconified(true));
 

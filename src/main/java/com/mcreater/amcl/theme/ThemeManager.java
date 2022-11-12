@@ -3,6 +3,7 @@ package com.mcreater.amcl.theme;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
+import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModFileModel;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;

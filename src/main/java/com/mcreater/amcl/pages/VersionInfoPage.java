@@ -193,7 +193,6 @@ public class VersionInfoPage extends AbstractMenuBarPage {
                 p.setDisable(!ModHelper.isModded(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
                 if (p.isDisabled()) {
                     SimpleDialogCreater.create(Launcher.languageManager.get("ui.versioninfopage.unModded.title"), Launcher.languageManager.get("ui.versioninfopage.unModded.content"), "");
-                    super.setP1(0);
                 }
             }
         });

@@ -1,16 +1,23 @@
 package com.mcreater.amcl.pages;
 
+import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
+import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.controls.AccountInfoItem;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.controls.SmoothableListView;
+import com.mcreater.amcl.pages.dialogs.account.OfflineUserCreateDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
+import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -29,6 +36,8 @@ public class UserSelectPage extends AbstractAnimationPage {
     VBox sideBar;
     SmoothableListView<AccountInfoItem> userList;
     AdvancedScrollPane page1;
+
+    JFXButton menuButtonOffline;
     public UserSelectPage(double width, double height) {
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -36,14 +45,40 @@ public class UserSelectPage extends AbstractAnimationPage {
         userList = new SmoothableListView<>(width / 4 * 3, height - Launcher.barSize);
         reloadUser();
 
+        menuButtonOffline = new JFXButton();
+        menuButtonOffline.setFont(Fonts.s_f);
+        menuButtonOffline.setOnAction(event -> {
+            OfflineUserCreateDialog dialog = new OfflineUserCreateDialog(Launcher.languageManager.get("ui.userselectpage._01.name"));
+            dialog.setCancel(event1 -> FXUtils.Platform.runLater(dialog::close));
+            dialog.setCreate(event2 -> {
+                int type = dialog.getSelected();
+                switch (type) {
+                    default:
+                        return;
+                    case 0:
+                        Launcher.configReader.configModel.accounts.add(new OffLineUser(dialog.getInputedName(), OffLineUser.SkinType.STEVE.uuid, false, null, null));
+                        dialog.close();
+                        reloadUser();
+                        break;
+                    case 1:
+                        Launcher.configReader.configModel.accounts.add(new OffLineUser(dialog.getInputedName(), OffLineUser.SkinType.ALEX.uuid, true, null, null));
+                        dialog.close();
+                        reloadUser();
+                        break;
+                }
+            });
+            dialog.Create();
+        });
+
         Pane paneContainer = new Pane(userList.page);
 
         page1 = new AdvancedScrollPane(width / 4 * 3, height, paneContainer, false);
 
-        sideBar = new VBox();
+        sideBar = new VBox(menuButtonOffline);
         sideBar.setId("config-menu");
 
         FXUtils.ControlSize.set(sideBar, width / 4, height);
+        FXUtils.ControlSize.setWidth(menuButtonOffline, width / 4);
 
         nodes.add(null);
 
@@ -136,7 +171,7 @@ public class UserSelectPage extends AbstractAnimationPage {
     }
 
     public void refreshLanguage() {
-
+        menuButtonOffline.setText(Launcher.languageManager.get("ui.userselectpage._01.name"));
     }
 
     public void refreshType() {

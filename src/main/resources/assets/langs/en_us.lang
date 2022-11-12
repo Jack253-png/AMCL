@@ -228,3 +228,4 @@ ui.exceptions.mcdownload=Downloading failure
 ui.exceptions.mslogin.fail=Microsoft login failure
 ui.exceptions.msaccount.skin.fail=Skin upload failure
 ui.exceptions.msaccount.cape.fail=Cape selection failure
+ui.userselectpage.user.create=Create

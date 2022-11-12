@@ -234,3 +234,4 @@ ui.exceptions.mcdownload=下载失败
 ui.exceptions.mslogin.fail=微软登录失败
 ui.exceptions.msaccount.skin.fail=皮肤上传失败
 ui.exceptions.msaccount.cape.fail=披风修改失败
+ui.userselectpage.user.create=创建
