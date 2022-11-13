@@ -5,6 +5,7 @@ import com.jfoenix.controls.JFXRadioButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
+import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.controls.skin.SkinView;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
@@ -25,7 +26,11 @@ import javafx.scene.paint.Paint;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import javax.imageio.ImageIO;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.concurrent.Callable;
 
 public class AccountInfoItem extends VBox {
@@ -46,7 +51,23 @@ public class AccountInfoItem extends VBox {
     public void setRefresh(EventHandler<ActionEvent> handler) {
         refresh.setOnAction(handler);
     }
+    private static InputStream createInputstreamFromFile(File f) {
+        try {
+            return Files.newInputStream(f.toPath());
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return new ByteArrayInputStream(new byte[]{});
+        }
+    }
     private static ImmutablePair<Image, Image> getHeadImage(AbstractUser user) {
+        if (user instanceof OffLineUser) {
+            OffLineUser user1 = (OffLineUser) user;
+            if (user1.skinUseable()) {
+                return new ImmutablePair<>(cutHeadImage(new Image(createInputstreamFromFile(new File(user1.skin))))
+                        , cutHeadCoverImage(new Image(createInputstreamFromFile(new File(user1.skin)))));
+            }
+        }
         switch (user.uuid) {
             case "000000000000300a9d83f9ec9e7fae8e":
                 return new ImmutablePair<>(cutHeadImage(SkinView.STEVE), cutHeadCoverImage(SkinView.STEVE));

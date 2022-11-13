@@ -1,14 +1,13 @@
 package com.mcreater.amcl;
 
-import com.sun.javafx.tk.Toolkit;
 import javafx.scene.layout.Region;
 import javafx.stage.Stage;
-import net.querz.mca.MCAFile;
-import net.querz.mca.MCAUtil;
 
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
-import java.io.File;
+import java.awt.*;
+
+import static com.mcreater.amcl.Launcher.barSize;
+import static com.mcreater.amcl.Launcher.height;
+import static com.mcreater.amcl.Launcher.width;
 
 public class WindowMovement {
     double x1;
@@ -16,9 +15,12 @@ public class WindowMovement {
     double x_stage;
     double y_stage;
     public <V extends Region, K extends Stage> void windowMove(V listenedObject, K stage) {
+        Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
         listenedObject.setOnMouseDragged(event -> {
-            stage.setX(this.x_stage + event.getScreenX() - this.x1);
-            stage.setY(this.y_stage + event.getScreenY() - this.y1);
+            double x = this.x_stage + event.getScreenX() - this.x1;
+            double y = this.y_stage + event.getScreenY() - this.y1;
+            if (x >= 0 && x <= scrSize.getWidth() - width) stage.setX(x);
+            if (y >= 0 && y <= scrSize.getHeight() - height) stage.setY(y);
         });
         listenedObject.setOnDragEntered(null);
         listenedObject.setOnMousePressed(event -> {
@@ -27,5 +29,6 @@ public class WindowMovement {
             this.x_stage = stage.getX();
             this.y_stage = stage.getY();
         });
+
     }
 }

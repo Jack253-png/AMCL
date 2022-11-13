@@ -6,9 +6,9 @@ import javafx.scene.layout.VBox;
 
 import java.util.Vector;
 
-public class RadioButtonGroup extends VBox {
+public class RadioButtonGroupV extends VBox implements AbstractRadioButtonGroup {
     public final Vector<JFXRadioButton> items = new Vector<>();
-    public RadioButtonGroup(String... items) {
+    public RadioButtonGroupV(String... items) {
         for (String i : items) {
             JFXRadioButton button = new JFXRadioButton(i);
             button.setFont(Fonts.t_f);
@@ -32,5 +32,9 @@ public class RadioButtonGroup extends VBox {
             if (items.get(i).isSelected()) return i;
         }
         return -1;
+    }
+
+    public void selectFirst() {
+        items.get(0).setSelected(true);
     }
 }

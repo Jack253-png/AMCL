@@ -2,15 +2,19 @@ package com.mcreater.amcl.pages.dialogs;
 
 import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXAlert;
+import com.jfoenix.transitions.CachedTransition;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
-import javafx.application.Application;
+import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.control.DialogEvent;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.GaussianBlur;
@@ -21,12 +25,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.util.Vector;
 
 import static com.mcreater.amcl.Launcher.height;
 import static com.mcreater.amcl.Launcher.width;
-import static javafx.application.Application.setUserAgentStylesheet;
 
 public abstract class AbstractDialog extends JFXAlert<String> {
     public static final Vector<AbstractDialog> dialogs = new Vector<>();
@@ -34,7 +38,38 @@ public abstract class AbstractDialog extends JFXAlert<String> {
     final double radius = 8;
     public AbstractDialog(Stage stage) {
         super(stage);
-        this.setAnimation(JFXAlertAnimation.SMOOTH);
+//        getDialogPane().setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+        this.setAnimation(new JFXAlertAnimation() {
+            public void initAnimation(Node contentContainer, Node overlay) {
+                overlay.setOpacity(0);
+                contentContainer.setScaleX(.80);
+                contentContainer.setScaleY(.80);
+            }
+            public Animation createShowingAnimation(Node contentContainer, Node overlay) {
+                return new CachedTransition(contentContainer, new Timeline(
+                        new KeyFrame(Duration.millis(1000),
+                                new KeyValue(contentContainer.scaleXProperty(), 1, Interpolator.EASE_OUT),
+                                new KeyValue(contentContainer.scaleYProperty(), 1, Interpolator.EASE_OUT),
+                                new KeyValue(overlay.opacityProperty(), 1, Interpolator.EASE_BOTH)
+                        ))) {
+                    {
+                        setCycleDuration(Duration.millis(400));
+                        setDelay(Duration.seconds(0));
+                    }
+                };
+            }
+            public Animation createHidingAnimation(Node contentContainer, Node overlay) {
+                return new CachedTransition(contentContainer, new Timeline(
+                        new KeyFrame(Duration.millis(1000),
+                                new KeyValue(overlay.opacityProperty(), 0, Interpolator.EASE_BOTH)
+                        ))) {
+                    {
+                        setCycleDuration(Duration.millis(400));
+                        setDelay(Duration.seconds(0));
+                    }
+                };
+            }
+        });
         this.initModality(Modality.APPLICATION_MODAL);
         this.setOverlayClose(false);
         getDialogPane().setClip(FXUtils.generateRect(width, height, Launcher.radius));
@@ -91,7 +126,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
     }
 
     public void Create(){
-        Platform.runLater(this::show);
+        FXUtils.Platform.runLater(this::show);
     }
     public static Label setFont(Label l, Font font){
         l.setFont(font);
