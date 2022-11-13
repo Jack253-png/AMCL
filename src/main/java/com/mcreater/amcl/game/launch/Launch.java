@@ -38,8 +38,6 @@ import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.event.EventHandler;
-import javafx.scene.control.DialogEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

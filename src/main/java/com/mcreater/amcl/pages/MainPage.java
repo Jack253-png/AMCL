@@ -22,8 +22,6 @@ import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
@@ -35,8 +33,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -120,7 +116,7 @@ public class MainPage extends AbstractAnimationPage {
                             game.get(game.size() - 1).launch(
                                     Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir,
                                     Launcher.configReader.configModel.max_memory,
-                                    new OffLineUser("123", "0000", false, null, null),
+                                    UserSelectPage.user.get() == null ? new OffLineUser("123", "0000", false, null, null) : UserSelectPage.user.get(),
                                     FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
                             logger.info("started launch thread");
                         } else {

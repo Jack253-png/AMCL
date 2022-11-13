@@ -19,6 +19,7 @@ import com.mcreater.amcl.util.J8Utils;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -40,6 +41,7 @@ public class UserSelectPage extends AbstractAnimationPage {
 
     JFXButton menuButtonOffline;
     JFXButton refreshList;
+    public static final SimpleObjectProperty<AbstractUser> user = new SimpleObjectProperty<>();
     public UserSelectPage(double width, double height) {
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -165,8 +167,10 @@ public class UserSelectPage extends AbstractAnimationPage {
         if (userTarget == null) {
             if (Launcher.configReader.configModel.accounts.size() > 0) {
                 Launcher.configReader.configModel.accounts.get(0).active = true;
+                userTarget = Launcher.configReader.configModel.accounts.get(0);
             }
         }
+        user.set(userTarget);
         Launcher.configReader.write();
     }
     public void reloadUser() {
@@ -176,11 +180,16 @@ public class UserSelectPage extends AbstractAnimationPage {
                 AccountInfoItem item = new AccountInfoItem(user, width / 3 * 2);
                 item.selector.setSelected(user.active);
                 item.selector.setOnAction(event -> {
-                    if (!item.selector.isSelected()) item.selector.setSelected(true);
+                    if (!item.selector.isSelected()) {
+                        item.selector.setSelected(true);
+                    }
                     userList.vecs.forEach(accountInfoItem -> {
                         if (accountInfoItem != item) accountInfoItem.selector.setSelected(false);
                     });
                     Launcher.configReader.write();
+                });
+                item.selector.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                    if (newValue) UserSelectPage.user.set(item.user);
                 });
 
                 item.setDelete(event -> {
