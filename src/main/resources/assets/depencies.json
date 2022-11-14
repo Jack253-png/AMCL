@@ -55,7 +55,6 @@
                 "linux": "org.openjfx:javafx-base:linux:17.0.2",
                 "win-x86": "org.openjfx:javafx-base:win-x86:17.0.2",
                 "mac-arm64": "org.openjfx:javafx-base:mac-aarch64:17.0.2",
-                "linux-arm32": "org.openjfx:javafx-base:linux-arm32-monocle:17.0.2",
                 "linux-arm64": "org.openjfx:javafx-base:linux-aarch64:17.0.2",
                 "isMultiPlatform": true},
 
@@ -64,7 +63,6 @@
                 "linux": "org.openjfx:javafx-graphics:linux:17.0.2",
                 "win-x86": "org.openjfx:javafx-graphics:win-x86:17.0.2",
                 "mac-arm64": "org.openjfx:javafx-graphics:mac-aarch64:17.0.2",
-                "linux-arm32": "org.openjfx:javafx-graphics:linux-arm32-monocle:17.0.2",
                 "linux-arm64": "org.openjfx:javafx-graphics:linux-aarch64:17.0.2",
                   "isMultiPlatform": true},
 
@@ -73,7 +71,6 @@
                 "linux": "org.openjfx:javafx-controls:linux:17.0.2",
                 "win-x86": "org.openjfx:javafx-controls:win-x86:17.0.2",
                 "mac-arm64": "org.openjfx:javafx-controls:mac-aarch64:17.0.2",
-                "linux-arm32": "org.openjfx:javafx-controls:linux-arm32-monocle:17.0.2",
                 "linux-arm64": "org.openjfx:javafx-controls:linux-aarch64:17.0.2",
                   "isMultiPlatform": true},
 
@@ -82,7 +79,6 @@
                 "linux": "org.openjfx:javafx-fxml:linux:17.0.2",
                 "win-x86": "org.openjfx:javafx-fxml:win-x86:17.0.2",
                 "mac-arm64": "org.openjfx:javafx-fxml:mac-aarch64:17.0.2",
-                "linux-arm32": "org.openjfx:javafx-fxml:linux-arm32-monocle:17.0.2",
                 "linux-arm64": "org.openjfx:javafx-fxml:linux-aarch64:17.0.2",
                   "isMultiPlatform": true},
 
@@ -91,7 +87,6 @@
                 "linux": "org.openjfx:javafx-media:linux:17.0.2",
                 "win-x86": "org.openjfx:javafx-media:win-x86:17.0.2",
                 "mac-arm64": "org.openjfx:javafx-media:mac-aarch64:17.0.2",
-                "linux-arm32": "org.openjfx:javafx-media:linux-arm32-monocle:17.0.2",
                 "linux-arm64": "org.openjfx:javafx-media:linux-aarch64:17.0.2",
                   "isMultiPlatform": true},
 
@@ -100,7 +95,6 @@
                 "linux": "org.openjfx:javafx-web:linux:17.0.2",
                 "win-x86": "org.openjfx:javafx-web:win-x86:17.0.2",
                 "mac-arm64": "org.openjfx:javafx-web:mac-aarch64:17.0.2",
-                "linux-arm32": "org.openjfx:javafx-web:linux-arm32-monocle:17.0.2",
                 "linux-arm64": "org.openjfx:javafx-web:linux-aarch64:17.0.2",
                   "isMultiPlatform": true},
 

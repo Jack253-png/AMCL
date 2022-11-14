@@ -11,17 +11,18 @@ public class OSInfo {
         return System.getProperty("os.name").toLowerCase().contains("linux");
     }
 
-    public static boolean isX86() {
-        return System.getProperty("os.arch").equals("x86");
+    private static boolean contain_L(String arch, String... keys) {
+        for (String k : keys) {
+            if (arch.toLowerCase().contains(k)) return true;
+        }
+        return false;
     }
-    private static boolean isArm() {
-        return System.getProperty("os.arch").contains("arm");
+
+    public static boolean isX86() {
+        return contain_L(System.getProperty("os.arch"), "x86", "x86_32", "x86-32", "i386", "i486", "i586", "i686", "i86pc", "ia32", "x32");
     }
     public static boolean isArm64() {
-        return isArm() && System.getProperty("os.arch").contains("64");
-    }
-    public static boolean isArm32() {
-        return isArm() && System.getProperty("os.arch").contains("32");
+        return contain_L(System.getProperty("os.arch"), "arm64", "aarch64", "armv8", "armv9");
     }
     public static OSType getOSType() {
         if (isWin()) {
@@ -33,7 +34,6 @@ public class OSInfo {
             return OSType.MACOS;
         }
         else if (isLinux()) {
-            if (isArm32()) return OSType.LINUX_ARM32;
             if (isArm64()) return OSType.LINUX_ARM64;
             return OSType.LINUX;
         }
@@ -49,7 +49,6 @@ public class OSInfo {
         MACOS_ARM64,
 
         LINUX,
-        LINUX_ARM32,
         LINUX_ARM64
     }
 }

@@ -37,9 +37,6 @@ public class DepenciesXMLHandler {
                     case LINUX:
                         items.add(new DepencyItem(item.linux, model.maven));
                         break;
-                    case LINUX_ARM32:
-                        items.add(new DepencyItem(item.linuxArm32, model.maven));
-                        break;
                     case LINUX_ARM64:
                         items.add(new DepencyItem(item.linuxArm64, model.maven));
                         break;
