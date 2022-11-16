@@ -1,25 +1,33 @@
 package com.mcreater.amcl.api.auth;
 
 import com.google.gson.Gson;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.concurrent.ValueSet3;
 import com.mcreater.amcl.util.net.HttpClient;
+import com.mcreater.amcl.util.operatingSystem.SystemActions;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class MSAuth implements AbstractAuth<MicrosoftUser>{
     public static final MSAuth AUTH_INSTANCE = new MSAuth();
@@ -31,6 +39,76 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
     private static final String MC_LOGIN_URL = "https://api.minecraftservices.com/authentication/login_with_xbox";
     private static final String MC_STORE_URL = "https://api.minecraftservices.com/entitlements/mcstore";
     private static final String MC_PROFILE_URL = "https://api.minecraftservices.com/minecraft/profile";
+
+
+    private static final String SCOPE = "XboxLive.signin offline_access";
+    private static final String DEVICE_CODE_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode";
+    private static final String TOKEN_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
+    private static final String CLIENT_ID = "1a969022-f24f-4492-a91c-6f4a6fcb373c";
+    public static class DeviceCodeModel {
+        public String user_code;
+        public String device_code;
+        public String verification_uri;
+        public int expires_in;
+        public int interval;
+    }
+    public MicrosoftUser generateDeviceCode(Consumer<String> regIs) throws Exception {
+        GithubReleases.trustAllHosts();
+        HttpClient client = HttpClient.getInstance(DEVICE_CODE_URL, J8Utils.createMap(
+                "client_id", CLIENT_ID,
+                "scope", SCOPE
+        ));
+        client.openConnection();
+        DeviceCodeModel model = client.readJSONModel(DeviceCodeModel.class);
+
+        regIs.accept(model.user_code);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        Transferable t = new StringSelection(model.user_code);
+        clipboard.setContents(t, (clipboard1, transferable) -> {});
+        SystemActions.openBrowser(model.verification_uri);
+
+        long startTime = System.nanoTime();
+        int interval = model.interval;
+
+        while (true) {
+            Sleeper.sleep(Math.max(interval, 1));
+
+            // We stop waiting if user does not respond our authentication request in 15 minutes.
+            long estimatedTime = System.nanoTime() - startTime;
+            if (TimeUnit.SECONDS.convert(estimatedTime, TimeUnit.NANOSECONDS) >= Math.min(model.expires_in, 900)) {
+                throw new IOException("timed out");
+            }
+            Map<Object, Object> data = J8Utils.createMap(
+                    "grant_type", "urn:ietf:params:oauth:grant-type:device_code",
+                    "client_id", CLIENT_ID,
+                    "code", model.device_code
+            );
+
+            HttpClient client1 = HttpClient.getInstance(TOKEN_URL);
+            client1.openConnection();
+            client1.conn.setRequestMethod("POST");
+            client1.conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+            client1.conn.setDoOutput(true);
+
+            try (OutputStream os = client1.conn.getOutputStream()) {
+                os.write(client1.ofFormData1(data).getBytes(StandardCharsets.UTF_8));
+            }
+
+            try {
+                JSONObject object = client1.readJSON();
+                return getUserFromToken(new ImmutablePair<>(object.getString("access_token"), object.getString("refresh_token")));
+            }
+            catch (Exception ignored) {
+
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        AUTH_INSTANCE.generateDeviceCode(s -> {});
+    }
+
     public BiConsumer<Integer, String> updater = (value, mess) -> {};
     public void setUpdater(BiConsumer<Integer, String> updater) {
         this.updater = updater;
@@ -66,7 +144,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
                     "Properties", J8Utils.createMap(
                             "AuthMethod", "RPS",
                             "SiteName", "user.auth.xboxlive.com",
-                            "RpsTicket", accessToken
+                            "RpsTicket", "d="+accessToken
                     ),
                     "RelyingParty", "http://auth.xboxlive.com",
                     "TokenType", "JWT"
@@ -196,19 +274,18 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
 
     public MicrosoftUser getUser(String... args) throws RuntimeException {
         ImmutablePair<String, String> token = acquireAccessToken(args[0]);
-        updater.accept(20, Launcher.languageManager.get("ui.msauth._02"));
+//        updater.accept(20, Launcher.languageManager.get("ui.msauth._02"));
         return getUserFromToken(token);
     }
     public MicrosoftUser getUserFromToken(ImmutablePair<String, String> token) throws RuntimeException {
-
         ImmutablePair<String, String> xbl_token = acquireXBLToken(token.getKey());
-        updater.accept(40, Launcher.languageManager.get("ui.msauth._03"));
+//        updater.accept(40, Launcher.languageManager.get("ui.msauth._03"));
         ImmutablePair<String, String> xsts = acquireXsts(xbl_token.getKey());
-        updater.accept(60, Launcher.languageManager.get("ui.msauth._04"));
+//        updater.accept(60, Launcher.languageManager.get("ui.msauth._04"));
         ValueSet3<String, ImmutablePair<String, String>, McProfileModel.McSkinModel> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
-        updater.accept(80, Launcher.languageManager.get("ui.msauth._05"));
+//        updater.accept(80, Launcher.languageManager.get("ui.msauth._05"));
         MicrosoftUser msu = new MicrosoftUser(content.getValue1(), content.getValue2().getKey(), content.getValue2().getValue(), content.getValue3(), token.getValue());
-        updater.accept(80, Launcher.languageManager.get("ui.msauth._06"));
+//        updater.accept(80, Launcher.languageManager.get("ui.msauth._06"));
         return msu;
     }
     public static class McProfileModel {
