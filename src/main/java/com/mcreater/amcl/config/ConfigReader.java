@@ -25,7 +25,7 @@ public class ConfigReader {
 
                         out.beginObject()
                                 .name("active").value(userM.active)
-                                .name("user_type").value(1)
+                                .name("user_type").value(AbstractUser.MICROSOFT)
                                 .name("access_token").value(userM.accessToken)
                                 .name("refresh_token").value(userM.refreshToken)
                                 .name("uuid").value(userM.uuid)
@@ -45,7 +45,7 @@ public class ConfigReader {
                         OffLineUser userO = (OffLineUser) value;
                         out.beginObject()
                                 .name("active").value(userO.active)
-                                .name("user_type").value(0)
+                                .name("user_type").value(AbstractUser.OFFLINE)
                                 .name("access_token").value(userO.accessToken)
                                 .name("refresh_token").value(userO.refreshToken)
                                 .name("uuid").value(userO.uuid)
@@ -183,11 +183,12 @@ public class ConfigReader {
                         }
                     }
                     switch (user_type) {
-                        case 0:
+                        default:
+                        case AbstractUser.OFFLINE:
                             OffLineUser user = new OffLineUser(user_name, uuid, custom_is_slim, custom_skin, custom_cape);
                             user.active = active;
                             return user;
-                        case 1:
+                        case AbstractUser.MICROSOFT:
                             MSAuth.McProfileModel.McSkinModel model = new MSAuth.McProfileModel.McSkinModel();
                             model.isSlim = skin_is_slim;
                             model.id = skin_id;
@@ -198,8 +199,6 @@ public class ConfigReader {
                             MicrosoftUser user1 = new MicrosoftUser(access_token, user_name, uuid, model, refresh_token);
                             user1.active = active;
                             return user1;
-                        default:
-                            return null;
                     }
                 }
             })

@@ -110,15 +110,21 @@ public class MainPage extends AbstractAnimationPage {
                 Thread la = new Thread(() -> {
                     try {
                         if (new File(Launcher.configReader.configModel.selected_java_index).exists()) {
-                            game.add(new Launch());
-                            Thread.currentThread().setName(String.format("Launch Thread #%d", game.size() - 1));
-                            core.set(game.get(game.size() - 1));
-                            game.get(game.size() - 1).launch(
-                                    Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir,
-                                    Launcher.configReader.configModel.max_memory,
-                                    UserSelectPage.user.get() == null ? new OffLineUser("123", "0000", false, null, null) : UserSelectPage.user.get(),
-                                    FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
-                            logger.info("started launch thread");
+                            if (UserSelectPage.user.get() != null) {
+                                Launch launch1 = new Launch();
+                                game.add(launch1);
+                                Thread.currentThread().setName(String.format("Launch Thread #%d", game.size() - 1));
+                                core.set(launch1);
+                                launch1.launch(
+                                        Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir,
+                                        Launcher.configReader.configModel.max_memory,
+                                        UserSelectPage.user.get(),
+                                        FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+                                logger.info("started launch thread");
+                            }
+                            else {
+                                SimpleDialogCreater.create(Launcher.languageManager.get("exceptions.processexception.name"), Launcher.languageManager.get("exceptions.baduserexception.name"), "");
+                            }
                         } else {
                             Launcher.configReader.configModel.selected_java.remove(Launcher.configReader.configModel.selected_java_index);
                             Launcher.configReader.configModel.selected_java_index = "";

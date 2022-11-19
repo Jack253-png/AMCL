@@ -12,16 +12,17 @@ import com.mcreater.amcl.pages.dialogs.account.OfflineUserCreateDialog;
 import com.mcreater.amcl.pages.dialogs.account.OfflineUserCustomSkinDialog;
 import com.mcreater.amcl.pages.dialogs.commons.InputDialog;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
+import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+
+import java.io.IOException;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -193,10 +194,23 @@ public class UserSelectPage extends AbstractAnimationPage {
                 item.setDelete(event -> {
                     Launcher.configReader.configModel.accounts.remove(item.user);
                     Launcher.configReader.write();
-                    FXUtils.AnimationUtils.runSingleCycleAnimation(userList.page.opacityProperty(), 1, 0, 100, 300, event1 -> reloadUser());
+
+                    reloadUser();
                 });
                 item.setRefresh(event -> {
                     LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.refresh.title"));
+                    dialog.show();
+                    new Thread(() -> {
+                        try {
+                            item.user.refresh();
+                            throw new IOException("test");
+                        } catch (IOException e) {
+                            SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"));
+                        }
+                        finally {
+                            FXUtils.Platform.runLater(dialog::close);
+                        }
+                    }).start();
                 });
                 FXUtils.Platform.runLater(() -> userList.addItem(item));
             }

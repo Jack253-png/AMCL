@@ -1,10 +1,14 @@
 package com.mcreater.amcl.api.auth.users;
 
+import com.mcreater.amcl.config.ConfigModel;
+
 import java.io.IOException;
 import java.io.Serializable;
 
 public abstract class AbstractUser implements Serializable {
     private static final long serialVersionUID = -187944731L;
+    public static final int OFFLINE = 0;
+    public static final int MICROSOFT = 1;
     public String accessToken;
     public String username;
     public String uuid;
@@ -16,7 +20,7 @@ public abstract class AbstractUser implements Serializable {
         this.uuid = uuid;
         this.refreshToken = refreshToken;
     }
-    public String toString(){
+    public String toString() {
         return String.format("accessToken : %s\nuserName : %s\nUUID : %s", accessToken, username, uuid);
     }
     public String getAccessToken() {
@@ -28,9 +32,15 @@ public abstract class AbstractUser implements Serializable {
     public String getUuid() {
         return uuid;
     }
-    public void setAccessToken(String accessToken) {this.accessToken = accessToken;}
-    public void setUsername(String username) {this.username = username;}
-    public void setUuid(String uuid) {this.uuid = uuid;}
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
     public abstract void refresh() throws IOException;
     public abstract boolean vaildate();
