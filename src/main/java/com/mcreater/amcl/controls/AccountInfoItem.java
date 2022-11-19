@@ -124,7 +124,7 @@ public class AccountInfoItem extends VBox {
             return new WritableImage(offset, offset);
         }
     }
-    public Image smallImage(Image image, double xadd, double yadd) {
+    private static Image smallImage(Image image, double xadd, double yadd) {
         WritableImage image1 = new WritableImage((int) (image.getWidth() * xadd), (int) (image.getHeight() * yadd));
         for (int x = 0;x < image.getWidth() * xadd;x++){
             for (int y = 0;y < image.getHeight() * yadd;y++){
@@ -140,7 +140,7 @@ public class AccountInfoItem extends VBox {
         }
         return image;
     }
-    public Image scrollImage(Image image, double xadd, double yadd) {
+    private static Image scrollImage(Image image, double xadd, double yadd) {
         if (xadd < 1 || yadd < 1) return smallImage(image, xadd, yadd);
         WritableImage image1 = new WritableImage((int) (image.getWidth() * xadd), (int) (image.getHeight() * yadd));
         for (int x = 0;x < image.getWidth();x++){

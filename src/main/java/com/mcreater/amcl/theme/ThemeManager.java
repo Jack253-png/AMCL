@@ -3,13 +3,11 @@ package com.mcreater.amcl.theme;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
-import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModFileModel;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
+import com.mcreater.amcl.util.FXUtils;
 import javafx.animation.Timeline;
 import javafx.beans.value.WritableValue;
 import javafx.scene.Cursor;
@@ -19,7 +17,6 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
-import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -66,7 +63,6 @@ public class ThemeManager {
         simpleParentsConstable.put(n, clazz);
     }
     public static void apply(Vector<AbstractAnimationPage> pages) throws IllegalAccessException{
-        Object o;
         Vector<Node> controls = new Vector<>();
         String theme_base_path = "assets/themes/%s/%s.css";
         for (AbstractAnimationPage page : pages){
@@ -137,19 +133,9 @@ public class ThemeManager {
         if (target == button.opacityProperty()){
             button.setOpacity((double) va1);
         }
-        KeyValue v1 = new KeyValue(target, va1);
-        KeyValue v2 = new KeyValue(target, va2);
-        Timeline in = new Timeline();
-        in.setCycleCount(1);
-        in.getKeyFrames().clear();
-        in.getKeyFrames().add(new KeyFrame(Duration.ZERO, v1));
-        in.getKeyFrames().add(new KeyFrame(new Duration(duration), v2));
+        Timeline in = FXUtils.AnimationUtils.genSingleCycleAnimation(target, va1, va2, 0, duration);
+        Timeline out = FXUtils.AnimationUtils.genSingleCycleAnimation(target, va2, va1, 0, duration);
 
-        Timeline out = new Timeline();
-        out.setCycleCount(1);
-        out.getKeyFrames().clear();
-        out.getKeyFrames().add(new KeyFrame(Duration.ZERO, v2));
-        out.getKeyFrames().add(new KeyFrame(new Duration(duration), v1));
         button.setOnMouseEntered(event -> {
             out.stop();
             in.playFromStart();

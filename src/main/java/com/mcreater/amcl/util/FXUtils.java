@@ -7,6 +7,8 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.value.WritableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.SnapshotParameters;
@@ -28,10 +30,10 @@ import javafx.scene.web.WebView;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Vector;
 
 public class FXUtils {
     public static class ImageConverter {
@@ -122,25 +124,7 @@ public class FXUtils {
                     1.0
             );
         }
-        public static final SimpleFunctions.Arg2FuncNoReturn<ImageView, WritableImage> NO_TRANSPARENT = (arg1, arg2) -> {
-            for (int x = 0; x < arg2.getWidth(); x++) {
-                for (int y = 0; y < arg2.getHeight(); y++) {
-                    Color c = arg2.getPixelReader().getColor(x, y);
-                    if (c.getOpacity() > 0.2) {
-                        arg2.getPixelWriter().setColor(
-                                x,
-                                y,
-                                new Color(
-                                        c.getRed(),
-                                        c.getGreen(),
-                                        c.getBlue(),
-                                        1
-                                )
-                        );
-                    }
-                }
-            }
-        };
+
         public static WritableImage getColorImage(Color color, int width, int height) {
             WritableImage result = new WritableImage(width, height);
             for (int x = 0; x < width; x++) {
@@ -179,74 +163,6 @@ public class FXUtils {
 
             return result;
         }
-
-        public static void copyImage(WritableImage operateImg, Image src, int x, int y, int w, int h) {
-            if (operateImg != null && src != null) {
-                if (operateImg.getWidth() >= x + w || operateImg.getHeight() >= y + h) {
-                    for (int natX = x; natX < x + w; natX++) {
-                        for (int natY = y; natY < y + h; natY++) {
-                            operateImg.getPixelWriter().setColor(natX, natY, src.getPixelReader().getColor(natX - x, natY - y));
-                        }
-                    }
-                }
-            }
-        }
-
-        public static WritableImage gaussianBlurImage(WritableImage src, int radius) {
-            int w = (int) src.getWidth();
-            int h = (int) src.getHeight();
-
-            WritableImage result = new WritableImage(w, h);
-
-            for (int x = 0; x < w; x++) {
-                for (int y = 0; y < h; y++) {
-                    System.out.printf("%d, %d\n", x, y);
-                    result.getPixelWriter().setColor(x, y, getAvgColor(src, x, y, radius));
-                }
-            }
-
-            return result;
-        }
-
-        private static Color getAvgColor(Image src, int x, int y, int radius) {
-            ColorVector colors = new ColorVector();
-            for (int xPos = -radius; xPos <= radius; xPos++) {
-                for (int yPos = -radius; yPos <= radius; yPos++) {
-                    if (xPos != 0 && yPos != 0) {
-                        try {
-                            colors.add(src.getPixelReader().getColor(x + xPos, y + yPos));
-                        } catch (Exception ignored) {
-
-                        }
-                    }
-                }
-            }
-
-            return colors.getAvgColor();
-        }
-
-        public static class ColorVector extends Vector<Color> {
-            public Color getAvgColor(){
-                double rAvg = 0;
-                double gAvg = 0;
-                double bAvg = 0;
-                double aAvg = 0;
-
-                for (Color item : this) {
-                    rAvg += item.getRed();
-                    gAvg += item.getGreen();
-                    bAvg += item.getBlue();
-                    aAvg += item.getOpacity();
-                }
-
-                return new Color(
-                        rAvg / size(),
-                        gAvg / size(),
-                        bAvg / size(),
-                        aAvg / size()
-                );
-            }
-        }
     }
     public static boolean gemotryInned(Point2D target, List<AnimationPage.NodeInfo> nodes) {
         for (AnimationPage.NodeInfo control : nodes) {
@@ -263,5 +179,21 @@ public class FXUtils {
         rect.setArcWidth(radius);
         rect.setArcHeight(radius);
         return rect;
+    }
+
+    public static class AnimationUtils {
+        public static <T> Timeline genSingleCycleAnimation(WritableValue<T> target, T value1, T value2, double startupDur, double runDur) {
+            Timeline out1 = new Timeline();
+            out1.setCycleCount(1);
+            out1.getKeyFrames().clear();
+            out1.getKeyFrames().add(new KeyFrame(Duration.millis(startupDur), new KeyValue(target, value1)));
+            out1.getKeyFrames().add(new KeyFrame(new Duration(runDur), new KeyValue(target, value2)));
+            return out1;
+        }
+        public static <T> void runSingleCycleAnimation(WritableValue<T> target, T value1, T value2, double startupDur, double runDur, @NotNull EventHandler<ActionEvent> finishedHandler) {
+            Timeline out1 = FXUtils.AnimationUtils.genSingleCycleAnimation(target, value1, value2, startupDur, runDur);
+            out1.setOnFinished(finishedHandler);
+            out1.play();
+        }
     }
 }

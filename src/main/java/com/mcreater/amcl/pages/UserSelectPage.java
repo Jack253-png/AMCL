@@ -16,14 +16,12 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -195,13 +193,10 @@ public class UserSelectPage extends AbstractAnimationPage {
                 item.setDelete(event -> {
                     Launcher.configReader.configModel.accounts.remove(item.user);
                     Launcher.configReader.write();
-                    Timeline out = new Timeline();
-                    out.setCycleCount(1);
-                    out.getKeyFrames().clear();
-                    out.getKeyFrames().add(new KeyFrame(Duration.millis(100), new KeyValue(item.opacityProperty(), 1)));
-                    out.getKeyFrames().add(new KeyFrame(new Duration(300), new KeyValue(item.opacityProperty(), 0)));
-                    out.setOnFinished(event1 -> reloadUser());
-                    out.play();
+                    FXUtils.AnimationUtils.runSingleCycleAnimation(userList.page.opacityProperty(), 1, 0, 100, 300, event1 -> reloadUser());
+                });
+                item.setRefresh(event -> {
+                    LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.refresh.title"));
                 });
                 FXUtils.Platform.runLater(() -> userList.addItem(item));
             }
@@ -214,27 +209,16 @@ public class UserSelectPage extends AbstractAnimationPage {
                 refreshList.setDisable(false);
             });
 
-            Timeline out2 = new Timeline();
-            out2.setCycleCount(1);
-            out2.getKeyFrames().clear();
-            out2.getKeyFrames().add(new KeyFrame(Duration.millis(100), new KeyValue(userList.page.opacityProperty(), 0)));
-            out2.getKeyFrames().add(new KeyFrame(new Duration(300), new KeyValue(userList.page.opacityProperty(), 1)));
-            out2.play();
+            FXUtils.AnimationUtils.runSingleCycleAnimation(userList.page.opacityProperty(), 0, 1, 100, 300, event1 -> {});
         }).start();
 
-        Timeline out1 = new Timeline();
-        out1.setCycleCount(1);
-        out1.getKeyFrames().clear();
-        out1.getKeyFrames().add(new KeyFrame(Duration.millis(100), new KeyValue(userList.page.opacityProperty(), 1)));
-        out1.getKeyFrames().add(new KeyFrame(new Duration(300), new KeyValue(userList.page.opacityProperty(), 0)));
-        out1.setOnFinished(event1 -> {
+        FXUtils.AnimationUtils.runSingleCycleAnimation(userList.page.opacityProperty(), 1, 0, 100, 300, event1 -> {
             userList.page.setDisable(true);
             userList.setDisable(true);
             refreshList.setDisable(true);
             userList.clear();
             runn.run();
         });
-        out1.play();
     }
 
     public void refresh() {

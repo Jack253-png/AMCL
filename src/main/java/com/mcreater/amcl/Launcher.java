@@ -113,17 +113,22 @@ public class Launcher extends javafx.application.Application {
             logger.error("failed to read config", e);
         }
     }
+    public static void initLanguageManager(LanguageManager.LanguageType type) {
+        languageManager = new LanguageManager(type);
+    }
+    public static void initLanguageManager() {
+        initLanguageManager(LanguageManager.LanguageType.ENGLISH);
+    }
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
         Icons.initFXIcon();
         if (OSInfo.isWin()) {
-            languageManager = new LanguageManager(null);
             stage = new Stage();
             setGeometry(stage, width, height);
             bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true);
             logger.info("Launcher Version : " + VersionInfo.launcher_version);
             initConfig();
-            languageManager.setLanguage(LanguageManager.LanguageType.valueOf(configReader.configModel.language));
+            initLanguageManager(LanguageManager.LanguageType.valueOf(configReader.configModel.language));
 
             MAINPAGE = new MainPage(width, height);
             CONFIGPAGE = new ConfigPage(width, height);
