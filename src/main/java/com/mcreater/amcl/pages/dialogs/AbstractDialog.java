@@ -11,6 +11,7 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
@@ -32,6 +33,7 @@ import static com.mcreater.amcl.Launcher.width;
 
 public abstract class AbstractDialog extends JFXAlert<String> {
     public static final Vector<AbstractDialog> dialogs = new Vector<>();
+    public static final SimpleDoubleProperty dialogRadius = new SimpleDoubleProperty(30);
     final SimpleObjectProperty<Thread> animationThread = new SimpleObjectProperty<>(new Thread(() -> {}));
     final double radius = 8;
     boolean cliped;
@@ -83,7 +85,14 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         setOnShown(event -> {
             SnapshotParameters parameters = new SnapshotParameters();
             parameters.setFill(Color.TRANSPARENT);
-            Node par = ((Pane) getDialogPane().getContent()).getChildren().get(0);
+            Node par;
+
+            try {
+                par = ((Pane) getDialogPane().getContent()).getChildren().get(0);
+            } catch (Exception e) {
+                return;
+            }
+
             WritableImage image = par.snapshot(parameters, null);
             int width = (int) image.getWidth();
             int height = (int) image.getHeight();
@@ -92,8 +101,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                 height -= 10;
                 cliped = true;
             }
-            System.out.printf("%d, %d", width, height);
-            par.setClip(FXUtils.generateRect(width, height, 30));
+            par.setClip(FXUtils.generateRect(width, height, dialogRadius.get()));
         });
 
         setHideOnEscape(false);
