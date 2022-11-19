@@ -97,7 +97,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
 
             try {
                 JSONObject object = client1.readJSON();
-                return getUserFromToken(new ImmutablePair<>(object.getString("access_token"), object.getString("refresh_token")));
+                return getUserFromToken(new ImmutablePair<>("d=" + object.getString("access_token"), object.getString("refresh_token")));
             }
             catch (Exception ignored) {
 
@@ -144,7 +144,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
                     "Properties", J8Utils.createMap(
                             "AuthMethod", "RPS",
                             "SiteName", "user.auth.xboxlive.com",
-                            "RpsTicket", "d="+accessToken
+                            "RpsTicket", accessToken
                     ),
                     "RelyingParty", "http://auth.xboxlive.com",
                     "TokenType", "JWT"

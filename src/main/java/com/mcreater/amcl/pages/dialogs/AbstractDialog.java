@@ -11,16 +11,14 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.GaussianBlur;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -34,8 +32,9 @@ import static com.mcreater.amcl.Launcher.width;
 
 public abstract class AbstractDialog extends JFXAlert<String> {
     public static final Vector<AbstractDialog> dialogs = new Vector<>();
-    SimpleObjectProperty<Thread> animationThread = new SimpleObjectProperty<>(new Thread(() -> {}));
+    final SimpleObjectProperty<Thread> animationThread = new SimpleObjectProperty<>(new Thread(() -> {}));
     final double radius = 8;
+    boolean cliped;
     public AbstractDialog(Stage stage) {
         super(stage);
 //        getDialogPane().setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -80,6 +79,21 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         setOnCloseRequest(event -> {
             dialogs.remove(this);
             outAnimation();
+        });
+        setOnShown(event -> {
+            SnapshotParameters parameters = new SnapshotParameters();
+            parameters.setFill(Color.TRANSPARENT);
+            Node par = ((Pane) getDialogPane().getContent()).getChildren().get(0);
+            WritableImage image = par.snapshot(parameters, null);
+            int width = (int) image.getWidth();
+            int height = (int) image.getHeight();
+            if (!cliped) {
+                width -= 10;
+                height -= 10;
+                cliped = true;
+            }
+            System.out.printf("%d, %d", width, height);
+            par.setClip(FXUtils.generateRect(width, height, 30));
         });
 
         setHideOnEscape(false);
