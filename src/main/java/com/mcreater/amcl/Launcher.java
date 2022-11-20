@@ -117,7 +117,8 @@ public class Launcher extends javafx.application.Application {
         languageManager = new LanguageManager(type);
     }
     public static void initLanguageManager() {
-        initLanguageManager(LanguageManager.LanguageType.ENGLISH);
+        initConfig();
+        initLanguageManager(LanguageManager.LanguageType.valueOf(configReader.configModel.language));
     }
     public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
         Fonts.loadFont();
@@ -127,8 +128,7 @@ public class Launcher extends javafx.application.Application {
             setGeometry(stage, width, height);
             bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true);
             logger.info("Launcher Version : " + VersionInfo.launcher_version);
-            initConfig();
-            initLanguageManager(LanguageManager.LanguageType.valueOf(configReader.configModel.language));
+            initLanguageManager();
 
             MAINPAGE = new MainPage(width, height);
             CONFIGPAGE = new ConfigPage(width, height);

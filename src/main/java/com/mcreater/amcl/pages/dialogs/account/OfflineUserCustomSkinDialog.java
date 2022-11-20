@@ -28,7 +28,7 @@ public class OfflineUserCustomSkinDialog extends AbstractDialog {
     StringButtonItem capeItem;
     JFXButton cancel;
     JFXButton event;
-    RadioButtonGroupItem group;
+    public final RadioButtonGroupItem group;
     private final SimpleStringProperty skinPath = new SimpleStringProperty();
     private final SimpleStringProperty capePath = new SimpleStringProperty();
     public String getSkinPath() {
@@ -36,6 +36,12 @@ public class OfflineUserCustomSkinDialog extends AbstractDialog {
     }
     public String getCapePath() {
         return capePath.get();
+    }
+    public void setSkinPath(String skin) {
+        skinPath.set(skin);
+    }
+    public void setCapePath(String cape) {
+        capePath.set(cape);
     }
     public int getSelectedModelType() {
         return group.cont.getSelectedItem();

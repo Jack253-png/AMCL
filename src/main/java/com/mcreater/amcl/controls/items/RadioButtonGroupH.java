@@ -37,4 +37,8 @@ public class RadioButtonGroupH extends HBox implements AbstractRadioButtonGroup 
     public void selectFirst() {
         items.get(0).setSelected(true);
     }
+
+    public void select(int index) {
+        items.get(index).setSelected(true);
+    }
 }

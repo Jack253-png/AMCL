@@ -6,11 +6,13 @@ import java.util.Random;
 
 public class OffLineUser extends AbstractUser {
     public enum SkinType {
-        STEVE("000000000000300a9d83f9ec9e7fae8e"),
-        ALEX("000000000000300a9d83f9ec9e7fae8d");
+        STEVE("000000000000300a9d83f9ec9e7fae8e", false),
+        ALEX("000000000000300a9d83f9ec9e7fae8d", true);
         public final String uuid;
-        SkinType(String uuid) {
+        public final boolean isSlim;
+        SkinType(String uuid, boolean isSlim) {
             this.uuid = uuid;
+            this.isSlim = isSlim;
         }
     }
     public boolean is_slim;

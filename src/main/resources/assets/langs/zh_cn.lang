@@ -237,3 +237,4 @@ ui.exceptions.msaccount.skin.fail=皮肤上传失败
 ui.exceptions.msaccount.cape.fail=披风修改失败
 ui.userselectpage.user.create=创建
 ui.userselectpage.offline.id=获取玩家 UUID 中...
+ui.userselectpage.modify.title=修改用户

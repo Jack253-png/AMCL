@@ -1,7 +1,5 @@
 package com.mcreater.amcl.api.auth.users;
 
-import com.mcreater.amcl.config.ConfigModel;
-
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -14,6 +12,16 @@ public abstract class AbstractUser implements Serializable {
     public String uuid;
     public String refreshToken;
     public boolean active = false;
+    public int getUserType() {
+        if (this instanceof MicrosoftUser) return MICROSOFT;
+        return OFFLINE;
+    }
+    public OffLineUser toOfflineUser() {
+        return (OffLineUser) this;
+    }
+    public MicrosoftUser toMicrosoftUser() {
+        return (MicrosoftUser) this;
+    }
     public AbstractUser(String accessToken, String username, String uuid, String refreshToken){
         this.accessToken = accessToken;
         this.username = username;
