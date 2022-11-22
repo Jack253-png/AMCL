@@ -14,6 +14,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -37,26 +38,32 @@ public class PopupMessage {
         HYPERLINK,
         BUTTON
     }
-    public static Labeled createMessage(String text, MessageTypes type, @Nullable EventHandler<Event> handler){
+    public static Labeled createMessage(String text, MessageTypes type, @Nullable EventHandler<Event> handler) {
+        return createMessage(text, type, handler, Color.BLACK);
+    }
+    public static Labeled createMessage(String text, MessageTypes type, @Nullable EventHandler<Event> handler, Paint paint){
         Labeled l;
         switch (type){
             case HYPERLINK:
                 Hyperlink link = new Hyperlink();
                 link.setFont(Fonts.t_f);
+                link.setTextFill(paint);
                 if (handler != null) link.setOnAction(handler::handle);
                 l = link;
                 break;
             case BUTTON:
                 JFXButton button = new JFXButton();
                 button.setFont(Fonts.t_f);
+                button.setTextFill(paint);
                 if (handler != null) button.setOnAction(handler::handle);
                 l = button;
                 break;
             default:
             case LABEL:
-                Label circle = new Label();
-                circle.setFont(Fonts.t_f);
-                l = circle;
+                Label label = new Label();
+                label.setFont(Fonts.t_f);
+                label.setTextFill(paint);
+                l = label;
                 break;
         }
         Labeled finalL = l;

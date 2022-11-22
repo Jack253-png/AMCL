@@ -17,7 +17,6 @@ public class ConfigModel {
     public int downloadChunkSize = 2048;
     public int showingUpdateSpped = 500;
     public String downloadServer = "MCBBS";
-    public boolean use_chuoumium_core = false;
     public Vector<AbstractUser> accounts = new Vector<>();
     public static ConfigModel getDefault(){
         return new ConfigModel();

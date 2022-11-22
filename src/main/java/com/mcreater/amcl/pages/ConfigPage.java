@@ -91,7 +91,6 @@ public class ConfigPage extends AbstractMenuBarPage {
     public com.jfoenix.controls.JFXProgressBar bar1;
     public com.jfoenix.controls.JFXProgressBar bar2;
     Label ltitle;
-    BooleanItem item8;
     public ConfigPage(int width, int height) throws NoSuchFieldException, IllegalAccessException {
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -209,10 +208,6 @@ public class ConfigPage extends AbstractMenuBarPage {
         item7.cont.setOrientation(Orientation.HORIZONTAL);
         item7.cont.valueProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.showingUpdateSpped = newValue.intValue());
 
-        item8 = new BooleanItem("", this.width / 4 * 3 - 10);
-        item8.cont.setSelected(Launcher.configReader.configModel.use_chuoumium_core);
-        item8.cont.selectedProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.use_chuoumium_core = newValue);
-
         FXUtils.ControlSize.setHeight(item, 30);
         FXUtils.ControlSize.setHeight(item2, 30);
         FXUtils.ControlSize.setHeight(item2, 30);
@@ -221,7 +216,6 @@ public class ConfigPage extends AbstractMenuBarPage {
         FXUtils.ControlSize.setHeight(item5, 30);
         FXUtils.ControlSize.setHeight(item6, 30);
         FXUtils.ControlSize.setHeight(item7, 30);
-        FXUtils.ControlSize.setHeight(item8, 60);
 
         p = new Pane();
         bar1 = JFXProgressBar.createProgressBar();
@@ -275,7 +269,7 @@ public class ConfigPage extends AbstractMenuBarPage {
 
         configs_box = new VBox();
         configs_box.setSpacing(10);
-        configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6, item7, item8, vo);
+        configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6, item7, vo);
         configs_box.setId("config-box");
 
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
@@ -460,7 +454,6 @@ public class ConfigPage extends AbstractMenuBarPage {
         item5.name.setText(Launcher.languageManager.get("ui.configpage.item5.name"));
         item6.name.setText(Launcher.languageManager.get("ui.configpage.item6.name"));
         item7.name.setText(Launcher.languageManager.get("ui.configpage.item7.name"));
-        item8.name.setText(Launcher.languageManager.get("ui.configpage.item8.name"));
 
         setting.setText(Launcher.languageManager.get("ui.configpage.menu._01"));
         system.setText(Launcher.languageManager.get("ui.configpage.menu._02"));

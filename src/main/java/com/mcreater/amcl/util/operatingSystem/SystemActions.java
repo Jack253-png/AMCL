@@ -1,7 +1,5 @@
 package com.mcreater.amcl.util.operatingSystem;
 
-import com.mcreater.amcl.pages.stages.browser.ChroumiumWebBrowser;
-
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;

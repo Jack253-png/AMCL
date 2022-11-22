@@ -40,6 +40,15 @@ public class DepenciesXMLHandler {
                     case LINUX_ARM64:
                         items.add(new DepencyItem(item.linuxArm64, model.maven));
                         break;
+                    case WINDOWS_ARM:
+                        items.add(new DepencyItem(item.windowsArm, model.maven));
+                        break;
+                    case LINUX_ARM32:
+                        items.add(new DepencyItem(item.linuxArm32, model.maven));
+                        break;
+                    case LINUX_LOONGARCH64_OW:
+                        items.add(new DepencyItem(item.linuxLoongarch, model.maven));
+                        break;
                 }
             }
             else {
@@ -70,6 +79,10 @@ public class DepenciesXMLHandler {
             public String linuxArm32;
             @SerializedName("linux-arm64")
             public String linuxArm64;
+            @SerializedName("windows-arm")
+            public String windowsArm;
+            @SerializedName("linux-loongarch")
+            public String linuxLoongarch;
         }
     }
 }
