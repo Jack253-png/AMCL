@@ -75,19 +75,11 @@ public class UserSelectPage extends AbstractAnimationPage {
                         reloadUser();
                         break;
                     case 2:
-                        InputDialog dialog1 = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input")) {
-                            public void outAnimation() {
-
-                            }
-                        };
+                        InputDialog dialog1 = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
                         dialog1.setCancel(event12 -> dialog1.close());
                         dialog1.setEvent(event13 -> {
                             dialog1.close();
-                            LoadingDialog dialog2 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.offline.id")) {
-                                public void outAnimation() {
-
-                                }
-                            };
+                            LoadingDialog dialog2 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.offline.id"));
                             dialog2.Create();
                             new Thread(() -> {
                                 String uuid = OffLineUser.SkinType.STEVE.uuid;
@@ -109,11 +101,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                         });
                         dialog1.Create();
                     case 3:
-                        OfflineUserCustomSkinDialog dialog2 = new OfflineUserCustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.login.offlineskin")) {
-                            public void outAnimation() {
-
-                            }
-                        };
+                        OfflineUserCustomSkinDialog dialog2 = new OfflineUserCustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.login.offlineskin"));
                         dialog2.setCancel(event14 -> dialog2.close());
                         dialog2.setEvent(event15 -> {
                             Launcher.configReader.configModel.accounts.add(new OffLineUser(dialog.getInputedName(), dialog2.getSelectedModelType() == 0 ? OffLineUser.SkinType.STEVE.uuid : OffLineUser.SkinType.ALEX.uuid, dialog2.getSelectedModelType() != 0, dialog2.getSkinPath(), dialog2.getCapePath()));

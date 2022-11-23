@@ -2,6 +2,7 @@ package com.mcreater.amcl.game.launch;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.model.JarModel;
 import com.mcreater.amcl.model.LibModel;
@@ -25,7 +26,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
-import java.util.function.Consumer;
 
 import static com.mcreater.amcl.download.OriginalDownload.createNewDir;
 
@@ -70,7 +70,8 @@ public class MinecraftFixer {
         for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()){
             String hash = entry.getValue().get("hash");
             String s = String.format("%s/%s/%s", assets_objects, hash.substring(0, 2), hash).replace("\\", "/");
-            if (!HashHelper.getFileSHA1(new File(s)).equals(hash)) {
+            String hashT = HashHelper.getFileSHA1(new File(s));
+            if (!hashT.equals(hash)) {
                 boolean contained = false;
                 for (Task task : tasks){
                     if (Objects.equals(((AbstractTask) task).local, s)) {
@@ -113,13 +114,16 @@ public class MinecraftFixer {
         }
         for (LibModel model1 : libs){
             boolean b0 = !(has_322 && model1.name.contains("3.2.1"));
+            String nativeName = StableMain.getSystem2.run();
             if (model1.downloads != null){
                 if (model1.downloads.classifiers != null) {
-                    if (model1.downloads.classifiers.get("natives-windows") != null) {
+                    if (model1.downloads.classifiers.containsKey("natives-osx")) nativeName = nativeName.replace("natives-macos", "natives-osx").replace("-arm64", "");
+
+                    if (model1.downloads.classifiers.get(nativeName) != null) {
                         if (b0) {
-                            String npath = LinkPath.link(lib_base_path, model1.downloads.classifiers.get("natives-windows").path);
-                            String nurl = model1.downloads.classifiers.get("natives-windows").url;
-                            String nhash = model1.downloads.classifiers.get("natives-windows").sha1;
+                            String npath = LinkPath.link(lib_base_path, model1.downloads.classifiers.get(nativeName).path);
+                            String nurl = model1.downloads.classifiers.get(nativeName).url;
+                            String nhash = model1.downloads.classifiers.get(nativeName).sha1;
                             createNewDir(npath);
                             if (!HashHelper.getFileSHA1(new File(npath)).equals(nhash)) {
                                 if (nhash == null && !HashHelper.getFileSHA1(new File(npath)).equals("")) {
@@ -141,7 +145,7 @@ public class MinecraftFixer {
                             if (hash == null && !HashHelper.getFileSHA1(new File(path)).equals("")) {
                                 continue;
                             }
-                            if (model1.name.contains("natives-windows")) {
+                            if (model1.name.contains(nativeName)) {
                                 tasks.add(new NativeDownloadTask(FasterUrls.fast(url, server), path, native_base_path, chunk).setHash(hash));
                             } else {
                                 tasks.add(new LibDownloadTask(FasterUrls.fast(url, server), path, chunk).setHash(hash));

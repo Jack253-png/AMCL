@@ -3,12 +3,7 @@ package com.mcreater.amcl.audio;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.dialogs.commons.PopupMessage;
 import com.sun.media.jfxmedia.AudioClip;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
-import jmp123.PlayBack;
-import jmp123.output.Audio;
 
 import java.io.File;
 import java.io.IOException;

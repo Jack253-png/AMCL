@@ -34,7 +34,8 @@ import static com.mcreater.amcl.Launcher.width;
 public abstract class AbstractDialog extends JFXAlert<String> {
     public static final Vector<AbstractDialog> dialogs = new Vector<>();
     public static final SimpleDoubleProperty dialogRadius = new SimpleDoubleProperty(30);
-    final SimpleObjectProperty<Thread> animationThread = new SimpleObjectProperty<>(new Thread(() -> {}));
+    private static final SimpleObjectProperty<Thread> animationThread = new SimpleObjectProperty<>(new Thread(() -> {}));
+    private static final SimpleObjectProperty<Thread> animationThreadOut = new SimpleObjectProperty<>(new Thread(() -> {}));
     final double radius = 8;
     boolean cliped;
     public AbstractDialog(Stage stage) {
@@ -123,8 +124,10 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         }
     }
     public void outAnimation() {
-        if (animationThread != null && animationThread.get() != null) animationThread.get().stop();
-        animationThread.set(new Thread(() -> {
+        System.out.println("out");
+        if (animationThread.get() != null) animationThread.get().stop();
+        if (animationThreadOut != null && animationThreadOut.get() != null) animationThreadOut.get().stop();
+        animationThreadOut.set(new Thread(() -> {
             for (double i2 = getBlurRadius(); i2 >= 0; i2 -= radius / 80) {
                 double finalI = i2;
                 FXUtils.Platform.runLater(() -> Launcher.wrapper.setEffect(new GaussianBlur(finalI)));
@@ -132,9 +135,11 @@ public abstract class AbstractDialog extends JFXAlert<String> {
             }
             FXUtils.Platform.runLater(() -> Launcher.wrapper.setEffect(null));
         }));
-        if (dialogs.size() == 0) animationThread.get().start();
+        animationThreadOut.get().start();
     }
     public void inAnimation() {
+        System.out.println("in");
+        if (animationThreadOut.get() != null) animationThreadOut.get().stop();
         if (animationThread != null && animationThread.get() != null) animationThread.get().stop();
         animationThread.set(new Thread(() -> {
             FXUtils.Platform.runLater(() -> Launcher.wrapper.setEffect(null));
@@ -144,7 +149,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                 Sleeper.sleep(1);
             }
         }));
-        if (dialogs.size() == 1) animationThread.get().start();
+        animationThread.get().start();
     }
 
     public void Create(){

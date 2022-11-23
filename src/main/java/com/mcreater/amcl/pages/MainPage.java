@@ -96,7 +96,7 @@ public class MainPage extends AbstractAnimationPage {
                     public void setAll(int progress){
                         progresses.forEach(bar -> Platform.runLater(() -> bar.setProgress((double) progress / 100)));
                     }
-                    public void setV(int index, int progress){
+                    public void setV(int index, int progress) {
                         Platform.runLater(() -> this.progresses.get(index).setProgress((double) progress / 100));
                     }
                 };
@@ -298,32 +298,33 @@ public class MainPage extends AbstractAnimationPage {
     }
     public void flush(){
         boolean minecraft_dir_exists = new File(Launcher.configReader.configModel.selected_minecraft_dir_index).exists();
-
-        if (minecraft_dir_exists) {
-            if (Launcher.configReader.configModel.selected_minecraft_dir.contains(Launcher.configReader.configModel.selected_minecraft_dir_index)) {
-                if (Launcher.configReader.configModel.selected_version_index != null) {
-                    if (Objects.requireNonNull(GetMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index)).contains(Launcher.configReader.configModel.selected_version_index)) {
-                        if (new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/%s.json", Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)).exists()) {
-                            if (!Launcher.configReader.configModel.selected_version_index.equals("")) {
-                                if (JsonUtils.isVaildJson(new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/%s.json", Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)))) {
-                                    Platform.runLater(() -> {
-                                        version_settings.setText(" _" + Launcher.configReader.configModel.selected_version_index);
-                                        launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.hasVersion"));
-                                        version_settings.setDisable(false);
+        try {
+            if (minecraft_dir_exists) {
+                if (Launcher.configReader.configModel.selected_minecraft_dir.contains(Launcher.configReader.configModel.selected_minecraft_dir_index)) {
+                    if (Launcher.configReader.configModel.selected_version_index != null) {
+                        if (Objects.requireNonNull(GetMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index)).contains(Launcher.configReader.configModel.selected_version_index)) {
+                            if (new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/%s.json", Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)).exists()) {
+                                if (!Launcher.configReader.configModel.selected_version_index.equals("")) {
+                                    if (JsonUtils.isVaildJson(new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/%s.json", Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)))) {
+                                        Platform.runLater(() -> {
+                                            version_settings.setText(" _" + Launcher.configReader.configModel.selected_version_index);
+                                            launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.hasVersion"));
+                                            version_settings.setDisable(false);
+                                            downloadMc.setDisable(false);
+                                        });
+                                    } else {
+                                        clean_null_version();
                                         downloadMc.setDisable(false);
-                                    });
-                                }
-                                else {
+                                    }
+                                } else {
                                     clean_null_version();
                                     downloadMc.setDisable(false);
                                 }
-                            }
-                            else {
+                            } else {
                                 clean_null_version();
                                 downloadMc.setDisable(false);
                             }
-                        }
-                        else {
+                        } else {
                             clean_null_version();
                             downloadMc.setDisable(false);
                         }
@@ -331,20 +332,18 @@ public class MainPage extends AbstractAnimationPage {
                         clean_null_version();
                         downloadMc.setDisable(false);
                     }
-                }
-                else{
+                } else {
                     clean_null_version();
-                    downloadMc.setDisable(false);
+                    downloadMc.setDisable(true);
                 }
-            }
-            else{
+            } else {
                 clean_null_version();
                 downloadMc.setDisable(true);
             }
         }
-        else{
+        catch (Exception e) {
             clean_null_version();
-            downloadMc.setDisable(true);
+            downloadMc.setDisable(false);
         }
     }
     public void refresh(){

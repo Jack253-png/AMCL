@@ -102,7 +102,7 @@ public class FileUtils {
                     }
                     sha1Str.append(shaHex);
                 }
-            } catch (NoSuchAlgorithmException | IOException ignored) {
+            } catch (NoSuchAlgorithmException | IOException e) {
             } finally {
                 if (fis != null) {
                     try {
