@@ -5,19 +5,20 @@ import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.transitions.CachedTransition;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.util.FXUtils;
-import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
-import javafx.scene.effect.Effect;
-import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -26,17 +27,17 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.util.Vector;
-
 import static com.mcreater.amcl.Launcher.height;
 import static com.mcreater.amcl.Launcher.width;
 
 public abstract class AbstractDialog extends JFXAlert<String> {
-    public static final Vector<AbstractDialog> dialogs = new Vector<>();
+    public static final ObservableList<AbstractDialog> dialogs = FXCollections.observableArrayList();
     public static final SimpleDoubleProperty dialogRadius = new SimpleDoubleProperty(30);
-    private static final SimpleObjectProperty<Thread> animationThread = new SimpleObjectProperty<>(new Thread(() -> {}));
-    private static final SimpleObjectProperty<Thread> animationThreadOut = new SimpleObjectProperty<>(new Thread(() -> {}));
-    final double radius = 8;
+    public static final double blurRadius = 8;
+    public static final SimpleDoubleProperty nowRadius = new SimpleDoubleProperty(0);
+    public static final SimpleDoubleProperty exceptedRadius = new SimpleDoubleProperty(0);
+
+
     boolean cliped;
     public AbstractDialog(Stage stage) {
         super(stage);
@@ -75,14 +76,8 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         this.initModality(Modality.APPLICATION_MODAL);
         this.setOverlayClose(false);
         getDialogPane().setClip(FXUtils.generateRect(width, height, Launcher.radius));
-        setOnShowing(event -> {
-            dialogs.add(this);
-            inAnimation();
-        });
-        setOnCloseRequest(event -> {
-            dialogs.remove(this);
-            outAnimation();
-        });
+        setOnShowing(event -> dialogs.add(this));
+        setOnCloseRequest(event -> dialogs.remove(this));
         setOnShown(event -> {
             SnapshotParameters parameters = new SnapshotParameters();
             parameters.setFill(Color.TRANSPARENT);
@@ -105,51 +100,10 @@ public abstract class AbstractDialog extends JFXAlert<String> {
             par.setClip(FXUtils.generateRect(width, height, dialogRadius.get()));
         });
 
-        setHideOnEscape(false);
-    }
+        dialogs.addListener((ListChangeListener<AbstractDialog>) c -> exceptedRadius.set(c.getList().size() == 0 ? 0 : blurRadius));
+        exceptedRadius.addListener((observable, oldValue, newValue) -> System.out.println(newValue));
 
-    public double getBlurRadius() {
-        Effect effect = Launcher.wrapper.getEffect();
-        if (effect != null) {
-            if (effect instanceof GaussianBlur) {
-                GaussianBlur blur = (GaussianBlur) effect;
-                return blur.getRadius();
-            }
-            else {
-                return 0;
-            }
-        }
-        else {
-            return 0;
-        }
-    }
-    public void outAnimation() {
-        System.out.println("out");
-        if (animationThread.get() != null) animationThread.get().stop();
-        if (animationThreadOut != null && animationThreadOut.get() != null) animationThreadOut.get().stop();
-        animationThreadOut.set(new Thread(() -> {
-            for (double i2 = getBlurRadius(); i2 >= 0; i2 -= radius / 80) {
-                double finalI = i2;
-                FXUtils.Platform.runLater(() -> Launcher.wrapper.setEffect(new GaussianBlur(finalI)));
-                Sleeper.sleep(1);
-            }
-            FXUtils.Platform.runLater(() -> Launcher.wrapper.setEffect(null));
-        }));
-        animationThreadOut.get().start();
-    }
-    public void inAnimation() {
-        System.out.println("in");
-        if (animationThreadOut.get() != null) animationThreadOut.get().stop();
-        if (animationThread != null && animationThread.get() != null) animationThread.get().stop();
-        animationThread.set(new Thread(() -> {
-            FXUtils.Platform.runLater(() -> Launcher.wrapper.setEffect(null));
-            for (double i2 = getBlurRadius(); i2 <= radius; i2 += radius / 80) {
-                double finalI = i2;
-                FXUtils.Platform.runLater(() -> Launcher.wrapper.setEffect(new GaussianBlur(finalI)));
-                Sleeper.sleep(1);
-            }
-        }));
-        animationThread.get().start();
+        setHideOnEscape(false);
     }
 
     public void Create(){
