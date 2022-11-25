@@ -11,14 +11,13 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -29,6 +28,7 @@ import javafx.util.Duration;
 
 import static com.mcreater.amcl.Launcher.height;
 import static com.mcreater.amcl.Launcher.width;
+import static com.mcreater.amcl.Launcher.wrapper;
 
 public abstract class AbstractDialog extends JFXAlert<String> {
     public static final ObservableList<AbstractDialog> dialogs = FXCollections.observableArrayList();
@@ -37,6 +37,24 @@ public abstract class AbstractDialog extends JFXAlert<String> {
     public static final SimpleDoubleProperty nowRadius = new SimpleDoubleProperty(0);
     public static final SimpleDoubleProperty exceptedRadius = new SimpleDoubleProperty(0);
 
+    public final SimpleDoubleProperty dialogNowRadius = new SimpleDoubleProperty(0);
+
+    public final SimpleDoubleProperty dialogExceptedRadius = new SimpleDoubleProperty(0);
+
+    static {
+        dialogs.addListener((ListChangeListener<AbstractDialog>) c -> exceptedRadius.set(c.getList().size() == 0 ? 0 : blurRadius));
+        nowRadius.addListener((observable, oldValue, newValue) -> wrapper.setEffect(new GaussianBlur(newValue.intValue())));
+        new Thread("Widget blur calc thread") {
+            public void run() {
+                while (true) {
+                    if (nowRadius.getValue().intValue() != exceptedRadius.getValue().intValue()) {
+                        double now = nowRadius.get();
+                        nowRadius.set(now < exceptedRadius.get() ? now + blurRadius / 20 : now - blurRadius / 20);
+                    }
+                }
+            }
+        }.start();
+    }
 
     boolean cliped;
     public AbstractDialog(Stage stage) {
@@ -100,13 +118,15 @@ public abstract class AbstractDialog extends JFXAlert<String> {
             par.setClip(FXUtils.generateRect(width, height, dialogRadius.get()));
         });
 
-        dialogs.addListener((ListChangeListener<AbstractDialog>) c -> exceptedRadius.set(c.getList().size() == 0 ? 0 : blurRadius));
-        exceptedRadius.addListener((observable, oldValue, newValue) -> System.out.println(newValue));
+        dialogNowRadius.addListener((observable, oldValue, newValue) -> getDialogPane().setEffect(new GaussianBlur(newValue.intValue())));
+        dialogs.addListener((ListChangeListener<AbstractDialog>) c -> onDialogListChange());
 
         setHideOnEscape(false);
     }
-
-    public void Create(){
+    private void onDialogListChange() {
+        dialogExceptedRadius.set(dialogs.indexOf(this) + 1 == dialogs.size() ? 0 : blurRadius);
+    }
+    public void Create() {
         FXUtils.Platform.runLater(this::show);
     }
     public static Label setFont(Label l, Font font){
