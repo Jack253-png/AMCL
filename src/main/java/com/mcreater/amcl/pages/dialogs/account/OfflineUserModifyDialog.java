@@ -47,6 +47,7 @@ public class OfflineUserModifyDialog extends AbstractDialog {
                 setFont(new Label(Launcher.languageManager.get("ui.userselectpage.skin.custom")), Fonts.t_f)
         );
         userSkin.cont.getSelectionModel().select(getUserSkinType());
+        ThemeManager.applyNode(userSkin.cont);
 
         VBox container = new VBox(userName, userSkin);
         container.setSpacing(15);

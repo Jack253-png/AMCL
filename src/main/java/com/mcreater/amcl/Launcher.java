@@ -14,8 +14,8 @@ import com.mcreater.amcl.pages.ModDownloadPage;
 import com.mcreater.amcl.pages.UserSelectPage;
 import com.mcreater.amcl.pages.VersionInfoPage;
 import com.mcreater.amcl.pages.VersionSelectPage;
+import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.dialogs.SimpleDialog;
-import com.mcreater.amcl.pages.dialogs.TestDialog;
 import com.mcreater.amcl.pages.dialogs.commons.AboutDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.AnimationPage;
@@ -168,7 +168,6 @@ public class Launcher extends javafx.application.Application {
             aboutDialog = new AboutDialog();
             stage.show();
             StableMain.splashScreen.setVisible(false);
-//            new TestDialog(width, height).Create();
         }
         else{
             SimpleDialog dialog = new SimpleDialog(

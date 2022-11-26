@@ -41,6 +41,7 @@ public class AboutDialog extends AbstractDialog {
 
         VBox v = new VBox();
         AdvancedScrollPane page = new AdvancedScrollPane(400, 300, v, false);
+        page.setId("opc");
         ThemeManager.applyNode(page);
 
         Hyperlink hyperlink = new Hyperlink(Launcher.languageManager.get("ui.about.opensource.name"));

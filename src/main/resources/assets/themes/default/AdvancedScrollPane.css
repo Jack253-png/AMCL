@@ -12,6 +12,9 @@
 .scroll-pane {
     -fx-background-color: -fx-scroll-pane-background;
 }
+#opc {
+    -fx-background-color: transparent;
+}
 .scroll-bar:horizontal .track,
 .scroll-bar:vertical .track{
     -fx-background-color:transparent;

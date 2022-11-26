@@ -14,12 +14,17 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -50,6 +55,17 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                     if (nowRadius.getValue().intValue() != exceptedRadius.getValue().intValue()) {
                         double now = nowRadius.get();
                         nowRadius.set(now < exceptedRadius.get() ? now + blurRadius / 20 : now - blurRadius / 20);
+                    }
+                    try {
+                        dialogs.forEach(abstractDialog -> {
+                            if (abstractDialog.dialogNowRadius.getValue().intValue() != abstractDialog.dialogExceptedRadius.getValue().intValue()) {
+                                double now2 = abstractDialog.dialogNowRadius.get();
+                                abstractDialog.dialogNowRadius.set(now2 < abstractDialog.dialogExceptedRadius.get() ? now2 + blurRadius / 20 : now2 - blurRadius / 20);
+                            }
+                        });
+                    }
+                    catch (Exception e) {
+
                     }
                 }
             }
@@ -122,6 +138,23 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         dialogs.addListener((ListChangeListener<AbstractDialog>) c -> onDialogListChange());
 
         setHideOnEscape(false);
+    }
+    public void setContent(Node... content) {
+        FXUtils.toNodeClass(
+                FXUtils.toNodeClass(
+                        getDialogPane().getContent(), Pane.class
+                ).getChildren().get(0),
+                Region.class
+        ).setBackground(
+                new Background(
+                        new BackgroundFill(
+                                new Color(1, 1, 1, 0.8),
+                                CornerRadii.EMPTY,
+                                Insets.EMPTY
+                        )
+                )
+        );
+        super.setContent(content);
     }
     private void onDialogListChange() {
         dialogExceptedRadius.set(dialogs.indexOf(this) + 1 == dialogs.size() ? 0 : blurRadius);

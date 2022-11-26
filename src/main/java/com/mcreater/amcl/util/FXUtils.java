@@ -11,6 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
@@ -40,6 +41,9 @@ public class FXUtils {
         public static WritableImage convertToWritableImage(Image image){
             return new WritableImage(image.getPixelReader(), (int) image.getWidth(), (int) image.getHeight());
         }
+    }
+    public static <C extends Node> C toNodeClass(Node obj, Class<C> cClass) {
+        return (C) obj;
     }
     public static class ControlSize {
         public static void set(Region n, double width, double height){
