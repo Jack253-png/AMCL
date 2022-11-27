@@ -2,7 +2,6 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.game.GetMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
@@ -23,17 +22,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -203,9 +205,9 @@ public class MainPage extends AbstractAnimationPage {
             Launcher.setPage(Launcher.VERSIONSELECTPAGE, this);
         });
 
-        version_settings.setGraphic(Launcher.getSVGManager().gear(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
-        settings.setGraphic(Launcher.getSVGManager().gear(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
-        downloadMc.setGraphic(Launcher.getSVGManager().downloadOutline(Bindings.createObjectBinding(this::returnBlack), 25.0D, 25.0D));
+        version_settings.setGraphic(Launcher.getSVGManager().gear(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 25.0D, 25.0D));
+        settings.setGraphic(Launcher.getSVGManager().gear(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 25.0D, 25.0D));
+        downloadMc.setGraphic(Launcher.getSVGManager().downloadOutline(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 25.0D, 25.0D));
 
         LaunchTitle = new HBox();
         LaunchTitle.setAlignment(Pos.BOTTOM_CENTER);
@@ -233,6 +235,10 @@ public class MainPage extends AbstractAnimationPage {
         FXUtils.ControlSize.set(GameMenu, width / 4, height);
         GameMenu.setAlignment(Pos.TOP_CENTER);
 
+        Button tes = new Button("test");
+        tes.setCancelButton(true);
+        tes.setOnAction(event -> Launcher.clearBgBuffer());
+
         GameMenu.getChildren().addAll(
                 title,
                 LaunchTitle,
@@ -250,7 +256,8 @@ public class MainPage extends AbstractAnimationPage {
                 downloadTitle,
                 FXUtils.ControlSize.setSplit(new SplitPane(), width / 4 - 20),
                 new Spacer(),
-                downloadMc
+                downloadMc,
+                tes
         );
 
         nodes.add(new NodeInfo(0, 0, width / 4, height));

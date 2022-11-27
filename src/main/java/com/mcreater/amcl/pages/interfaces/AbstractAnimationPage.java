@@ -2,11 +2,8 @@ package com.mcreater.amcl.pages.interfaces;
 
 import com.mcreater.amcl.Launcher;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.scene.Node;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 
 import java.util.List;
 import java.util.Vector;
@@ -33,9 +30,7 @@ public abstract class AbstractAnimationPage extends GridPane implements Animatio
     public final SimpleObjectProperty<List<AbstractAnimationPage>> BindedPageproperty(){
         return BindedPageproperty;
     }
-    public Color returnBlack() {
-        return Color.BLACK;
-    }
+
     public AbstractAnimationPage(double width, double height){
         this.setMinSize(width, height);
         this.setMaxSize(width, height);

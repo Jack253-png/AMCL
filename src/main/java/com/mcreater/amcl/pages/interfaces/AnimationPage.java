@@ -6,12 +6,16 @@ import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
 import javafx.geometry.BoundingBox;
 import javafx.util.Duration;
+import org.w3c.dom.Node;
 
 public interface AnimationPage {
     class NodeInfo {
         public BoundingBox size;
         public NodeInfo(double x, double y, double w, double h){
             this.size = new BoundingBox(x, y, w, h);
+        }
+        public NodeInfo() {
+            this.size = null;
         }
     }
     Timeline in = new Timeline();

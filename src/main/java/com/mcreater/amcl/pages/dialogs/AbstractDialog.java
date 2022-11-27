@@ -26,6 +26,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -109,7 +110,10 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         });
         this.initModality(Modality.APPLICATION_MODAL);
         this.setOverlayClose(false);
-        getDialogPane().setClip(FXUtils.generateRect(width, height, Launcher.radius));
+        Rectangle r = FXUtils.generateRect(width, height, 0);
+        r.arcWidthProperty().bind(Launcher.radius);
+        r.arcHeightProperty().bind(Launcher.radius);
+        getDialogPane().setClip(r);
         setOnShowing(event -> dialogs.add(this));
         setOnCloseRequest(event -> dialogs.remove(this));
         setOnShown(event -> {
@@ -148,7 +152,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         ).setBackground(
                 new Background(
                         new BackgroundFill(
-                                new Color(1, 1, 1, 0.8),
+                                new Color(1, 1, 1, 0.85),
                                 CornerRadii.EMPTY,
                                 Insets.EMPTY
                         )

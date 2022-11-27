@@ -14,7 +14,6 @@ import com.mcreater.amcl.pages.ModDownloadPage;
 import com.mcreater.amcl.pages.UserSelectPage;
 import com.mcreater.amcl.pages.VersionInfoPage;
 import com.mcreater.amcl.pages.VersionSelectPage;
-import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.dialogs.SimpleDialog;
 import com.mcreater.amcl.pages.dialogs.commons.AboutDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
@@ -31,6 +30,7 @@ import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import com.mcreater.amcl.util.svg.Icons;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
@@ -70,7 +70,6 @@ public class Launcher extends javafx.application.Application {
     public static Stage stage;
     static AbstractAnimationPage last;
 
-
     public static MainPage MAINPAGE;
     public static ConfigPage CONFIGPAGE;
     public static VersionSelectPage VERSIONSELECTPAGE;
@@ -96,7 +95,7 @@ public class Launcher extends javafx.application.Application {
     public static JFXButton back;
     public static AboutDialog aboutDialog;
     public static Pane wrapper = new Pane();
-    public static double radius = 30;
+    public static final SimpleDoubleProperty radius = new SimpleDoubleProperty(30);
     static VBox top = new VBox();
     public static void initConfig() {
         try {
@@ -167,6 +166,12 @@ public class Launcher extends javafx.application.Application {
 
             new Thread(VersionChecker::check).start();
             aboutDialog = new AboutDialog();
+
+            Rectangle rect = FXUtils.generateRect(width, height, 0);
+            rect.arcWidthProperty().bind(Launcher.radius);
+            rect.arcHeightProperty().bind(Launcher.radius);
+            wrapper.setClip(rect);
+
             stage.show();
             StableMain.splashScreen.setVisible(false);
         }
@@ -265,7 +270,6 @@ public class Launcher extends javafx.application.Application {
         cl.setAlignment(Pos.CENTER_RIGHT);
         cl.setMinSize(400, t_size);
         cl.setMaxSize(400, t_size);
-        cl.setStyle("-fx-border-radius: " + radius / 2 + "px");
         title.add(cl, 1, 0, 1, 1);
         top.getChildren().add(title);
 
@@ -307,10 +311,16 @@ public class Launcher extends javafx.application.Application {
     public static void startApplication(String[] args) {
         launch(args);
     }
+    public static void clearBgBuffer() {
+        LanguageManager.bindedPages.forEach(page -> page.setBufferedBackground(null));
+        refreshBackground();
+    }
     public static void refreshBackground(){
-        double widthRadius = 1600 / (double) width;
-        double heightRadius = 900 / (double) height;
         String wallpaper = "assets/imgs/background.jpg";
+        Image wap = new Image(wallpaper);
+
+        double widthRadius = wap.getWidth() / (double) width;
+        double heightRadius = wap.getHeight() / (double) height;
 
         boolean hasBinded = false;
         AbstractAnimationPage ha = last;
@@ -326,7 +336,7 @@ public class Launcher extends javafx.application.Application {
 
         WritableImage result;
         if (last.getBufferedBackground() == null && !hasBinded) {
-            result = FXUtils.ImageConverter.convertToWritableImage(new Image(wallpaper));
+            result = FXUtils.ImageConverter.convertToWritableImage(wap);
             WritableImage original = FXUtils.ImagePreProcesser.cutImage(result, 0, 0, (int) result.getWidth(), (int) result.getHeight());
 
             FXUtils.ImagePreProcesser.process(
@@ -346,7 +356,21 @@ public class Launcher extends javafx.application.Application {
             FXUtils.ImagePreProcesser.process(
                     result,
                     (view, image) -> {
-                        List<AnimationPage.NodeInfo> nodes = new Vector<>(last.nodes);
+                        List<AnimationPage.NodeInfo> nodes = new Vector<>();
+                        for (AnimationPage.NodeInfo box : last.nodes) {
+                            if (box != null) {
+                                nodes.add(new AnimationPage.NodeInfo(
+                                        box.size.getMinX(),
+                                        box.size.getMinY(),
+                                        box.size.getWidth(),
+                                        box.size.getHeight()
+                                ));
+                            }
+                            else {
+                                nodes.add(null);
+                            }
+                        }
+
                         nodes.add(new AnimationPage.NodeInfo(0, 0, width, barSize));
 
                         for (AnimationPage.NodeInfo node : nodes) {
@@ -390,26 +414,6 @@ public class Launcher extends javafx.application.Application {
                 BackgroundPosition.DEFAULT,
                 bs);
         bg = new Background(im);
-
-        WritableImage image = FXUtils.ImagePreProcesser.getColorImage(
-                new Color(1, 1, 1, 0.5),
-                width, (int) barSize
-        );
-        top.setBackground(new Background(new BackgroundImage(
-                image,
-                BackgroundRepeat.ROUND,
-                BackgroundRepeat.ROUND,
-                BackgroundPosition.DEFAULT,
-                bs
-        )));
-
         p.setBackground(bg);
-
-        Rectangle rect = new Rectangle();
-        rect.setWidth(width);
-        rect.setHeight(height);
-        rect.setArcWidth(radius);
-        rect.setArcHeight(radius);
-        wrapper.setClip(rect);
     }
 }

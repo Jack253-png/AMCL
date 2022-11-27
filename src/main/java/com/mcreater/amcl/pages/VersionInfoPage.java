@@ -27,10 +27,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -104,14 +107,14 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         info.add(optiversion, 1, 4, 1, 1);
         delVer = new JFXButton();
         FXUtils.ControlSize.set(delVer, t_size, t_size);
-        delVer.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
+        delVer.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), t_size, t_size));
         delVer.setOnAction(event -> {
             RemoveFileToTrash.remove(LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s", Launcher.configReader.configModel.selected_version_index)));
             Launcher.setPage(Launcher.MAINPAGE, this);
         });
         item = new StringItem("", this.width / 4 * 3);
         changeName = new JFXButton();
-        changeName.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
+        changeName.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), t_size, t_size));
         FXUtils.ControlSize.set(changeName, t_size, t_size);
         changeName.setOnAction(event -> {
             if (isValidFileName(item.cont.getText())) {
@@ -148,17 +151,17 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
         addMod = new JFXButton();
         FXUtils.ControlSize.set(addMod, t_size, t_size);
-        addMod.setGraphic(Launcher.getSVGManager().plus(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
+        addMod.setGraphic(Launcher.getSVGManager().plus(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), t_size, t_size));
         addMod.setOnAction(event -> Launcher.setPage(Launcher.ADDMODSPAGE, this));
 
         refresh = new JFXButton();
         FXUtils.ControlSize.set(refresh, t_size, t_size);
-        refresh.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
+        refresh.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), t_size, t_size));
         refresh.setOnAction(actionEvent -> new Thread(this::loadMods).start());
 
         delete = new JFXButton();
         FXUtils.ControlSize.set(delete, t_size, t_size);
-        delete.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding(this::returnBlack), t_size, t_size));
+        delete.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), t_size, t_size));
         delete.setOnAction(event -> {
             ProcessDialog dialog = new ProcessDialog(1, String.format(Launcher.languageManager.get("ui.versioninfopage.deletemod.deleteing.title"), modList.selectedItem.name.getText()));
             dialog.Create();

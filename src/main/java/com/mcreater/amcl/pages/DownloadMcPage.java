@@ -25,9 +25,12 @@ import javafx.scene.Parent;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.util.Objects;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
@@ -76,7 +79,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
         load = new JFXButton();
         load.setFont(Fonts.s_f);
         load.setOnAction(event -> loadVersions());
-        load.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(this::returnBlack), 30, 30));
+        load.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 30, 30));
         setting.setButtonType(JFXButton.ButtonType.RAISED);
         load.setButtonType(JFXButton.ButtonType.RAISED);
         FXUtils.ControlSize.set(setting, this.width / 4 / 4 * 3, 40);
