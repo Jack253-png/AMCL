@@ -32,6 +32,7 @@ import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import com.mcreater.amcl.util.svg.Icons;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -346,7 +347,14 @@ public class Launcher extends javafx.application.Application {
                     result,
                     (view, image) -> {
                         List<AnimationPage.NodeInfo> nodes = new Vector<>(last.nodes);
-                        nodes.add(new AnimationPage.NodeInfo(0, 0, width, barSize / 100 * 95));
+                        nodes.add(new AnimationPage.NodeInfo(0, 0, width, barSize));
+
+                        for (AnimationPage.NodeInfo node : nodes) {
+                            if (node != null) {
+                                node.size = new BoundingBox(node.size.getMinX(), node.size.getMinY(), node.size.getWidth() * 0.8615384615384616, node.size.getHeight() * 0.9);
+                            }
+                        }
+
                         for (int x = 0; x < image.getWidth(); x++) {
                             for (int y = 0; y < image.getHeight(); y++) {
                                 if (!last.nodes.contains(null) && !FXUtils.gemotryInned(new Point2D(x / widthRadius, y / heightRadius), nodes)) {

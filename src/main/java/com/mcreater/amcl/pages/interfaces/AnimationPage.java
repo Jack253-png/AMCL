@@ -9,7 +9,7 @@ import javafx.util.Duration;
 
 public interface AnimationPage {
     class NodeInfo {
-        public final BoundingBox size;
+        public BoundingBox size;
         public NodeInfo(double x, double y, double w, double h){
             this.size = new BoundingBox(x, y, w, h);
         }

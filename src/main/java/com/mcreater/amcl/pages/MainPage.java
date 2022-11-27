@@ -253,7 +253,7 @@ public class MainPage extends AbstractAnimationPage {
                 downloadMc
         );
 
-        nodes.add(new NodeInfo(0, 0, width / 5 + width / 65, height));
+        nodes.add(new NodeInfo(0, 0, width / 4, height));
 
         Pane p = new Pane();
         FXUtils.ControlSize.set(p, width / 2, height - Launcher.barSize - 50);
