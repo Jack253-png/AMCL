@@ -1,37 +1,31 @@
 package com.jfoenix.utils;
 
-import com.mcreater.amcl.controls.JFXProgressBar;
+import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.animation.Animation;
+import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.util.Duration;
 
-import javax.swing.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
 import java.util.function.Function;
 
 public class JFXSmoothScroll {
     private static final double[] percents = {0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64, 0.8, 0.86,
     0.9, 0.92, 0.94, 0.96, 1.00};
-    public static final Map<ProgressBar, BarUpdateThread> barMap = new HashMap<>();
+
+    public static final Map<ProgressBar, Timeline> barAnimations = new HashMap<>();
     private static void customScrolling(ScrollPane scrollPane, DoubleProperty scrollDriection, Function<Bounds, Double> sizeFunc, double speed) {
         final double[] frictions = {0.99, 0.1, 0.05, 0.04, 0.03, 0.02, 0.01, 0.04, 0.01, 0.008, 0.008, 0.008, 0.008, 0.0006, 0.0005, 0.00003, 0.00001};
         final double[] pushes = {speed};
@@ -104,38 +98,43 @@ public class JFXSmoothScroll {
         customScrolling(scrollPane, scrollPane.vvalueProperty(), Bounds::getHeight, speed);
         customScrolling(scrollPane, scrollPane.hvalueProperty(), Bounds::getWidth, speed);
     }
-    public static void smoothScrollBarToValue(ProgressBar bar, double value){
-        if (barMap.containsKey(bar)) barMap.get(bar).setTarget(value);
-        else {
-            BarUpdateThread t = new BarUpdateThread(bar, value);
-            barMap.put(bar, t);
-            barMap.get(bar).setTarget(value);
-            barMap.get(bar).start();
+    public static void smoothScrollBarToValue(ProgressBar bar, double value) {
+        double currStart = bar.getProgress() < 0 ? 0 : bar.getProgress();
+        double currEnd = value < 0 ? 0 : value;
+        double duration = 300;
+        if (barAnimations.get(bar) != null) barAnimations.get(bar).stop();
+        Timeline line = new Timeline(
+                new KeyFrame(
+                        Duration.ZERO,
+                        new KeyValue(
+                                bar.progressProperty(),
+                                currStart,
+                                Interpolator.EASE_BOTH
+                        )
+                ),
+                new KeyFrame(
+                        new Duration(duration),
+                        new KeyValue(
+                                bar.progressProperty(),
+                                currEnd,
+                                Interpolator.EASE_BOTH
+                        )
+                )
+        );
+        if (value < 0) {
+            line.getKeyFrames().add(new KeyFrame(
+                    new Duration(duration),
+                    new KeyValue(
+                            bar.progressProperty(),
+                            -1,
+                            Interpolator.DISCRETE
+                    )
+            ));
         }
-    }
-    public static class BarUpdateThread extends Thread {
-        ProgressBar bar;
-        double target;
-        public BarUpdateThread(ProgressBar bar, double target) {
-            this.bar = bar;
-            this.target = target;
-        }
-        public void setTarget(double target) {
-            this.target = target;
-        }
-        public void run() {
-            while (true) {
-                double nowValue = bar.getProgress();
-                if (nowValue == target) continue;
-                for (double percent : percents) {
-                    if (nowValue < target) {
-                        Platform.runLater(() -> bar.setProgress(nowValue + (target - nowValue) * percent));
-                    } else {
-                        Platform.runLater(() -> bar.setProgress(nowValue - (nowValue - target) * percent));
-                    }
-                    Sleeper.sleep(10);
-                }
-            }
-        }
+        line.setCycleCount(1);
+        line.setDelay(Duration.ZERO);
+        line.setAutoReverse(false);
+        barAnimations.put(bar, line);
+        barAnimations.get(bar).playFromStart();
     }
 }

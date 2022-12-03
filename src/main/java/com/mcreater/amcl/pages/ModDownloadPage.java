@@ -257,7 +257,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
         p.add(t, 0, 1, 1, 1);
         this.add(p, 0, 0, 1, 1);
         nodes.add(null);
-        BindedPageproperty().get().addAll(J8Utils.createList(
+        bindedPageproperty().get().addAll(J8Utils.createList(
                 ADDMODSPAGE,
                 CONFIGPAGE,
                 DOWNLOADADDONSELECTPAGE,

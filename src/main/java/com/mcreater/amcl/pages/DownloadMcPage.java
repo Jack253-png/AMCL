@@ -96,7 +96,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
         setType(setting);
 
         nodes.add(null);
-        BindedPageproperty().get().addAll(J8Utils.createList(
+        bindedPageproperty().get().addAll(J8Utils.createList(
                 ADDMODSPAGE,
                 CONFIGPAGE,
                 DOWNLOADADDONSELECTPAGE,

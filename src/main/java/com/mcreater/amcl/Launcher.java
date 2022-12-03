@@ -31,6 +31,7 @@ import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import com.mcreater.amcl.util.svg.Icons;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
@@ -56,6 +57,7 @@ import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -325,7 +327,7 @@ public class Launcher extends javafx.application.Application {
         boolean hasBinded = false;
         AbstractAnimationPage ha = last;
 
-        for (AbstractAnimationPage page : last.BindedPageproperty().get()) {
+        for (AbstractAnimationPage page : last.bindedPageproperty().get()) {
             if (page != null) {
                 if (page.getBufferedBackground() != null) {
                     hasBinded = true;
@@ -399,7 +401,7 @@ public class Launcher extends javafx.application.Application {
             );
 
             last.setBufferedBackground(result);
-            for (AbstractAnimationPage pag : last.BindedPageproperty().get()) {
+            for (AbstractAnimationPage pag : last.bindedPageproperty().get()) {
                 if (pag != null) pag.setBufferedBackground(result);
             }
         }

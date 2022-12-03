@@ -94,14 +94,7 @@ public class MainPage extends AbstractAnimationPage {
             FileUtils.ChangeDir.saveNowDir();
             if (!Objects.equals(launchButton.getText(), Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
                 Launcher.configReader.check_and_write();
-                launchDialog = new ProcessDialog(2, Launcher.languageManager.get("ui.mainpage.launch._01")) {
-                    public void setAll(int progress){
-                        progresses.forEach(bar -> Platform.runLater(() -> bar.setProgress((double) progress / 100)));
-                    }
-                    public void setV(int index, int progress) {
-                        Platform.runLater(() -> this.progresses.get(index).setProgress((double) progress / 100));
-                    }
-                };
+                launchDialog = new ProcessDialog(2, Launcher.languageManager.get("ui.mainpage.launch._01"));
                 launchDialog.setV(0, 1, Launcher.languageManager.get("ui.mainpage.launch._02"));
 
                 JFXButton stopAction = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
@@ -277,7 +270,7 @@ public class MainPage extends AbstractAnimationPage {
                 Sleeper.sleep(10);
             }
         }).start();
-        BindedPageproperty().get().add(MAINPAGE);
+        bindedPageproperty().get().add(MAINPAGE);
     }
     public static void check(Launch launchCore){
         Platform.runLater(launchDialog::close);

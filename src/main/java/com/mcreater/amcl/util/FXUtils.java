@@ -3,9 +3,11 @@ package com.mcreater.amcl.util;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.skins.JFXTextFieldSkin;
 import com.mcreater.amcl.pages.interfaces.AnimationPage;
+import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.WritableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -35,6 +37,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Vector;
+import java.util.function.Consumer;
 
 public class FXUtils {
     public static class ImageConverter {
@@ -198,6 +202,40 @@ public class FXUtils {
             Timeline out1 = FXUtils.AnimationUtils.genSingleCycleAnimation(target, value1, value2, startupDur, runDur);
             out1.setOnFinished(finishedHandler);
             out1.play();
+        }
+
+        public static Vector<KeyFrame> genDoublePercentKeyframes(double startValue, double endValue, double[] percents, DoubleProperty property, double duration) {
+            boolean finalU = false;
+            if (startValue < 0) startValue = 0;
+            if (endValue < 0) {
+                endValue = 0;
+                finalU = true;
+            }
+
+            Vector<KeyFrame> frames = new Vector<>();
+            if (startValue == endValue) return frames;
+            for (double per : percents) {
+                double num;
+                if (startValue < endValue) {
+                    num = startValue + (endValue - startValue) * per;
+                }
+                else {
+                    num = endValue - (startValue - endValue ) * per;
+                }
+                frames.add(new KeyFrame(
+                        new Duration(duration),
+                        new KeyValue(property, num, Interpolator.EASE_BOTH)
+                ));
+                System.out.println(num);
+            }
+            if (finalU) {
+                frames.add(new KeyFrame(
+                        new Duration(duration),
+                        new KeyValue(property, -1, Interpolator.DISCRETE)
+                ));
+            }
+
+            return frames;
         }
     }
 }

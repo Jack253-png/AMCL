@@ -1,13 +1,11 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.api.modApi.common.AbstractModModel;
 import com.mcreater.amcl.api.modApi.curseforge.CurseAPI;
 import com.mcreater.amcl.api.modApi.modrinth.ModrinthAPI;
 import com.mcreater.amcl.controls.JFXProgressBar;
-import com.jfoenix.controls.JFXTextField;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.modApi.curseforge.CurseResourceType;
 import com.mcreater.amcl.api.modApi.curseforge.CurseSortType;
@@ -96,7 +94,7 @@ public class AddModsPage extends AbstractAnimationPage {
         add(bar, 0, 4, 2, 1);
         setStyle("-fx-background-color : rgba(255, 255, 255, 0.50)");
         nodes.add(null);
-        BindedPageproperty().get().addAll(J8Utils.createList(
+        bindedPageproperty().get().addAll(J8Utils.createList(
                 ADDMODSPAGE,
                 CONFIGPAGE,
                 DOWNLOADADDONSELECTPAGE,

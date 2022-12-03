@@ -128,7 +128,7 @@ public class UserSelectPage extends AbstractAnimationPage {
 
         nodes.add(null);
 
-        BindedPageproperty().get().addAll(J8Utils.createList(
+        bindedPageproperty().get().addAll(J8Utils.createList(
                 ADDMODSPAGE,
                 CONFIGPAGE,
                 DOWNLOADADDONSELECTPAGE,

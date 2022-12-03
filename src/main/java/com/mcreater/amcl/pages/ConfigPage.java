@@ -353,7 +353,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         super.setP1(0);
         super.setButtonType(JFXButton.ButtonType.RAISED);
         nodes.add(null);
-        BindedPageproperty().get().addAll(J8Utils.createList(
+        bindedPageproperty().get().addAll(J8Utils.createList(
                 ADDMODSPAGE,
                 CONFIGPAGE,
                 DOWNLOADADDONSELECTPAGE,

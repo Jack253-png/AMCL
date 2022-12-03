@@ -462,7 +462,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         this.add(p, 0, 0, 1, 1);
 
         nodes.add(null);
-        BindedPageproperty().get().addAll(J8Utils.createList(
+        bindedPageproperty().get().addAll(J8Utils.createList(
                 ADDMODSPAGE,
                 CONFIGPAGE,
                 DOWNLOADADDONSELECTPAGE,

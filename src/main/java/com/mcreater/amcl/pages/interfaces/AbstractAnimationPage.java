@@ -15,20 +15,20 @@ public abstract class AbstractAnimationPage extends GridPane implements Animatio
     public double height;
     public final List<NodeInfo> nodes = new Vector<>();
 
-    final SimpleObjectProperty<WritableImage> BufferedBackgroundproperty = new SimpleObjectProperty<>(null);
+    final SimpleObjectProperty<WritableImage> bufferedBackgroundproperty = new SimpleObjectProperty<>(null);
     public final void setBufferedBackground(WritableImage image) {
-        BufferedBackgroundproperty.set(image);
+        bufferedBackgroundproperty.set(image);
     }
     public final WritableImage getBufferedBackground() {
-        return BufferedBackgroundproperty.get();
+        return bufferedBackgroundproperty.get();
     }
-    public final SimpleObjectProperty<WritableImage> BufferedBackgroundproperty(){
-        return BufferedBackgroundproperty;
+    public final SimpleObjectProperty<WritableImage> bufferedBackgroundproperty(){
+        return bufferedBackgroundproperty;
     }
 
-    final SimpleObjectProperty<List<AbstractAnimationPage>> BindedPageproperty = new SimpleObjectProperty<>(new Vector<>());
-    public final SimpleObjectProperty<List<AbstractAnimationPage>> BindedPageproperty(){
-        return BindedPageproperty;
+    final SimpleObjectProperty<List<AbstractAnimationPage>> bindedPageproperty = new SimpleObjectProperty<>(new Vector<>());
+    public final SimpleObjectProperty<List<AbstractAnimationPage>> bindedPageproperty(){
+        return bindedPageproperty;
     }
 
     public AbstractAnimationPage(double width, double height){
