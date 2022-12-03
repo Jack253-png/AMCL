@@ -40,6 +40,7 @@ public class UserSelectPage extends AbstractAnimationPage {
     AdvancedScrollPane page1;
 
     JFXButton menuButtonOffline;
+    JFXButton menuButtonMicrosoft;
     JFXButton refreshList;
     public static final SimpleObjectProperty<AbstractUser> user = new SimpleObjectProperty<>();
     public UserSelectPage(double width, double height) {
@@ -115,15 +116,19 @@ public class UserSelectPage extends AbstractAnimationPage {
             dialog.Create();
         });
 
+        menuButtonMicrosoft = new JFXButton();
+        menuButtonMicrosoft.setFont(Fonts.s_f);
+
         Pane paneContainer = new Pane(userList.page);
 
         page1 = new AdvancedScrollPane(width / 4 * 3, height, paneContainer, false);
 
-        sideBar = new VBox(menuButtonOffline, refreshList);
+        sideBar = new VBox(menuButtonOffline, menuButtonMicrosoft, refreshList);
         sideBar.setId("config-menu");
 
         FXUtils.ControlSize.set(sideBar, width / 4, height);
         FXUtils.ControlSize.setWidth(menuButtonOffline, width / 4);
+        FXUtils.ControlSize.setWidth(menuButtonMicrosoft, width / 4);
         FXUtils.ControlSize.setWidth(refreshList, width / 4);
 
         nodes.add(null);
@@ -313,6 +318,7 @@ public class UserSelectPage extends AbstractAnimationPage {
 
     public void refreshLanguage() {
         menuButtonOffline.setText(Launcher.languageManager.get("ui.userselectpage._01.name"));
+        menuButtonMicrosoft.setText(Launcher.languageManager.get("ui.userselectpage._02.name"));
         refreshList.setText(Launcher.languageManager.get("ui.userselectpage.account.list.refresh"));
     }
 
