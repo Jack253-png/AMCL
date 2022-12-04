@@ -6,14 +6,8 @@ import com.jfoenix.transitions.CachedTransition;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
-import javafx.animation.Animation;
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -23,22 +17,15 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import static com.mcreater.amcl.Launcher.height;
-import static com.mcreater.amcl.Launcher.width;
-import static com.mcreater.amcl.Launcher.wrapper;
+import static com.mcreater.amcl.Launcher.*;
 
 public abstract class AbstractDialog extends JFXAlert<String> {
     public static final ObservableList<AbstractDialog> dialogs = FXCollections.observableArrayList();
@@ -155,13 +142,16 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                 Region.class
         ).setBackground(new Background(
                 new BackgroundFill(
-                        newValue,
+                        getColorTrans((Color) newValue),
                         CornerRadii.EMPTY,
                         Insets.EMPTY
                 )
         )));
 
         super.setContent(content);
+    }
+    private Color getColorTrans(Color src) {
+        return new Color(src.getRed(), src.getGreen(), src.getBlue(), 0.85);
     }
     private void onDialogListChange() {
         dialogExceptedRadius.set(dialogs.indexOf(this) + 1 == dialogs.size() ? 0 : blurRadius);
