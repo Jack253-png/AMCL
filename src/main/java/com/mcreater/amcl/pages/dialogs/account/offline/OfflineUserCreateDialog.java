@@ -1,4 +1,4 @@
-package com.mcreater.amcl.pages.dialogs.account;
+package com.mcreater.amcl.pages.dialogs.account.offline;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;

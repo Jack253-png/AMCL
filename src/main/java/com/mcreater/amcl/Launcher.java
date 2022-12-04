@@ -26,12 +26,12 @@ import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import com.mcreater.amcl.util.svg.Icons;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
@@ -51,13 +51,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -65,6 +65,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 
 public class Launcher extends javafx.application.Application {
     static Logger logger = LogManager.getLogger(Launcher.class);
@@ -98,7 +99,7 @@ public class Launcher extends javafx.application.Application {
     public static AboutDialog aboutDialog;
     public static Pane wrapper = new Pane();
     public static final SimpleDoubleProperty radius = new SimpleDoubleProperty(30);
-    static VBox top = new VBox();
+    public static VBox top = new VBox();
     public static void initConfig() {
         try {
             FileUtils.ChangeDir.saveNowDir();
@@ -210,7 +211,7 @@ public class Launcher extends javafx.application.Application {
         return new DefaultSVGIcons();
     }
 
-    private static void setPageCore(){
+    public static void setPageCore(){
         double t_size = barSize;
         top = new VBox();
         top.setId("top-bar");
@@ -223,7 +224,7 @@ public class Launcher extends javafx.application.Application {
         back = new JFXButton();
         close.setPrefWidth(t_size / 6 * 5);
         close.setPrefHeight(t_size / 6 * 5);
-        close.setGraphic(getSVGManager().close(Bindings.createObjectBinding(() -> Color.BLACK), t_size / 3 * 2, t_size / 3 * 2));
+        close.setGraphic(getSVGManager().close(ThemeManager.createPaintBinding(), t_size / 3 * 2, t_size / 3 * 2));
         close.setButtonType(JFXButton.ButtonType.RAISED);
         close.setOnAction(event -> {
             last.out.setOnFinished(event1 -> {
@@ -233,6 +234,8 @@ public class Launcher extends javafx.application.Application {
             last.out.play();
         });
         Rectangle rect = new Rectangle(t_size / 2.5, t_size / 15, Color.BLACK);
+        rect.fillProperty().bind(ThemeManager.createPaintBinding());
+
         stage.setOnCloseRequest(event -> close.getOnAction().handle(new ActionEvent()));
         min.setPrefWidth(t_size / 2.5);
         min.setPrefHeight(t_size / 2.5);
@@ -242,7 +245,7 @@ public class Launcher extends javafx.application.Application {
 
         back.setPrefWidth(t_size / 2.5);
         back.setPrefHeight(t_size / 2.5);
-        back.setGraphic(getSVGManager().back(Bindings.createObjectBinding(() -> Color.BLACK), t_size / 3 * 2, t_size / 3 * 2));
+        back.setGraphic(getSVGManager().back(ThemeManager.createPaintBinding(), t_size / 3 * 2, t_size / 3 * 2));
         back.setButtonType(JFXButton.ButtonType.RAISED);
         AbstractAnimationPage lpa = last.l;
         ln = new Label();
@@ -257,7 +260,7 @@ public class Launcher extends javafx.application.Application {
         JFXButton about = new JFXButton();
         about.setPrefWidth(t_size / 2.5);
         about.setPrefHeight(t_size / 2.5);
-        about.setGraphic(getSVGManager().dotsVertical(Bindings.createObjectBinding(() -> Color.BLACK), barSize / 3 * 2, barSize / 3 * 2));
+        about.setGraphic(getSVGManager().dotsVertical(ThemeManager.createPaintBinding(), barSize / 3 * 2, barSize / 3 * 2));
         about.setButtonType(JFXButton.ButtonType.RAISED);
         about.setOnAction(event -> aboutDialog.Create());
 

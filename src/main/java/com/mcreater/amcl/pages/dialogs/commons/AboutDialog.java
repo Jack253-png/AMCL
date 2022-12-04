@@ -58,14 +58,15 @@ public class AboutDialog extends AbstractDialog {
                 loadSingleNodeAnimate(setFont(new Label(Launcher.languageManager.get("ui.about.opensource.title")), Fonts.s_f)),
                 loadSingleNodeAnimate(hyperlink),
                 loadSingleNodeAnimate(setFont(new Label(Launcher.languageManager.get("ui.about.depencies.title")), Fonts.s_f)),
-                new DepencyItem("JavaFX", "Copyright (c) 2013, 2021, Oracle and/or its affiliates.", "Licensed under the GPL 2 with Classpath Exception."),
-                new DepencyItem("JFoenix", "Copyright (c) 2016 JFoenix", "Licensed under the MIT Lincense"),
-                new DepencyItem("Gson", "Copyright 2008 Google Inc.", "Licensed under the Apache 2.0 License"),
-                new DepencyItem("Minecraft JFX Skin", "Copyright (c) 2016 InfinityStudio", "Licensed under the GPL 3"),
-                new DepencyItem("FastJson", "Copyright 1999-2020 Alibaba Group Holding Ltd.", "Fastjson is released under the Apache 2.0 license."),
-                new DepencyItem("Log4j2", "", "Apache Log4j 2 is distributed under the Apache License, version 2.0."),
-                new DepencyItem("Java Native Access", "", "This library is licensed under the LGPL, version 2.1 or later"),
-                new DepencyItem("OSHI Core", "", "This project is licensed under the MIT License."));
+                new DepencyItem("JavaFX", "Copyright (c) 2013, 2021, Oracle and/or its affiliates.", "Licensed under the GPL 2 with Classpath Exception.").toMaterial(),
+                new DepencyItem("JFoenix", "Copyright (c) 2016 JFoenix", "Licensed under the MIT Lincense").toMaterial(),
+                new DepencyItem("Gson", "Copyright 2008 Google Inc.", "Licensed under the Apache 2.0 License").toMaterial(),
+                new DepencyItem("Minecraft JFX Skin", "Copyright (c) 2016 InfinityStudio", "Licensed under the GPL 3").toMaterial(),
+                new DepencyItem("FastJson", "Copyright 1999-2020 Alibaba Group Holding Ltd.", "Fastjson is released under the Apache 2.0 license.").toMaterial(),
+                new DepencyItem("Log4j2", "", "Apache Log4j 2 is distributed under the Apache License, version 2.0.").toMaterial(),
+                new DepencyItem("Java Native Access", "", "This library is licensed under the LGPL, version 2.1 or later").toMaterial(),
+                new DepencyItem("OSHI Core", "", "This project is licensed under the MIT License.").toMaterial()
+        );
 
         ThemeManager.loadButtonAnimates(title, ok, checkUpdate, page);
         layout.setHeading(title);

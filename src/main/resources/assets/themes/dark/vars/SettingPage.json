@@ -1,0 +1,5 @@
+{
+  "-fx-slider-background": "fx:color",
+  "-fx-slider-background-hover": "fx:color",
+  "-fx-slider-background-pressed": "fx:color"
+}

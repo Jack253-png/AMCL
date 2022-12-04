@@ -8,9 +8,10 @@ import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.controls.AccountInfoItem;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.controls.SmoothableListView;
-import com.mcreater.amcl.pages.dialogs.account.OfflineUserCreateDialog;
-import com.mcreater.amcl.pages.dialogs.account.OfflineUserCustomSkinDialog;
-import com.mcreater.amcl.pages.dialogs.account.OfflineUserModifyDialog;
+import com.mcreater.amcl.pages.dialogs.account.microsoft.MicrosoftLoginDialog;
+import com.mcreater.amcl.pages.dialogs.account.offline.OfflineUserCreateDialog;
+import com.mcreater.amcl.pages.dialogs.account.offline.OfflineUserCustomSkinDialog;
+import com.mcreater.amcl.pages.dialogs.account.offline.OfflineUserModifyDialog;
 import com.mcreater.amcl.pages.dialogs.commons.InputDialog;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
@@ -19,11 +20,14 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -118,6 +122,11 @@ public class UserSelectPage extends AbstractAnimationPage {
 
         menuButtonMicrosoft = new JFXButton();
         menuButtonMicrosoft.setFont(Fonts.s_f);
+        menuButtonMicrosoft.setOnAction(event -> {
+            MicrosoftLoginDialog dialog = new MicrosoftLoginDialog();
+            dialog.setCancelEvent(event16 -> dialog.close());
+            dialog.Create();
+        });
 
         Pane paneContainer = new Pane(userList.page);
 
@@ -323,7 +332,7 @@ public class UserSelectPage extends AbstractAnimationPage {
     }
 
     public void refreshType() {
-
+        userList.vecs.forEach(AccountInfoItem::setType);
     }
 
     public void onExitPage() {

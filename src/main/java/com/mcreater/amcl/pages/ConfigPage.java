@@ -2,8 +2,8 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
+import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.controls.items.BooleanItem;
 import com.mcreater.amcl.controls.items.IntItem;
 import com.mcreater.amcl.controls.items.ListItem;
@@ -12,6 +12,7 @@ import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.Timer;
@@ -21,7 +22,6 @@ import com.mcreater.amcl.util.system.CpuReader;
 import com.mcreater.amcl.util.system.JavaHeapMemoryReader;
 import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -33,8 +33,6 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.stage.FileChooser;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
@@ -43,7 +41,6 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
@@ -275,9 +272,6 @@ public class ConfigPage extends AbstractMenuBarPage {
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
         java_add.setButtonType(JFXButton.ButtonType.RAISED);
 
-        java_add.setGraphic(Launcher.getSVGManager().plus(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 15, 15));
-        java_get.setGraphic(Launcher.getSVGManager().dotsHorizontal(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 15, 15));
-
         mainBox = new VBox();
 
         NumberAxis xAxis = new NumberAxis();
@@ -467,7 +461,8 @@ public class ConfigPage extends AbstractMenuBarPage {
     }
 
     public void refreshType(){
-
+        java_add.setGraphic(Launcher.getSVGManager().plus(ThemeManager.createPaintBinding(), 15, 15));
+        java_get.setGraphic(Launcher.getSVGManager().dotsHorizontal(ThemeManager.createPaintBinding(), 15, 15));
     }
 
     public void onExitPage() {

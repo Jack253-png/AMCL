@@ -72,6 +72,7 @@ public class PopupMessage {
         return finalL;
     }
     private static Labeled createMessageInternal(Labeled circle, String text){
+        circle.setTextFill(Color.TRANSPARENT);
         final Path path = new Path();
         int strWidth = 0;
         try {
@@ -89,7 +90,6 @@ public class PopupMessage {
             if (contentHeight == MESSAGE_BASE_HEIGHT - MESSAGE_MAX_NUM * MESSAGE_HEIGHT) contentHeight = MESSAGE_BASE_HEIGHT;
             contentHeight -= MESSAGE_HEIGHT;
         }
-        circle.setTextFill(Color.TRANSPARENT);
         hasMessages = true;
         mess.add(circle);
         path.getElements().add(new MoveTo(-245 + (double) strWidth / 2 / 100 * 101, contentHeight));
@@ -97,14 +97,13 @@ public class PopupMessage {
         Launcher.p.getChildren().add(circle);
         final PathTransition pathTransition = new PathTransition();
         pathTransition.setDuration(Duration.seconds(4.0));
-        pathTransition.setDelay(Duration.seconds(0.15));
+        pathTransition.setDelay(Duration.seconds(0));
         pathTransition.setPath(path);
         pathTransition.setNode(circle);
         pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
         pathTransition.setCycleCount(2);
         pathTransition.setAutoReverse(true);
         pathTransition.play();
-        circle.setText(text);
         pathTransition.setOnFinished(event -> {
             Launcher.p.getChildren().removeAll(circle);
             mess.remove(circle);
@@ -119,7 +118,10 @@ public class PopupMessage {
                 p = circle.localToScene(0, 0);
             }
             while (p.getY() == 0 && p.getX() == 0);
-            Platform.runLater(() -> circle.setTextFill(Color.BLACK));
+            Platform.runLater(() -> {
+                circle.setTextFill(Color.BLACK);
+                circle.setText(text);
+            });
         }).start();
         return circle;
     }

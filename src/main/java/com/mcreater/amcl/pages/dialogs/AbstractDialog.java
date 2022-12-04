@@ -4,6 +4,7 @@ import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.transitions.CachedTransition;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
@@ -11,6 +12,8 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -26,6 +29,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -65,7 +69,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                             }
                         });
                     }
-                    catch (Exception e) {
+                    catch (Exception ignored) {
 
                     }
                 }
@@ -144,20 +148,19 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         setHideOnEscape(false);
     }
     public void setContent(Node... content) {
-        FXUtils.toNodeClass(
+        ThemeManager.addLis((observable, oldValue, newValue) -> FXUtils.toNodeClass(
                 FXUtils.toNodeClass(
                         getDialogPane().getContent(), Pane.class
                 ).getChildren().get(0),
                 Region.class
-        ).setBackground(
-                new Background(
-                        new BackgroundFill(
-                                new Color(1, 1, 1, 0.85),
-                                CornerRadii.EMPTY,
-                                Insets.EMPTY
-                        )
+        ).setBackground(new Background(
+                new BackgroundFill(
+                        newValue,
+                        CornerRadii.EMPTY,
+                        Insets.EMPTY
                 )
-        );
+        )));
+
         super.setContent(content);
     }
     private void onDialogListChange() {

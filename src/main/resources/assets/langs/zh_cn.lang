@@ -239,3 +239,4 @@ ui.userselectpage.user.create=创建
 ui.userselectpage.offline.id=获取玩家 UUID 中...
 ui.userselectpage.modify.title=修改用户
 ui.bgm.lib.exc=您的平台不支持音频库
+ui.userselectpage.login.browser=打开浏览器

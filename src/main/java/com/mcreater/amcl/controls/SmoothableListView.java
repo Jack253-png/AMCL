@@ -32,6 +32,7 @@ public class SmoothableListView<T extends Region> extends VBox {
         ThemeManager.loadButtonAnimates(this);
 
         ThemeManager.applyNode(page, "SmoothableListView");
+        page.setStyle("-fx-background-color: transparent");
         FXUtils.ControlSize.setWidth(this, width - 15);
     }
     public void setOnAction(@NotNull Runnable r){

@@ -79,7 +79,6 @@ public class FXUtils {
         public static SplitPane setSplit(SplitPane s, double width){
             s.setMaxWidth(width);
             s.setMinWidth(width);
-            s.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5)");
             return s;
         }
     }

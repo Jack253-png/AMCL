@@ -3,12 +3,18 @@ package com.mcreater.amcl.theme;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
+import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.animation.Timeline;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WritableValue;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -16,6 +22,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ThemeManager {
     public static String themeName = "default";
+    public static SimpleObjectProperty<Paint> themeIconDark = new SimpleObjectProperty<>(Color.WHITE);
     static Logger logger = LogManager.getLogger(ThemeManager.class);
     static Vector<JFXButton> buttons = new Vector<>();
     static Map<Parent, String> simpleParentsConstable = new ConcurrentHashMap<>();
@@ -54,12 +63,26 @@ public class ThemeManager {
             }
         }
     }
+    public static void addLis(ChangeListener<Paint> listener) {
+        listener.changed(themeIconDark, themeIconDark.get(), themeIconDark.get());
+        themeIconDark.addListener((observable, oldValue, newValue) -> {
+            listener.changed(observable, oldValue, newValue);
+            System.out.println("tset");
+        });
+    }
+
+    public static ObjectBinding<Paint> createPaintBinding() {
+        return Bindings.createObjectBinding(() -> themeIconDark.get() == Color.BLACK ? Color.WHITE : Color.BLACK);
+    }
+
     public static void applyNode(Parent n) {
-        n.getStylesheets().add(String.format(ThemeManager.getPath(), n.getClass().getSimpleName()));
-        simpleParentsConstable.put(n, n.getClass().getSimpleName());
+        applyNode(n, n.getClass().getSimpleName());
     }
     public static void applyNode(Parent n, String clazz) {
-        n.getStylesheets().add(String.format(ThemeManager.getPath(), clazz));
+        String sheetPath = String.format(ThemeManager.getPath(), n.getClass().getSimpleName());
+        if (!(ResourceGetter.get(sheetPath) == null)) {
+            n.getStylesheets().add(sheetPath);
+        }
         simpleParentsConstable.put(n, clazz);
     }
     public static void apply(Vector<AbstractAnimationPage> pages) throws IllegalAccessException{
@@ -92,11 +115,13 @@ public class ThemeManager {
         simpleParentsConstable.forEach(ThemeManager::applyNode);
     }
     public static Node loadSingleNodeAnimate(Node node){
+        if (node instanceof Parent) applyNode((Parent) node);
         loadButtonAnimates(node);
         return node;
     }
 
     public static void loadButtonAnimateParent(Node node){
+        if (node instanceof Parent) applyNode((Parent) node);
         generateAnimations(node, 0.6D, 1D, 200, node.opacityProperty());
     }
     public static void setButtonRadius(double radius){
@@ -107,7 +132,10 @@ public class ThemeManager {
 
         }
     }
-    public static void loadButtonAnimates(Node... nodes){
+    public static void loadButtonAnimates(Node... nodes) {
+        for (Node n : nodes) {
+            if (n instanceof Parent) applyNode((Parent) n);
+        }
         for (Node button : nodes) {
             if (button instanceof JFXButton){
                 ((JFXButton) button).setButtonType(JFXButton.ButtonType.RAISED);
@@ -160,5 +188,12 @@ public class ThemeManager {
             }
         });
         return Descendents;
+    }
+
+    public static void freshTheme() throws IllegalAccessException {
+        ThemeManager.apply(LanguageManager.bindedPages);
+        ThemeManager.applyTopBar(Launcher.top);
+        Launcher.setPageCore();
+        LanguageManager.bindedPages.forEach(AbstractAnimationPage::refreshType);
     }
 }
