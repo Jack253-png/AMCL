@@ -123,7 +123,7 @@ public class UserSelectPage extends AbstractAnimationPage {
         menuButtonMicrosoft = new JFXButton();
         menuButtonMicrosoft.setFont(Fonts.s_f);
         menuButtonMicrosoft.setOnAction(event -> {
-            MicrosoftLoginDialog dialog = new MicrosoftLoginDialog();
+            MicrosoftLoginDialog dialog = new MicrosoftLoginDialog(Launcher.languageManager.get("ui.userselectpage._02.name"));
             dialog.setCancelEvent(event16 -> dialog.close());
             dialog.Create();
         });

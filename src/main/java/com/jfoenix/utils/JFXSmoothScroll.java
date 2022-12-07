@@ -1,17 +1,12 @@
 package com.jfoenix.utils;
 
-import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
-import javafx.animation.Animation;
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -25,7 +20,7 @@ public class JFXSmoothScroll {
     private static final double[] percents = {0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64, 0.8, 0.86,
     0.9, 0.92, 0.94, 0.96, 1.00};
 
-    public static final Map<ProgressBar, Timeline> barAnimations = new HashMap<>();
+    public static final Map<ProgressIndicator, Timeline> barAnimations = new HashMap<>();
     private static void customScrolling(ScrollPane scrollPane, DoubleProperty scrollDriection, Function<Bounds, Double> sizeFunc, double speed) {
         final double[] frictions = {0.99, 0.1, 0.05, 0.04, 0.03, 0.02, 0.01, 0.04, 0.01, 0.008, 0.008, 0.008, 0.008, 0.0006, 0.0005, 0.00003, 0.00001};
         final double[] pushes = {speed};
@@ -98,7 +93,7 @@ public class JFXSmoothScroll {
         customScrolling(scrollPane, scrollPane.vvalueProperty(), Bounds::getHeight, speed);
         customScrolling(scrollPane, scrollPane.hvalueProperty(), Bounds::getWidth, speed);
     }
-    public static void smoothScrollBarToValue(ProgressBar bar, double value) {
+    public static void smoothScrollBarToValue(ProgressIndicator bar, double value) {
         double currStart = bar.getProgress() < 0 ? 0 : bar.getProgress();
         double currEnd = value < 0 ? 0 : value;
         double duration = 300;

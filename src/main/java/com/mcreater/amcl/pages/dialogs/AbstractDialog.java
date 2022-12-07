@@ -37,6 +37,8 @@ public abstract class AbstractDialog extends JFXAlert<String> {
     public final SimpleDoubleProperty dialogNowRadius = new SimpleDoubleProperty(0);
 
     public final SimpleDoubleProperty dialogExceptedRadius = new SimpleDoubleProperty(0);
+    private final SimpleDoubleProperty dialogWidth = new SimpleDoubleProperty(-1);
+    private final SimpleDoubleProperty dialogHeight = new SimpleDoubleProperty(-1);
 
     static {
         dialogs.addListener((ListChangeListener<AbstractDialog>) c -> exceptedRadius.set(c.getList().size() == 0 ? 0 : blurRadius));
@@ -62,6 +64,13 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                 }
             }
         }.start();
+    }
+
+    public double getDialogWidth() {
+        return dialogWidth.get();
+    }
+    public double getDialogHeight() {
+        return dialogHeight.get();
     }
 
     boolean cliped;
@@ -126,6 +135,8 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                 height -= 10;
                 cliped = true;
             }
+            dialogWidth.set(width);
+            dialogHeight.set(height);
             par.setClip(FXUtils.generateRect(width, height, dialogRadius.get()));
         });
 

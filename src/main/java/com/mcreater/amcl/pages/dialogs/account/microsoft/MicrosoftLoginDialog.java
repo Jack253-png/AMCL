@@ -2,11 +2,11 @@ package com.mcreater.amcl.pages.dialogs.account.microsoft;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
+import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
-import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -14,7 +14,10 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import static com.mcreater.amcl.Launcher.stage;
@@ -22,7 +25,7 @@ import static com.mcreater.amcl.Launcher.stage;
 public class MicrosoftLoginDialog extends AbstractDialog {
     JFXButton cancel;
     JFXButton login;
-    JFXProgressBar bar;
+    JFXSpinner bar;
     Label microsoftValidate;
     public void setCancelEvent(EventHandler<ActionEvent> event) {
         cancel.setOnAction(event);
@@ -30,7 +33,7 @@ public class MicrosoftLoginDialog extends AbstractDialog {
     public void setLoginEvent(EventHandler<ActionEvent> event) {
         login.setOnAction(event);
     }
-    public MicrosoftLoginDialog() {
+    public MicrosoftLoginDialog(String title) {
         super(stage);
         JFXDialogLayout layout = new JFXDialogLayout();
         cancel = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
@@ -50,16 +53,25 @@ public class MicrosoftLoginDialog extends AbstractDialog {
             }).start();
         });
 
+        Label label = new Label(title);
+        label.setFont(Fonts.s_f);
+
         microsoftValidate = new Label();
         microsoftValidate.setFont(Fonts.t_f);
 
-        bar = new JFXProgressBar(0);
-        bar.setId("game-memory-up");
+        bar = new JFXSpinner();
+
+        FXUtils.ControlSize.set(bar, 20, 20);
         ThemeManager.applyNode(bar);
 
-        ThemeManager.loadButtonAnimates(cancel, login, microsoftValidate, bar);
-        layout.setBody(new VBox(bar, microsoftValidate));
-        layout.setActions(cancel, login);
+        HBox pane = new HBox(bar);
+        pane.setAlignment(Pos.TOP_LEFT);
+        FXUtils.ControlSize.setWidth(pane, 200);
+
+        ThemeManager.loadButtonAnimates(cancel, login, microsoftValidate, label, bar);
+        layout.setBody(new VBox(microsoftValidate));
+        layout.setActions(pane, cancel, login);
+        layout.setHeading(label);
         setContent(layout);
     }
     public synchronized MicrosoftUser login() throws Exception {
