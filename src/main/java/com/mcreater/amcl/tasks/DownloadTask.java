@@ -3,7 +3,6 @@ package com.mcreater.amcl.tasks;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.StringUtils;
-import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.net.FasterUrls;
 
 import javax.net.ssl.*;
@@ -13,7 +12,7 @@ import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.util.Objects;
 
-public class DownloadTask extends AbstractTask{
+public class DownloadTask extends AbstractDownloadTask {
     public int chunkSize = 512;
     String hash;
     HttpURLConnection conn;

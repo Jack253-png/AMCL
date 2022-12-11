@@ -102,7 +102,6 @@ public class OriginalDownload {
 
         AssetsModel m = new Gson().fromJson(result, AssetsModel.class);
         for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()){
-            System.out.println(entry);
             String hash = entry.getValue().get("hash");
             tasks.add(new AssetsDownloadTask(hash, assets_objects, chunk, server));
         }

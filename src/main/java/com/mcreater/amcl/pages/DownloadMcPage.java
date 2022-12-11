@@ -17,10 +17,15 @@ import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FXUtils.Platform;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.TitledPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -38,6 +43,8 @@ import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
 import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
 
 public class DownloadMcPage extends AbstractAnimationPage {
     VBox mainBox;
@@ -131,7 +138,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 TitledPane pane = new TitledPane();
 
                 ThemeManager.applyNode(pane);
-                pane.setStyle("-fx-text-fill: " + (ThemeManager.themeIconDark.get() == Color.WHITE ? "black" : "white"));
+                pane.setTextFill(reverse(ThemeManager.themeIconDark.get()));
                 panes.add(pane);
                 pane.setText(Launcher.languageManager.get("ui.downloadmcpage.types." + t));
                 pane.setFont(Fonts.s_f);
@@ -178,11 +185,9 @@ public class DownloadMcPage extends AbstractAnimationPage {
             if (bs instanceof HBox){
                 for (Node n : ((HBox) bs).getChildren()) {
                     n.setDisable(n == b);
-                    n.setStyle(n == b ? "-fx-background-color: rgba(0, 0, 0, .3)" : "-fx-background-color: transparent");
                 }
             }
             bs.setDisable(bs == b);
-            bs.setStyle(bs == b ? "-fx-background-color: rgba(0, 0, 0, .3)" : "-fx-background-color: transparent");
         }
     }
     public void setP1(AdvancedScrollPane p){

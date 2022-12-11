@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class ForgeInstallerDownloadTask extends AbstractTask{
+public class ForgeInstallerDownloadTask extends AbstractDownloadTask {
     FileOutputStream fos = null;
     InputStream inputStream = null;
     HttpURLConnection conn;

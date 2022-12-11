@@ -6,7 +6,6 @@ import com.mcreater.amcl.download.OriginalDownload;
 import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.nativeInterface.NoExitSecurityManager;
 import com.mcreater.amcl.util.J8Utils;
-import com.mcreater.amcl.util.LogLineDetecter;
 import com.mcreater.amcl.util.java.GetJarMainClass;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 
@@ -16,7 +15,7 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ForgeExtractTask extends AbstractTask{
+public class ForgeExtractTask extends AbstractExecutableTask {
     public Integer exit = null;
     public String extractPath;
     public String jarpath;

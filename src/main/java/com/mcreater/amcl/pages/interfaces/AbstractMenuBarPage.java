@@ -3,15 +3,24 @@ package com.mcreater.amcl.pages.interfaces;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
 
 public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
     public Vector<AdvancedScrollPane> pages;
@@ -42,7 +51,6 @@ public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
         setted = b;
         for (Node bs : menu.getChildren()){
             bs.setDisable(bs == b);
-            bs.setStyle(bs == b ? "-fx-background-color: rgba(0, 0, 0, .3)" : "-fx-background-color: transparent");
         }
     }
     public void setP1(int i){
@@ -67,8 +75,8 @@ public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
                 r.run();
             }
         }
-        setType(menubuttons.get(i));
         e.run(i);
+        setType(menubuttons.get(i));
     }
     public void addNewPair(ImmutablePair<JFXButton, AdvancedScrollPane> pair){
         pages.add(pair.getValue());

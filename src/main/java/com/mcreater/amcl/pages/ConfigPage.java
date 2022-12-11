@@ -18,18 +18,11 @@ import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.java.JavaInfoGetter;
-import com.mcreater.amcl.util.system.CpuReader;
-import com.mcreater.amcl.util.system.JavaHeapMemoryReader;
 import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.chart.Chart;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -60,35 +53,18 @@ public class ConfigPage extends AbstractMenuBarPage {
     final Map<String, String> langs;
     JFXButton setting;
     AdvancedScrollPane p1;
-    AdvancedScrollPane p2;
     public BooleanItem item;
     public IntItem item2;
     public ListItem<Label> item3;
     public MuiltButtonListItem<Label> item4;
     public ListItem<Label> item5;
     public IntItem item6;
-    JFXButton system;
-    XYChart.Series<Number, Number> usedMemory;
-    XYChart.Series<Number, Number> totalMemory;
-    XYChart.Series<Number, Number> freeMemory;
-    int current = -5;
-    XYChart.Series<Number, Number> cpuUsed;
-    XYChart.Series<Number, Number> heapUsed;
-    XYChart.Series<Number, Number> heapMax;
-    IntItem item7;
-    JFXButton startListen;
-    Thread listenThread;
-    EventHandler<ActionEvent> start;
-    EventHandler<ActionEvent> end;
-    LineChart<Number, Number> memory;
-    LineChart<Number, Number> cpu;
-    LineChart<Number, Number> jvm;
     Map<String, String> servers;
     public Pane p;
     public com.jfoenix.controls.JFXProgressBar bar1;
     public com.jfoenix.controls.JFXProgressBar bar2;
     Label ltitle;
-    public ConfigPage(int width, int height) throws NoSuchFieldException, IllegalAccessException {
+    public ConfigPage(int width, int height) {
         super(width, height);
         l = Launcher.MAINPAGE;
         this.setAlignment(Pos.TOP_CENTER);
@@ -198,13 +174,6 @@ public class ConfigPage extends AbstractMenuBarPage {
         item6.cont.setOrientation(Orientation.HORIZONTAL);
         item6.cont.valueProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.downloadChunkSize = newValue.intValue());
 
-        item7 = new IntItem("", this.width / 4 * 3 - 10);
-        item7.cont.setMax(1000);
-        item7.cont.setMin(500);
-        item7.cont.setValue(Launcher.configReader.configModel.showingUpdateSpped);
-        item7.cont.setOrientation(Orientation.HORIZONTAL);
-        item7.cont.valueProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.showingUpdateSpped = newValue.intValue());
-
         FXUtils.ControlSize.setHeight(item, 30);
         FXUtils.ControlSize.setHeight(item2, 30);
         FXUtils.ControlSize.setHeight(item2, 30);
@@ -212,7 +181,6 @@ public class ConfigPage extends AbstractMenuBarPage {
         FXUtils.ControlSize.setHeight(item4, 30);
         FXUtils.ControlSize.setHeight(item5, 30);
         FXUtils.ControlSize.setHeight(item6, 30);
-        FXUtils.ControlSize.setHeight(item7, 30);
 
         p = new Pane();
         bar1 = JFXProgressBar.createProgressBar();
@@ -260,13 +228,13 @@ public class ConfigPage extends AbstractMenuBarPage {
             }
         }).start();
 
-        p.getChildren().addAll(bar2, bar1);
+        p.getChildren().addAll(bar1, bar2);
 
         FXUtils.ControlSize.setAll(width / 5 * 3, 3, p, bar1, bar2);
 
         configs_box = new VBox();
         configs_box.setSpacing(10);
-        configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6, item7, vo);
+        configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6, vo);
         configs_box.setId("config-box");
 
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
@@ -274,76 +242,13 @@ public class ConfigPage extends AbstractMenuBarPage {
 
         mainBox = new VBox();
 
-        NumberAxis xAxis = new NumberAxis();
-        NumberAxis yAxis = new NumberAxis();
-        memory = new LineChart<>(xAxis, yAxis);
-        changeFont(memory);
-        memory.setHorizontalGridLinesVisible(false);
-        memory.setVerticalGridLinesVisible(false);
-        usedMemory = new XYChart.Series<>();
-        totalMemory = new XYChart.Series<>();
-        freeMemory = new XYChart.Series<>();
-        memory.getData().addAll(usedMemory, totalMemory, freeMemory);
-
-        NumberAxis xAxis2 = new NumberAxis();
-        NumberAxis yAxis2 = new NumberAxis();
-        cpu = new LineChart<>(xAxis2, yAxis2);
-        changeFont(cpu);
-        cpu.setHorizontalGridLinesVisible(false);
-        cpu.setVerticalGridLinesVisible(false);
-        cpuUsed = new XYChart.Series<>();
-        cpu.getData().addAll(cpuUsed);
-
-        NumberAxis x = new NumberAxis();
-        NumberAxis y = new NumberAxis();
-        jvm = new LineChart<>(x, y);
-        changeFont(jvm);
-        jvm.setHorizontalGridLinesVisible(false);
-        jvm.setVerticalGridLinesVisible(false);
-        heapUsed = new XYChart.Series<>();
-        heapMax = new XYChart.Series<>();
-        jvm.getData().addAll(heapUsed, heapMax);
-
-        start = event -> {
-            addMem();
-            startListen.setText(Launcher.languageManager.get("ui.configpage.systemInfo.listen.stop"));
-            startListen.setOnAction(end);
-        };
-        end = event -> {
-            listenThread.stop();
-            startListen.setText(Launcher.languageManager.get("ui.configpage.systemInfo.listen.start"));
-            startListen.setOnAction(start);
-        };
-
-        startListen = new JFXButton();
-        startListen.setFont(Fonts.t_f);
-        startListen.setOnAction(start);
-
-        FXUtils.ControlSize.setWidth(memory, this.width / 4 * 3);
-        FXUtils.ControlSize.setWidth(cpu, this.width / 4 * 3);
-        FXUtils.ControlSize.setWidth(jvm, this.width / 4 * 3);
-
-        memory.setLegendVisible(false);
-        cpu.setLegendVisible(false);
-        jvm.setLegendVisible(false);
-
-        VBox v = new VBox(startListen, memory, cpu, jvm);
-        v.setAlignment(Pos.CENTER_LEFT);
-        FXUtils.ControlSize.setWidth(v, this.width / 4 * 3);
-
         p1 = new AdvancedScrollPane(this.width / 4 * 3, this.height - t_size, configs_box, false);
-        p2 = new AdvancedScrollPane(this.width / 4 * 3, this.height - t_size, v, false);
 
         setting = new JFXButton();
         setting.setFont(Fonts.s_f);
         setting.setOnAction(event -> super.setP1(0));
-        system = new JFXButton();
-        system.setFont(Fonts.s_f);
-        system.setOnAction(event -> super.setP1(1));
         FXUtils.ControlSize.setWidth(setting, this.width / 4);
-        FXUtils.ControlSize.setWidth(system, this.width / 4);
         super.addNewPair(new ImmutablePair<>(setting, p1));
-        super.addNewPair(new ImmutablePair<>(system, p2));
         super.setP1(0);
         super.setButtonType(JFXButton.ButtonType.RAISED);
         nodes.add(null);
@@ -357,65 +262,6 @@ public class ConfigPage extends AbstractMenuBarPage {
                 VERSIONINFOPAGE,
                 VERSIONSELECTPAGE
         ));
-    }
-    public void changeFont(Chart c) throws NoSuchFieldException, IllegalAccessException {
-        Field f = Chart.class.getDeclaredField("titleLabel");
-        f.setAccessible(true);
-        ((Label) f.get(c)).setFont(Fonts.s_f);
-    }
-    public void addMem(){
-        new Thread(() -> {
-            listenThread = new Thread(() -> {
-                while (true){
-                    current += 1;
-                    if (current >= 0) {
-                        Runnable r = () -> {
-                            int curr = Launcher.configReader.configModel.showingUpdateSpped * current;
-                            long used_Mem = MemoryReader.getUsedMemory();
-                            long total_Mem = MemoryReader.getTotalMemory();
-                            long free_Mem = MemoryReader.getFreeMemory();
-                            double used_Cpu = CpuReader.getCpuUsed() * 100;
-                            long max_Heap = JavaHeapMemoryReader.getMaxMem();
-                            long used_Heap = JavaHeapMemoryReader.getUsedMem();
-
-
-                            Platform.runLater(() -> {
-                                usedMemory.getData().add(new XYChart.Data<>(curr, used_Mem));
-                                totalMemory.getData().add(new XYChart.Data<>(curr, total_Mem));
-                                freeMemory.getData().add(new XYChart.Data<>(curr, free_Mem));
-                                cpuUsed.getData().add(new XYChart.Data<>(curr, used_Cpu));
-                                heapMax.getData().add(new XYChart.Data<>(curr, max_Heap));
-                                heapUsed.getData().add(new XYChart.Data<>(curr, used_Heap));
-                                check(usedMemory);
-                                check(totalMemory);
-                                check(freeMemory);
-                                check(cpuUsed);
-                                check(heapMax);
-                                check(heapUsed);
-                            });
-                        };
-                        r.run();
-                        Sleeper.sleep(Launcher.configReader.configModel.showingUpdateSpped);
-                    }
-                }
-            });
-            listenThread.start();
-        }).start();
-    }
-    public void check(XYChart.Series<Number, Number> s){
-        Runnable r = () -> {
-            if (s.getData().size() > 100){
-                s.getData().remove(0);
-                if (s == usedMemory){
-                    current -= 1;
-                }
-                for (int index = 0;index < s.getData().size();index++){
-                    XYChart.Data<Number, Number> n = s.getData().get(index);
-                    n.setXValue(Launcher.configReader.configModel.showingUpdateSpped * index);
-                }
-            }
-        };
-        r.run();
     }
 
     public void load_java_list(){
@@ -434,7 +280,6 @@ public class ConfigPage extends AbstractMenuBarPage {
     }
     public void refresh(){
         p1.set(this.opacityProperty());
-        p2.set(this.opacityProperty());
         setType(setted);
     }
     public void refreshLanguage(){
@@ -447,16 +292,8 @@ public class ConfigPage extends AbstractMenuBarPage {
         item4.name.setText(Launcher.languageManager.get("ui.configpage.java_label.name"));
         item5.name.setText(Launcher.languageManager.get("ui.configpage.item5.name"));
         item6.name.setText(Launcher.languageManager.get("ui.configpage.item6.name"));
-        item7.name.setText(Launcher.languageManager.get("ui.configpage.item7.name"));
 
         setting.setText(Launcher.languageManager.get("ui.configpage.menu._01"));
-        system.setText(Launcher.languageManager.get("ui.configpage.menu._02"));
-        startListen.setText(Launcher.languageManager.get("ui.configpage.systemInfo.listen.start"));
-
-        memory.setTitle(Launcher.languageManager.get("ui.configpage.systemInfo.charts.1.title"));
-        cpu.setTitle(Launcher.languageManager.get("ui.configpage.systemInfo.charts.2.title"));
-        jvm.setTitle(Launcher.languageManager.get("ui.configpage.systemInfo.charts.3.title"));
-
         ltitle.setText(Launcher.languageManager.get("ui.configpage.mem.bar.title"));
     }
 

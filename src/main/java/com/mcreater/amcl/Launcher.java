@@ -100,7 +100,7 @@ public class Launcher extends javafx.application.Application {
         initConfig();
         initLanguageManager(LanguageManager.LanguageType.valueOf(configReader.configModel.language));
     }
-    public void start(Stage primaryStage) throws AWTException, IOException, IllegalAccessException, NoSuchFieldException, InterruptedException, URISyntaxException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException {
+    public void start(Stage primaryStage) throws Exception {
         Fonts.loadFont();
         Icons.initFXIcon();
         if (OSInfo.isWin()) {
@@ -128,8 +128,8 @@ public class Launcher extends javafx.application.Application {
             CONFIGPAGE.bar1.setOnMouseExited(event -> {});
             CONFIGPAGE.bar2.setOnMouseEntered(event -> {});
             CONFIGPAGE.bar2.setOnMouseExited(event -> {});
-            CONFIGPAGE.bar1.setOpacity(0.5);
-            CONFIGPAGE.bar2.setOpacity(1);
+            CONFIGPAGE.bar1.setOpacity(1);
+            CONFIGPAGE.bar2.setOpacity(0.5);
 
             ThemeManager.loadButtonAnimateParent(CONFIGPAGE.p);
             last = MAINPAGE;

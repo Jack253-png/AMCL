@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
-public class ForgePatchTask extends AbstractTask{
+public class ForgePatchTask extends AbstractExecutableTask {
     Integer exit;
     public String jar;
     public Vector<String> classpath = new Vector<>();

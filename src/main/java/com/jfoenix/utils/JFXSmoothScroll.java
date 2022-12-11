@@ -97,39 +97,41 @@ public class JFXSmoothScroll {
         double currStart = bar.getProgress() < 0 ? 0 : bar.getProgress();
         double currEnd = value < 0 ? 0 : value;
         double duration = 300;
-        if (barAnimations.get(bar) != null) barAnimations.get(bar).stop();
-        Timeline line = new Timeline(
-                new KeyFrame(
-                        Duration.ZERO,
-                        new KeyValue(
-                                bar.progressProperty(),
-                                currStart,
-                                Interpolator.EASE_BOTH
-                        )
-                ),
-                new KeyFrame(
+        if (currEnd != currStart) {
+            if (barAnimations.get(bar) != null) barAnimations.get(bar).stop();
+            Timeline line = new Timeline(
+                    new KeyFrame(
+                            Duration.ZERO,
+                            new KeyValue(
+                                    bar.progressProperty(),
+                                    currStart,
+                                    Interpolator.EASE_BOTH
+                            )
+                    ),
+                    new KeyFrame(
+                            new Duration(duration),
+                            new KeyValue(
+                                    bar.progressProperty(),
+                                    currEnd,
+                                    Interpolator.EASE_BOTH
+                            )
+                    )
+            );
+            if (value < 0) {
+                line.getKeyFrames().add(new KeyFrame(
                         new Duration(duration),
                         new KeyValue(
                                 bar.progressProperty(),
-                                currEnd,
-                                Interpolator.EASE_BOTH
+                                -1,
+                                Interpolator.DISCRETE
                         )
-                )
-        );
-        if (value < 0) {
-            line.getKeyFrames().add(new KeyFrame(
-                    new Duration(duration),
-                    new KeyValue(
-                            bar.progressProperty(),
-                            -1,
-                            Interpolator.DISCRETE
-                    )
-            ));
+                ));
+            }
+            line.setCycleCount(1);
+            line.setDelay(Duration.ZERO);
+            line.setAutoReverse(false);
+            barAnimations.put(bar, line);
+            barAnimations.get(bar).playFromStart();
         }
-        line.setCycleCount(1);
-        line.setDelay(Duration.ZERO);
-        line.setAutoReverse(false);
-        barAnimations.put(bar, line);
-        barAnimations.get(bar).playFromStart();
     }
 }

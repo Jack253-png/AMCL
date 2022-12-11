@@ -12,6 +12,10 @@ import javafx.scene.paint.Paint;
 
 import java.util.concurrent.Callable;
 
+import static com.mcreater.amcl.util.FXUtils.ColorUtil;
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
+
 public class DepencyItem extends VBox {
     public Label name;
     public Label copyrightUI;
@@ -27,12 +31,9 @@ public class DepencyItem extends VBox {
         this.getChildren().addAll(this.name, this.copyrightUI, this.lencinsesUI);
         ThemeManager.loadButtonAnimates(this);
         ThemeManager.addLis((observable, oldValue, newValue) -> {
-            copyrightUI.textFillProperty().bind(Bindings.createObjectBinding((Callable<Paint>) () -> trans((Color) newValue, 0.75)));
-            lencinsesUI.textFillProperty().bind(Bindings.createObjectBinding((Callable<Paint>) () -> trans((Color) newValue, 0.75)));
+            copyrightUI.textFillProperty().bind(Bindings.createObjectBinding((Callable<Paint>) () -> reverse(transparent((Color) newValue, 0.75))));
+            lencinsesUI.textFillProperty().bind(Bindings.createObjectBinding((Callable<Paint>) () -> reverse(transparent((Color) newValue, 0.75))));
         });
-    }
-    private Color trans(Color c, double op) {
-        return new Color(1D - c.getRed(), 1D - c.getGreen(), 1D - c.getBlue(), op);
     }
     public Node toMaterial() {
         return JFXDepthManager.createMaterialNode(this, 10);

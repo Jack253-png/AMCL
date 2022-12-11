@@ -6,6 +6,8 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import javafx.animation.PathTransition;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -24,6 +26,8 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Vector;
+
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
 
 public class PopupMessage {
     static int contentHeight = 450;
@@ -71,8 +75,8 @@ public class PopupMessage {
         ThemeManager.loadButtonAnimates(l);
         return finalL;
     }
-    private static Labeled createMessageInternal(Labeled circle, String text){
-        circle.setTextFill(Color.TRANSPARENT);
+    private static Labeled createMessageInternal(Labeled circle, String text) {
+        ThemeManager.addLis((observable, oldValue, newValue) -> circle.setTextFill(reverse(newValue)));
         final Path path = new Path();
         int strWidth = 0;
         try {
@@ -119,7 +123,6 @@ public class PopupMessage {
             }
             while (p.getY() == 0 && p.getX() == 0);
             Platform.runLater(() -> {
-                circle.setTextFill(Color.BLACK);
                 circle.setText(text);
             });
         }).start();

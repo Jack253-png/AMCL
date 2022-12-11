@@ -41,6 +41,7 @@ import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
 import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
 
 public class AddModsPage extends AbstractAnimationPage {
     GridPane pane;
@@ -99,7 +100,7 @@ public class AddModsPage extends AbstractAnimationPage {
         add(bar, 0, 4, 2, 1);
         ThemeManager.addLis((observable, oldValue, newValue) -> setBackground(new Background(
                 new BackgroundFill(
-                        trans((Color) newValue),
+                        transparent(newValue, 0.5),
                         CornerRadii.EMPTY,
                         Insets.EMPTY
                 )
@@ -115,9 +116,6 @@ public class AddModsPage extends AbstractAnimationPage {
                 VERSIONINFOPAGE,
                 VERSIONSELECTPAGE
         ));
-    }
-    private Color trans(Color paint) {
-        return new Color(paint.getRed(), paint.getGreen(), paint.getBlue(), 0.5);
     }
     public void search(){
         searchThread.stop();

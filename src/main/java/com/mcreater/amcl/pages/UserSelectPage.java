@@ -19,6 +19,7 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
+import com.sun.jna.platform.win32.Advapi32Util;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -190,6 +191,20 @@ public class UserSelectPage extends AbstractAnimationPage {
                     });
                     Launcher.configReader.write();
                 });
+
+                userList.setOnAction(() -> {
+                    AccountInfoItem item2 = userList.selectedItem;
+                    if (item2 != null) {
+                        if (!item2.selector.isSelected()) {
+                            item2.selector.setSelected(true);
+                        }
+                        userList.vecs.forEach(accountInfoItem -> {
+                            if (accountInfoItem != item2) accountInfoItem.selector.setSelected(false);
+                        });
+                        Launcher.configReader.write();
+                    }
+                });
+
                 item.selector.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue) UserSelectPage.user.set(item.user);
                 });
@@ -206,7 +221,6 @@ public class UserSelectPage extends AbstractAnimationPage {
                     new Thread(() -> {
                         try {
                             item.user.refresh();
-                            throw new IOException("test");
                         } catch (IOException e) {
                             SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"));
                         }

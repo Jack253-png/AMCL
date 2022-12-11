@@ -29,7 +29,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import javafx.scene.web.WebView;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,7 +37,6 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Vector;
-import java.util.function.Consumer;
 
 public class FXUtils {
     public static class ImageConverter {
@@ -51,10 +49,6 @@ public class FXUtils {
     }
     public static class ControlSize {
         public static void set(Region n, double width, double height){
-            n.setMinSize(width, height);
-            n.setMaxSize(width, height);
-        }
-        public static void set(WebView n, double width, double height){
             n.setMinSize(width, height);
             n.setMaxSize(width, height);
         }
@@ -71,10 +65,6 @@ public class FXUtils {
         public static void setHeight(Region n, double height){
             n.setMaxHeight(height);
             n.setMinHeight(height);
-        }
-        public static void setHeight(WebView v, double height){
-            v.setMaxHeight(height);
-            v.setMinHeight(height);
         }
         public static SplitPane setSplit(SplitPane s, double width){
             s.setMaxWidth(width);
@@ -109,7 +99,6 @@ public class FXUtils {
 
     public static class Platform {
         public static void runLater(Runnable runnable) {
-            System.out.println("Platform delegating : " + runnable);
             javafx.application.Platform.runLater(() -> {
                 while (true) {
                     try {
@@ -235,6 +224,25 @@ public class FXUtils {
             }
 
             return frames;
+        }
+    }
+    public static class ColorUtil {
+        public static Color transparent(Color src, double op) {
+            return new Color(
+                    src.getRed(),
+                    src.getGreen(),
+                    src.getBlue(),
+                    op
+            );
+        }
+
+        public static Color reverse(Color src) {
+            return new Color(
+                    1D - src.getRed(),
+                    1D - src.getGreen(),
+                    1D - src.getBlue(),
+                    src.getOpacity()
+            );
         }
     }
 }

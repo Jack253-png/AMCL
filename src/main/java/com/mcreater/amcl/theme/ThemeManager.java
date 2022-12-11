@@ -23,8 +23,6 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -35,9 +33,11 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
+
 public class ThemeManager {
-    public static String themeName = "default";
-    public static SimpleObjectProperty<Paint> themeIconDark = new SimpleObjectProperty<>(Color.WHITE);
+    public static String themeName = "dark";
+    public static final SimpleObjectProperty<Color> themeIconDark = new SimpleObjectProperty<>(Color.BLACK);
     static Logger logger = LogManager.getLogger(ThemeManager.class);
     static Vector<JFXButton> buttons = new Vector<>();
     static Map<Parent, String> simpleParentsConstable = new ConcurrentHashMap<>();
@@ -63,7 +63,7 @@ public class ThemeManager {
             }
         }
     }
-    public static void addLis(ChangeListener<Paint> listener) {
+    public static void addLis(ChangeListener<Color> listener) {
         listener.changed(themeIconDark, themeIconDark.get(), themeIconDark.get());
         themeIconDark.addListener((observable, oldValue, newValue) -> {
             listener.changed(observable, oldValue, newValue);
@@ -71,8 +71,8 @@ public class ThemeManager {
         });
     }
 
-    public static ObjectBinding<Paint> createPaintBinding() {
-        return Bindings.createObjectBinding(() -> themeIconDark.get() == Color.BLACK ? Color.WHITE : Color.BLACK);
+    public static ObjectBinding<Color> createPaintBinding() {
+        return Bindings.createObjectBinding(() -> reverse(themeIconDark.get()));
     }
 
     public static void applyNode(Parent n) {
@@ -103,12 +103,9 @@ public class ThemeManager {
             loadButtonAnimates(n);
             String sheetPath = String.format(theme_base_path, themeName, n.getClass().getSimpleName());
             logger.info(String.format("loading style for control %s", n.getClass().getSimpleName()));
-            if (!(ResourceGetter.get(sheetPath) == null)){
+            if (n instanceof Parent) {
                 ((Parent) n).getStylesheets().clear();
                 ((Parent) n).getStylesheets().add(sheetPath);
-            }
-            else {
-                logger.warn(String.format("failed load style for control %s !", n.getClass().getSimpleName()));
             }
         }
         simpleParentsConstable.forEach((parent, s) -> parent.getStylesheets().clear());
@@ -146,7 +143,7 @@ public class ThemeManager {
                 button.setCursor(Cursor.HAND);
             }
 
-            if (!(button instanceof Pane) && !(button instanceof AdvancedScrollPane) && !(button instanceof WebView)) {
+            if (!(button instanceof Pane) && !(button instanceof AdvancedScrollPane)) {
                 generateAnimations(button, 0.6D, 1D, 200, button.opacityProperty());
             }
             else if (button instanceof Pane){

@@ -32,6 +32,9 @@ public class ClassPathInjector {
                 throw new RuntimeException(e);
             }
         }
+        checkJavaFXState();
+    }
+    public static void checkJavaFXState() {
         try {
             Class.forName("javafx.application.Application");
             javafx_useable = true;

@@ -1,0 +1,14 @@
+{
+  "-fx-slider-background": {
+    "type": "fx:color",
+    "default": "rgba(0, 0, 0, 0.2)"
+  },
+  "-fx-slider-background-hover": {
+    "type": "fx:color",
+    "default": "rgba(0, 0, 0, 0.4)"
+  },
+  "-fx-slider-background-pressed": {
+    "type": "fx:color",
+    "default": "rgba(0, 0, 0)"
+  }
+}
