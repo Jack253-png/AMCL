@@ -2,13 +2,13 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.utils.JFXSmoothScroll;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.modApi.common.AbstractModModel;
 import com.mcreater.amcl.api.modApi.curseforge.CurseAPI;
-import com.mcreater.amcl.api.modApi.modrinth.ModrinthAPI;
-import com.mcreater.amcl.controls.JFXProgressBar;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.modApi.curseforge.CurseResourceType;
 import com.mcreater.amcl.api.modApi.curseforge.CurseSortType;
+import com.mcreater.amcl.api.modApi.modrinth.ModrinthAPI;
+import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.controls.ServerMod;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.items.ListItem;
@@ -21,9 +21,14 @@ import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 
 import java.io.IOException;
 import java.util.Vector;
@@ -36,6 +41,7 @@ import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
 import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
 
 public class AddModsPage extends AbstractAnimationPage {
     GridPane pane;
@@ -92,7 +98,13 @@ public class AddModsPage extends AbstractAnimationPage {
         add(server, 0, 1, 1, 1);
         add(modlist.page, 0, 3, 2, 1);
         add(bar, 0, 4, 2, 1);
-        setStyle("-fx-background-color : rgba(255, 255, 255, 0.50)");
+        ThemeManager.addLis((observable, oldValue, newValue) -> setBackground(new Background(
+                new BackgroundFill(
+                        transparent(newValue, 0.5),
+                        CornerRadii.EMPTY,
+                        Insets.EMPTY
+                )
+        )));
         nodes.add(null);
         bindedPageproperty().get().addAll(J8Utils.createList(
                 ADDMODSPAGE,

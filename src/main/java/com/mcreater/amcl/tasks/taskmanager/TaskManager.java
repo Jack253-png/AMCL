@@ -75,43 +75,13 @@ public abstract class TaskManager {
             else key = "ui.fix._02";
 
             updater.accept(0, String.format(lang.get(key), 0, tasks.size()));
-
-            new Thread("Manager Counting Thread") {
-                public void run() {
-                    long downloaded;
-                    long all = tasks.size();
-                    String cc;
-                    long temp = size;
-                    do {
-                        downloaded = latch.getCount();
-                        if (temp != latch.getCount()) {
-                            if (tasks.size() != 0) {
-                                updater.accept((int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(lang.get(key), tasks.size() - downloaded, tasks.size()));
-                            } else {
-                                updater.accept(100, String.format(lang.get(key), all, all));
-                            }
-                        }
-                        temp = downloaded;
-                        downloadedBytes = 0;
-                        Sleeper.sleep(500);
-                        cc = String.format("%s %d / %d", reason, tasks.size() - downloaded, tasks.size());
-                        System.out.print(J8Utils.repeat("\b", cc.length()) + cc);
-                    }
-                    while (downloaded != 0);
-
-                    cc = String.format("%s %d / %d", reason, all, all);
-
-                    System.out.print(J8Utils.repeat("\b", cc.length()));
-                    System.out.print(cc);
-                    System.out.println();
-                }
-            }.start();
             for (Task t : tasks) {
                 new Thread(String.format("pool %s task %s", t.pool.getName(), t.toString())) {
                     public void run() {
                         while (true) {
                             try {
                                 t.execute();
+                                System.out.println("task finished: " + t);
                                 latch.countDown();
                                 break;
                             } catch (Error e1) {
@@ -120,10 +90,37 @@ public abstract class TaskManager {
                                 e.printStackTrace();
                             }
                         }
+
                     }
                 }.start();
             }
-            latch.await();
+            long downloaded;
+            long all = tasks.size();
+            String cc;
+            long temp = size;
+            do {
+                downloaded = latch.getCount();
+                if (temp != latch.getCount()) {
+                    if (tasks.size() != 0) {
+                        updater.accept((int) ((double) (tasks.size() - downloaded)) * 100 / tasks.size(), String.format(lang.get(key), tasks.size() - downloaded, tasks.size()));
+                    } else {
+                        updater.accept(100, String.format(lang.get(key), all, all));
+                    }
+                }
+                temp = downloaded;
+                downloadedBytes = 0;
+                Sleeper.sleep(500);
+                cc = String.format("%s %d / %d", reason, tasks.size() - downloaded, tasks.size());
+                System.out.print(J8Utils.repeat("\b", cc.length()) + cc);
+            }
+            while (downloaded != 0);
+
+            cc = String.format("%s %d / %d", reason, all, all);
+
+            System.out.print(J8Utils.repeat("\b", cc.length()));
+            System.out.print(cc);
+            System.out.println();
+
             if (tasks.size() != 0) updater.accept(100, String.format(lang.get(key), tasks.size(), tasks.size()));
             tasks.clear();
             downloadedBytes = 0;

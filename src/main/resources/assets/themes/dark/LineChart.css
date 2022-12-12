@@ -1,0 +1,12 @@
+.default-color0.chart-line-symbol {-fx-background-color: transparent}
+.default-color1.chart-line-symbol {-fx-background-color: transparent}
+.default-color2.chart-line-symbol {-fx-background-color: transparent}
+.default-color3.chart-line-symbol {-fx-background-color: transparent}
+.default-color4.chart-line-symbol {-fx-background-color: transparent}
+.default-color5.chart-line-symbol {-fx-background-color: transparent}
+.chart-plot-background {
+    -fx-background-color: transparent;
+}
+.chart-title {
+    -fx-text-fill: white;
+}

@@ -8,3 +8,7 @@
 .list-cell {
     -fx-background-color: transparent;
 }
+* {
+    -fx-text-fill: black;
+    -jfx-unfocus-color: rgba(51, 51, 51);
+}

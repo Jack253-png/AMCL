@@ -33,13 +33,16 @@ import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.LogLineDetecter;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.VersionInfo;
+import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.java.JVMArgs;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -56,6 +59,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.function.BiConsumer;
 
 public class Launch {
     String java;
@@ -68,31 +72,37 @@ public class Launch {
     public Process p;
     Logger logger = LogManager.getLogger(this.getClass());
     SimpleObjectProperty<StringBuilder> logProperty = new SimpleObjectProperty<>(new StringBuilder());
-
+    private BiConsumer<ImmutablePair<Integer, Integer>, String> updater = (integerIntegerImmutablePair, s) -> {};
+    private Runnable failedRunnable = () -> {};
+    public void setUpdater(@NotNull BiConsumer<ImmutablePair<Integer, Integer>, String> updater) {
+        this.updater = updater;
+    }
+    public void setFailedRunnable(@NotNull Runnable r) {
+        this.failedRunnable = r;
+    }
     public Long exitCode;
-    public void launch(String java_path, String dir, String version_name, boolean ie, int m, AbstractUser user, FasterUrls.Servers dlserver) throws Exception {
-        MainPage.launchDialog.setV(1, 0);
-        if (MemoryReader.getFreeMemory() < (long) m * 1024 * 1024){
-            m = (int) (MemoryReader.getFreeMemory() / 1024 / 1204);
+    public void launch(String java_path, String dir, String version_name, boolean ie, int memory, AbstractUser user, FasterUrls.Servers dlserver) throws Exception {
+        if (MemoryReader.getFreeMemory() < (long) memory * 1024 * 1024){
+            memory = (int) (MemoryReader.getFreeMemory() / 1024 / 1204);
         }
         if (user == null){
             throw new BadUserException();
         }
-        MainPage.launchDialog.Create();
-        MainPage.launchDialog.setV(0, 5, Launcher.languageManager.get("ui.launch._01"));
+        updater.accept(new ImmutablePair<>(0, 5), Launcher.languageManager.get("ui.launch._01"));
         java = java_path;
-        MainPage.launchDialog.setV(0, 10, Launcher.languageManager.get("ui.launch._02"));
-        Platform.runLater(() -> MainPage.launchDialog.l.setText(Launcher.languageManager.get("ui.fix._01")));
-        TaskManager.setUpdater((integer, s) -> MainPage.launchDialog.setV(1, integer, s));
+        updater.accept(new ImmutablePair<>(0, 15), Launcher.languageManager.get("ui.launch._02"));
+        updater.accept(new ImmutablePair<>(0, 30), Launcher.languageManager.get("ui.fix._01"));
+
+        TaskManager.setUpdater((integer, s) -> updater.accept(new ImmutablePair<>(1, integer), s));
         TaskManager.setFinishRunnable(() -> {
-            MainPage.launchDialog.setV(1, 100);
+            updater.accept(new ImmutablePair<>(1, 100), "");
             TaskManager.setFinishRunnable(() -> {});
         });
         try {
             MinecraftFixer.fix(Launcher.configReader.configModel.downloadChunkSize, dir, version_name, dlserver);
         }
         catch (IOException e){
-            Platform.runLater(() -> MainPage.launchDialog.close());
+            failedRunnable.run();
             SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"));
             return;
         }
@@ -109,7 +119,7 @@ public class Launch {
         if (!json_file.exists() || !jar_file.exists()){
             throw new BadMainFilesException();
         }
-        MainPage.launchDialog.setV(0, 75, Launcher.languageManager.get("ui.launch._03"));
+        updater.accept(new ImmutablePair<>(0, 60), Launcher.languageManager.get("ui.launch._03"));
         String json_result = FileUtils.FileStringReader.read(json_file.getPath());
         Gson g = new Gson();
         VersionJsonModel r = g.fromJson(json_result, VersionJsonModel.class);
@@ -190,9 +200,9 @@ public class Launch {
                 }
             }
             s0 += 1;
-            MainPage.launchDialog.setV(0, 75 + 5 * s0 / r.libraries.size(), String.format(Launcher.languageManager.get("ui.launch._04"), l.name));
+            updater.accept(new ImmutablePair<>(0, 75 + 5 * s0 / r.libraries.size()), String.format(Launcher.languageManager.get("ui.launch._04"), l.name));
         }
-        MainPage.launchDialog.setV(0, 80, String.format(Launcher.languageManager.get("ui.launch._05"), r.libraries.size()));
+        updater.accept(new ImmutablePair<>(0, 80), String.format(Launcher.languageManager.get("ui.launch._05"), r.libraries.size()));
         File nativef = new File(LinkPath.link(f.getPath(),version_name + "-natives"));
         if (!nativef.exists()){
             boolean b = nativef.mkdirs();
@@ -210,7 +220,7 @@ public class Launch {
                 e.printStackTrace();
                 throw new BadUnzipException();
             }
-            MainPage.launchDialog.setV(0, 85, Launcher.languageManager.get("ui.launch._06"));
+            updater.accept(new ImmutablePair<>(0, 85), Launcher.languageManager.get("ui.launch._06"));
         }
         StringBuilder classpath = new StringBuilder("-cp \"");
         for (String s : libs){
@@ -218,7 +228,7 @@ public class Launch {
         }
         classpath.append(jar_file).append("\"");
 
-        mem = "-Xmn256m -Xmx" + m + "m";
+        mem = "-Xmn256m -Xmx" + memory + "m";
         mainClass = r.mainClass;
         StringBuilder agm = new StringBuilder();
         if (r.minecraftArguments != null) {
@@ -393,7 +403,7 @@ public class Launch {
 
                     while (true){
                         try {
-                            MainPage.launchDialog.setV(0, 90, String.format(Launcher.languageManager.get("ui.userselectpage.launch.tryOpenServer"), port));
+                            updater.accept(new ImmutablePair<>(0, 90), String.format(Launcher.languageManager.get("ui.userselectpage.launch.tryOpenServer"), port));
                             server = new LocalYggdrasilServer(port);
                             server.setCurrent_player(new LocalYggdrasilServer.Player(
                                     user.uuid,
@@ -425,16 +435,17 @@ public class Launch {
                     forgevm,
                     mainClass.replace(" ",""),
                     arguments);
-            MainPage.launchDialog.setV(0, 90, Launcher.languageManager.get("ui.launch._07"));
+            updater.accept(new ImmutablePair<>(0, 90), Launcher.languageManager.get("ui.launch._07"));
             command = command.replace("null","");
             logger.info(String.format("Getted Command Line : %s", command));
-            Thread lT = new Thread(() -> {
-                while (true) {
-                    if (!MainPage.launchDialog.l.getText().equals(Launcher.languageManager.get("ui.launch._08"))) MainPage.launchDialog.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
-
-                }
-            });
-            lT.start();
+//            Thread lT = new Thread(() -> {
+//                while (true) {
+//                    if (!MainPage.launchDialog.l.getText().equals(Launcher.languageManager.get("ui.launch._08"))) MainPage.launchDialog.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
+//
+//                }
+//            });
+//            lT.start();
+            updater.accept(new ImmutablePair<>(0, 95), Launcher.languageManager.get("ui.launch._08"));
             try {
                 p = Runtime.getRuntime().exec(command, null, new File(dir));
             }
@@ -446,7 +457,7 @@ public class Launch {
                     if (!p.isAlive()) break;
                     if (EnumWindow.getTaskPID().contains(J8Utils.getProcessPid(p))) {
                         MainPage.logger.info("Window Showed");
-                        MainPage.launchDialog.close();
+                        failedRunnable.run();
                         break;
                     }
                 }
@@ -491,7 +502,7 @@ public class Launch {
                 line.contains("LWJGL Version") ||
                 line.contains("Turning of ImageIO disk-caching") ||
                 line.contains("Loading current icons for window from:")){
-                    if (ClassPathInjector.version <= 8) MainPage.launchDialog.close();
+                    if (ClassPathInjector.version <= 8) failedRunnable.run();
                 }
             }
         } catch (IOException e) {

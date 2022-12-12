@@ -1,6 +1,7 @@
 package com.mcreater.amcl.api.auth;
 
 import com.google.gson.Gson;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.util.J8Utils;
@@ -9,6 +10,7 @@ import com.mcreater.amcl.util.concurrent.ValueSet3;
 import com.mcreater.amcl.util.net.HttpClient;
 import com.mcreater.amcl.util.operatingSystem.SystemActions;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -110,7 +112,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
     }
 
     public BiConsumer<Integer, String> updater = (value, mess) -> {};
-    public void setUpdater(BiConsumer<Integer, String> updater) {
+    public void setUpdater(@NotNull BiConsumer<Integer, String> updater) {
         this.updater = updater;
     }
 
@@ -207,7 +209,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         }
     }
 
-    public ValueSet3<String, ImmutablePair<String, String>, McProfileModel.McSkinModel> acquireMinecraftToken(String xblUhs, String xblXsts) {
+    public ValueSet3<String, ImmutablePair<String, String>, McProfileModel.McSkinModel> acquireMinecraftToken(String xblUhs, String xblXsts, BiConsumer<Integer, String> updater) {
         try {
             Map<Object, Object> data = J8Utils.createMap(
                     "identityToken", "XBL3.0 x=" + xblUhs + ";" + xblXsts
@@ -227,6 +229,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             JSONObject ob = client.readJSON(false);
             String accessToken = ob.getString("access_token");
             McProfileModel contents = checkMcProfile(accessToken);
+            updater.accept(85, Launcher.languageManager.get("ui.msauth._05_1"));
             if (contents.checkProfile() && checkMcStore(accessToken)){
                 return new ValueSet3<>(accessToken, new ImmutablePair<>(contents.name, contents.id), contents.skin);
             }
@@ -273,19 +276,20 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
 
 
     public MicrosoftUser getUser(String... args) throws RuntimeException {
+        updater.accept(20, Launcher.languageManager.get("ui.msauth._02"));
         ImmutablePair<String, String> token = acquireAccessToken(args[0]);
-//        updater.accept(20, Launcher.languageManager.get("ui.msauth._02"));
         return getUserFromToken(token);
     }
     public MicrosoftUser getUserFromToken(ImmutablePair<String, String> token) throws RuntimeException {
+        updater.accept(40, Launcher.languageManager.get("ui.msauth._03"));
         ImmutablePair<String, String> xbl_token = acquireXBLToken(token.getKey());
-//        updater.accept(40, Launcher.languageManager.get("ui.msauth._03"));
+        updater.accept(60, Launcher.languageManager.get("ui.msauth._04"));
         ImmutablePair<String, String> xsts = acquireXsts(xbl_token.getKey());
-//        updater.accept(60, Launcher.languageManager.get("ui.msauth._04"));
-        ValueSet3<String, ImmutablePair<String, String>, McProfileModel.McSkinModel> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey());
-//        updater.accept(80, Launcher.languageManager.get("ui.msauth._05"));
+        updater.accept(80, Launcher.languageManager.get("ui.msauth._05"));
+        ValueSet3<String, ImmutablePair<String, String>, McProfileModel.McSkinModel> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey(), updater);
+        updater.accept(90, Launcher.languageManager.get("ui.msauth._06"));
         MicrosoftUser msu = new MicrosoftUser(content.getValue1(), content.getValue2().getKey(), content.getValue2().getValue(), content.getValue3(), token.getValue());
-//        updater.accept(80, Launcher.languageManager.get("ui.msauth._06"));
+        updater.accept(100, "");
         return msu;
     }
     public static class McProfileModel {

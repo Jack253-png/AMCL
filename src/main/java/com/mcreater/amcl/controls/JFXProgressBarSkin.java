@@ -1,6 +1,7 @@
 package com.mcreater.amcl.controls;
 
 import com.jfoenix.utils.JFXNodeUtils;
+import com.sun.javafx.scene.NodeHelper;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -23,7 +24,7 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
     private StackPane bar;
     private double barWidth = 0.0;
     private double secondaryBarWidth = 0.0;
-    private Animation indeterminateTransition;
+    public Animation indeterminateTransition;
     private Region clip;
     boolean wasIndeterminate = false;
 
@@ -34,6 +35,7 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
             this.updateSecondaryProgress();
         });
         this.registerChangeListener(bar.progressProperty(), (obs) -> this.updateProgress());
+        this.registerChangeListener(bar.progressProperty(), (obs) -> this.updateAnimation());
         this.registerChangeListener(bar.secondaryProgressProperty(), (obs) -> this.updateSecondaryProgress());
         this.registerChangeListener(bar.visibleProperty(), (obs) -> this.updateAnimation());
         this.registerChangeListener(bar.parentProperty(), (obs) -> this.updateAnimation());
@@ -83,9 +85,9 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
         this.clip.resizeRelocate(0.0, 0.0, w, h);
         if (this.getSkinnable().isIndeterminate()) {
             this.createIndeterminateTimeline();
-//            if (NodeHelper.isTreeShowing(this.getSkinnable())) {
-//                this.indeterminateTransition.play();
-//            }
+            if (NodeHelper.isTreeShowing(this.getSkinnable()) || true) {
+                this.indeterminateTransition.play();
+            }
 
             this.bar.setClip(this.clip);
         } else if (this.indeterminateTransition != null) {
@@ -113,12 +115,12 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
                 this.indeterminateTransition.play();
             }
         }
-
     }
 
     private void updateAnimation() {
         ProgressIndicator control = this.getSkinnable();
         boolean isTreeVisible = control.isVisible() && control.getParent() != null && control.getScene() != null;
+        this.createIndeterminateTimeline();
         if (this.indeterminateTransition != null) {
             this.pauseTimeline(!isTreeVisible);
         } else if (isTreeVisible) {
@@ -136,6 +138,7 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
         }
 
         this.wasIndeterminate = isIndeterminate;
+        updateAnimation();
     }
 
     private void createIndeterminateTimeline() {
@@ -146,8 +149,17 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
         double dur = 1.0;
         ProgressIndicator control = this.getSkinnable();
         double w = control.getWidth() - (this.snappedLeftInset() + this.snappedRightInset());
-        this.indeterminateTransition = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(this.clip.scaleXProperty(), 0.0, Interpolator.EASE_IN), new KeyValue(this.clip.translateXProperty(), -w / 2.0, Interpolator.LINEAR)), new KeyFrame(Duration.seconds(0.5 * dur), new KeyValue(this.clip.scaleXProperty(), 0.4, Interpolator.LINEAR)), new KeyFrame(Duration.seconds(0.9 * dur), new KeyValue(this.clip.translateXProperty(), w / 2.0, Interpolator.LINEAR)), new KeyFrame(Duration.seconds(dur), new KeyValue(this.clip.scaleXProperty(), 0.0, Interpolator.EASE_OUT)));
-        this.indeterminateTransition.setCycleCount(-1);
+        this.indeterminateTransition = new Timeline(
+
+                new KeyFrame(Duration.ZERO, new KeyValue(this.clip.scaleXProperty(), 0.0, Interpolator.EASE_IN), new KeyValue(this.clip.translateXProperty(), -w / 2.0, Interpolator.LINEAR)),
+
+                new KeyFrame(Duration.seconds(0.5 * dur), new KeyValue(this.clip.scaleXProperty(), 0.4, Interpolator.LINEAR)),
+
+                new KeyFrame(Duration.seconds(0.9 * dur), new KeyValue(this.clip.translateXProperty(), w / 2.0, Interpolator.LINEAR)),
+
+                new KeyFrame(Duration.seconds(dur), new KeyValue(this.clip.scaleXProperty(), 0.0, Interpolator.EASE_OUT)));
+
+        this.indeterminateTransition.setCycleCount(Timeline.INDEFINITE);
     }
 
     private void clearAnimation() {

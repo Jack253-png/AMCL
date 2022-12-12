@@ -8,9 +8,10 @@ import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.controls.AccountInfoItem;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.controls.SmoothableListView;
-import com.mcreater.amcl.pages.dialogs.account.OfflineUserCreateDialog;
-import com.mcreater.amcl.pages.dialogs.account.OfflineUserCustomSkinDialog;
-import com.mcreater.amcl.pages.dialogs.account.OfflineUserModifyDialog;
+import com.mcreater.amcl.pages.dialogs.account.microsoft.MicrosoftLoginDialog;
+import com.mcreater.amcl.pages.dialogs.account.offline.OfflineUserCreateDialog;
+import com.mcreater.amcl.pages.dialogs.account.offline.OfflineUserCustomSkinDialog;
+import com.mcreater.amcl.pages.dialogs.account.offline.OfflineUserModifyDialog;
 import com.mcreater.amcl.pages.dialogs.commons.InputDialog;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
@@ -18,12 +19,16 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
+import com.sun.jna.platform.win32.Advapi32Util;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -40,6 +45,7 @@ public class UserSelectPage extends AbstractAnimationPage {
     AdvancedScrollPane page1;
 
     JFXButton menuButtonOffline;
+    JFXButton menuButtonMicrosoft;
     JFXButton refreshList;
     public static final SimpleObjectProperty<AbstractUser> user = new SimpleObjectProperty<>();
     public UserSelectPage(double width, double height) {
@@ -115,15 +121,24 @@ public class UserSelectPage extends AbstractAnimationPage {
             dialog.Create();
         });
 
+        menuButtonMicrosoft = new JFXButton();
+        menuButtonMicrosoft.setFont(Fonts.s_f);
+        menuButtonMicrosoft.setOnAction(event -> {
+            MicrosoftLoginDialog dialog = new MicrosoftLoginDialog(Launcher.languageManager.get("ui.userselectpage._02.name"));
+            dialog.setCancelEvent(event16 -> dialog.close());
+            dialog.Create();
+        });
+
         Pane paneContainer = new Pane(userList.page);
 
         page1 = new AdvancedScrollPane(width / 4 * 3, height, paneContainer, false);
 
-        sideBar = new VBox(menuButtonOffline, refreshList);
+        sideBar = new VBox(menuButtonOffline, menuButtonMicrosoft, refreshList);
         sideBar.setId("config-menu");
 
         FXUtils.ControlSize.set(sideBar, width / 4, height);
         FXUtils.ControlSize.setWidth(menuButtonOffline, width / 4);
+        FXUtils.ControlSize.setWidth(menuButtonMicrosoft, width / 4);
         FXUtils.ControlSize.setWidth(refreshList, width / 4);
 
         nodes.add(null);
@@ -176,6 +191,20 @@ public class UserSelectPage extends AbstractAnimationPage {
                     });
                     Launcher.configReader.write();
                 });
+
+                userList.setOnAction(() -> {
+                    AccountInfoItem item2 = userList.selectedItem;
+                    if (item2 != null) {
+                        if (!item2.selector.isSelected()) {
+                            item2.selector.setSelected(true);
+                        }
+                        userList.vecs.forEach(accountInfoItem -> {
+                            if (accountInfoItem != item2) accountInfoItem.selector.setSelected(false);
+                        });
+                        Launcher.configReader.write();
+                    }
+                });
+
                 item.selector.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue) UserSelectPage.user.set(item.user);
                 });
@@ -192,7 +221,6 @@ public class UserSelectPage extends AbstractAnimationPage {
                     new Thread(() -> {
                         try {
                             item.user.refresh();
-                            throw new IOException("test");
                         } catch (IOException e) {
                             SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"));
                         }
@@ -313,11 +341,12 @@ public class UserSelectPage extends AbstractAnimationPage {
 
     public void refreshLanguage() {
         menuButtonOffline.setText(Launcher.languageManager.get("ui.userselectpage._01.name"));
+        menuButtonMicrosoft.setText(Launcher.languageManager.get("ui.userselectpage._02.name"));
         refreshList.setText(Launcher.languageManager.get("ui.userselectpage.account.list.refresh"));
     }
 
     public void refreshType() {
-
+        userList.vecs.forEach(AccountInfoItem::setType);
     }
 
     public void onExitPage() {

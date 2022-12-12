@@ -4,13 +4,15 @@ import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXAlert;
 import com.jfoenix.transitions.CachedTransition;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
-import javafx.animation.Animation;
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import com.mcreater.amcl.util.concurrent.Sleeper;
+import javafx.animation.*;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -20,11 +22,7 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -32,9 +30,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import static com.mcreater.amcl.Launcher.height;
-import static com.mcreater.amcl.Launcher.width;
-import static com.mcreater.amcl.Launcher.wrapper;
+import static com.mcreater.amcl.Launcher.*;
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
 
 public abstract class AbstractDialog extends JFXAlert<String> {
     public static final ObservableList<AbstractDialog> dialogs = FXCollections.observableArrayList();
@@ -46,10 +43,13 @@ public abstract class AbstractDialog extends JFXAlert<String> {
     public final SimpleDoubleProperty dialogNowRadius = new SimpleDoubleProperty(0);
 
     public final SimpleDoubleProperty dialogExceptedRadius = new SimpleDoubleProperty(0);
+    private final SimpleDoubleProperty dialogWidth = new SimpleDoubleProperty(-1);
+    private final SimpleDoubleProperty dialogHeight = new SimpleDoubleProperty(-1);
 
     static {
         dialogs.addListener((ListChangeListener<AbstractDialog>) c -> exceptedRadius.set(c.getList().size() == 0 ? 0 : blurRadius));
         nowRadius.addListener((observable, oldValue, newValue) -> wrapper.setEffect(new GaussianBlur(newValue.intValue())));
+
         new Thread("Widget blur calc thread") {
             public void run() {
                 while (true) {
@@ -65,12 +65,20 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                             }
                         });
                     }
-                    catch (Exception e) {
+                    catch (Exception ignored) {
 
                     }
+                    Sleeper.sleep(5);
                 }
             }
         }.start();
+    }
+
+    public double getDialogWidth() {
+        return dialogWidth.get();
+    }
+    public double getDialogHeight() {
+        return dialogHeight.get();
     }
 
     boolean cliped;
@@ -135,6 +143,8 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                 height -= 10;
                 cliped = true;
             }
+            dialogWidth.set(width);
+            dialogHeight.set(height);
             par.setClip(FXUtils.generateRect(width, height, dialogRadius.get()));
         });
 
@@ -144,20 +154,19 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         setHideOnEscape(false);
     }
     public void setContent(Node... content) {
-        FXUtils.toNodeClass(
+        ThemeManager.addLis((observable, oldValue, newValue) -> FXUtils.toNodeClass(
                 FXUtils.toNodeClass(
                         getDialogPane().getContent(), Pane.class
                 ).getChildren().get(0),
                 Region.class
-        ).setBackground(
-                new Background(
-                        new BackgroundFill(
-                                new Color(1, 1, 1, 0.85),
-                                CornerRadii.EMPTY,
-                                Insets.EMPTY
-                        )
+        ).setBackground(new Background(
+                new BackgroundFill(
+                        transparent(newValue, 0.8),
+                        CornerRadii.EMPTY,
+                        Insets.EMPTY
                 )
-        );
+        )));
+
         super.setContent(content);
     }
     private void onDialogListChange() {

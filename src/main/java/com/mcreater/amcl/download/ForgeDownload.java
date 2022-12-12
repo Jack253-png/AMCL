@@ -101,7 +101,7 @@ public class ForgeDownload {
                 }
                 else {
                     new File(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path"))).mkdirs();
-                    tasks.add(new LibDownloadTask(FasterUrls.fast(m.downloads.artifact.get("url"), server), FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path").replace("/", "\\")), chunkSize).setHash(m.downloads.artifact.get("sha1")));
+                    tasks.add(new LibDownloadTask(FasterUrls.fast(m.downloads.artifact.get("url"), server), FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path").replace("\\", "/")), chunkSize).setHash(m.downloads.artifact.get("sha1")));
                 }
             }
             if (model.minecraftArguments != null){
@@ -256,7 +256,7 @@ public class ForgeDownload {
                     tasks.add(te);
                 }
             }
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(String.format("%s\\versions\\%s\\%s.json", minecraft_dir, version_name, version_name)));
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
             bufferedWriter.write(ao.toString());
             bufferedWriter.close();
             TaskManager.addTasks(tasks);
@@ -282,7 +282,6 @@ public class ForgeDownload {
         }
     }
     public static void download_mojmaps(String local, FasterUrls.Servers server) throws IOException {
-        logger.info(String.format("download mojmaps : %s", FasterUrls.fast(u, server)));
         new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
         new DownloadTask(FasterUrls.fast(u, server), local, 1024).execute();
     }

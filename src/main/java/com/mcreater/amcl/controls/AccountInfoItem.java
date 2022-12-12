@@ -8,8 +8,8 @@ import com.mcreater.amcl.api.auth.users.AbstractUser;
 import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.controls.skin.SkinView;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
-import javafx.beans.binding.Bindings;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -21,17 +21,13 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.concurrent.Callable;
 
 public class AccountInfoItem extends VBox {
     Label userName;
@@ -185,9 +181,7 @@ public class AccountInfoItem extends VBox {
 
         FXUtils.ControlSize.setAll(30, 30, modify, delete, refresh);
 
-        modify.setGraphic(Launcher.getSVGManager().accountEdit(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 30, 30));
-        delete.setGraphic(Launcher.getSVGManager().delete(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 30, 30));
-        refresh.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding(() -> Color.BLACK), 30, 30));
+        setType();
 
         selector = new JFXRadioButton();
         selector.selectedProperty().addListener((observable, oldValue, newValue) -> user.active = newValue);
@@ -209,5 +203,11 @@ public class AccountInfoItem extends VBox {
         FXUtils.ControlSize.setWidth(right, 95);
 
         getChildren().add(topG);
+        ThemeManager.applyNode(selector);
+    }
+    public void setType() {
+        modify.setGraphic(Launcher.getSVGManager().accountEdit(ThemeManager.createPaintBinding(), 30, 30));
+        delete.setGraphic(Launcher.getSVGManager().delete(ThemeManager.createPaintBinding(), 30, 30));
+        refresh.setGraphic(Launcher.getSVGManager().refresh(ThemeManager.createPaintBinding(), 30, 30));
     }
 }

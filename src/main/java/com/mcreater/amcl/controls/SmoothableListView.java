@@ -6,6 +6,8 @@ import com.mcreater.amcl.util.FXUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +34,7 @@ public class SmoothableListView<T extends Region> extends VBox {
         ThemeManager.loadButtonAnimates(this);
 
         ThemeManager.applyNode(page, "SmoothableListView");
+        page.setStyle("-fx-background-color: transparent");
         FXUtils.ControlSize.setWidth(this, width - 15);
     }
     public void setOnAction(@NotNull Runnable r){
@@ -50,9 +53,10 @@ public class SmoothableListView<T extends Region> extends VBox {
         button.setOnAction(event -> {
             selectedItem = item;
             selectedButton = button;
-            onActionProperty.get().run();
         });
+        button.setOnMouseClicked(event -> onActionProperty.get().run());
         button.setOnMouseReleased(event -> onReleasedProperty.get().run());
+
         FXUtils.ControlSize.setWidth(button, this.getMaxWidth());
         this.getChildren().add(button);
         FXUtils.ControlSize.setWidth(this, page.width - 15);

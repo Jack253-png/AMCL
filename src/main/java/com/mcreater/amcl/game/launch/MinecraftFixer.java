@@ -8,7 +8,7 @@ import com.mcreater.amcl.model.JarModel;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.original.AssetsModel;
-import com.mcreater.amcl.tasks.AbstractTask;
+import com.mcreater.amcl.tasks.AbstractDownloadTask;
 import com.mcreater.amcl.tasks.AssetsDownloadTask;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.LibDownloadTask;
@@ -74,9 +74,11 @@ public class MinecraftFixer {
             if (!hashT.equals(hash)) {
                 boolean contained = false;
                 for (Task task : tasks){
-                    if (Objects.equals(((AbstractTask) task).local, s)) {
-                        contained = true;
-                        break;
+                    if (task instanceof AbstractDownloadTask) {
+                        if (Objects.equals(((AbstractDownloadTask) task).local, s)) {
+                            contained = true;
+                            break;
+                        }
                     }
                 }
                 if (!contained) {

@@ -17,25 +17,21 @@ import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.net.FasterUrls;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -89,13 +85,12 @@ public class MainPage extends AbstractAnimationPage {
         launchButton = new JFXButton();
         launchButton.setId("launch-button");
         launchButton.setFont(Fonts.s_f);
-        launchButton.setTextFill(Color.WHITE);
         launchButton.setOnAction(event -> {
             FileUtils.ChangeDir.saveNowDir();
             if (!Objects.equals(launchButton.getText(), Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"))) {
                 Launcher.configReader.check_and_write();
                 launchDialog = new ProcessDialog(2, Launcher.languageManager.get("ui.mainpage.launch._01"));
-                launchDialog.setV(0, 1, Launcher.languageManager.get("ui.mainpage.launch._02"));
+                launchDialog.setV(0, 0, Launcher.languageManager.get("ui.mainpage.launch._02"));
 
                 JFXButton stopAction = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
                 ThemeManager.loadButtonAnimates(stopAction);
@@ -109,12 +104,22 @@ public class MainPage extends AbstractAnimationPage {
                                 Launch launch1 = new Launch();
                                 game.add(launch1);
                                 Thread.currentThread().setName(String.format("Launch Thread #%d", game.size() - 1));
+
+                                launch1.setUpdater((barIndex, s) -> launchDialog.setV(barIndex.getKey(), barIndex.getValue(), s));
+                                launch1.setFailedRunnable(() -> FXUtils.Platform.runLater(() -> launchDialog.close()));
+
                                 core.set(launch1);
+                                FXUtils.Platform.runLater(() -> {
+                                    launchDialog.setAll(0);
+                                    launchDialog.show();
+                                });
+
                                 launch1.launch(
                                         Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir,
                                         Launcher.configReader.configModel.max_memory,
                                         UserSelectPage.user.get(),
-                                        FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+                                        FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)
+                                );
                                 logger.info("started launch thread");
                             }
                             else {
@@ -136,6 +141,7 @@ public class MainPage extends AbstractAnimationPage {
                 stopAction.setOnAction(event1 -> {
                     la.stop();
                     if (core.get() != null) core.get().stop_process();
+                    game.remove(core.get());
                     launchDialog.close();
                 });
                 la.start();
@@ -148,7 +154,6 @@ public class MainPage extends AbstractAnimationPage {
         stopProcess = new JFXButton();
         stopProcess.setId("launch-button");
         stopProcess.setFont(Fonts.s_f);
-        stopProcess.setTextFill(Color.WHITE);
         ListChangeListener<Launch> listener = c -> BGMManager.startOrStop(game.size() == 0);
         game.addListener(listener);
         listener.onChanged(null);
@@ -198,10 +203,6 @@ public class MainPage extends AbstractAnimationPage {
             Launcher.setPage(Launcher.VERSIONSELECTPAGE, this);
         });
 
-        version_settings.setGraphic(Launcher.getSVGManager().gear(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 25.0D, 25.0D));
-        settings.setGraphic(Launcher.getSVGManager().gear(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 25.0D, 25.0D));
-        downloadMc.setGraphic(Launcher.getSVGManager().downloadOutline(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 25.0D, 25.0D));
-
         LaunchTitle = new HBox();
         LaunchTitle.setAlignment(Pos.BOTTOM_CENTER);
         LaunchTitle.getChildren().add(launch);
@@ -223,14 +224,25 @@ public class MainPage extends AbstractAnimationPage {
         downloadMc.setMaxWidth(width / 4);
         users.setMaxWidth(width / 4);
 
+        JFXButton button = new JFXButton("Theme");
+        button.setFont(Fonts.t_f);
+        button.setOnAction(event -> {
+            try {
+                ThemeManager.setThemeName(ThemeManager.themeName.equals("dark") ? "default" : "dark");
+                ThemeManager.themeIconDark.set(
+                        ThemeManager.themeName.equals("dark") ? Color.BLACK : Color.WHITE
+                );
+                ThemeManager.freshTheme();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
         GameMenu = new VBox();
         GameMenu.setId("game-menu");
         FXUtils.ControlSize.set(GameMenu, width / 4, height);
         GameMenu.setAlignment(Pos.TOP_CENTER);
-
-        Button tes = new Button("test");
-        tes.setCancelButton(true);
-        tes.setOnAction(event -> Launcher.clearBgBuffer());
 
         GameMenu.getChildren().addAll(
                 title,
@@ -250,7 +262,7 @@ public class MainPage extends AbstractAnimationPage {
                 FXUtils.ControlSize.setSplit(new SplitPane(), width / 4 - 20),
                 new Spacer(),
                 downloadMc,
-                tes
+                button
         );
 
         nodes.add(new NodeInfo(0, 0, width / 4, height));
@@ -350,7 +362,9 @@ public class MainPage extends AbstractAnimationPage {
         flush();
     }
     public void refreshType(){
-
+        version_settings.setGraphic(Launcher.getSVGManager().gear(ThemeManager.createPaintBinding(), 25.0D, 25.0D));
+        settings.setGraphic(Launcher.getSVGManager().gear(ThemeManager.createPaintBinding(), 25.0D, 25.0D));
+        downloadMc.setGraphic(Launcher.getSVGManager().downloadOutline(ThemeManager.createPaintBinding(), 25.0D, 25.0D));
     }
 
     public void onExitPage() {

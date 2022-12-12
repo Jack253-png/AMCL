@@ -6,7 +6,7 @@ import com.mcreater.amcl.util.net.FasterUrls;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class AssetsDownloadTask extends DownloadTask{
+public class AssetsDownloadTask extends DownloadTask {
     String hash;
     int chunkSize;
     public AssetsDownloadTask(String hash, String assets_objects_dir, FasterUrls.Servers server) {

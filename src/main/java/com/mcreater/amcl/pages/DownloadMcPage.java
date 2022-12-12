@@ -2,8 +2,9 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.utils.JFXSmoothScroll;
-import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
+import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.VanilaVersionContent;
 import com.mcreater.amcl.download.GetVersionList;
@@ -11,26 +12,27 @@ import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
-//import javafx.application.Platform;
 import com.mcreater.amcl.util.FXUtils.Platform;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
-import javafx.beans.binding.Bindings;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
 import javafx.scene.control.TitledPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
+import java.awt.*;
 import java.util.Objects;
 import java.util.Vector;
-import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
@@ -41,6 +43,8 @@ import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
 import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
 
 public class DownloadMcPage extends AbstractAnimationPage {
     VBox mainBox;
@@ -79,7 +83,6 @@ public class DownloadMcPage extends AbstractAnimationPage {
         load = new JFXButton();
         load.setFont(Fonts.s_f);
         load.setOnAction(event -> loadVersions());
-        load.setGraphic(Launcher.getSVGManager().refresh(Bindings.createObjectBinding((Callable<Paint>) () -> Color.BLACK), 30, 30));
         setting.setButtonType(JFXButton.ButtonType.RAISED);
         load.setButtonType(JFXButton.ButtonType.RAISED);
         FXUtils.ControlSize.set(setting, this.width / 4 / 4 * 3, 40);
@@ -114,8 +117,8 @@ public class DownloadMcPage extends AbstractAnimationPage {
             mainBox.setDisable(true);
             Platform.runLater(mainBox.getChildren()::clear);
             Platform.runLater(() -> mainBox.getChildren().add(bar));
-            mainBox.setStyle("-fx-background-color: rgba(255, 255, 255, 0.50)");
-            Vector<OriginalVersionModel> vs = null;
+            mainBox.setId("verList");
+            Vector<OriginalVersionModel> vs;
             try {
                 vs = GetVersionList.getOriginalList(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
             } catch (Exception e) {
@@ -135,6 +138,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 TitledPane pane = new TitledPane();
 
                 ThemeManager.applyNode(pane);
+                pane.setTextFill(reverse(ThemeManager.themeIconDark.get()));
                 panes.add(pane);
                 pane.setText(Launcher.languageManager.get("ui.downloadmcpage.types." + t));
                 pane.setFont(Fonts.s_f);
@@ -142,12 +146,11 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 SmoothableListView<VanilaVersionContent> listv = new SmoothableListView<>(width / 4 * 3, 300);
                 listv.setStyle("-fx-background-color: transparent");
                 Platform.runLater(() -> pane.setContent(listv.page));
-                Vector<OriginalVersionModel> finalVs = vs;
                 vs.forEach(model -> {
                     if (Objects.equals(model.type, t)) {
                         loaded.addAndGet(1);
                         listv.addItem(new VanilaVersionContent(model));
-                        JFXSmoothScroll.smoothScrollBarToValue(bar, ((double) loaded.get()) * 100 / finalVs.size());
+                        JFXSmoothScroll.smoothScrollBarToValue(bar, ((double) loaded.get()) * 100 / vs.size());
                     }
                 });
                 FXUtils.ControlSize.setWidth(listv, width / 3 * 2);
@@ -182,11 +185,9 @@ public class DownloadMcPage extends AbstractAnimationPage {
             if (bs instanceof HBox){
                 for (Node n : ((HBox) bs).getChildren()) {
                     n.setDisable(n == b);
-                    n.setStyle(n == b ? "-fx-background-color: rgba(0, 0, 0, .3)" : "-fx-background-color: transparent");
                 }
             }
             bs.setDisable(bs == b);
-            bs.setStyle(bs == b ? "-fx-background-color: rgba(0, 0, 0, .3)" : "-fx-background-color: transparent");
         }
     }
     public void setP1(AdvancedScrollPane p){
@@ -219,7 +220,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
         setting.setText(Launcher.languageManager.get("ui.downloadmcpage.menu._01"));
     }
     public void refreshType(){
-
+        load.setGraphic(Launcher.getSVGManager().refresh(ThemeManager.createPaintBinding(), 30, 30));
     }
 
     public void onExitPage() {

@@ -1,0 +1,14 @@
+.arrow-button .arrow {
+    -fx-background-color: white;
+    -fx-shape: "M 0 0 h 7 l -3.5 4 z";
+}
+.list-view {
+    -fx-background-color: rgba(0, 0, 0, 0.1);
+}
+.list-cell {
+    -fx-background-color: transparent;
+}
+* {
+    -fx-text-fill: white;
+    -jfx-unfocus-color: rgba(204, 204, 204);
+}

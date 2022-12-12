@@ -1,0 +1,8 @@
+* {
+    -fx-label-smoothing-type: lcd;
+    -fx-text-fill: white;
+}
+.root {
+    -fx-font-smoothing-type: -fx-label-smoothing-type;
+    -fx-text-fill: white;
+}

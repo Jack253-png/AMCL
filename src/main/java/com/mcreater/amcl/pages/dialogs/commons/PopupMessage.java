@@ -6,6 +6,8 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import javafx.animation.PathTransition;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -24,6 +26,8 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Vector;
+
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
 
 public class PopupMessage {
     static int contentHeight = 450;
@@ -71,7 +75,8 @@ public class PopupMessage {
         ThemeManager.loadButtonAnimates(l);
         return finalL;
     }
-    private static Labeled createMessageInternal(Labeled circle, String text){
+    private static Labeled createMessageInternal(Labeled circle, String text) {
+        ThemeManager.addLis((observable, oldValue, newValue) -> circle.setTextFill(reverse(newValue)));
         final Path path = new Path();
         int strWidth = 0;
         try {
@@ -89,7 +94,6 @@ public class PopupMessage {
             if (contentHeight == MESSAGE_BASE_HEIGHT - MESSAGE_MAX_NUM * MESSAGE_HEIGHT) contentHeight = MESSAGE_BASE_HEIGHT;
             contentHeight -= MESSAGE_HEIGHT;
         }
-        circle.setTextFill(Color.TRANSPARENT);
         hasMessages = true;
         mess.add(circle);
         path.getElements().add(new MoveTo(-245 + (double) strWidth / 2 / 100 * 101, contentHeight));
@@ -97,14 +101,13 @@ public class PopupMessage {
         Launcher.p.getChildren().add(circle);
         final PathTransition pathTransition = new PathTransition();
         pathTransition.setDuration(Duration.seconds(4.0));
-        pathTransition.setDelay(Duration.seconds(0.15));
+        pathTransition.setDelay(Duration.seconds(0));
         pathTransition.setPath(path);
         pathTransition.setNode(circle);
         pathTransition.setOrientation(PathTransition.OrientationType.ORTHOGONAL_TO_TANGENT);
         pathTransition.setCycleCount(2);
         pathTransition.setAutoReverse(true);
         pathTransition.play();
-        circle.setText(text);
         pathTransition.setOnFinished(event -> {
             Launcher.p.getChildren().removeAll(circle);
             mess.remove(circle);
@@ -119,7 +122,9 @@ public class PopupMessage {
                 p = circle.localToScene(0, 0);
             }
             while (p.getY() == 0 && p.getX() == 0);
-            Platform.runLater(() -> circle.setTextFill(Color.BLACK));
+            Platform.runLater(() -> {
+                circle.setText(text);
+            });
         }).start();
         return circle;
     }

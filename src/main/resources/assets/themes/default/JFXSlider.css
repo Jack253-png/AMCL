@@ -1,15 +1,32 @@
-.root .thumb {
-    -fx-background-color: rgba(173,216,246, 1.0);
-}
- 
-.root .track {
-    -fx-background-color: rgba(173,216,246, 1.0);
-}
- 
-.root .animated-thumb {
-    -fx-background-color: rgba(173,216,246, 1.0);
+.root .track,
+.root:vertical .track {
+    -fx-background-color: rgba(51, 51, 51);
 }
 
-.root .sliderValue {
-    -fx-font-size: 16;
+.root .thumb,
+.root:focused .thumb {
+    -fx-background-color: rgba(51, 51, 51);
+}
+
+.root .colored-track {
+    -fx-background-color: rgba(51, 51, 51);
+}
+
+.root .slider-value {
+    -fx-font-size: 12;
+    -fx-text-fill: white;
+    -fx-stroke: WHITE;
+}
+
+.jfx-slider .animated-thumb {
+    -fx-background-color: rgba(51, 51, 51);
+}
+
+.jfx-slider:min .thumb,
+.jfx-slider:min:focused .thumb {
+    -fx-background-color: rgba(51, 51, 51);
+}
+
+.jfx-slider:min .animated-thumb {
+    -fx-background-color: rgba(51, 51, 51);
 }

@@ -56,7 +56,6 @@ public class OriginalDownload {
         new File(version_dir).mkdirs();
 
         String version_json = HttpConnectionUtil.doGet(FasterUrls.fast(version_url, server));
-        System.out.println(FasterUrls.fast(version_url, server));
         vj = version_json;
 
         BufferedWriter bw = new BufferedWriter(new FileWriter(LinkPath.link(version_dir, version_name + ".json")));
@@ -102,7 +101,6 @@ public class OriginalDownload {
 
         AssetsModel m = new Gson().fromJson(result, AssetsModel.class);
         for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()){
-            System.out.println(entry);
             String hash = entry.getValue().get("hash");
             tasks.add(new AssetsDownloadTask(hash, assets_objects, chunk, server));
         }

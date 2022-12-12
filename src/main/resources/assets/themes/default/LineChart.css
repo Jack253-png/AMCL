@@ -7,3 +7,6 @@
 .chart-plot-background {
     -fx-background-color: transparent;
 }
+.chart-title {
+    -fx-text-fill: black;
+}

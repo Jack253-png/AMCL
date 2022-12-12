@@ -3,12 +3,18 @@ package com.mcreater.amcl.theme;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSlider;
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
+import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.animation.Timeline;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.WritableValue;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
@@ -16,7 +22,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.web.WebView;
+import javafx.scene.paint.Color;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -27,8 +33,11 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
+
 public class ThemeManager {
-    public static String themeName = "default";
+    public static String themeName = "dark";
+    public static final SimpleObjectProperty<Color> themeIconDark = new SimpleObjectProperty<>(Color.BLACK);
     static Logger logger = LogManager.getLogger(ThemeManager.class);
     static Vector<JFXButton> buttons = new Vector<>();
     static Map<Parent, String> simpleParentsConstable = new ConcurrentHashMap<>();
@@ -54,12 +63,26 @@ public class ThemeManager {
             }
         }
     }
+    public static void addLis(ChangeListener<Color> listener) {
+        listener.changed(themeIconDark, themeIconDark.get(), themeIconDark.get());
+        themeIconDark.addListener((observable, oldValue, newValue) -> {
+            listener.changed(observable, oldValue, newValue);
+            System.out.println("tset");
+        });
+    }
+
+    public static ObjectBinding<Color> createPaintBinding() {
+        return Bindings.createObjectBinding(() -> reverse(themeIconDark.get()));
+    }
+
     public static void applyNode(Parent n) {
-        n.getStylesheets().add(String.format(ThemeManager.getPath(), n.getClass().getSimpleName()));
-        simpleParentsConstable.put(n, n.getClass().getSimpleName());
+        applyNode(n, n.getClass().getSimpleName());
     }
     public static void applyNode(Parent n, String clazz) {
-        n.getStylesheets().add(String.format(ThemeManager.getPath(), clazz));
+        String sheetPath = String.format(ThemeManager.getPath(), n.getClass().getSimpleName());
+        if (!(ResourceGetter.get(sheetPath) == null)) {
+            n.getStylesheets().add(sheetPath);
+        }
         simpleParentsConstable.put(n, clazz);
     }
     public static void apply(Vector<AbstractAnimationPage> pages) throws IllegalAccessException{
@@ -80,23 +103,22 @@ public class ThemeManager {
             loadButtonAnimates(n);
             String sheetPath = String.format(theme_base_path, themeName, n.getClass().getSimpleName());
             logger.info(String.format("loading style for control %s", n.getClass().getSimpleName()));
-            if (!(ResourceGetter.get(sheetPath) == null)){
+            if (n instanceof Parent) {
                 ((Parent) n).getStylesheets().clear();
                 ((Parent) n).getStylesheets().add(sheetPath);
-            }
-            else {
-                logger.warn(String.format("failed load style for control %s !", n.getClass().getSimpleName()));
             }
         }
         simpleParentsConstable.forEach((parent, s) -> parent.getStylesheets().clear());
         simpleParentsConstable.forEach(ThemeManager::applyNode);
     }
     public static Node loadSingleNodeAnimate(Node node){
+        if (node instanceof Parent) applyNode((Parent) node);
         loadButtonAnimates(node);
         return node;
     }
 
     public static void loadButtonAnimateParent(Node node){
+        if (node instanceof Parent) applyNode((Parent) node);
         generateAnimations(node, 0.6D, 1D, 200, node.opacityProperty());
     }
     public static void setButtonRadius(double radius){
@@ -107,7 +129,10 @@ public class ThemeManager {
 
         }
     }
-    public static void loadButtonAnimates(Node... nodes){
+    public static void loadButtonAnimates(Node... nodes) {
+        for (Node n : nodes) {
+            if (n instanceof Parent) applyNode((Parent) n);
+        }
         for (Node button : nodes) {
             if (button instanceof JFXButton){
                 ((JFXButton) button).setButtonType(JFXButton.ButtonType.RAISED);
@@ -118,7 +143,7 @@ public class ThemeManager {
                 button.setCursor(Cursor.HAND);
             }
 
-            if (!(button instanceof Pane) && !(button instanceof AdvancedScrollPane) && !(button instanceof WebView)) {
+            if (!(button instanceof Pane) && !(button instanceof AdvancedScrollPane)) {
                 generateAnimations(button, 0.6D, 1D, 200, button.opacityProperty());
             }
             else if (button instanceof Pane){
@@ -160,5 +185,12 @@ public class ThemeManager {
             }
         });
         return Descendents;
+    }
+
+    public static void freshTheme() throws IllegalAccessException {
+        ThemeManager.apply(LanguageManager.bindedPages);
+        ThemeManager.applyTopBar(Launcher.top);
+        Launcher.setPageCore();
+        LanguageManager.bindedPages.forEach(AbstractAnimationPage::refreshType);
     }
 }

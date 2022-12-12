@@ -73,7 +73,7 @@ public class OptifineDownload {
         jar.invokeMethod(
                 installer,
                 "installOptiFineLibrary",
-                new Object[]{id, ofEd, new File(LinkPath.link(minecraft_dir, "libraries")), false},
+                new Object[]{version_name, ofEd, new File(LinkPath.link(minecraft_dir, "libraries")), false},
                 String.class, String.class, File.class, boolean.class);
 
         // from 1.13
@@ -91,20 +91,14 @@ public class OptifineDownload {
         jar.invokeMethod(
                 installer,
                 "updateJson",
-                new Object[]{new File(LinkPath.link(minecraft_dir, "versions")), version_name, new File(LinkPath.link(minecraft_dir, "libraries")), id, ofEd},
+                new Object[]{new File(LinkPath.link(minecraft_dir, "versions")), version_name, new File(LinkPath.link(minecraft_dir, "libraries")), version_name, ofEd},
                 File.class, String.class, File.class, String.class, String.class);
 
         // merge json
         JSONObject f = new JSONObject(new Gson().fromJson(FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)), Map.class));
         Vector<Map<String, String>> oflibs = new Vector<>();
         for (Object o : f.getJSONArray("libraries")){
-            Map<String, String> s = (Map<String, String>) o;
-            if (s.get("name").contains("optifine:OptiFine")){
-                List<String> l = new ArrayList<>(J8Utils.createList(s.get("name").split(":")));
-                l.set(2, String.format("%s_%s", id, ofEd));
-                s.put("name", String.join(":", l));
-            }
-            oflibs.add(s);
+            oflibs.add((Map<String, String>) o);
         }
         f.getJSONArray("libraries").clear();
         f.getJSONArray("libraries").addAll(oflibs);

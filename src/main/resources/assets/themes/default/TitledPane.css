@@ -1,7 +1,7 @@
 .titled-pane
 {
     -fx-skin: "javafx.scene.control.skin.TitledPaneSkin";
-    -fx-text-fill: rgb(0,0,0);
+    -fx-text-fill: black;
 }
 .titled-pane:focused
 {

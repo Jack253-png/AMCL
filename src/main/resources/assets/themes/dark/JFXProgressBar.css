@@ -1,0 +1,12 @@
+.bar {
+    -fx-background-color: rgb(204, 204, 204);
+}
+#game-memory .bar {
+    -fx-background-color: rgb(120, 120, 120);
+}
+#game-memory-up .bar {
+    -fx-background-color: rgb(204, 204, 204);
+}
+* .track {
+    -fx-background-color: transparent;
+}
