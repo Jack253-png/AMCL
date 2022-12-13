@@ -48,29 +48,53 @@ public class ForgeOptifineDownload {
         int installer = jar.createNewInstance(jar.getJarClass("optifine.Installer"));
         r5.run();
 
-        String ofVer = (String) jar.invokeNoArgsMethod(
-                installer,
-                "getOptiFineVersion");
-        String[] ofVers = (String[]) jar.invokeStaticMethod(
-                jar.getJarClass("optifine.Utils"),
-                "tokenize",
-                new String[]{ofVer, "_"},
-                String.class, String.class);
 
-        String ofEd = (String) jar.invokeMethod(
-                installer,
-                "getOptiFineEdition",
-                new Object[]{ofVers},
-                String[].class);
+
+        String ofEd;
+
+        try {
+            String ofVer = (String) jar.invokeNoArgsMethod(
+                    installer,
+                    "getOptiFineVersion");
+            String[] ofVers = (String[]) jar.invokeStaticMethod(
+                    jar.getJarClass("optifine.Utils"),
+                    "tokenize",
+                    new String[]{ofVer, "_"},
+                    String.class, String.class);
+            ofEd = (String) jar.invokeMethod(
+                    installer,
+                    "getOptiFineEdition",
+                    new Object[]{ofVers},
+                    String[].class);
+        }
+        catch (Exception e) {
+            ofEd = optifine_version;
+        }
 
         // optifine main jar
-        jar.invokeMethod(
-                installer,
-                "installOptiFineLibrary",
-                new Object[]{version_name, ofEd, new File(FileUtils.LinkPath.link(minecraft_dir, "libraries")), false},
-                String.class, String.class, File.class, boolean.class);
+//        jar.invokeMethod(
+//                installer,
+//                "installOptiFineLibrary",
+//                new Object[]{version_name, ofEd, new File(FileUtils.LinkPath.link(minecraft_dir, "libraries")), false},
+//                String.class, String.class, File.class, boolean.class);
 
-        String libPath = String.format("optifine:OptiFine:%s_%s", version_name, ofEd);
+        String fileSrc = new File("opti.jar").getAbsolutePath();
+        String fileBase = FileUtils.LinkPath.link(minecraft_dir, String.format("versions/%s/%s.jar", version_name, version_name));
+        String fileDest = FileUtils.LinkPath.link(minecraft_dir, String.format("libraries/optifine/Optifine/%s_%s/OptiFine-%s_%s.jar", id, ofEd, id, ofEd));
+        new File(fileDest).getParentFile().mkdirs();
+
+        jar.invokeStaticMethod(
+                jar.getJarClass("optifine.Patcher"),
+                "process",
+                new File[]{
+                        new File(fileBase),
+                        new File(fileSrc),
+                        new File(fileDest)
+                },
+                File.class, File.class, File.class
+        );
+
+        String libPath = String.format("optifine:OptiFine:%s_%s", id, ofEd);
         JSONObject ob = JSON.parseObject(vj);
 
         JSONObject obj2 = new JSONObject();

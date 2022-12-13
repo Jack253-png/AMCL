@@ -196,8 +196,20 @@ public class ForgeDownload {
                         for (File f : new File(p).listFiles()) {
                             if (f.isFile()) {
                                 if (f.getPath().endsWith(".jar")) {
-                                    if (f.getPath().replace(".jar", "").contains(FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name)).replace(".jar", ""))) {
-                                        f.renameTo(new File(FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name))));
+                                    String excepted = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name))
+                                            .replace(".jar", "")
+                                            .replace("\\", "/");
+                                    String orig = f.getPath()
+                                            .replace(".jar", "")
+                                            .replace("\\", "/");
+
+                                    if (orig.contains(excepted)) {
+                                        try {
+                                            f.renameTo(new File(FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name))));
+                                        }
+                                        catch (Exception ignored) {
+
+                                        }
                                     }
                                 }
                             }
