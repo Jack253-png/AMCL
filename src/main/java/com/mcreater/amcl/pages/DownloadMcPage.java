@@ -122,7 +122,10 @@ public class DownloadMcPage extends AbstractAnimationPage {
             try {
                 vs = GetVersionList.getOriginalList(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
             } catch (Exception e) {
-                load.setDisable(false);
+                Platform.runLater(() -> {
+                    load.setDisable(false);
+                    bar.setProgress(1.0);
+                });
                 SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"));
                 return;
             }

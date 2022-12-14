@@ -7,22 +7,30 @@ import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
-import javafx.animation.*;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
+import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -30,7 +38,14 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import static com.mcreater.amcl.Launcher.*;
+import javax.imageio.ImageIO;
+
+import java.io.File;
+
+import static com.mcreater.amcl.Launcher.height;
+import static com.mcreater.amcl.Launcher.radius;
+import static com.mcreater.amcl.Launcher.width;
+import static com.mcreater.amcl.Launcher.wrapper;
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
 
 public abstract class AbstractDialog extends JFXAlert<String> {
@@ -43,8 +58,6 @@ public abstract class AbstractDialog extends JFXAlert<String> {
     public final SimpleDoubleProperty dialogNowRadius = new SimpleDoubleProperty(0);
 
     public final SimpleDoubleProperty dialogExceptedRadius = new SimpleDoubleProperty(0);
-    private final SimpleDoubleProperty dialogWidth = new SimpleDoubleProperty(-1);
-    private final SimpleDoubleProperty dialogHeight = new SimpleDoubleProperty(-1);
 
     static {
         dialogs.addListener((ListChangeListener<AbstractDialog>) c -> exceptedRadius.set(c.getList().size() == 0 ? 0 : blurRadius));
@@ -73,15 +86,6 @@ public abstract class AbstractDialog extends JFXAlert<String> {
             }
         }.start();
     }
-
-    public double getDialogWidth() {
-        return dialogWidth.get();
-    }
-    public double getDialogHeight() {
-        return dialogHeight.get();
-    }
-
-    boolean cliped;
     public AbstractDialog(Stage stage) {
         super(stage);
 //        getDialogPane().setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -125,27 +129,8 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         setOnShowing(event -> dialogs.add(this));
         setOnCloseRequest(event -> dialogs.remove(this));
         setOnShown(event -> {
-            SnapshotParameters parameters = new SnapshotParameters();
-            parameters.setFill(Color.TRANSPARENT);
-            Node par;
-
-            try {
-                par = ((Pane) getDialogPane().getContent()).getChildren().get(0);
-            } catch (Exception e) {
-                return;
-            }
-
-            WritableImage image = par.snapshot(parameters, null);
-            int width = (int) image.getWidth();
-            int height = (int) image.getHeight();
-            if (!cliped) {
-                width -= 10;
-                height -= 10;
-                cliped = true;
-            }
-            dialogWidth.set(width);
-            dialogHeight.set(height);
-            par.setClip(FXUtils.generateRect(width, height, dialogRadius.get()));
+            updateBounds();
+            FXUtils.toNodeClass(getDialogPane().getContent(), Pane.class).getChildren().get(0).layoutBoundsProperty().addListener((observable, oldValue, newValue) -> updateBounds());
         });
 
         dialogNowRadius.addListener((observable, oldValue, newValue) -> getDialogPane().setEffect(new GaussianBlur(newValue.intValue())));
@@ -153,19 +138,30 @@ public abstract class AbstractDialog extends JFXAlert<String> {
 
         setHideOnEscape(false);
     }
+    private void updateBounds() {
+        Node item = FXUtils.toNodeClass(getDialogPane().getContent(), Pane.class).getChildren().get(0);
+        Bounds bound = item.getLayoutBounds();
+        if (bound.getWidth() > 0 && bound.getHeight() > 0) {
+            getDialogPane().getContent().setClip(FXUtils.generateRect(
+                    bound.getWidth(),
+                    bound.getHeight(),
+                    radius.get()
+            ));
+        }
+    }
     public void setContent(Node... content) {
         ThemeManager.addLis((observable, oldValue, newValue) -> FXUtils.toNodeClass(
-                FXUtils.toNodeClass(
-                        getDialogPane().getContent(), Pane.class
-                ).getChildren().get(0),
-                Region.class
-        ).setBackground(new Background(
-                new BackgroundFill(
-                        transparent(newValue, 0.8),
-                        CornerRadii.EMPTY,
-                        Insets.EMPTY
-                )
-        )));
+                getDialogPane().getContent(), Pane.class
+        ).getChildren().forEach(node -> {
+            if (node instanceof Region)
+                ((Region) node).setBackground(new Background(
+                        new BackgroundFill(
+                                transparent(newValue, 0.8),
+                                CornerRadii.EMPTY,
+                                Insets.EMPTY
+                        )
+                ));
+        }));
 
         super.setContent(content);
     }

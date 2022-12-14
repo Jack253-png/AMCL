@@ -77,6 +77,7 @@ public class SimpleDialogCreater {
         FXUtils.ControlSize.setWidth(box, width);
 
         AdvancedScrollPane page = new AdvancedScrollPane(400, 300, box, false);
+        page.setId("opc");
         page.lThread.stop();
 
         ThemeManager.applyNode(page);
