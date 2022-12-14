@@ -41,6 +41,7 @@ import javafx.util.Duration;
 import javax.imageio.ImageIO;
 
 import java.io.File;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.height;
 import static com.mcreater.amcl.Launcher.radius;
@@ -129,8 +130,9 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         setOnShowing(event -> dialogs.add(this));
         setOnCloseRequest(event -> dialogs.remove(this));
         setOnShown(event -> {
-            updateBounds();
-            FXUtils.toNodeClass(getDialogPane().getContent(), Pane.class).getChildren().get(0).layoutBoundsProperty().addListener((observable, oldValue, newValue) -> updateBounds());
+            FXUtils.toNodeClass(getDialogPane().getContent(), Pane.class).getChildren().forEach(this::updateBounds);
+
+            FXUtils.toNodeClass(getDialogPane().getContent(), Pane.class).getChildren().forEach(node -> node.layoutBoundsProperty().addListener((observable, oldValue, newValue) -> updateBounds(node)));
         });
 
         dialogNowRadius.addListener((observable, oldValue, newValue) -> getDialogPane().setEffect(new GaussianBlur(newValue.intValue())));
@@ -138,8 +140,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
 
         setHideOnEscape(false);
     }
-    private void updateBounds() {
-        Node item = FXUtils.toNodeClass(getDialogPane().getContent(), Pane.class).getChildren().get(0);
+    private void updateBounds(Node item) {
         Bounds bound = item.getLayoutBounds();
         if (bound.getWidth() > 0 && bound.getHeight() > 0) {
             getDialogPane().getContent().setClip(FXUtils.generateRect(
