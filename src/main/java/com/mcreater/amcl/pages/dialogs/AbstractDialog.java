@@ -13,38 +13,26 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import javax.imageio.ImageIO;
-
-import java.io.File;
-import java.util.function.Consumer;
-
 import static com.mcreater.amcl.Launcher.height;
-import static com.mcreater.amcl.Launcher.radius;
 import static com.mcreater.amcl.Launcher.width;
 import static com.mcreater.amcl.Launcher.wrapper;
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
@@ -129,11 +117,10 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         getDialogPane().setClip(r);
         setOnShowing(event -> dialogs.add(this));
         setOnCloseRequest(event -> dialogs.remove(this));
-        setOnShown(event -> {
-            FXUtils.toNodeClass(getDialogPane().getContent(), Pane.class).getChildren().forEach(this::updateBounds);
-
-            FXUtils.toNodeClass(getDialogPane().getContent(), Pane.class).getChildren().forEach(node -> node.layoutBoundsProperty().addListener((observable, oldValue, newValue) -> updateBounds(node)));
-        });
+        setOnShown(event -> FXUtils.toNodeClass(getDialogPane().getContent(), Pane.class).getChildren().forEach(node -> {
+            updateBounds(node);
+            node.layoutBoundsProperty().addListener((observable, oldValue, newValue) -> updateBounds(node));
+        }));
 
         dialogNowRadius.addListener((observable, oldValue, newValue) -> getDialogPane().setEffect(new GaussianBlur(newValue.intValue())));
         dialogs.addListener((ListChangeListener<AbstractDialog>) c -> onDialogListChange());
@@ -146,7 +133,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
             getDialogPane().getContent().setClip(FXUtils.generateRect(
                     bound.getWidth(),
                     bound.getHeight(),
-                    radius.get()
+                    dialogRadius.get()
             ));
         }
     }
