@@ -48,6 +48,7 @@ public class ForgeDownload {
     static String u = "";
 
     public static void download(String id, String minecraft_dir, String version_name, int chunkSize, NewForgeItemModel forge_version, Runnable r3, Runnable r, Runnable r2, FasterUrls.Servers server) throws Exception {
+        if (FileUtils.getJavaExecutable() == null) throw new IOException("Java executable not found.");
         tasks.clear();
         ForgeDownload.chunkSize = chunkSize;
         String temp_path = "forgeTemp";

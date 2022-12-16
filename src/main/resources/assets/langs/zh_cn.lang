@@ -32,7 +32,7 @@ ui.configpage.java_choose.title=选择 Java 可执行文件
 ui.configpage.java_choose.filename.description=Java 可执行文件
 ui.configpage.java_get.name=获取
 ui.configpage.java_info.title=Java 信息
-ui.configpage.java_info.Headercontent=版本 = %s\n位数 = %s\n公司 = %s\n类型 = %s
+ui.configpage.java_info.Headercontent=版本 = %s\n位数 = %s
 ui.configpage.select_java.title=Java 选择
 ui.configpage.select_java.Headercontent=请选择一个 Java 可执行文件
 ui.configpage.lang_label.name=语言

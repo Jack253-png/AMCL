@@ -1,10 +1,15 @@
 package com.mcreater.amcl.patcher;
 
+import com.mcreater.amcl.util.java.JavaInfoGetter;
+
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 public class ClassPathInjector {
     static Object ucp = null;
@@ -33,6 +38,17 @@ public class ClassPathInjector {
             }
         }
         checkJavaFXState();
+    }
+    public static int getJavaVersion(File ori) throws ExecutionException, InterruptedException {
+        int version;
+        String[] ful = JavaInfoGetter.get(ori).get(0).split("\\.");
+        if (Integer.parseInt(ful[0]) == 1){
+            version = Integer.parseInt(ful[1]);
+        }
+        else {
+            version = Integer.parseInt(ful[0]);
+        }
+        return version;
     }
     public static void checkJavaFXState() {
         try {

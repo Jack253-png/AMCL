@@ -28,7 +28,7 @@ public class JavaInfoGetter implements Callable<Vector<String>> {
             resu = Launch.ret(proc.getErrorStream());
             Vector<String> compled = fromArrayToVector(resu.split("\n"));
             Vector<String> version_info = fromArrayToVector(compled.get(0).split(" "));
-            String version = "";
+            String version = "1.0.0";
             for (String s : version_info){
                 if (s.contains(".")){
                     version = s;
@@ -36,24 +36,14 @@ public class JavaInfoGetter implements Callable<Vector<String>> {
                 }
             }
             String bits = "32";
-            String type = "JRE";
-            String company = "Oracle";
             version = version.replace("\"", "");
             version = version.replace("_", " update ");
             if (compled.get(2).contains("64")){
                 bits = "64";
             }
-            if (fromArrayToVector(version.split(" ")).get(0).replace("(TM)", "").equals("OpenJDK")){
-                company = "Eclipse";
-            }
-            if (new File(change_filename(f.getPath(), "javac.exe")).exists() && new File(change_filename(f.getPath(), "jar.exe")).exists()){
-                type = "JDK";
-            }
             Vector<String> r = new Vector<>();
             r.add(version);
             r.add(bits);
-            r.add(company);
-            r.add(type);
             return r;
         }
         catch (IOException ignored){

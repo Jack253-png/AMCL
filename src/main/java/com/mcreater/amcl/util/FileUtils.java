@@ -1,27 +1,87 @@
 package com.mcreater.amcl.util;
 
+import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.nativeInterface.PosixHandler;
+import com.mcreater.amcl.patcher.ClassPathInjector;
+import com.mcreater.amcl.util.java.JavaInfoGetter;
 import jnr.posix.POSIX;
 import jnr.posix.POSIXFactory;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.file.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 public class FileUtils {
     public static String getJavaExecutable() {
-        return FileUtils.LinkPath.link(System.getProperty("java.home"), "bin/java.exe").replace("\\", "/");
+        String env = getJavaExecutableInEnv();
+        if (env != null) return env;
+        Vector<File> path = getJavaExecutableInPath();
+        if (path.size() > 0) {
+            return path.get(0).getAbsolutePath();
+        }
+        return null;
+    }
+    private static Vector<File> getJavaExecutableInPath() {
+        String[] arg = System.getenv("Path").split(File.pathSeparator);
+        Vector<Thread> threads = new Vector<>();
+        CountDownLatch latch = new CountDownLatch(arg.length);
+        Vector<File> paths = new Vector<>();
+        for (String p : arg) {
+            threads.add(new Thread(() -> {
+                try {
+                    File[] files = new File(p).listFiles((dir, name) -> name.contains(OSInfo.isWin() ? "java.exe" : "java"));
+                    if (files != null) {
+                        for (File f : files) {
+                            if (ClassPathInjector.getJavaVersion(f) >= 8) {
+                                paths.add(f);
+                            }
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                latch.countDown();
+            }));
+        }
+        threads.forEach(Thread::start);
+        try {latch.await();}
+        catch (Exception ignored) {}
+
+        return paths;
+    }
+    private static String getJavaExecutableInEnv() {
+        try {
+            File envPath = new File(System.getenv("JAVA_HOME"), OSInfo.isWin() ? "java.exe" : "java");
+            if (ClassPathInjector.getJavaVersion(envPath) >= 8) return envPath.getPath();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     public static class ChangeDir {
         public static String dirs;

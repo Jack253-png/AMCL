@@ -19,6 +19,7 @@ import java.io.IOException;
 
 public class ForgeOptifineDownload {
     public static void download(String id, String minecraft_dir, String version_name, int chunkSize, NewForgeItemModel forge_version, Runnable r3, Runnable r, Runnable r2, String optifine_version, Runnable r4, Runnable r5, FasterUrls.Servers server) throws Exception {
+        if (FileUtils.getJavaExecutable() == null) throw new IOException("Java executable not found.");
         OptifineAPIModel model = GetVersionList.getOptifineVersionRaw();
         if (!model.versions.contains(id)){
             throw new IOException();

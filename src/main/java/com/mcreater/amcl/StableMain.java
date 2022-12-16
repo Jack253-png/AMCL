@@ -9,6 +9,7 @@ import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.patcher.DepenciesLoader;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
+import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.SwingUtils;
@@ -23,6 +24,7 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.*;
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.Vector;
 
 public class StableMain {
@@ -52,6 +54,7 @@ public class StableMain {
     public static void main(String[] args) throws Exception {
         System.setProperty("log4j.skipJansi", "false");
         System.setProperty("com.sun.webkit.useHTTP2Loader", "false");
+
         GithubReleases.trustAllHosts();
         Fonts.loadSwingFont();
         initPreLanguageManager();
