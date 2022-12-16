@@ -3,7 +3,6 @@ package com.mcreater.amcl.util;
 import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.nativeInterface.PosixHandler;
 import com.mcreater.amcl.patcher.ClassPathInjector;
-import com.mcreater.amcl.util.java.JavaInfoGetter;
 import jnr.posix.POSIX;
 import jnr.posix.POSIXFactory;
 
@@ -27,7 +26,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
-import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.zip.ZipEntry;
@@ -41,6 +39,27 @@ public class FileUtils {
         Vector<File> path = getJavaExecutableInPath();
         if (path.size() > 0) {
             return path.get(0).getAbsolutePath();
+        }
+        return getCurrentJavaExecutable();
+    }
+    public static String getCurrentJavaExecutable() {
+        String home = System.getProperty("java.home");
+        if (OSInfo.isMac()) {
+            home = LinkPath.link(home, "Contents/Home/bin/java");
+        }
+        else if (OSInfo.isLinux()) {
+            home = LinkPath.link(home, "bin/java");
+        }
+        else {
+            home = LinkPath.link(home, "bin/java.exe");
+        }
+        try {
+            if (ClassPathInjector.getJavaVersion(new File(home)) >= 8) {
+                return home;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
