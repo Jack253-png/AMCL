@@ -81,13 +81,11 @@ public abstract class TaskManager {
                         while (true) {
                             try {
                                 t.execute();
-                                System.out.println("task finished: " + t);
+                                System.out.println("\ntask finished: " + t);
                                 latch.countDown();
                                 break;
-                            } catch (Error e1) {
-                                break;
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                            } catch (Throwable e1) {
+                                e1.printStackTrace();
                             }
                         }
 

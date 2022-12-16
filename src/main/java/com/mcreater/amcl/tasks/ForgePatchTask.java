@@ -4,6 +4,7 @@ import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.api.reflect.ReflectedJar;
 import com.mcreater.amcl.download.ForgeDownload;
 import com.mcreater.amcl.game.launch.Launch;
+import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.StringUtils;
@@ -37,7 +38,7 @@ public class ForgePatchTask extends AbstractExecutableTask {
             b.append(s1).append(File.pathSeparator);
         }
         b.replace(b.length(), b.length(), "\"");
-        this.command = String.format("\"%s\" %s %s %s", LinkPath.link(System.getProperty("java.home"), "bin/java.exe"), b, mainClass, args);
+        this.command = String.format("\"%s\" %s %s %s", FileUtils.getJavaExecutable(), b, mainClass, args);
         this.jar = mainjar;
         this.args_array = args_array;
         this.server = server;

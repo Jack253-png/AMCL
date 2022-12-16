@@ -20,6 +20,9 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 public class FileUtils {
+    public static String getJavaExecutable() {
+        return FileUtils.LinkPath.link(System.getProperty("java.home"), "bin/java.exe").replace("\\", "/");
+    }
     public static class ChangeDir {
         public static String dirs;
 

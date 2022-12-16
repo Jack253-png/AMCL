@@ -19,7 +19,6 @@ import com.mcreater.amcl.tasks.LibDownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
-import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.net.GetFileExists;
@@ -81,8 +80,6 @@ public class ForgeDownload {
         }
         String lib_base = FileUtils.LinkPath.link(minecraft_dir, "libraries");
 
-        SimpleFunctions.Arg0Func<String> getJavaExecutable = () -> FileUtils.LinkPath.link(System.getProperty("java.home"), "bin/java.exe").replace("\\", "/");
-
         if (new File(versionPath).exists()){
             String t = FileUtils.FileStringReader.read(versionPath);
             Gson g = new Gson();
@@ -93,7 +90,7 @@ public class ForgeDownload {
                 ao.getJSONArray("libraries").put(g.fromJson(g.toJson(m, LibModel.class), Map.class));
                 if (Objects.equals(m.downloads.artifact.get("url"), "")){
                     String extract = StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path")));
-                    String com = String.format("\"%s\" -jar %s --extract %s", getJavaExecutable.run(), installer_path.replace("\\", "/"), extract);
+                    String com = String.format("\"%s\" -jar %s --extract %s", FileUtils.getJavaExecutable(), installer_path.replace("\\", "/"), extract);
                     int returnCode = new ForgeExtractTask(com, extract, installer_path.replace("\\", "/"), new String[]{"--extract", extract}).execute();
                     if (returnCode != 0){
                         throw new IOException("Install Failed");
@@ -140,7 +137,7 @@ public class ForgeDownload {
                 }
             }
             mapplings.put("{SIDE}", "client");
-            mapplings.put("{MINECRAFT_JAR}", String.format("%s/versions/%s/%s.jar", minecraft_dir.replace("\\", "/"), version_name, version_name));
+            mapplings.put("{MINECRAFT_JAR}", String.format("\"%s/versions/%s/%s.jar\"", minecraft_dir.replace("\\", "/"), version_name, version_name));
             mapplings.put("{BINPATCH}", "forgeTemp/data/client.lzma");
             r2.run();
             Vector<Task> tasks2 = new Vector<>();
@@ -168,7 +165,7 @@ public class ForgeDownload {
             TaskManager.addTasks(tasks2);
             TaskManager.executeForge("<forge build>");
         }
-        else{
+        else {
             String rr = FileUtils.LinkPath.link(temp_path, "install_profile.json");
             String rw = FileUtils.FileStringReader.read(rr);
             Gson g = new Gson();
@@ -187,7 +184,7 @@ public class ForgeDownload {
                         String i = FileUtils.LinkPath.link(FileUtils.ChangeDir.dirs, installer_path).replace("\\", "/");
                         FileUtils.ChangeDir.changeTo(p);
                         System.out.println(p);
-                        String com = String.format("\"%s\" -jar %s --extract", getJavaExecutable.run(), i);
+                        String com = String.format("\"%s\" -jar %s --extract", FileUtils.getJavaExecutable(), i);
                         if (new ForgeExtractTask(com, p, i, new String[]{"--extract"}).execute() != 0) {
                             throw new IOException("Forge Extract Failed");
                         }
