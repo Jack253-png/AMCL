@@ -18,6 +18,7 @@ import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
+import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
@@ -214,7 +215,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 install.setDisable(false);
                 return;
             }
-            else if (!isValidFileName(rl) || rl.equals("")){
+            else if (!isValidFileName(rl) || rl.equals("") || rl.endsWith(" ")){
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.2"), "");
                 install.setDisable(false);
                 return;
@@ -475,16 +476,20 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
     }
 
     public static boolean isValidFileName(String fileName) {
-
         if (fileName == null || fileName.length() > 255) {
             return false;
         }
         else {
-            Vector<String> invaildNames = new Vector<>(J8Utils.createList("con", "aux", "com1", "com2", "com3", "com4", "lpt1", "lpt2", "lpt3", "prn", "nul", ""));
-            if (invaildNames.contains(fileName.toLowerCase())){
-                return false;
+            if (OSInfo.isWin()) {
+                Vector<String> invaildNames = new Vector<>(J8Utils.createList("con", "aux", "com1", "com2", "com3", "com4", "lpt1", "lpt2", "lpt3", "prn", "nul", ""));
+                if (invaildNames.contains(fileName.toLowerCase())) {
+                    return false;
+                }
+                return fileName.matches("[^\\s\\\\/:\\*\\?\\\"<>\\|](\\x20|[^\\s\\\\/:\\*\\?\\\"<>\\|])*[^\\s\\\\/:\\*\\?\\\"<>\\|\\.]$");
             }
-            return fileName.matches("[^\\s\\\\/:\\*\\?\\\"<>\\|](\\x20|[^\\s\\\\/:\\*\\?\\\"<>\\|])*[^\\s\\\\/:\\*\\?\\\"<>\\|\\.]$");
+            else {
+                return true;
+            }
         }
     }
     public void setVersionId(OriginalVersionModel model){

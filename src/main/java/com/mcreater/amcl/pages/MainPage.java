@@ -355,6 +355,7 @@ public class MainPage extends AbstractAnimationPage {
             }
         }
         catch (Exception e) {
+            e.printStackTrace();
             clean_null_version();
             downloadMc.setDisable(false);
         }

@@ -29,7 +29,6 @@ public class MicrosoftLoginDialog extends AbstractDialog {
         cancel.setOnAction(event);
     }
     public MicrosoftLoginDialog(String title) {
-
         super(stage);
         JFXDialogLayout layout = new JFXDialogLayout();
         cancel = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));

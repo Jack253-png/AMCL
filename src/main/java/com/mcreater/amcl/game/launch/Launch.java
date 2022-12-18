@@ -33,7 +33,6 @@ import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.LogLineDetecter;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.VersionInfo;
-import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.java.JVMArgs;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.system.MemoryReader;
@@ -273,7 +272,7 @@ public class Launch {
             }
             arguments += String.valueOf(agm);
         }
-        arguments = arguments.replace("${assets_root}",LinkPath.link(dir, "assets"));
+        arguments = arguments.replace("${assets_root}","\"" + LinkPath.link(dir, "assets") + "\"");
         if (r.assetIndex != null) {
             if (r.assetIndex.get("id") != null) {
                 arguments = arguments.replace("${assets_index_name}", r.assetIndex.get("id"));
@@ -281,16 +280,16 @@ public class Launch {
         }
         arguments = arguments.replace("${auth_player_name}","\""+user.username+"\"");
         arguments = arguments.replace("${user_type}","mojang");
-        arguments = arguments.replace("${version_type}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_full_version));
+        arguments = arguments.replace("${version_type}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
         File gamedir;
         if (!ie) {gamedir = new File(dir);} else{gamedir = f;}
-        arguments = arguments.replace("${game_directory}", String.format("\"%s\"", gamedir.getPath()));
+        arguments = arguments.replace("${game_directory}", String.format("\"%s\"", gamedir.getPath().replace("\\", "/")));
         arguments = arguments.replace("${user_properties}","{}");
         arguments = arguments.replace("${auth_uuid}",user.uuid);
         arguments = arguments.replace("${auth_access_token}",user.accessToken);
         arguments = arguments.replace("${auth_session}",user.accessToken);
-        arguments = arguments.replace("${game_assets}",LinkPath.link(dir, "assets"));
-        arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_full_version));
+        arguments = arguments.replace("${game_assets}","\"" + LinkPath.link(dir, "assets") + "\"");
+        arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
 
         arguments = arguments.replace("${resolution_width}",String.valueOf(854));
         arguments = arguments.replace("${resolution_height}",String.valueOf(480));
@@ -326,7 +325,7 @@ public class Launch {
         jvm = jvm.replace("${jar_path}", String.format("\"%s\"", jar_file.getPath()));
         jvm = jvm.replace("${native_path}",String.format("\"%s\"", nativef.getPath()));
         jvm = jvm.replace("${launcher_brand}", VersionInfo.launcher_name);
-        jvm = jvm.replace("${launcher_version}", "\"" + VersionInfo.launcher_full_version + "\"");
+        jvm = jvm.replace("${launcher_version}", VersionInfo.launcher_version);
 
         if (r.arguments != null){
             if (r.arguments.jvm != null){
@@ -356,7 +355,7 @@ public class Launch {
                     StringBuilder forge_libs = new StringBuilder();
                     for (LibModel l : r.libraries) {
                         if ((l.name.contains("cpw.mods") || l.name.contains("org.ow2")) && !l.name.contains("modlauncher")) {
-                            forge_libs.append(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name).replace("\\", "/"))).append(";");
+                            forge_libs.append(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name).replace("\\", "/"))).append(File.pathSeparator);
                         }
                     }
                     forge_libs = new StringBuilder(forge_libs.substring(0, forge_libs.length() - 1));
