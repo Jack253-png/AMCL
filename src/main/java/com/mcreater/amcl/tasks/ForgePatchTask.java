@@ -1,7 +1,5 @@
 package com.mcreater.amcl.tasks;
 
-import com.mcreater.amcl.api.reflect.ReflectHelper;
-import com.mcreater.amcl.api.reflect.ReflectedJar;
 import com.mcreater.amcl.download.ForgeDownload;
 import com.mcreater.amcl.game.launch.Launch;
 import com.mcreater.amcl.util.FileUtils;
@@ -13,6 +11,7 @@ import com.mcreater.amcl.util.net.FasterUrls;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
@@ -23,8 +22,8 @@ public class ForgePatchTask extends AbstractExecutableTask {
     public Vector<String> classpath = new Vector<>();
     public String[] args_array;
     FasterUrls.Servers server;
-    public ForgePatchTask(String lib_base, String jar, Vector<String> classpath, String args, String[] args_array, FasterUrls.Servers server) throws IOException {
-        super("");
+    public ForgePatchTask(String lib_base, String jar, Vector<String> classpath, String[] args_array, FasterUrls.Servers server) throws IOException {
+        super(new Vector<>());
         Vector<String> jars = new Vector<>();
         String mainjar = LinkPath.link(lib_base, StringUtils.GetFileBaseDir.forgeGet(jar));
         String mainClass = GetJarMainClass.get(mainjar);
@@ -33,41 +32,38 @@ public class ForgePatchTask extends AbstractExecutableTask {
             jars.add(LinkPath.link(lib_base, StringUtils.GetFileBaseDir.forgeGet(s)));
         }
         this.classpath.addAll(jars);
-        StringBuilder b = new StringBuilder("-cp \"");
+        StringBuilder b = new StringBuilder("");
         for (String s1 : jars){
             b.append(s1).append(File.pathSeparator);
         }
-        b.replace(b.length(), b.length(), "\"");
-        this.command = String.format("\"%s\" %s %s %s", FileUtils.getJavaExecutable(), b, mainClass, args);
+        b.replace(b.length(), b.length(), "");
+        this.command.addAll(
+                J8Utils.createList(
+                        FileUtils.getJavaExecutable(),
+                        "-cp",
+                        b.toString(),
+                        mainClass
+                )
+        );
+        command.addAll(Arrays.asList(args_array));
+        System.out.println(command);
+
         this.jar = mainjar;
         this.args_array = args_array;
         this.server = server;
     }
     public Integer execute() throws IOException {
-        if (!command.contains("DOWNLOAD_MOJMAPS")) {
-//            return new_pa();
+        List<String> argList = Arrays.asList(args_array);
+        if (!argList.contains("DOWNLOAD_MOJMAPS")) {
             return old_pa();
         }
-        else{
-            List<String> l = J8Utils.createList(command.split(" "));
-            ForgeDownload.download_mojmaps(l.get(l.size() - 1), server);
+        else {
+            ForgeDownload.download_mojmaps(argList.get(argList.size() - 1), server);
             return 0;
-        }
-    }
-    public int new_pa() {
-        try {
-            ReflectedJar jar = ReflectHelper.getReflectedJar(this.classpath.toArray(new String[0]));
-            int main = jar.createNewInstance(jar.getJarClass(GetJarMainClass.get(this.jar)));
-            jar.invokeMethod(main, "main", new Object[]{args_array}, String[].class);
-            return 0;
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return 1;
         }
     }
     public int old_pa() throws IOException {
-        Process p = Runtime.getRuntime().exec(command);
+        Process p = Runtime.getRuntime().exec(command.toArray(new String[0]));
         while (true) {
             try {
                 CountDownLatch latch = new CountDownLatch(2);

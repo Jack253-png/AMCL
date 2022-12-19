@@ -56,21 +56,19 @@ import java.net.BindException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 
 public class Launch {
-    String java;
-    String jvm;
-    String mem;
-    String mainClass;
-    String arguments;
-    String forge_jvm;
-    String forgevm = "";
     public Process p;
     Logger logger = LogManager.getLogger(this.getClass());
     SimpleObjectProperty<StringBuilder> logProperty = new SimpleObjectProperty<>(new StringBuilder());
+
+    Vector<String> argList = new Vector<>();
     private BiConsumer<ImmutablePair<Integer, Integer>, String> updater = (integerIntegerImmutablePair, s) -> {};
     private Runnable failedRunnable = () -> {};
     public void setUpdater(@NotNull BiConsumer<ImmutablePair<Integer, Integer>, String> updater) {
@@ -81,6 +79,7 @@ public class Launch {
     }
     public Long exitCode;
     public void launch(String java_path, String dir, String version_name, boolean ie, int memory, AbstractUser user, FasterUrls.Servers dlserver) throws Exception {
+        argList.clear();
         if (MemoryReader.getFreeMemory() < (long) memory * 1024 * 1024){
             memory = (int) (MemoryReader.getFreeMemory() / 1024 / 1204);
         }
@@ -88,7 +87,9 @@ public class Launch {
             throw new BadUserException();
         }
         updater.accept(new ImmutablePair<>(0, 5), Launcher.languageManager.get("ui.launch._01"));
-        java = java_path;
+
+        argList.add(java_path);
+
         updater.accept(new ImmutablePair<>(0, 15), Launcher.languageManager.get("ui.launch._02"));
         updater.accept(new ImmutablePair<>(0, 30), Launcher.languageManager.get("ui.fix._01"));
 
@@ -221,160 +222,165 @@ public class Launch {
             }
             updater.accept(new ImmutablePair<>(0, 85), Launcher.languageManager.get("ui.launch._06"));
         }
-        StringBuilder classpath = new StringBuilder("-cp \"");
+        StringBuilder classpath = new StringBuilder("");
         for (String s : libs){
             classpath.append(s).append(File.pathSeparator);
         }
-        classpath.append(jar_file).append("\"");
+        classpath.append(jar_file);
 
-        mem = "-Xmn256m -Xmx" + memory + "m";
-        mainClass = r.mainClass;
-        StringBuilder agm = new StringBuilder();
+        argList.add("-Xmn256m");
+        argList.add("-Xmx" + memory + "m");
+        Vector<String> arguList = new Vector<>();
+
         if (r.minecraftArguments != null) {
-            arguments = r.minecraftArguments;
+            arguList.addAll(Arrays.asList(r.minecraftArguments.split(" ")));
+        }
+        else {
             if (r.arguments != null){
                 if (r.arguments.game != null){
-                    arguments += " ";
                     for (Object s : r.arguments.game){
-                        try{
-                            arguments += s + (" ");
-                        }
-                        catch (ClassCastException ignored){
-                        }
-                    }
-                }
-            }
-        }
-        else{
-            for (Object s : r.arguments.game){
-                if (s != null) {
-                    try {
-                        agm.append((String) s).append(" ");
-                    } catch (ClassCastException e) {
-                        LinkedTreeMap ltm = (LinkedTreeMap) s;
-                        try {
-                            for (String s1 : (ArrayList<String>) ltm.get("value")) {
-                                if (!s1.contains("demo")) {
-                                    agm.append(s1).append(" ");
+                        if (s != null) {
+                            try {
+                                arguList.add((String) s);
+                            } catch (ClassCastException e) {
+                                LinkedTreeMap ltm = (LinkedTreeMap) s;
+                                try {
+                                    for (String s1 : (ArrayList<String>) ltm.get("value")) {
+                                        if (!s1.contains("demo")) {
+                                            arguList.add(s1);
+                                        }
+                                    }
+                                }
+                                catch (ClassCastException e1){
+                                    if (!((String) ltm.get("value")).contains("demo")) {
+                                        arguList.add((String) ltm.get("value"));
+                                    }
                                 }
                             }
                         }
-                        catch (ClassCastException e1){
-                            if (!((String) ltm.get("value")).contains("demo")) {
-                                agm.append((String) ltm.get("value")).append(" ");
-                            }
-                        }
                     }
                 }
             }
-            if (Objects.equals(arguments, "")) {
-                arguments += " ";
-            }
-            arguments += String.valueOf(agm);
         }
-        arguments = arguments.replace("${assets_root}","\"" + LinkPath.link(dir, "assets") + "\"");
+
+        File gamedir;
+        if (ie) {
+            gamedir = f;
+        }
+        else {
+            gamedir = new File(dir);
+        }
+
+        Map<String, String> content = new HashMap<>();
+        content.put("${assets_root}", LinkPath.link(dir, "assets"));
         if (r.assetIndex != null) {
             if (r.assetIndex.get("id") != null) {
-                arguments = arguments.replace("${assets_index_name}", r.assetIndex.get("id"));
+                content.put("${assets_index_name}", r.assetIndex.get("id"));
             }
         }
-        arguments = arguments.replace("${auth_player_name}","\""+user.username+"\"");
-        arguments = arguments.replace("${user_type}","mojang");
-        arguments = arguments.replace("${version_type}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
-        File gamedir;
-        if (!ie) {gamedir = new File(dir);} else{gamedir = f;}
-        arguments = arguments.replace("${game_directory}", String.format("\"%s\"", gamedir.getPath().replace("\\", "/")));
-        arguments = arguments.replace("${user_properties}","{}");
-        arguments = arguments.replace("${auth_uuid}",user.uuid);
-        arguments = arguments.replace("${auth_access_token}",user.accessToken);
-        arguments = arguments.replace("${auth_session}",user.accessToken);
-        arguments = arguments.replace("${game_assets}","\"" + LinkPath.link(dir, "assets") + "\"");
-        arguments = arguments.replace("${version_name}", String.format("\"%s %s\"", VersionInfo.launcher_name, VersionInfo.launcher_version));
+        content.put("${auth_player_name}", user.username);
+        content.put("${user_type}","mojang");
+        content.put("${version_type}", String.format("%s %s", VersionInfo.launcher_name, VersionInfo.launcher_version));
+        content.put("${game_directory}", gamedir.getAbsolutePath());
+        content.put("${user_properties}", "{}");
+        content.put("${auth_uuid}", user.uuid);
+        content.put("${auth_access_token}", user.accessToken);
+        content.put("${auth_session}", user.accessToken);
+        content.put("${game_assets}", LinkPath.link(dir, "assets"));
+        content.put("${version_name}", String.format("%s %s", VersionInfo.launcher_name, VersionInfo.launcher_version));
+        content.put("${resolution_width}",String.valueOf(854));
+        content.put("${resolution_height}",String.valueOf(480));
 
-        arguments = arguments.replace("${resolution_width}",String.valueOf(854));
-        arguments = arguments.replace("${resolution_height}",String.valueOf(480));
+        Vector<String> finalArguList = new Vector<>();
 
-        jvm = String.join(" ", J8Utils.createList(
-                JVMArgs.FILE_ENCODING,
-                JVMArgs.MINECRAFT_CLIENT_JAR,
-                JVMArgs.UNLOCK_EXPERIMENTAL_OPTIONS,
-
-                JVMArgs.USE_G1GC,
-                JVMArgs.YOUNG_SIZE_PERCENT,
-                JVMArgs.RESERVE_SIZE_PERCENT,
-                JVMArgs.MAX_GC_PAUSE,
-                JVMArgs.HEAP_REGION_SIZE,
-                JVMArgs.ADAPTIVE_SIZE_POLICY,
-                JVMArgs.STACK_TRACE_FAST_THROW,
-                JVMArgs.DONT_COMPILE_HUGE_METHODS,
-
-                JVMArgs.IGNORE_INVAILD_CERTIFICATES,
-                JVMArgs.IGNORE_PATCH_DISCREPANCIES,
-
-                JVMArgs.USE_CODEBASE_ONLY,
-                JVMArgs.TRUST_URL_CODE_BASE,
-
-                JVMArgs.DISABLE_MSG_LOOPUPS,
-                JVMArgs.INTEL_PERFORMANCE,
-                JVMArgs.JAVA_LIBRARY_PATH,
-                JVMArgs.MINECRAFT_LAUNCHER_BRAND,
-                JVMArgs.MINECRAFT_LAUNCHER_VERSION,
-                JVMArgs.STD_ENCODING
-        ));
-
-        jvm = jvm.replace("${jar_path}", String.format("\"%s\"", jar_file.getPath()));
-        jvm = jvm.replace("${native_path}",String.format("\"%s\"", nativef.getPath()));
-        jvm = jvm.replace("${launcher_brand}", VersionInfo.launcher_name);
-        jvm = jvm.replace("${launcher_version}", VersionInfo.launcher_version);
-
-        if (r.arguments != null){
-            if (r.arguments.jvm != null){
-                for (Object o : r.arguments.jvm) {
-                    try {
-                        String gt = (String) o;
-                        if (!(gt.contains("java.library.path") ||
-                              gt.contains("minecraft.launcher.brand") ||
-                              gt.contains("minecraft.launcher.version") ||
-                              gt.contains("cp") ||
-                              gt.contains("classpath")) ||
-                                gt.contains("java.base/java.util.jar") ||
-                                 gt.contains("java.base/sun.security.util") ||
-                                 gt.contains("jdk.naming.dns/com.sun.jndi.dns"))
-                        {
-                            forge_jvm += gt + " ";
-
-                        }
-                    } catch (Exception ignored) {
-                    }
+        for (String s : arguList) {
+            boolean isRepd = false;
+            for (Map.Entry<String, String> entry : content.entrySet()) {
+                if (s.contains(entry.getKey())) {
+                    finalArguList.add(s.replace(entry.getKey(), entry.getValue()));
+                    isRepd = true;
+                    break;
                 }
-                if (forge_jvm != null) {
-                    forgevm = forge_jvm;
-                    forgevm = forgevm.replace("${version_name}", version_name);
-                    forgevm = forgevm.replace("${primary_jar_name}", version_name + ".jar");
-                    forgevm = forgevm.replace("${library_directory}", libf.getPath());
-                    StringBuilder forge_libs = new StringBuilder();
-                    for (LibModel l : r.libraries) {
-                        if ((l.name.contains("cpw.mods") || l.name.contains("org.ow2")) && !l.name.contains("modlauncher")) {
-                            forge_libs.append(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name).replace("\\", "/"))).append(File.pathSeparator);
-                        }
-                    }
-                    forge_libs = new StringBuilder(forge_libs.substring(0, forge_libs.length() - 1));
-                    forge_libs.append("\"");
+            }
+            if (!isRepd) finalArguList.add(s);
+        }
 
-                    forgevm = forgevm.replace("-p ", "-p " + "\"" + forge_libs);
-                    forgevm = forgevm.replace("--add-modules ALL-MODULE-PATH", " --add-modules ALL-MODULE-PATH");
+        Vector<String> jvmArguList = new Vector<>();
 
-                    // for some spectial jre
-                    if (forgevm.contains("-add-opens --add-exports")){
-                        forgevm += "--add-opens java.base/java.lang.invoke=cpw.mods.securejarhandler ";
-                    }
-                    forgevm = forgevm.replace("--add-opens --add-exports", "--add-exports");
-                }
-                else{
-                    forge_jvm = "";
+        if (r.arguments != null && r.arguments.jvm != null) {
+            jvmArguList.addAll(J8Utils.createList(
+                    JVMArgs.FILE_ENCODING,
+                    JVMArgs.MINECRAFT_CLIENT_JAR.replace("${jar_path}", jar_file.getPath()),
+                    JVMArgs.UNLOCK_EXPERIMENTAL_OPTIONS,
+
+                    JVMArgs.USE_G1GC,
+                    JVMArgs.YOUNG_SIZE_PERCENT,
+                    JVMArgs.RESERVE_SIZE_PERCENT,
+                    JVMArgs.MAX_GC_PAUSE,
+                    JVMArgs.HEAP_REGION_SIZE,
+                    JVMArgs.ADAPTIVE_SIZE_POLICY,
+                    JVMArgs.STACK_TRACE_FAST_THROW,
+                    JVMArgs.DONT_COMPILE_HUGE_METHODS,
+
+                    JVMArgs.IGNORE_INVAILD_CERTIFICATES,
+                    JVMArgs.IGNORE_PATCH_DISCREPANCIES,
+
+                    JVMArgs.USE_CODEBASE_ONLY,
+                    JVMArgs.TRUST_URL_CODE_BASE,
+
+                    JVMArgs.DISABLE_MSG_LOOPUPS,
+                    JVMArgs.INTEL_PERFORMANCE,
+                    JVMArgs.STDOUT_ENCODING,
+                    JVMArgs.STDERR_ENCODING
+            ));
+            for (Object o : r.arguments.jvm) {
+                if (o instanceof String) {
+                    String te = (String) o;
+                    te = te.replace("${version_name}", version_name)
+                            .replace("${library_directory}", libf.getAbsolutePath().endsWith("/") ? libf.getAbsolutePath().substring(0, libf.getAbsolutePath().length()) : libf.getAbsolutePath())
+                            .replace("${classpath_separator}", File.pathSeparator)
+                            .replace("${natives_directory}", nativef.getAbsolutePath())
+                            .replace("${launcher_brand}", VersionInfo.launcher_name).replace("${launcher_version}", VersionInfo.launcher_version)
+                            .replace("${launcher_name}", VersionInfo.launcher_name)
+                            .replace("${classpath}", classpath.toString());
+                    jvmArguList.add(te);
                 }
             }
         }
+        else {
+            jvmArguList.addAll(J8Utils.createList(
+                    JVMArgs.FILE_ENCODING,
+                    JVMArgs.MINECRAFT_CLIENT_JAR.replace("${jar_path}", jar_file.getPath()),
+                    JVMArgs.UNLOCK_EXPERIMENTAL_OPTIONS,
+
+                    JVMArgs.USE_G1GC,
+                    JVMArgs.YOUNG_SIZE_PERCENT,
+                    JVMArgs.RESERVE_SIZE_PERCENT,
+                    JVMArgs.MAX_GC_PAUSE,
+                    JVMArgs.HEAP_REGION_SIZE,
+                    JVMArgs.ADAPTIVE_SIZE_POLICY,
+                    JVMArgs.STACK_TRACE_FAST_THROW,
+                    JVMArgs.DONT_COMPILE_HUGE_METHODS,
+
+                    JVMArgs.IGNORE_INVAILD_CERTIFICATES,
+                    JVMArgs.IGNORE_PATCH_DISCREPANCIES,
+
+                    JVMArgs.USE_CODEBASE_ONLY,
+                    JVMArgs.TRUST_URL_CODE_BASE,
+
+                    JVMArgs.DISABLE_MSG_LOOPUPS,
+                    JVMArgs.INTEL_PERFORMANCE,
+                    JVMArgs.JAVA_LIBRARY_PATH.replace("${native_path}", nativef.getPath()),
+                    JVMArgs.MINECRAFT_LAUNCHER_BRAND.replace("${launcher_brand}", VersionInfo.launcher_name),
+                    JVMArgs.MINECRAFT_LAUNCHER_VERSION.replace("${launcher_version}", VersionInfo.launcher_version),
+                    JVMArgs.STDOUT_ENCODING,
+                    JVMArgs.STDERR_ENCODING,
+                    "-cp",
+                    classpath.toString()
+            ));
+        }
+
+        argList.addAll(jvmArguList);
 
         try {
             InputStream stream = ResourceGetter.get("authlib-injector.jar");
@@ -421,22 +427,21 @@ public class Launch {
                             }
                         }
                     }
-                    authLibInjectorArg = "-javaagent:" + "\"" + target.getAbsolutePath() + "\"" + "=http://localhost:" + port + " -Dauthlibinjector.side=client";
+                    argList.add("-javaagent:" + target.getAbsolutePath() + "=http://localhost:" + port);
+                    argList.add("-Dauthlibinjector.side=client");
                 }
             }
 
-            String command = StringUtils.LinkCommands.link(
-                    java,
-                    jvm,
-                    authLibInjectorArg,
-                    String.valueOf(classpath),
-                    mem,
-                    forgevm,
-                    mainClass.replace(" ",""),
-                    arguments);
+            argList.add(r.mainClass);
+            argList.addAll(finalArguList);
+
             updater.accept(new ImmutablePair<>(0, 90), Launcher.languageManager.get("ui.launch._07"));
-            command = command.replace("null","");
-            logger.info(String.format("Getted Command Line : %s", command));
+
+            final String[] rs = {""};
+
+            argList.forEach(s -> rs[0] += s + " ");
+
+            logger.info(String.format("Getted Command Line : %s", rs[0]));
 //            Thread lT = new Thread(() -> {
 //                while (true) {
 //                    if (!MainPage.launchDialog.l.getText().equals(Launcher.languageManager.get("ui.launch._08"))) MainPage.launchDialog.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
@@ -446,7 +451,7 @@ public class Launch {
 //            lT.start();
             updater.accept(new ImmutablePair<>(0, 95), Launcher.languageManager.get("ui.launch._08"));
             try {
-                p = Runtime.getRuntime().exec(command, null, new File(dir));
+                p = Runtime.getRuntime().exec(argList.toArray(new String[0]), null, new File(dir));
             }
             catch (IOException e){
                 throw new ProcessException();

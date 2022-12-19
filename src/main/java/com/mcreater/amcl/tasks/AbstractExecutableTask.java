@@ -1,11 +1,12 @@
 package com.mcreater.amcl.tasks;
 
 import java.io.IOException;
+import java.util.Vector;
 
 public abstract class AbstractExecutableTask implements Task {
-    String command;
+    Vector<String> command;
     Runnable runnable;
-    public AbstractExecutableTask(String command){
+    public AbstractExecutableTask(Vector<String> command){
         this.command = command;
     }
     public AbstractExecutableTask(Runnable runnable){

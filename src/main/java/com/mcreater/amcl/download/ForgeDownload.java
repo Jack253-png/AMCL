@@ -91,8 +91,7 @@ public class ForgeDownload {
                 ao.getJSONArray("libraries").put(g.fromJson(g.toJson(m, LibModel.class), Map.class));
                 if (Objects.equals(m.downloads.artifact.get("url"), "")){
                     String extract = StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path")));
-                    String com = String.format("\"%s\" -jar %s --extract %s", FileUtils.getJavaExecutable(), installer_path.replace("\\", "/"), extract);
-                    int returnCode = new ForgeExtractTask(com, extract, installer_path.replace("\\", "/"), new String[]{"--extract", extract}).execute();
+                    int returnCode = new ForgeExtractTask(extract, installer_path.replace("\\", "/"), new String[]{"--extract", extract}).execute();
                     if (returnCode != 0){
                         throw new IOException("Install Failed");
                     }
@@ -160,7 +159,7 @@ public class ForgeDownload {
                             args.add(a);
                         }
                     }
-                    tasks2.add(new ForgePatchTask(lib_base, model2.jar, model2.classpath, argstr.toString(), args.toArray(new String[0]), server));
+                    tasks2.add(new ForgePatchTask(lib_base, model2.jar, model2.classpath, args.toArray(new String[0]), server));
                 }
             }
             TaskManager.addTasks(tasks2);
@@ -184,9 +183,7 @@ public class ForgeDownload {
                         FileUtils.ChangeDir.saveNowDir();
                         String i = FileUtils.LinkPath.link(FileUtils.ChangeDir.dirs, installer_path).replace("\\", "/");
                         FileUtils.ChangeDir.changeTo(p);
-                        System.out.println(p);
-                        String com = String.format("\"%s\" -jar %s --extract", FileUtils.getJavaExecutable(), i);
-                        if (new ForgeExtractTask(com, p, i, new String[]{"--extract"}).execute() != 0) {
+                        if (new ForgeExtractTask(p, i, new String[]{"--extract"}).execute() != 0) {
                             throw new IOException("Forge Extract Failed");
                         }
                         FileUtils.ChangeDir.changeToDefault();

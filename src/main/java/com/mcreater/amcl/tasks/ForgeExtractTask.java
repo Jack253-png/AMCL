@@ -1,27 +1,36 @@
 package com.mcreater.amcl.tasks;
 
-import com.mcreater.amcl.api.reflect.ReflectHelper;
-import com.mcreater.amcl.api.reflect.ReflectedJar;
 import com.mcreater.amcl.download.OriginalDownload;
 import com.mcreater.amcl.game.launch.Launch;
-import com.mcreater.amcl.nativeInterface.NoExitSecurityManager;
-import com.mcreater.amcl.util.J8Utils;
-import com.mcreater.amcl.util.java.GetJarMainClass;
+import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
+import com.mcreater.amcl.util.J8Utils;
 
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
 public class ForgeExtractTask extends AbstractExecutableTask {
     public Integer exit = null;
     public String extractPath;
     public String jarpath;
     public String[] args;
-    public ForgeExtractTask(String command, String extractPath, String jarpath, String[] args) {
-        super(command);
+    public ForgeExtractTask(String extractPath, String jarpath, String[] args) {
+        super(new Vector<>(
+                J8Utils.createList(
+                        FileUtils.getJavaExecutable(),
+                        "-jar",
+                        jarpath
+                )
+        ));
+        command.addAll(Arrays.asList(args));
+
         this.extractPath = extractPath;
         this.jarpath = jarpath;
         this.args = args;
@@ -29,33 +38,12 @@ public class ForgeExtractTask extends AbstractExecutableTask {
 
     @Override
     public Integer execute() throws IOException {
-        // return new_ex();
         return old_ex();
     }
-    public int new_ex() throws IOException {
-        SecurityManager man = System.getSecurityManager();
-        System.setSecurityManager(new NoExitSecurityManager());
-        try {
-            String jarp = this.jarpath;
-            ReflectedJar jar = ReflectHelper.getReflectedJar(jarp);
-            int main = jar.createNewInstance(jar.getJarClass(GetJarMainClass.get(jarp)));
-            jar.invokeMethod(main, "main", new Object[]{this.args}, String[].class);
-        }
-        catch (InvocationTargetException e){
-            e.printStackTrace();
-        }
-        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException e){
-            return 1;
-        }
-        finally {
-            copy();
-            System.setSecurityManager(man);
-        }
-        return 0;
-    }
+
     public int old_ex() throws IOException {
         copy();
-        Process p = Runtime.getRuntime().exec(command);
+        Process p = Runtime.getRuntime().exec(command.toArray(new String[0]));
         while (true){
             try{
                 System.out.println(Launch.ret(p.getInputStream()));
