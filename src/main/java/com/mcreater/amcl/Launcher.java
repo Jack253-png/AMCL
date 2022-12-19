@@ -103,7 +103,7 @@ public class Launcher extends javafx.application.Application {
     public void start(Stage primaryStage) throws Exception {
         Fonts.loadFont();
         Icons.initFXIcon();
-        if (OSInfo.isWin()) {
+        if (OSInfo.isWin() || OSInfo.isLinux()) {
             stage = new Stage();
             setGeometry(stage, width, height);
             bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true);

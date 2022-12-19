@@ -454,7 +454,7 @@ public class Launch {
                 p = Runtime.getRuntime().exec(argList.toArray(new String[0]), null, new File(dir));
             }
             catch (IOException e){
-                throw new ProcessException();
+                throw new ProcessException(e);
             }
             new Thread(() -> {
                 while (true) {

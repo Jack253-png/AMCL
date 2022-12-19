@@ -137,25 +137,21 @@ public class ForgeDownload {
                 }
             }
             mapplings.put("{SIDE}", "client");
-            mapplings.put("{MINECRAFT_JAR}", String.format("\"%s/versions/%s/%s.jar\"", minecraft_dir.replace("\\", "/"), version_name, version_name));
+            mapplings.put("{MINECRAFT_JAR}", String.format("%s/versions/%s/%s.jar", minecraft_dir.replace("\\", "/"), version_name, version_name));
             mapplings.put("{BINPATCH}", "forgeTemp/data/client.lzma");
             r2.run();
             Vector<Task> tasks2 = new Vector<>();
             for (ForgeProcessorModel model2 : model1.processors){
                 if (model2.sides == null || model2.sides.contains("client")) {
-                    StringBuilder argstr = new StringBuilder();
                     Vector<String> args = new Vector<>();
                     for (String a : model2.args) {
                         if (checkIsForgePath(a)){
-                            argstr.append(" ").append(FileUtils.LinkPath.link(lib_base, get(a)).replace("\\", "/"));
                             args.add(FileUtils.LinkPath.link(lib_base, get(a)).replace("\\", "/"));
                         }
                         else if (checkIsMapKey(a)){
-                            argstr.append(" ").append(mapplings.get(a));
                             args.add(mapplings.get(a));
                         }
                         else{
-                            argstr.append(" ").append(a);
                             args.add(a);
                         }
                     }

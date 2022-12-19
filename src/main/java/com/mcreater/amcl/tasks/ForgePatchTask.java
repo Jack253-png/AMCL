@@ -32,7 +32,7 @@ public class ForgePatchTask extends AbstractExecutableTask {
             jars.add(LinkPath.link(lib_base, StringUtils.GetFileBaseDir.forgeGet(s)));
         }
         this.classpath.addAll(jars);
-        StringBuilder b = new StringBuilder("");
+        StringBuilder b = new StringBuilder();
         for (String s1 : jars){
             b.append(s1).append(File.pathSeparator);
         }
