@@ -56,22 +56,16 @@ public class ConfigWriter {
         if (configModel.downloadChunkSize < 512 || configModel.downloadChunkSize > 8192){
             configModel.downloadChunkSize = 2048;
         }
-        if (!LanguageManager.vaild_languages.contains(configModel.language)){
-            configModel.language = LocateHelper.get();
-        }
         if (configModel.showingUpdateSpped < 500 || configModel.showingUpdateSpped > 1000){
             configModel.showingUpdateSpped = 500;
         }
-        if (!FasterUrls.vaild_servers.contains(configModel.downloadServer)){
-            configModel.downloadServer = "MCBBS";
-        }
-        Vector<String> dirs = new Vector<>(configModel.selected_minecraft_dir);
+        Vector<String> dirs = new Vector<>();
         configModel.selected_minecraft_dir.forEach(s -> {
             if (!new File(s).exists()){
-                dirs.remove(s);
+                dirs.add(s);
             }
         });
-        configModel.selected_minecraft_dir = dirs;
+        configModel.selected_minecraft_dir.removeAll(dirs);
         write();
     }
 }

@@ -23,7 +23,7 @@ public class Main {
             args = new String[]{};
             logger.info("initialize");
             logger.info("launching core with arguments : " + Arrays.toString(args));
-            Launcher.startApplication(args);
+            JavaFXApplication.startApplication(args);
         }
         catch (Exception e) {
             logger.error("Error while launcher running", e);

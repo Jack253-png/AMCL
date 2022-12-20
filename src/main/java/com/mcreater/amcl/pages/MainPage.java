@@ -119,7 +119,8 @@ public class MainPage extends AbstractAnimationPage {
                                         Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir,
                                         Launcher.configReader.configModel.max_memory,
                                         UserSelectPage.user.get(),
-                                        FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer)
+                                        Launcher.configReader.configModel.downloadServer,
+                                        Launcher.configReader.configModel.downloadChunkSize
                                 );
                                 logger.info("started launch thread");
                             }
@@ -277,12 +278,14 @@ public class MainPage extends AbstractAnimationPage {
 
         this.setAlignment(Pos.TOP_LEFT);
 
-        new Thread(() -> {
-            while (true) {
-                flush();
-                Sleeper.sleep(10);
+        new Thread("Version detect thread") {
+            public void run() {
+                while (true) {
+                    flush();
+                    Sleeper.sleep(100);
+                }
             }
-        }).start();
+        }.start();
         bindedPageproperty().get().add(MAINPAGE);
     }
     public static void check(Launch launchCore){
@@ -300,11 +303,13 @@ public class MainPage extends AbstractAnimationPage {
             this.setText("");
         }
     }
-    public void clean_null_version(){
+    public void clean_null_version(boolean isDirExts){
         Platform.runLater(() -> {
             version_settings.setText(Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"));
             launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"));
             Launcher.configReader.configModel.selected_version_index = "";
+            Launcher.VERSIONSELECTPAGE.select_version.setText("");
+            if (!isDirExts) Launcher.configReader.configModel.selected_minecraft_dir_index = "";
             Launcher.configReader.write();
             version_settings.setDisable(true);
         });
@@ -326,37 +331,37 @@ public class MainPage extends AbstractAnimationPage {
                                             downloadMc.setDisable(false);
                                         });
                                     } else {
-                                        clean_null_version();
+                                        clean_null_version(true);
                                         downloadMc.setDisable(false);
                                     }
                                 } else {
-                                    clean_null_version();
+                                    clean_null_version(true);
                                     downloadMc.setDisable(false);
                                 }
                             } else {
-                                clean_null_version();
+                                clean_null_version(true);
                                 downloadMc.setDisable(false);
                             }
                         } else {
-                            clean_null_version();
+                            clean_null_version(true);
                             downloadMc.setDisable(false);
                         }
                     } else {
-                        clean_null_version();
+                        clean_null_version(true);
                         downloadMc.setDisable(false);
                     }
                 } else {
-                    clean_null_version();
+                    clean_null_version(false);
                     downloadMc.setDisable(true);
                 }
             } else {
-                clean_null_version();
+                clean_null_version(false);
                 downloadMc.setDisable(true);
             }
         }
         catch (Exception e) {
             e.printStackTrace();
-            clean_null_version();
+            clean_null_version(true);
             downloadMc.setDisable(false);
         }
     }

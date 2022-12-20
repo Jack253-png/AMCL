@@ -294,7 +294,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     }
 
                     Vector<String> vers = new Vector<>(files.keySet());
-                    vers.sort(new VersionComparsion(GetVersionList.getOriginalList(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer))));
+                    vers.sort(new VersionComparsion(GetVersionList.getOriginalList(Launcher.configReader.configModel.downloadServer)));
 
                     for (String s1 : vers) {
                         TitledPane pane = new TitledPane();

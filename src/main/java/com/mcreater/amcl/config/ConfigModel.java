@@ -1,6 +1,8 @@
 package com.mcreater.amcl.config;
 
 import com.mcreater.amcl.api.auth.users.AbstractUser;
+import com.mcreater.amcl.lang.LanguageManager;
+import com.mcreater.amcl.util.net.FasterUrls;
 
 import java.util.Vector;
 
@@ -12,11 +14,10 @@ public class ConfigModel {
     public String selected_version_index = "";
     public boolean change_game_dir = false;
     public int max_memory = 1024;
-    public String language = "CHINESE";
-    public boolean fastDownload = true;
+    public LanguageManager.LanguageType language = LanguageManager.LanguageType.ENGLISH;
     public int downloadChunkSize = 2048;
     public int showingUpdateSpped = 500;
-    public String downloadServer = "MCBBS";
+    public FasterUrls.Servers downloadServer = FasterUrls.Servers.MCBBS;
     public Vector<AbstractUser> accounts = new Vector<>();
     public static ConfigModel getDefault(){
         return new ConfigModel();

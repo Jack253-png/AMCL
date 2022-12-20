@@ -78,7 +78,7 @@ public class Launch {
         this.failedRunnable = r;
     }
     public Long exitCode;
-    public void launch(String java_path, String dir, String version_name, boolean ie, int memory, AbstractUser user, FasterUrls.Servers dlserver) throws Exception {
+    public void launch(String java_path, String dir, String version_name, boolean ie, int memory, AbstractUser user, FasterUrls.Servers dlserver, int chunkSize) throws Exception {
         argList.clear();
         if (MemoryReader.getFreeMemory() < (long) memory * 1024 * 1024){
             memory = (int) (MemoryReader.getFreeMemory() / 1024 / 1204);
@@ -99,7 +99,7 @@ public class Launch {
             TaskManager.setFinishRunnable(() -> {});
         });
         try {
-            MinecraftFixer.fix(Launcher.configReader.configModel.downloadChunkSize, dir, version_name, dlserver);
+            MinecraftFixer.fix(chunkSize, dir, version_name, dlserver);
         }
         catch (IOException e){
             failedRunnable.run();
@@ -439,16 +439,9 @@ public class Launch {
 
             final String[] rs = {""};
 
-            argList.forEach(s -> rs[0] += s + " ");
+            argList.forEach(s -> rs[0] += "\"" + s + "\" ");
 
             logger.info(String.format("Getted Command Line : %s", rs[0]));
-//            Thread lT = new Thread(() -> {
-//                while (true) {
-//                    if (!MainPage.launchDialog.l.getText().equals(Launcher.languageManager.get("ui.launch._08"))) MainPage.launchDialog.setV(0, 95, Launcher.languageManager.get("ui.launch._08"));
-//
-//                }
-//            });
-//            lT.start();
             updater.accept(new ImmutablePair<>(0, 95), Launcher.languageManager.get("ui.launch._08"));
             try {
                 p = Runtime.getRuntime().exec(argList.toArray(new String[0]), null, new File(dir));

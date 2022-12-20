@@ -120,7 +120,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
             mainBox.setId("verList");
             Vector<OriginalVersionModel> vs;
             try {
-                vs = GetVersionList.getOriginalList(FasterUrls.Servers.valueOf(Launcher.configReader.configModel.downloadServer));
+                vs = GetVersionList.getOriginalList(Launcher.configReader.configModel.downloadServer);
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     load.setDisable(false);

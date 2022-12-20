@@ -7,7 +7,9 @@ import com.mcreater.amcl.controls.DepencyItem;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
+import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
+import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.operatingSystem.SystemActions;
@@ -32,11 +34,13 @@ public class AboutDialog extends AbstractDialog {
         ok.setOnAction(event -> this.close());
         checkUpdate.setOnAction(event -> {
             checkUpdate.setDisable(true);
-            new Thread(() -> {
-                VersionChecker.check();
-                this.close();
-                checkUpdate.setDisable(false);
-            }).start();
+            new Thread("Version update checker") {
+                public void run() {
+                    VersionChecker.check((s, aBoolean) -> FXUtils.Platform.runLater(() -> PopupMessage.createMessage(s, aBoolean ? PopupMessage.MessageTypes.HYPERLINK : PopupMessage.MessageTypes.LABEL, aBoolean ? event2 -> new UpgradePage().open() : null)));
+                    close();
+                    checkUpdate.setDisable(false);
+                }
+            }.start();
         });
 
         VBox v = new VBox();

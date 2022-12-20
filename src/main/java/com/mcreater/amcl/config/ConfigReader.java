@@ -10,6 +10,9 @@ import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.auth.users.OffLineUser;
+import com.mcreater.amcl.lang.LanguageManager;
+import com.mcreater.amcl.util.net.FasterUrls;
+import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 
 import java.io.*;
 
@@ -199,6 +202,34 @@ public class ConfigReader {
                             MicrosoftUser user1 = new MicrosoftUser(access_token, user_name, uuid, model, refresh_token);
                             user1.active = active;
                             return user1;
+                    }
+                }
+            })
+            .registerTypeAdapter(LanguageManager.LanguageType.class, new TypeAdapter<LanguageManager.LanguageType>() {
+                public void write(JsonWriter out, LanguageManager.LanguageType value) throws IOException {
+                    out.value(value.toString());
+                }
+
+                public LanguageManager.LanguageType read(JsonReader in) {
+                    try {
+                        return LanguageManager.LanguageType.valueOf(in.nextString());
+                    }
+                    catch (Exception e) {
+                        return LanguageManager.LanguageType.valueOf(LocateHelper.get());
+                    }
+                }
+            })
+            .registerTypeAdapter(FasterUrls.Servers.class, new TypeAdapter<FasterUrls.Servers>() {
+                public void write(JsonWriter out, FasterUrls.Servers value) throws IOException {
+                    out.value(value.toString());
+                }
+
+                public FasterUrls.Servers read(JsonReader in) {
+                    try {
+                        return FasterUrls.Servers.valueOf(in.nextString());
+                    }
+                    catch (Exception e) {
+                        return FasterUrls.Servers.MCBBS;
                     }
                 }
             })

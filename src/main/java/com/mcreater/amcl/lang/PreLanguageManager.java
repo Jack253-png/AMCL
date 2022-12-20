@@ -10,18 +10,8 @@ import java.util.Vector;
 
 public class PreLanguageManager extends AbstractLanguageManager {
     Properties prp;
-    public static Vector<String> vaild_languages = new Vector<>();
-    public enum LanguageType {
-        ENGLISH,
-        CHINESE
-    }
-    public void initlaze(){
-        vaild_languages.add("ENGLISH");
-        vaild_languages.add("CHINESE");
-    }
 
     public PreLanguageManager(LanguageManager.LanguageType type){
-        initlaze();
         setLanguage(type);
     }
     public String get(String id){

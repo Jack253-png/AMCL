@@ -192,7 +192,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
             dirs.getItems().add(l);
         }
     }
-    public void load_list(){
+    public synchronized void load_list(){
         Runnable load = () -> {
             Platform.runLater(MainPage.versionLoadDialog::show);
             dirs.setDisable(true);

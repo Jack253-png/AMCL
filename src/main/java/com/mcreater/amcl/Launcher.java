@@ -5,14 +5,28 @@ import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.nativeInterface.OSInfo;
-import com.mcreater.amcl.pages.*;
+import com.mcreater.amcl.pages.AddModsPage;
+import com.mcreater.amcl.pages.ConfigPage;
+import com.mcreater.amcl.pages.DownloadAddonSelectPage;
+import com.mcreater.amcl.pages.DownloadMcPage;
+import com.mcreater.amcl.pages.MainPage;
+import com.mcreater.amcl.pages.ModDownloadPage;
+import com.mcreater.amcl.pages.UserSelectPage;
+import com.mcreater.amcl.pages.VersionInfoPage;
+import com.mcreater.amcl.pages.VersionSelectPage;
 import com.mcreater.amcl.pages.dialogs.SimpleDialog;
 import com.mcreater.amcl.pages.dialogs.commons.AboutDialog;
+import com.mcreater.amcl.pages.dialogs.commons.PopupMessage;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.AnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
-import com.mcreater.amcl.util.*;
+import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.Timer;
+import com.mcreater.amcl.util.VersionChecker;
+import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
@@ -27,7 +41,15 @@ import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
@@ -35,15 +57,11 @@ import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.awt.*;
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Vector;
 
-public class Launcher extends javafx.application.Application {
+public class Launcher {
     static Logger logger = LogManager.getLogger(Launcher.class);
     public static Scene s = new Scene(new Pane(), Color.TRANSPARENT);
     public static Stage stage;
@@ -98,9 +116,9 @@ public class Launcher extends javafx.application.Application {
     }
     public static void initLanguageManager() {
         initConfig();
-        initLanguageManager(LanguageManager.LanguageType.valueOf(configReader.configModel.language));
+        initLanguageManager(configReader.configModel.language);
     }
-    public void start(Stage primaryStage) throws Exception {
+    public static void start(Stage primaryStage) throws Exception {
         Fonts.loadFont();
         Icons.initFXIcon();
         if (OSInfo.isWin() || OSInfo.isLinux()) {
@@ -143,7 +161,11 @@ public class Launcher extends javafx.application.Application {
             stage.setScene(s);
             stage.getIcons().add(Icons.fxIcon.get());
 
-            new Thread(VersionChecker::check).start();
+            new Thread("Version update checker") {
+                public void run() {
+                    VersionChecker.check((s, aBoolean) -> FXUtils.Platform.runLater(() -> PopupMessage.createMessage(s, aBoolean ? PopupMessage.MessageTypes.HYPERLINK : PopupMessage.MessageTypes.LABEL, aBoolean ? event -> new UpgradePage().open() : null)));
+                }
+            }.start();
             aboutDialog = new AboutDialog();
 
             Rectangle rect = FXUtils.generateRect(width, height, 0);
@@ -288,9 +310,6 @@ public class Launcher extends javafx.application.Application {
     }
     public static void refresh(){
         stage.setTitle(String.format(languageManager.get("ui.title"), VersionInfo.launcher_name, VersionInfo.launcher_version));
-    }
-    public static void startApplication(String[] args) {
-        launch(args);
     }
     public static void clearBgBuffer() {
         LanguageManager.bindedPages.forEach(page -> page.setBufferedBackground(null));

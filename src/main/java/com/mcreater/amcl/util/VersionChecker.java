@@ -1,31 +1,25 @@
 package com.mcreater.amcl.util;
 
 import com.mcreater.amcl.api.githubApi.GithubReleases;
-import com.mcreater.amcl.pages.dialogs.commons.PopupMessage;
-import com.mcreater.amcl.pages.stages.UpgradePage;
-import javafx.application.Platform;
-import javafx.scene.control.Hyperlink;
+
+import java.util.function.BiConsumer;
 
 import static com.mcreater.amcl.Launcher.languageManager;
 
 public class VersionChecker {
-    public static void check(){
+    public static void check(BiConsumer<String, Boolean> updater) {
         try {
             if (GithubReleases.isDevelop()) {
-                PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.inDevelope"), PopupMessage.MessageTypes.LABEL, null);
+                updater.accept(languageManager.get("ui.mainpage.versionChecker.inDevelope"), false);
             } else if (GithubReleases.outDated()) {
-                Runnable show = () -> new UpgradePage().open();
-                Platform.runLater(() -> {
-                    Hyperlink link = (Hyperlink) PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.outDated"), PopupMessage.MessageTypes.HYPERLINK, null);
-                    link.setOnAction(event -> show.run());
-                });
+                updater.accept(languageManager.get("ui.mainpage.versionChecker.outDated"), true);
             }
             else {
-                PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.latest"), PopupMessage.MessageTypes.LABEL, null);
+                updater.accept(languageManager.get("ui.mainpage.versionChecker.latest"), false);
             }
         }
         catch (IllegalStateException e){
-            Platform.runLater(() -> PopupMessage.createMessage(languageManager.get("ui.mainpage.versionChecker.checkFailed.name"), PopupMessage.MessageTypes.LABEL, null));
+            updater.accept(languageManager.get("ui.mainpage.versionChecker.checkFailed.name"), false);
         }
     }
 }

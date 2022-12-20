@@ -95,7 +95,6 @@ public class StableMain {
     }
     public static void initPreLanguageManager(){
         manager = new PreLanguageManager(PreLanguageManager.valueOf(LocateHelper.get()));
-        manager.initlaze();
     }
     public static void downloadDepenciesJars(Vector<DepencyItem> addonItems) throws Exception {
         addonItems.addAll(DepenciesXMLHandler.load());

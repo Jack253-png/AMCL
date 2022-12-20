@@ -1,8 +1,6 @@
 package com.jfoenix.utils;
 
-import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.animation.*;
-import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -17,8 +15,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class JFXSmoothScroll {
-    private static final double[] percents = {0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64, 0.8, 0.86,
-    0.9, 0.92, 0.94, 0.96, 1.00};
 
     public static final Map<ProgressIndicator, Timeline> barAnimations = new HashMap<>();
     private static void customScrolling(ScrollPane scrollPane, DoubleProperty scrollDriection, Function<Bounds, Double> sizeFunc, double speed) {
@@ -69,24 +65,6 @@ public class JFXSmoothScroll {
             }
         }));
         timeline.setCycleCount(Animation.INDEFINITE);
-    }
-    public static void scrollToUnder(ScrollPane pane) {
-        new Thread(() -> {
-            double nowValue = pane.getVvalue();
-            double value = 1D;
-            for (double percent : percents){
-                Platform.runLater(() -> {
-                    if (nowValue < value){
-                        pane.setVvalue(nowValue + (value - nowValue) * percent);
-                    }
-                    else if (nowValue > value) {
-                        pane.setVvalue(nowValue - (nowValue - value) * percent);
-                    }
-                });
-                Sleeper.sleep(10);
-            }
-            Platform.runLater(() -> pane.setVvalue(value));
-        }).start();
     }
 
     public static void smoothScrolling(ScrollPane scrollPane, double speed) {

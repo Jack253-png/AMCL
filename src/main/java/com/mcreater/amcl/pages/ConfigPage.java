@@ -18,6 +18,7 @@ import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.java.JavaInfoGetter;
+import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
@@ -151,10 +152,10 @@ public class ConfigPage extends AbstractMenuBarPage {
             l.setFont(Fonts.t_f);
             item3.cont.getItems().add(l);
         }
-        item3.cont.getSelectionModel().select(getKey(Launcher.configReader.configModel.language));
+        item3.cont.getSelectionModel().select(getKey(Launcher.configReader.configModel.language.toString()));
         item3.cont.setOnAction(event -> {
-            Launcher.configReader.configModel.language = langs.get(item3.cont.getValue().getText());
-            Launcher.languageManager.setLanguage(LanguageManager.LanguageType.valueOf(Launcher.configReader.configModel.language));
+            Launcher.configReader.configModel.language = LanguageManager.LanguageType.valueOf(langs.get(item3.cont.getValue().getText()));
+            Launcher.languageManager.setLanguage(Launcher.configReader.configModel.language);
             Launcher.setTitle();
         });
 
@@ -164,8 +165,8 @@ public class ConfigPage extends AbstractMenuBarPage {
             l.setFont(Fonts.t_f);
             item5.cont.getItems().add(l);
         }
-        item5.cont.getSelectionModel().select(getKey2(Launcher.configReader.configModel.downloadServer));
-        item5.cont.setOnAction(event -> Launcher.configReader.configModel.downloadServer = servers.get(item5.cont.getValue().getText()));
+        item5.cont.getSelectionModel().select(getKey2(Launcher.configReader.configModel.downloadServer.toString()));
+        item5.cont.setOnAction(event -> Launcher.configReader.configModel.downloadServer = FasterUrls.Servers.valueOf(servers.get(item5.cont.getValue().getText())));
 
         item6 = new IntItem("", this.width / 4 * 3 - 10);
         item6.cont.setMax(8192);
