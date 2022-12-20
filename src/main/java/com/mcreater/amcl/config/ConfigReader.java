@@ -4,22 +4,21 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.lang.LanguageManager;
+import com.mcreater.amcl.util.JsonUtils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 
-import java.io.*;
-import java.util.Collection;
-import java.util.HashMap;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Map;
-import java.util.Stack;
-import java.util.Vector;
 
 public class ConfigReader {
     boolean first_config;
@@ -68,11 +67,15 @@ public class ConfigReader {
                 }
 
                 public AbstractUser read(JsonReader in) throws IOException {
-                    JsonToMapProcessor processor = new JsonToMapProcessor(in);
+                    JsonUtils.JsonProcessors.JsonToMapProcessor processor = new JsonUtils.JsonProcessors.JsonToMapProcessor(in);
                     while (processor.processable()) {
                         processor.process();
                     }
-                    System.out.println(processor.getProcessedContent());
+                    Map<String, Object> content = processor.getProcessedContent();
+
+                    boolean active = JsonUtils.JsonProcessors.parseBoolean(JsonUtils.JsonProcessors.getValue(content, "active"));
+
+
 
                     return new OffLineUser("000", "0000", false, null, null);
                 }
@@ -106,83 +109,8 @@ public class ConfigReader {
                 }
             })
             .create();
-    public static class JsonToMapProcessor {
-        private JsonReader reader;
-        private Map<String, Object> content = new HashMap<>();
-        private Stack<Object> objectStack = new Stack<>();
-        private String name;
-        public JsonToMapProcessor(JsonReader reader) throws IOException {
-            this.reader = reader;
-            if (reader.peek() == JsonToken.BEGIN_OBJECT) {
-                objectStack.push(content);
-                reader.beginObject();
-            }
-            else {
-                throw new IOException("Not a map");
-            }
-        }
-        public boolean processable() {
-            return objectStack.size() > 0;
-        }
-        public Map<String, Object> getProcessedContent() {
-            return content;
-        }
-        private void putValue(Object o) {
-            Object cont = objectStack.pop();
-            objectStack.push(cont);
-            if (cont instanceof Collection) {
-                ((Collection<Object>) cont).add(o);
-            }
-            else if (cont instanceof Map) {
-                ((Map<Object, Object>) cont).put(name, o);
-            }
-            name = "null";
-        }
-        public void process() throws IOException {
-            JsonToken token = reader.peek();
-            switch (token) {
-                case NULL:
-                    reader.nextNull();
-                    putValue(null);
-                    break;
-                case NAME:
-                    name = reader.nextName();
-                    break;
-                case STRING:
-                    putValue(reader.nextString());
-                    break;
-                case NUMBER:
-                    putValue(reader.nextLong());
-                    break;
-                case BOOLEAN:
-                    putValue(reader.nextBoolean());
-                    break;
-                case BEGIN_OBJECT:
-                    reader.beginObject();
-                    Map<String, Object> content2 = new HashMap<>();
-                    putValue(content2);
-                    objectStack.push(content2);
-                    break;
-                case END_OBJECT:
-                    reader.endObject();
-                    objectStack.pop();
-                    break;
-                case BEGIN_ARRAY:
-                    reader.beginArray();
-                    Collection<Object> content3 = new Vector<>();
-                    putValue(content3);
-                    objectStack.push(content3);
-                    break;
-                case END_ARRAY:
-                    reader.endArray();
-                    objectStack.pop();
-                    break;
-                default:
-                case END_DOCUMENT:
-                    break;
-            }
-        }
-    }
+
+
     public ConfigReader(File f) throws IOException {
         first_config = false;
         if (!f.getPath().endsWith(".json")){
