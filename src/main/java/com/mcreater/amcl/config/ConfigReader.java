@@ -15,6 +15,11 @@ import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 
 import java.io.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
+import java.util.Vector;
 
 public class ConfigReader {
     boolean first_config;
@@ -63,146 +68,13 @@ public class ConfigReader {
                 }
 
                 public AbstractUser read(JsonReader in) throws IOException {
-                    String last_name = "<empty>";
-                    int user_type = -1;
-
-                    boolean active = false;
-
-                    String access_token = null;
-                    String refresh_token = null;
-                    String uuid = null;
-                    String user_name = null;
-
-                    String custom_skin = null;
-                    String custom_cape = null;
-                    boolean custom_is_slim = false;
-
-                    String skin_id = null;
-                    String skin_state = null;
-                    String skin_url = null;
-                    String skin_variant = null;
-                    String skin_cape = null;
-                    boolean skin_is_slim = false;
-
-                    boolean readedUser = true;
-
-                    while (in.peek() != JsonToken.END_ARRAY && readedUser) {
-                        try {
-                            JsonToken tk = in.peek();
-                            switch (tk) {
-                                default:
-                                case NAME:
-                                    last_name = in.nextName();
-                                    break;
-                                case NUMBER:
-                                    if ("user_type".equals(last_name)) {
-                                        user_type = in.nextInt();
-                                    }
-                                    else {
-                                        in.nextLong();
-                                    }
-                                    break;
-                                case NULL:
-                                    in.nextNull();
-                                    break;
-                                case STRING:
-                                    switch (last_name) {
-                                        case "access_token":
-                                            access_token = in.nextString();
-                                            break;
-                                        case "refresh_token":
-                                            refresh_token = in.nextString();
-                                            break;
-                                        case "uuid":
-                                            uuid = in.nextString();
-                                            break;
-                                        case "user_name":
-                                            user_name = in.nextString();
-                                            break;
-                                        case "skin":
-                                            custom_skin = in.nextString();
-                                            break;
-                                        case "cape":
-                                            custom_cape = in.nextString();
-                                            break;
-                                        case "id":
-                                            skin_id = in.nextString();
-                                            break;
-                                        case "state":
-                                            skin_state = in.nextString();
-                                            break;
-                                        case "url":
-                                            skin_url = in.nextString();
-                                            break;
-                                        case "variant":
-                                            skin_variant = in.nextString();
-                                            break;
-                                        case "cape_url":
-                                            skin_cape = in.nextString();
-                                            break;
-                                        default:
-                                            in.nextString();
-                                            break;
-                                    }
-                                    break;
-                                case BOOLEAN:
-                                    switch (last_name) {
-                                        case "is_slim":
-                                            boolean b = in.nextBoolean();
-                                            custom_is_slim = b;
-                                            skin_is_slim = b;
-                                            break;
-                                        case "active":
-                                            active = in.nextBoolean();
-                                            break;
-                                        default:
-                                            in.nextBoolean();
-                                            break;
-                                    }
-                                    break;
-                                case BEGIN_ARRAY:
-                                    in.beginArray();
-                                    break;
-                                case BEGIN_OBJECT:
-                                    if (user_type != -1 && in.getPreviousPath().endsWith("]")) {
-                                        readedUser = false;
-                                    }
-                                    else in.beginObject();
-                                    break;
-                                case END_ARRAY:
-                                    in.endArray();
-                                    break;
-                                case END_OBJECT:
-                                    in.endObject();
-                                    break;
-                                case END_DOCUMENT:
-                                    in.close();
-                                    break;
-                            }
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                            in.skipValue();
-                        }
+                    JsonToMapProcessor processor = new JsonToMapProcessor(in);
+                    while (processor.processable()) {
+                        processor.process();
                     }
-                    switch (user_type) {
-                        default:
-                        case AbstractUser.OFFLINE:
-                            OffLineUser user = new OffLineUser(user_name, uuid, custom_is_slim, custom_skin, custom_cape);
-                            user.active = active;
-                            return user;
-                        case AbstractUser.MICROSOFT:
-                            MSAuth.McProfileModel.McSkinModel model = new MSAuth.McProfileModel.McSkinModel();
-                            model.isSlim = skin_is_slim;
-                            model.id = skin_id;
-                            model.url = skin_url;
-                            model.cape = skin_cape;
-                            model.state = skin_state;
-                            model.variant = skin_variant;
-                            MicrosoftUser user1 = new MicrosoftUser(access_token, user_name, uuid, model, refresh_token);
-                            user1.active = active;
-                            return user1;
-                    }
+                    System.out.println(processor.getProcessedContent());
+
+                    return new OffLineUser("000", "0000", false, null, null);
                 }
             })
             .registerTypeAdapter(LanguageManager.LanguageType.class, new TypeAdapter<LanguageManager.LanguageType>() {
@@ -234,6 +106,83 @@ public class ConfigReader {
                 }
             })
             .create();
+    public static class JsonToMapProcessor {
+        private JsonReader reader;
+        private Map<String, Object> content = new HashMap<>();
+        private Stack<Object> objectStack = new Stack<>();
+        private String name;
+        public JsonToMapProcessor(JsonReader reader) throws IOException {
+            this.reader = reader;
+            if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+                objectStack.push(content);
+                reader.beginObject();
+            }
+            else {
+                throw new IOException("Not a map");
+            }
+        }
+        public boolean processable() {
+            return objectStack.size() > 0;
+        }
+        public Map<String, Object> getProcessedContent() {
+            return content;
+        }
+        private void putValue(Object o) {
+            Object cont = objectStack.pop();
+            objectStack.push(cont);
+            if (cont instanceof Collection) {
+                ((Collection<Object>) cont).add(o);
+            }
+            else if (cont instanceof Map) {
+                ((Map<Object, Object>) cont).put(name, o);
+            }
+            name = "null";
+        }
+        public void process() throws IOException {
+            JsonToken token = reader.peek();
+            switch (token) {
+                case NULL:
+                    reader.nextNull();
+                    putValue(null);
+                    break;
+                case NAME:
+                    name = reader.nextName();
+                    break;
+                case STRING:
+                    putValue(reader.nextString());
+                    break;
+                case NUMBER:
+                    putValue(reader.nextLong());
+                    break;
+                case BOOLEAN:
+                    putValue(reader.nextBoolean());
+                    break;
+                case BEGIN_OBJECT:
+                    reader.beginObject();
+                    Map<String, Object> content2 = new HashMap<>();
+                    putValue(content2);
+                    objectStack.push(content2);
+                    break;
+                case END_OBJECT:
+                    reader.endObject();
+                    objectStack.pop();
+                    break;
+                case BEGIN_ARRAY:
+                    reader.beginArray();
+                    Collection<Object> content3 = new Vector<>();
+                    putValue(content3);
+                    objectStack.push(content3);
+                    break;
+                case END_ARRAY:
+                    reader.endArray();
+                    objectStack.pop();
+                    break;
+                default:
+                case END_DOCUMENT:
+                    break;
+            }
+        }
+    }
     public ConfigReader(File f) throws IOException {
         first_config = false;
         if (!f.getPath().endsWith(".json")){
