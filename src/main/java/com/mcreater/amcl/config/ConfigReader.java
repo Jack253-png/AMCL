@@ -76,7 +76,6 @@ public class ConfigReader {
                     boolean active = JsonUtils.JsonProcessors.parseBoolean(JsonUtils.JsonProcessors.getValue(content, "active"));
 
 
-
                     return new OffLineUser("000", "0000", false, null, null);
                 }
             })
