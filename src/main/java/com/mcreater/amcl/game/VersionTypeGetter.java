@@ -69,6 +69,11 @@ public class VersionTypeGetter {
         if (getTweakClass(v).contains("net.minecraftforge.fml.common.launcher.FMLTweaker") || getTweakClass(v).contains("cpw.mods.fml.common.launcher.FMLTweaker")){
             return VersionType.FORGE;
         }
+        if (getTweakClass(v).size() >= 1) {
+            if (getTweakClass(v).get(0).contains("net.minecraftforge.legacy.") && getTweakClass(v).get(0).contains(".LibraryFixerTweaker")) {
+                return VersionType.FORGE;
+            }
+        }
         if (forge.contains(v.mainClass) || getTweakClass(v).contains("net.minecraftforge.fml.common.launcher.FMLTweaker")){
             return VersionType.FORGE;
         }

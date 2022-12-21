@@ -32,6 +32,7 @@ import static com.mcreater.amcl.download.OriginalDownload.createNewDir;
 public class MinecraftFixer {
     static Vector<Task> tasks = new Vector<>();
     public static void fix(int chunkSize, String dir, String versionName, FasterUrls.Servers server) throws IOException, InterruptedException {
+        tasks.clear();
         String versionDir = LinkPath.link(dir, String.format("versions/%s", versionName));
         String assetsDir = String.format("%s/assets/indexes/", dir).replace("\\", "/");
         if (!new File(versionDir).exists()){
@@ -56,7 +57,6 @@ public class MinecraftFixer {
     public static void runTasks() throws InterruptedException {
         TaskManager.addTasks(tasks);
         TaskManager.execute("<full files>");
-        tasks.clear();
     }
     public static void checkAssets(int chunk, String assets, VersionJsonModel model, String minecraft_dir, FasterUrls.Servers server) throws IOException {
         String index = assets + model.assetIndex.get("id") + ".json";

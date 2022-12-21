@@ -74,6 +74,7 @@ public class ConfigReader {
                     Map<String, Object> content = processor.getProcessedContent();
 
                     boolean active = JsonUtils.JsonProcessors.parseBoolean(JsonUtils.JsonProcessors.getValue(content, "active"));
+                    int user_type = (int) JsonUtils.JsonProcessors.parseLong(JsonUtils.JsonProcessors.getValue(content, "user_type"));
 
 
                     return new OffLineUser("000", "0000", false, null, null);

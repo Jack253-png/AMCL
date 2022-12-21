@@ -19,6 +19,7 @@ import com.mcreater.amcl.util.xml.ForgeVersionXMLHandler;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -26,6 +27,21 @@ import java.util.Objects;
 import java.util.Vector;
 
 public class GetVersionList {
+    private static final Vector<String> ignoreList = new Vector<>(Arrays.asList(
+            "1.1",
+            "1.2.3",
+            "1.2.4",
+            "1.2.5",
+            "1.3.2",
+            "1.4.0",
+            "1.4",
+            "1.4.2",
+            "1.4.3",
+            "1.4.4",
+            "1.4.5",
+            "1.4.6",
+            "1.4.7"
+    ));
     public static Vector<OriginalVersionModel> getOriginalList(FasterUrls.Servers server) throws Exception {
         String url = FasterUrls.getVersionJsonv2WithFaster(server);
         VersionsModel model = new Gson().fromJson(HttpConnectionUtil.doGet(url), VersionsModel.class);
@@ -55,6 +71,7 @@ public class GetVersionList {
     }
 
     public static Vector<NewForgeItemModel> getForgeInstallers(String version, FasterUrls.Servers server) throws Exception {
+        if (ignoreList.contains(version)) return new Vector<>();
         String url = FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/minecraft/" + version, server);
         String r = HttpConnectionUtil.doGet(url);
         Vector<NewForgeItemModel> result = new Vector<>();
@@ -100,21 +117,9 @@ public class GetVersionList {
     public static Vector<String> getForgeVersionList(String version, FasterUrls.Servers server) throws Exception {
         String url = FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", server);
         Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(url));
-        vectorMap.remove("1.1");
-        vectorMap.remove("1.2.3");
-        vectorMap.remove("1.2.4");
-        vectorMap.remove("1.2.5");
-        vectorMap.remove("1.3.2");
-        vectorMap.remove("1.4.0");
-        vectorMap.remove("1.4.2");
-        vectorMap.remove("1.4.3");
-        vectorMap.remove("1.4.4");
-        vectorMap.remove("1.4.5");
-        vectorMap.remove("1.4.6");
-        vectorMap.remove("1.4.7");
-        vectorMap.remove("1.5");
-        vectorMap.remove("1.5.1");
-        vectorMap.remove("1.5.2");
+        for (String ver : ignoreList) {
+            vectorMap.remove(ver);
+        }
         if (vectorMap.get(version) != null) {
             return vectorMap.get(version);
         }

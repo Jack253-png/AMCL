@@ -42,9 +42,12 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -53,6 +56,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.BindException;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -80,10 +84,10 @@ public class Launch {
     public Long exitCode;
     public void launch(String java_path, String dir, String version_name, boolean ie, int memory, AbstractUser user, FasterUrls.Servers dlserver, int chunkSize) throws Exception {
         argList.clear();
-        if (MemoryReader.getFreeMemory() < (long) memory * 1024 * 1024){
+        if (MemoryReader.getFreeMemory() < (long) memory * 1024 * 1024) {
             memory = (int) (MemoryReader.getFreeMemory() / 1024 / 1204);
         }
-        if (user == null){
+        if (user == null) {
             throw new BadUserException();
         }
         updater.accept(new ImmutablePair<>(0, 5), Launcher.languageManager.get("ui.launch._01"));
@@ -96,27 +100,27 @@ public class Launch {
         TaskManager.setUpdater((integer, s) -> updater.accept(new ImmutablePair<>(1, integer), s));
         TaskManager.setFinishRunnable(() -> {
             updater.accept(new ImmutablePair<>(1, 100), "");
-            TaskManager.setFinishRunnable(() -> {});
+            TaskManager.setFinishRunnable(() -> {
+            });
         });
         try {
             MinecraftFixer.fix(chunkSize, dir, version_name, dlserver);
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             failedRunnable.run();
             SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"));
             return;
         }
 
-        if (!new File(dir).exists()){
+        if (!new File(dir).exists()) {
             throw new BadMinecraftDirException();
         }
         File f = new File(LinkPath.link(dir, "versions" + File.separator + version_name));
-        if (!f.exists()){
+        if (!f.exists()) {
             throw new BadVersionDirException();
         }
-        File json_file = new File(LinkPath.link(f.getPath(),version_name + ".json"));
-        File jar_file = new File(LinkPath.link(f.getPath(),version_name + ".jar"));
-        if (!json_file.exists() || !jar_file.exists()){
+        File json_file = new File(LinkPath.link(f.getPath(), version_name + ".json"));
+        File jar_file = new File(LinkPath.link(f.getPath(), version_name + ".jar"));
+        if (!json_file.exists() || !jar_file.exists()) {
             throw new BadMainFilesException();
         }
         updater.accept(new ImmutablePair<>(0, 60), Launcher.languageManager.get("ui.launch._03"));
@@ -125,7 +129,7 @@ public class Launch {
         VersionJsonModel r = g.fromJson(json_result, VersionJsonModel.class);
 
         File libf = new File(LinkPath.link(dir, "libraries"));
-        if (!libf.exists()){
+        if (!libf.exists()) {
             throw new BadLibDirException();
         }
         Vector<String> libs = new Vector<>();
@@ -144,8 +148,7 @@ public class Launch {
                         has_322 = true;
                     }
                 }
-            }
-            catch (Exception ignored){
+            } catch (Exception ignored) {
 
             }
         }
@@ -155,7 +158,8 @@ public class Launch {
                 if (!(l.name.contains("3.2.1") && has_322)) {
                     if (l.downloads != null) {
                         if (l.downloads.classifiers != null) {
-                            if (l.downloads.classifiers.containsKey("natives-osx")) nativeName = nativeName.replace("natives-macos", "natives-osx").replace("-arm64", "");
+                            if (l.downloads.classifiers.containsKey("natives-osx"))
+                                nativeName = nativeName.replace("natives-macos", "natives-osx").replace("-arm64", "");
                             if (l.downloads.classifiers.get(nativeName) != null) {
                                 if (new File(LinkPath.link(libf.getPath(), l.downloads.classifiers.get(nativeName).path)).exists()) {
                                     natives.add(LinkPath.link(libf.getPath(), l.downloads.classifiers.get(nativeName).path));
@@ -203,27 +207,26 @@ public class Launch {
             updater.accept(new ImmutablePair<>(0, 75 + 5 * s0 / r.libraries.size()), String.format(Launcher.languageManager.get("ui.launch._04"), l.name));
         }
         updater.accept(new ImmutablePair<>(0, 80), String.format(Launcher.languageManager.get("ui.launch._05"), r.libraries.size()));
-        File nativef = new File(LinkPath.link(f.getPath(),version_name + "-natives"));
-        if (!nativef.exists()){
+        File nativef = new File(LinkPath.link(f.getPath(), version_name + "-natives"));
+        if (!nativef.exists()) {
             boolean b = nativef.mkdirs();
-            if (!b){
+            if (!b) {
                 throw new BadNativeDirException();
             }
         }
-        for (String p : natives){
+        for (String p : natives) {
             try {
                 if (new File(p).exists()) {
                     ZipUtil.unzip(p, nativef.getPath());
                 }
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 throw new BadUnzipException();
             }
             updater.accept(new ImmutablePair<>(0, 85), Launcher.languageManager.get("ui.launch._06"));
         }
         StringBuilder classpath = new StringBuilder("");
-        for (String s : libs){
+        for (String s : libs) {
             classpath.append(s).append(File.pathSeparator);
         }
         classpath.append(jar_file);
@@ -234,11 +237,10 @@ public class Launch {
 
         if (r.minecraftArguments != null) {
             arguList.addAll(Arrays.asList(r.minecraftArguments.split(" ")));
-        }
-        else {
-            if (r.arguments != null){
-                if (r.arguments.game != null){
-                    for (Object s : r.arguments.game){
+        } else {
+            if (r.arguments != null) {
+                if (r.arguments.game != null) {
+                    for (Object s : r.arguments.game) {
                         if (s != null) {
                             try {
                                 arguList.add((String) s);
@@ -250,8 +252,7 @@ public class Launch {
                                             arguList.add(s1);
                                         }
                                     }
-                                }
-                                catch (ClassCastException e1){
+                                } catch (ClassCastException e1) {
                                     if (!((String) ltm.get("value")).contains("demo")) {
                                         arguList.add((String) ltm.get("value"));
                                     }
@@ -266,9 +267,52 @@ public class Launch {
         File gamedir;
         if (ie) {
             gamedir = f;
-        }
-        else {
+        } else {
             gamedir = new File(dir);
+        }
+
+
+        String old_assets = null;
+        try {
+            old_assets = LinkPath.link(dir, "assets/virtual/legacy");
+            new File(old_assets).mkdirs();
+
+            String path = LinkPath.link(dir, "assets/indexes/pre-1.6.json");
+            if (r.assetIndex != null) {
+                if (r.assetIndex.get("id") != null) {
+                    path = LinkPath.link(dir, String.format("assets/indexes/%s.json", r.assetIndex.get("id")));
+                }
+            }
+
+            String json = FileUtils.FileStringReader.read(path);
+            JSONObject object = new JSONObject(json);
+
+            JSONObject objects = object.getJSONObject("objects");
+            String finalOld_assets = old_assets;
+            objects.keySet().forEach(s -> {
+                try {
+                    String hash2 = objects.getJSONObject(s).getString("hash");
+                    String pathAsset = LinkPath.link(finalOld_assets, s);
+                    String hashedAsset = LinkPath.link(dir, String.format("assets/objects/%s/%s", hash2.substring(0, 2), hash2));
+
+                    File target = new File(pathAsset);
+                    File origin = new File(hashedAsset);
+
+                    new File(StringUtils.GetFileBaseDir.get(pathAsset)).mkdirs();
+
+                    if (!FileUtils.HashHelper.getFileSHA1(target).equals(hash2)) {
+                        FileChannel in = new FileInputStream(origin).getChannel();
+                        FileChannel out = new FileOutputStream(target).getChannel();
+                        out.transferFrom(in, 0, in.size());
+                        in.close();
+                        out.close();
+                    }
+                } catch (Exception e) {
+                    logger.warn("Failed to copy assets", e);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         Map<String, String> content = new HashMap<>();
@@ -279,17 +323,17 @@ public class Launch {
             }
         }
         content.put("${auth_player_name}", user.username);
-        content.put("${user_type}","mojang");
+        content.put("${user_type}", "mojang");
         content.put("${version_type}", String.format("%s %s", VersionInfo.launcher_name, VersionInfo.launcher_version));
         content.put("${game_directory}", gamedir.getAbsolutePath());
         content.put("${user_properties}", "{}");
         content.put("${auth_uuid}", user.uuid);
         content.put("${auth_access_token}", user.accessToken);
         content.put("${auth_session}", user.accessToken);
-        content.put("${game_assets}", LinkPath.link(dir, "assets"));
+        content.put("${game_assets}", old_assets);
         content.put("${version_name}", String.format("%s %s", VersionInfo.launcher_name, VersionInfo.launcher_version));
-        content.put("${resolution_width}",String.valueOf(854));
-        content.put("${resolution_height}",String.valueOf(480));
+        content.put("${resolution_width}", String.valueOf(854));
+        content.put("${resolution_height}", String.valueOf(480));
 
         Vector<String> finalArguList = new Vector<>();
 
@@ -346,8 +390,7 @@ public class Launch {
                     jvmArguList.add(te);
                 }
             }
-        }
-        else {
+        } else {
             jvmArguList.addAll(J8Utils.createList(
                     JVMArgs.FILE_ENCODING,
                     JVMArgs.MINECRAFT_CLIENT_JAR.replace("${jar_path}", jar_file.getPath()),
@@ -398,15 +441,15 @@ public class Launch {
             String authLibInjectorArg = "";
             int port = 2;
             LocalYggdrasilServer server = null;
-            if (user instanceof OffLineUser){
+            if (user instanceof OffLineUser) {
                 OffLineUser temp_user = (OffLineUser) user;
-                if (temp_user.skinUseable() || temp_user.capeUseable()){
+                if (temp_user.skinUseable() || temp_user.capeUseable()) {
                     File skin = null;
                     File cape = null;
                     if (temp_user.skinUseable()) skin = new File(temp_user.skin);
                     if (temp_user.capeUseable()) cape = new File(temp_user.cape);
 
-                    while (true){
+                    while (true) {
                         try {
                             updater.accept(new ImmutablePair<>(0, 90), String.format(Launcher.languageManager.get("ui.userselectpage.launch.tryOpenServer"), port));
                             server = new LocalYggdrasilServer(port);
@@ -419,10 +462,9 @@ public class Launch {
                             ));
                             server.start();
                             break;
-                        }
-                        catch (BindException e){
+                        } catch (BindException e) {
                             port += 1;
-                            if (port > 65536){
+                            if (port > 65536) {
                                 throw new IOException("server cannot open local server");
                             }
                         }
@@ -445,8 +487,7 @@ public class Launch {
             updater.accept(new ImmutablePair<>(0, 95), Launcher.languageManager.get("ui.launch._08"));
             try {
                 p = Runtime.getRuntime().exec(argList.toArray(new String[0]), null, new File(dir));
-            }
-            catch (IOException e){
+            } catch (IOException e) {
                 throw new ProcessException(e);
             }
             new Thread(() -> {
@@ -461,24 +502,23 @@ public class Launch {
             }).start();
             LocalYggdrasilServer finalServer = server;
             new Thread(() -> {
-                while (true){
+                while (true) {
                     try {
                         if (p != null) {
                             exitCode = (long) p.exitValue();
-                        }
-                        else {
+                        } else {
                             exitCode = 1L;
                         }
                         MainPage.tryToRemoveLaunch(this);
                         if (finalServer != null) finalServer.stop();
                         Platform.runLater(() -> MainPage.check(this));
                         break;
+                    } catch (IllegalThreadStateException ignored) {
                     }
-                    catch (IllegalThreadStateException ignored){}
                 }
             }).start();
             readProcessOutput(p);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new ProcessException(e);
         }
     }
