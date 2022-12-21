@@ -51,16 +51,11 @@ public class StableMain {
     };
     public static void main(String[] args) throws Exception {
         System.setProperty("log4j.skipJansi", "false");
-        System.setProperty("com.sun.webkit.useHTTP2Loader", "false");
 
         GithubReleases.trustAllHosts();
         Fonts.loadSwingFont();
         initPreLanguageManager();
         Timer timer = Timer.getInstance();
-
-        for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-            System.out.printf("%s : %s\n", info.getName(), info.getClassName());
-        }
 
         UIManager.setLookAndFeel(new FlatIntelliJLaf());
         if (ClassPathInjector.version < 11 && !ClassPathInjector.javafx_useable) {
