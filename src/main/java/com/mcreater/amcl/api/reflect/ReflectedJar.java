@@ -2,7 +2,10 @@ package com.mcreater.amcl.api.reflect;
 
 import com.mcreater.amcl.util.J8Utils;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,10 +13,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Vector;
+import java.util.function.Consumer;
 
-public class ReflectedJar {
+public class ReflectedJar implements Closeable {
     URLClassLoader loader;
     Vector<Object> instances = new Vector<>();
     public ReflectedJar(String... path) throws MalformedURLException {
@@ -24,14 +27,24 @@ public class ReflectedJar {
         }
         loader = new URLClassLoader(urls);
     }
+    public void close() throws IOException {
+        loader.close();
+        loader = null;
+        instances.clear();
+        instances = null;
+        System.gc();
+    }
     public ReflectedJar(URL... url){
         loader = new URLClassLoader(url);
     }
     public Class<?> getJarClass(String className) throws ClassNotFoundException {
         return loader.loadClass(className);
     }
-    public int createNewInstance(Class<?> cl) throws InstantiationException, IllegalAccessException {
-        instances.add(cl.newInstance());
+    public int createNewInstance(Class<?> cl, Object... objs) throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        Vector<Class<?>> types = new Vector<>();
+        Arrays.asList(objs).forEach(o -> types.add(o.getClass()));
+        Constructor<?> constructor = cl.getConstructor(types.toArray(new Class<?>[0]));
+        instances.add(constructor.newInstance(objs));
         return instances.size() - 1;
     }
     public Object getFieldContent(int id, String fieldName) throws NoSuchFieldException, IllegalAccessException {

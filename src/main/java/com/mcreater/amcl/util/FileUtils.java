@@ -35,8 +35,13 @@ import java.util.zip.ZipInputStream;
 public class FileUtils {
     public static class OperateUtil {
         public static void deleteFile(String path) {
-            System.out.println("deleting " + path);
-            new File(path).delete();
+            try {
+                Path path2 = Paths.get(path);
+                Files.deleteIfExists(path2);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         public static void deleteDirectory(File f, String orgin){
             if (!f.exists()){

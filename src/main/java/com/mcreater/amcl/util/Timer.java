@@ -4,10 +4,10 @@ import java.text.DecimalFormat;
 
 public abstract class Timer {
     public long current;
-    public Timer(){
+    private Timer(){
         current = System.currentTimeMillis();
     }
-    public Timer(long current){
+    private Timer(long current){
         this.current = current;
     }
 

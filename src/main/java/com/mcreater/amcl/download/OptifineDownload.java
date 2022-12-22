@@ -129,6 +129,8 @@ public class OptifineDownload {
         BufferedWriter writer = new BufferedWriter(new FileWriter(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
         writer.write(GSON_PARSER.toJson(f));
         writer.close();
+
+        jar.close();
         deleteFile("opti.jar");
     }
 }
