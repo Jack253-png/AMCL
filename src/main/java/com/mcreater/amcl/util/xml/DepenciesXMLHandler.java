@@ -1,6 +1,5 @@
 package com.mcreater.amcl.util.xml;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
@@ -11,12 +10,14 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Vector;
 
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
+
 public class DepenciesXMLHandler {
     public static Vector<DepencyItem> load() throws Exception {
         return load(ResourceGetter.get("assets/depencies.json"));
     }
     public static Vector<DepencyItem> load(InputStream is) throws Exception {
-        DepencyModel model = new Gson().fromJson(new InputStreamReader(is), DepencyModel.class);
+        DepencyModel model = GSON_PARSER.fromJson(new InputStreamReader(is), DepencyModel.class);
         Vector<DepencyItem> items = new Vector<>();
         for (DepencyModel.ItemModel item : model.depencies){
             if (item.isMultiPlatform) {

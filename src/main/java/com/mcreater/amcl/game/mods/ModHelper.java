@@ -2,7 +2,6 @@ package com.mcreater.amcl.game.mods;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.game.VersionTypeGetter;
@@ -12,17 +11,15 @@ import com.mcreater.amcl.model.mod.ForgeModInfoModel;
 import com.mcreater.amcl.model.mod.LiteLoaderModInfoModel;
 import com.mcreater.amcl.model.mod.OldForgeModInfoModel;
 import com.mcreater.amcl.model.mod.SimpleModInfoModel;
-import com.mcreater.amcl.util.FileUtils.*;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
+import com.mcreater.amcl.util.FileUtils.ZipUtil;
 import com.mcreater.amcl.util.J8Utils;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Vector;
-import java.util.function.Consumer;
+
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class ModHelper {
     public static Vector<File> getMod(String dir, String version_name){
@@ -64,14 +61,12 @@ public class ModHelper {
         String liteloaderInfoFile = ZipUtil.readTextFileInZip(path, "litemod.json");
 
         if (mcmodinfoFile != null){
-            Gson g = new Gson();
-
             if (mcmodinfoFile.startsWith("[")) {
                 Vector<LinkedTreeMap<?, ?>> commonInfo = new Vector<>();
-                commonInfo = g.fromJson(mcmodinfoFile, commonInfo.getClass());
+                commonInfo = GSON_PARSER.fromJson(mcmodinfoFile, commonInfo.getClass());
 
                 Vector<ForgeModInfoModel> cm = new Vector<>();
-                commonInfo.forEach(linkedTreeMap -> cm.add(g.fromJson(g.toJson(linkedTreeMap), ForgeModInfoModel.class)));
+                commonInfo.forEach(linkedTreeMap -> cm.add(GSON_PARSER.fromJson(GSON_PARSER.toJson(linkedTreeMap), ForgeModInfoModel.class)));
 
                 Vector<CommonModInfoModel> vec = new Vector<>();
 
@@ -88,7 +83,7 @@ public class ModHelper {
                 return vec;
             }
             else {
-                OldForgeModInfoModel model = g.fromJson(mcmodinfoFile, OldForgeModInfoModel.class);
+                OldForgeModInfoModel model = GSON_PARSER.fromJson(mcmodinfoFile, OldForgeModInfoModel.class);
                 Vector<CommonModInfoModel> vec = new Vector<>();
                 model.modlist.forEach(mu -> {
                     CommonModInfoModel m2 = new CommonModInfoModel();
@@ -103,8 +98,7 @@ public class ModHelper {
             }
         }
         else if (liteloaderInfoFile != null) {
-            Gson g = new Gson();
-            LiteLoaderModInfoModel model = g.fromJson(liteloaderInfoFile, LiteLoaderModInfoModel.class);
+            LiteLoaderModInfoModel model = GSON_PARSER.fromJson(liteloaderInfoFile, LiteLoaderModInfoModel.class);
 
             version = model.revision;
             name = model.name;
@@ -112,14 +106,14 @@ public class ModHelper {
             authorList = new Vector<>(Collections.singletonList(model.author));
         }
         else if (packMcMetaFile != null){
-            SimpleModInfoModel model = new Gson().fromJson(packMcMetaFile, SimpleModInfoModel.class);
+            SimpleModInfoModel model = GSON_PARSER.fromJson(packMcMetaFile, SimpleModInfoModel.class);
             name = model.pack.get("description");
             description = model.pack.get("description");
         }
         if (fabricModJsonFile != null) {
             FabricModInfoModel model;
             try {
-                model = new Gson().fromJson(fabricModJsonFile, FabricModInfoModel.class);
+                model = GSON_PARSER.fromJson(fabricModJsonFile, FabricModInfoModel.class);
             } catch (Exception e) {
                 e.printStackTrace();
                 CommonModInfoModel mode = new CommonModInfoModel();
@@ -142,7 +136,7 @@ public class ModHelper {
             Vector<String> temp = new Vector<>();
             ob.getJSONObject("quilt_loader").getJSONObject("metadata").getJSONObject("contributors").keySet().forEach(o -> {
                 try {
-                    temp.add((String) o);
+                    temp.add(o);
                 }
                 catch (Exception e){
                     e.printStackTrace();

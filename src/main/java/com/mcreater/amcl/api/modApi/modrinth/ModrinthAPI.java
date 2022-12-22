@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
+
 public class ModrinthAPI {
     private static final Logger logger = LogManager.getLogger(CurseAPI.class);
     private static final String host = "https://api.modrinth.com";
@@ -76,13 +78,12 @@ public class ModrinthAPI {
     public static Vector<ModrinthModModel> search(String name, int pageSize) throws IOException {
         String url = String.format("/v2/search?query=%s&limit=%d&index=downloads&facets=", name, pageSize);
         String re = response(url + URLEncoder.encode("[[\"project_type:mod\"]]", "UTF-8"));
-        Gson g = new Gson();
 
         Vector<ModrinthModModel> resu = new Vector<>();
-        resu = g.fromJson(JSONObject.parseObject(re).getJSONArray("hits").toString(), resu.getClass());
+        resu = GSON_PARSER.fromJson(JSONObject.parseObject(re).getJSONArray("hits").toString(), resu.getClass());
 
         for (int index = 0; index < resu.size(); index++) {
-            resu.set(index, g.fromJson(g.toJson(resu.get(index)), ModrinthModModel.class));
+            resu.set(index, GSON_PARSER.fromJson(GSON_PARSER.toJson(resu.get(index)), ModrinthModModel.class));
         }
 
         return resu;
@@ -90,12 +91,11 @@ public class ModrinthAPI {
     public static Map<String, Vector<ModrinthModFileModel>> getModFiles(ModrinthModModel model) throws IOException {
         String url = String.format("/v2/project/%s/version", model.slug);
         String re = response(url);
-        Gson g = new Gson();
 
         Map<String, Vector<ModrinthModFileModel>> result = new HashMap<>();
 
         for (Object o : JSONArray.parseArray(re)) {
-            ModrinthModFileModel model2 = g.fromJson(o.toString(), ModrinthModFileModel.class);
+            ModrinthModFileModel model2 = GSON_PARSER.fromJson(o.toString(), ModrinthModFileModel.class);
             for (String ver : model2.game_versions) {
                 if (result.get(ver) == null) result.put(ver, new Vector<>());
                 if (result.get(ver) != null) result.get(ver).add(model2);
@@ -106,7 +106,7 @@ public class ModrinthAPI {
 
     public static ModrinthModModel getFromModId(String modid) throws IOException {
         String url = "/v2/project/" + modid;
-        return new Gson().fromJson(response(url), ModrinthModModel.class);
+        return GSON_PARSER.fromJson(response(url), ModrinthModModel.class);
     }
 
     public static Vector<ModrinthModModel> getModFileRequiredMods(ModrinthModFileModel model) throws Exception {

@@ -2,7 +2,6 @@ package com.mcreater.amcl.download;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.api.reflect.ReflectedJar;
@@ -10,20 +9,18 @@ import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.util.FileUtils;
-import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import static com.mcreater.amcl.util.FileUtils.FileStringReader;
 import static com.mcreater.amcl.util.FileUtils.LinkPath;
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class OptifineDownload {
     public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version, Runnable r1, Runnable r2, FasterUrls.Servers server) throws Exception {
@@ -45,7 +42,7 @@ public class OptifineDownload {
             throw new IOException();
         }
         OriginalDownload.download(id, minecraft_dir, version_name, chunkSize, server);
-        JSONObject ob = new JSONObject(new Gson().fromJson(OriginalDownload.getVJ(), Map.class));
+        JSONObject ob = new JSONObject(GSON_PARSER.fromJson(OriginalDownload.getVJ(), Map.class));
         r1.run();
 
         new OptiFineInstallerDownloadTask(opti, "opti.jar").execute();
@@ -117,7 +114,7 @@ public class OptifineDownload {
                 File.class, String.class, File.class, String.class, String.class);
 
         // merge json
-        JSONObject f = new JSONObject(new Gson().fromJson(FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)), Map.class));
+        JSONObject f = new JSONObject(GSON_PARSER.fromJson(FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)), Map.class));
         Vector<Map<String, String>> oflibs = new Vector<>();
         for (Object o : f.getJSONArray("libraries")){
             oflibs.add((Map<String, String>) o);
@@ -135,10 +132,8 @@ public class OptifineDownload {
             JSONArray array = new JSONArray(finalArgs);
             f.getJSONObject("arguments").put("game", array);
         }
-        GsonBuilder gb = new GsonBuilder();
-        gb.setPrettyPrinting();
         BufferedWriter writer = new BufferedWriter(new FileWriter(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
-        writer.write(gb.create().toJson(f));
+        writer.write(GSON_PARSER.toJson(f));
         writer.close();
     }
 }

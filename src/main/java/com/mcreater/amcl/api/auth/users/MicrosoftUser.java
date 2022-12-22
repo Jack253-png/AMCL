@@ -1,6 +1,5 @@
 package com.mcreater.amcl.api.auth.users;
 
-import com.google.gson.Gson;
 import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.util.J8Utils;
@@ -21,6 +20,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class MicrosoftUser extends AbstractUser {
     public final MSAuth.McProfileModel.McSkinModel skin;
@@ -104,7 +105,7 @@ public class MicrosoftUser extends AbstractUser {
         client.conn.setRequestProperty("Content-Type", "application/json");
         client.conn.connect();
         BufferedWriter wrt2=new BufferedWriter(new OutputStreamWriter(client.conn.getOutputStream()));
-        wrt2.write(new Gson().toJson(data));
+        wrt2.write(GSON_PARSER.toJson(data));
         wrt2.flush();
         wrt2.close();
         client.read(false, false);

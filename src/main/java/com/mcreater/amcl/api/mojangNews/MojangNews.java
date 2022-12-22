@@ -1,11 +1,11 @@
 package com.mcreater.amcl.api.mojangNews;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mcreater.amcl.api.mojangNews.models.NewsModel;
 import com.mcreater.amcl.util.net.HttpClient;
 
 import java.io.IOException;
+
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class MojangNews {
     public static final String url = "https://launchercontent.mojang.com/news.json";
@@ -13,8 +13,6 @@ public class MojangNews {
         HttpClient client = HttpClient.getInstance(url);
         client.openConnection();
 
-        Gson g = new GsonBuilder().setPrettyPrinting().create();
-
-        return g.fromJson(client.read(), NewsModel.class);
+        return GSON_PARSER.fromJson(client.read(), NewsModel.class);
     }
 }

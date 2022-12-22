@@ -1,16 +1,15 @@
 package com.mcreater.amcl.download;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.game.MavenPathConverter;
-import com.mcreater.amcl.model.fabric.*;
+import com.mcreater.amcl.model.fabric.FabricLibModel;
+import com.mcreater.amcl.model.fabric.FabricVersionModel;
+import com.mcreater.amcl.model.fabric.OldFabricVersionModel;
 import com.mcreater.amcl.tasks.LibDownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.StringUtils;
-import static com.mcreater.amcl.util.FileUtils.*;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +23,10 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Vector;
 
+import static com.mcreater.amcl.util.FileUtils.FileStringReader;
+import static com.mcreater.amcl.util.FileUtils.LinkPath;
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
+
 public class FabricDownload {
     static int chunkSize;
     static Vector<Task> tasks = new Vector<>();
@@ -31,7 +34,6 @@ public class FabricDownload {
     public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String fabric_version, Runnable ru, FasterUrls.Servers server) throws Exception {
         tasks.clear();
         FabricDownload.chunkSize = chunkSize;
-        Gson g = new Gson();
         Vector<String> vers = GetVersionList.getFabricVersionList(id, server);
 
         if (vers.size() == 0 || !vers.contains(fabric_version)) {
@@ -42,7 +44,7 @@ public class FabricDownload {
         String fab = FasterUrls.fast(String.format("https://meta.fabricmc.net/v2/versions/loader/%s/%s", id, fabric_version), server);
         String r = HttpConnectionUtil.doGet(fab);
         try {
-            FabricVersionModel model = g.fromJson(r, FabricVersionModel.class);
+            FabricVersionModel model = GSON_PARSER.fromJson(r, FabricVersionModel.class);
             String lib_base = LinkPath.link(minecraft_dir, "libraries");
             String versionJson = String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name);
             JSONObject ao = new JSONObject(FileStringReader.read(versionJson));
@@ -54,7 +56,7 @@ public class FabricDownload {
                 String url = FasterUrls.fast(lib.url + MavenPathConverter.get(lib.name).replace("\\", "/"), server);
                 String path = LinkPath.link(lib_base, MavenPathConverter.get(lib.name));
                 new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
-                ao.getJSONArray("libraries").put(g.fromJson(g.toJson(lib), Map.class));
+                ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(lib), Map.class));
                 tasks.add(new LibDownloadTask(url, path, chunkSize));
             }
             for (FabricLibModel lib : model.launcherMeta.libraries.client) {
@@ -64,7 +66,7 @@ public class FabricDownload {
                 String url = FasterUrls.fast(lib.url + MavenPathConverter.get(lib.name).replace("\\", "/"), server);
                 String path = LinkPath.link(lib_base, MavenPathConverter.get(lib.name));
                 new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
-                ao.getJSONArray("libraries").put(g.fromJson(g.toJson(lib), Map.class));
+                ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(lib), Map.class));
                 tasks.add(new LibDownloadTask(url, path, chunkSize));
             }
             String url = FasterUrls.fast("https://maven.fabricmc.net/" + MavenPathConverter.get(model.intermediary.maven).replace("\\", "/"), server);
@@ -73,7 +75,7 @@ public class FabricDownload {
             FabricLibModel model1 = new FabricLibModel();
             model1.name = model.intermediary.maven;
             model1.url = "https://maven.fabricmc.net/";
-            ao.getJSONArray("libraries").put(g.fromJson(g.toJson(model1), Map.class));
+            ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model1), Map.class));
             tasks.add(new LibDownloadTask(url, path, chunkSize));
 
             url = FasterUrls.fast("https://maven.fabricmc.net/" + MavenPathConverter.get(model.loader.maven).replace("\\", "/"), server);
@@ -82,7 +84,7 @@ public class FabricDownload {
             model1 = new FabricLibModel();
             model1.name = model.loader.maven;
             model1.url = "https://maven.fabricmc.net/";
-            ao.getJSONArray("libraries").put(g.fromJson(g.toJson(model1), Map.class));
+            ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model1), Map.class));
             tasks.add(new LibDownloadTask(url, path, chunkSize));
             TaskManager.addTasks(tasks);
             TaskManager.execute("<fabric>");
@@ -91,7 +93,7 @@ public class FabricDownload {
             bw.close();
         }
         catch (JsonSyntaxException e){
-            OldFabricVersionModel model = g.fromJson(r, OldFabricVersionModel.class);
+            OldFabricVersionModel model = GSON_PARSER.fromJson(r, OldFabricVersionModel.class);
             String lib_base = LinkPath.link(minecraft_dir, "libraries");
             String versionJson = String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name);
             JSONObject ao = new JSONObject(FileStringReader.read(versionJson));
@@ -110,28 +112,28 @@ public class FabricDownload {
                 String url = FasterUrls.fast(J8Utils.requireNonNullElse(s.url, "https://libraries.minecraft.net/") + MavenPathConverter.get(s.name).replace("\\", "/"), server);
                 String path = LinkPath.link(lib_base, MavenPathConverter.get(s.name));
                 new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
-                ao.getJSONArray("libraries").put(g.fromJson(g.toJson(s), Map.class));
+                ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(s), Map.class));
                 tasks.add(new LibDownloadTask(url, path, chunkSize));
             }
             for (FabricLibModel s : model.launcherMeta.libraries.client){
                 String url = FasterUrls.fast(J8Utils.requireNonNullElse(s.url, "https://libraries.minecraft.net/") + MavenPathConverter.get(s.name).replace("\\", "/"), server);
                 String path = LinkPath.link(lib_base, MavenPathConverter.get(s.name));
                 new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
-                ao.getJSONArray("libraries").put(g.fromJson(g.toJson(s), Map.class));
+                ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(s), Map.class));
                 tasks.add(new LibDownloadTask(url, path, chunkSize));
             }
             String url = FasterUrls.fast("https://maven.fabricmc.net/" + MavenPathConverter.get(model.loader.maven).replace("\\", "/"), server);
             String path = LinkPath.link(lib_base, MavenPathConverter.get(model.loader.maven));
             FabricLibModel model1 = new FabricLibModel();
             model1.name = model.loader.maven;
-            ao.getJSONArray("libraries").put(g.fromJson(g.toJson(model1), Map.class));
+            ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model1), Map.class));
             tasks.add(new LibDownloadTask(url, path, chunkSize));
 
             String url1 = FasterUrls.fast("https://maven.fabricmc.net/" + MavenPathConverter.get(model.intermediary.maven).replace("\\", "/"), server);
             String path1 = LinkPath.link(lib_base, MavenPathConverter.get(model.intermediary.maven));
             FabricLibModel model2 = new FabricLibModel();
             model1.name = model.intermediary.maven;
-            ao.getJSONArray("libraries").put(g.fromJson(g.toJson(model2), Map.class));
+            ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model2), Map.class));
             tasks.add(new LibDownloadTask(url1, path1, chunkSize));
             TaskManager.addTasks(tasks);
             TaskManager.execute("<old fabric>");

@@ -1,6 +1,5 @@
 package com.mcreater.amcl.download;
 
-import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.download.model.NewForgeItemModel;
 import com.mcreater.amcl.game.MavenPathConverter;
@@ -35,6 +34,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 import static com.mcreater.amcl.util.StringUtils.ForgeMapplings.checkIsForgePath;
 import static com.mcreater.amcl.util.StringUtils.ForgeMapplings.checkIsMapKey;
 import static com.mcreater.amcl.util.StringUtils.ForgeMapplings.get;
@@ -56,7 +56,7 @@ public class ForgeDownload {
         r.run();
         String versionPath = FileUtils.LinkPath.link(temp_path, "version.json");
         versiondir = String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name);
-        VersionJsonModel model225 = new Gson().fromJson(FileUtils.FileStringReader.read(versiondir), VersionJsonModel.class);
+        VersionJsonModel model225 = GSON_PARSER.fromJson(FileUtils.FileStringReader.read(versiondir), VersionJsonModel.class);
         try {
             u = FasterUrls.fast(model225.downloads.get("client_mappings").url, server);
         }
@@ -83,12 +83,11 @@ public class ForgeDownload {
 
         if (new File(versionPath).exists()){
             String t = FileUtils.FileStringReader.read(versionPath);
-            Gson g = new Gson();
-            ForgeVersionModel model = g.fromJson(t, ForgeVersionModel.class);
+            ForgeVersionModel model = GSON_PARSER.fromJson(t, ForgeVersionModel.class);
             JSONObject ao = new JSONObject(FileUtils.FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
             ao = ao.put("mainClass", model.mainClass);
             for (LibModel m : model.libraries) {
-                ao.getJSONArray("libraries").put(g.fromJson(g.toJson(m, LibModel.class), Map.class));
+                ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(m, LibModel.class), Map.class));
                 if (Objects.equals(m.downloads.artifact.get("url"), "")){
                     String extract = StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path")));
                     int returnCode = new ForgeExtractTask(extract, installer_path.replace("\\", "/"), new String[]{"--extract", extract}).execute();
@@ -118,7 +117,7 @@ public class ForgeDownload {
             w.write(ao.toString());
             w.close();
 
-            ForgeInjectModel model1 = g.fromJson(FileUtils.FileStringReader.read(FileUtils.LinkPath.link(temp_path, "install_profile.json")), ForgeInjectModel.class);
+            ForgeInjectModel model1 = GSON_PARSER.fromJson(FileUtils.FileStringReader.read(FileUtils.LinkPath.link(temp_path, "install_profile.json")), ForgeInjectModel.class);
             for (LibModel m1 : model1.libraries){
                 new File(StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")))).mkdirs();
                 tasks.add(new LibDownloadTask(FasterUrls.fast(m1.downloads.artifact.get("url"), server), FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")), chunkSize).setHash(m1.downloads.artifact.get("sha1")));
@@ -164,13 +163,11 @@ public class ForgeDownload {
         else {
             String rr = FileUtils.LinkPath.link(temp_path, "install_profile.json");
             String rw = FileUtils.FileStringReader.read(rr);
-            Gson g = new Gson();
-            OldForgeVersionModel model = g.fromJson(rw, OldForgeVersionModel.class);
+            OldForgeVersionModel model = GSON_PARSER.fromJson(rw, OldForgeVersionModel.class);
             JSONObject ao = new JSONObject(FileUtils.FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
             ao = ao.put("mainClass", model.versionInfo.mainClass);
             ao = ao.put("minecraftArguments", model.versionInfo.minecraftArguments);
 
-            Gson g1 = new Gson();
             for (OldForgeLibModel model1 : model.versionInfo.libraries){
                 String p = StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name)));
                 new File(p).mkdirs();
@@ -183,7 +180,7 @@ public class ForgeDownload {
                             throw new IOException("Forge Extract Failed");
                         }
                         FileUtils.ChangeDir.changeToDefault();
-                        ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
+                        ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model1), Map.class));
                         for (File f : new File(p).listFiles()) {
                             if (f.isFile()) {
                                 if (f.getPath().endsWith(".jar")) {
@@ -224,7 +221,7 @@ public class ForgeDownload {
                                 }
                             }
                         }
-                        ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
+                        ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model1), Map.class));
                         LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, server), path, chunkSize);
                         if (model1.checksums != null){
                             te.setHash(model1.checksums.get(0));
@@ -251,7 +248,7 @@ public class ForgeDownload {
                             }
                         }
                     }
-                    ao.getJSONArray("libraries").put(g1.fromJson(g1.toJson(model1), Map.class));
+                    ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model1), Map.class));
                     LibDownloadTask te = new LibDownloadTask(FasterUrls.fast(url, server), path, chunkSize);
                     if (model1.checksums != null){
                         te.setHash(model1.checksums.get(0));

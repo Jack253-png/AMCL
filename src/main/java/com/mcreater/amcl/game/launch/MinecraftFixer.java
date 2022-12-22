@@ -1,7 +1,5 @@
 package com.mcreater.amcl.game.launch;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.model.JarModel;
@@ -28,6 +26,7 @@ import java.util.Objects;
 import java.util.Vector;
 
 import static com.mcreater.amcl.download.OriginalDownload.createNewDir;
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class MinecraftFixer {
     static Vector<Task> tasks = new Vector<>();
@@ -42,10 +41,7 @@ public class MinecraftFixer {
         if (!new File(versionJson).exists()){
             throw new IOException("version json does not exists");
         }
-        GsonBuilder builder = new GsonBuilder();
-        builder.setPrettyPrinting();
-        Gson gson = builder.create();
-        VersionJsonModel model = gson.fromJson(FileStringReader.read(versionJson), VersionJsonModel.class);
+        VersionJsonModel model = GSON_PARSER.fromJson(FileStringReader.read(versionJson), VersionJsonModel.class);
         if (model == null){
             throw new IOException("failed to read version json");
         }
@@ -66,7 +62,7 @@ public class MinecraftFixer {
         if (!HashHelper.getFileSHA1(new File(index)).equals(model.assetIndex.get("sha1"))){
             new DownloadTask(FasterUrls.fast(model.assetIndex.get("url"), server), index, chunk).setHash(model.assetIndex.get("sha1")).execute();
         }
-        AssetsModel m = new Gson().fromJson(FileStringReader.read(index), AssetsModel.class);
+        AssetsModel m = GSON_PARSER.fromJson(FileStringReader.read(index), AssetsModel.class);
         for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()){
             String hash = entry.getValue().get("hash");
             String s = String.format("%s/%s/%s", assets_objects, hash.substring(0, 2), hash).replace("\\", "/");

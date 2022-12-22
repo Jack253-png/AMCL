@@ -1,7 +1,8 @@
 package com.mcreater.amcl.api.IPApi;
 
-import com.google.gson.Gson;
 import com.mcreater.amcl.util.net.HttpClient;
+
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class IPApi {
     public static final String url = "http://ip-api.com/json";
@@ -24,6 +25,6 @@ public class IPApi {
     public static LocateJsonModel getLocate() throws Exception {
         HttpClient client = HttpClient.getInstance(url);
         client.openConnection();
-        return new Gson().fromJson(client.read(), LocateJsonModel.class);
+        return GSON_PARSER.fromJson(client.read(), LocateJsonModel.class);
     }
 }

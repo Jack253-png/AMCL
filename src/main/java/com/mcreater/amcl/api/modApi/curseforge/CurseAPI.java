@@ -31,6 +31,8 @@ import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
+
 public final class CurseAPI {
     private static boolean errored = false;
     private static final String host = "https://api.curseforge.com";
@@ -86,12 +88,11 @@ public final class CurseAPI {
     }
     public static Vector<CurseModModel> search(String name, CurseResourceType.Types res, CurseSortType.Types sort, int pageSize) throws IOException {
         String url = String.format("/v1/mods/search?gameId=432&searchFilter=%s&classId=%d&sortOrder=%s&pageSize=%d", URLEncoder.encode(name, "UTF-8"), CurseResourceType.get(res), CurseSortType.get(sort), pageSize);
-        Gson g = new Gson();
-        Map<? , ?> m = g.fromJson(response(url), Map.class);
+        Map<? , ?> m = GSON_PARSER.fromJson(response(url), Map.class);
         Vector<CurseModModel> result = new Vector<>();
         ArrayList<?> a = (ArrayList<?>) m.get("data");
         for (Object o : a){
-            result.add(g.fromJson(g.toJson(o), CurseModModel.class));
+            result.add(GSON_PARSER.fromJson(GSON_PARSER.toJson(o), CurseModModel.class));
         }
         return result;
     }
@@ -123,11 +124,10 @@ public final class CurseAPI {
 
     public static CurseModModel getFromModId(int id) throws IOException {
         String url = String.format("/v1/mods/%d", id);
-        Gson g = new Gson();
         String s = response(url);
-        Map<? , ?> m = g.fromJson(s, Map.class);
+        Map<? , ?> m = GSON_PARSER.fromJson(s, Map.class);
         LinkedTreeMap<?, ?> a = (LinkedTreeMap<?, ?>) m.get("data");
-        return g.fromJson(g.toJson(a), CurseModModel.class);
+        return GSON_PARSER.fromJson(GSON_PARSER.toJson(a), CurseModModel.class);
     }
     public static Vector<CurseModFileModel> getModFiles(CurseModModel mod, String version, FasterUrls.Servers server){
         Vector<CurseModFileModel> files = new Vector<>();
@@ -141,16 +141,15 @@ public final class CurseAPI {
         if (cd){
             String url = String.format("/v1/mods/%s/files?gameVersion=%s", mod.id, version);
             Map<?, ?> m;
-            Gson g = new Gson();
             try {
-                m = g.fromJson(response(url), Map.class);
+                m = GSON_PARSER.fromJson(response(url), Map.class);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             if (m != null) {
                 ArrayList<?> a = (ArrayList<?>) m.get("data");
                 for (Object o : a) {
-                    CurseModFileModel model = g.fromJson(g.toJson(o), CurseModFileModel.class);
+                    CurseModFileModel model = GSON_PARSER.fromJson(GSON_PARSER.toJson(o), CurseModFileModel.class);
                     files.add(model);
                 }
             }
@@ -187,9 +186,8 @@ public final class CurseAPI {
                 Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionsCaughter());
                 String url = String.format("/v1/mods/%s/files?gameVersion=%s", mod.id, v);
                 Map<?, ?> m;
-                Gson g = new Gson();
                 try {
-                    m = g.fromJson(response(url), Map.class);
+                    m = GSON_PARSER.fromJson(response(url), Map.class);
                 } catch (IOException e) {
                     latch.countDown();
                     throw new RuntimeException(e);
@@ -197,7 +195,7 @@ public final class CurseAPI {
                 if (m != null) {
                     ArrayList<?> a = (ArrayList<?>) m.get("data");
                     for (Object o : a) {
-                        CurseModFileModel model = g.fromJson(g.toJson(o), CurseModFileModel.class);
+                        CurseModFileModel model = GSON_PARSER.fromJson(GSON_PARSER.toJson(o), CurseModFileModel.class);
                         if (model.downloadUrl == null){
                             model.downloadUrl = String.format("https://edge.forgecdn.net/files/%d/%d/%s", model.id / 1000, model.id % 1000, model.fileName);
                         }

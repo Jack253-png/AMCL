@@ -20,6 +20,8 @@ import java.security.cert.X509Certificate;
 import java.util.Objects;
 import java.util.Vector;
 
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
+
 public class GithubReleases {
     static {
         trustAllHosts();
@@ -48,11 +50,10 @@ public class GithubReleases {
             else{
                 throw new IllegalStateException();
             }
-            Gson g = new Gson();
-            Vector<LinkedTreeMap<?, ?>> res = g.fromJson(re, Vector.class);
+            Vector<LinkedTreeMap<?, ?>> res = GSON_PARSER.fromJson(re, Vector.class);
             Vector<ReleaseModel> releases = new Vector<>();
             for (Object o : res){
-                releases.add(g.fromJson(g.toJson(o), ReleaseModel.class));
+                releases.add(GSON_PARSER.fromJson(GSON_PARSER.toJson(o), ReleaseModel.class));
             }
             int h = getVersionsBehind(releases, VersionInfo.launcher_version);
             for (ReleaseModel model : releases){

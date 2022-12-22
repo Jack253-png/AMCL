@@ -1,19 +1,13 @@
 package com.mcreater.amcl.config;
 
-import com.mcreater.amcl.api.auth.MSAuth;
-import com.mcreater.amcl.api.auth.users.MicrosoftUser;
-import com.mcreater.amcl.api.auth.users.OffLineUser;
-import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.util.J8Utils;
-import com.mcreater.amcl.util.net.FasterUrls;
-import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Vector;
 
-import static com.mcreater.amcl.config.ConfigReader.GSON_PRASER;
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class ConfigWriter {
     public ConfigModel configModel;
@@ -27,7 +21,7 @@ public class ConfigWriter {
     public void write(){
         try {
             FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(GSON_PRASER.toJson(configModel));
+            fileWriter.write(GSON_PARSER.toJson(configModel));
             fileWriter.close();
         }
         catch (IOException e){

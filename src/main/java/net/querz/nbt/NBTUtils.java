@@ -1,6 +1,5 @@
 package net.querz.nbt;
 
-import com.google.gson.GsonBuilder;
 import com.mcreater.amcl.util.J8Utils;
 import net.querz.mca.Chunk;
 import net.querz.nbt.io.NamedTag;
@@ -9,12 +8,13 @@ import net.querz.nbt.tag.EndTag;
 import net.querz.nbt.tag.ListTag;
 import net.querz.nbt.tag.Tag;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.function.Consumer;
+
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public final class NBTUtils {
     public static Object toJavaNativeDataType(Tag<?> root) {
@@ -62,9 +62,6 @@ public final class NBTUtils {
     }
 
     public static String toJsonString(Object v) {
-        return new GsonBuilder()
-                .setPrettyPrinting()
-                .create()
-                .toJson(v);
+        return GSON_PARSER.toJson(v);
     }
 }

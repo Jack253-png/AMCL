@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class GetVersionList {
     private static final Vector<String> ignoreList = new Vector<>(Arrays.asList(
@@ -44,7 +45,7 @@ public class GetVersionList {
     ));
     public static Vector<OriginalVersionModel> getOriginalList(FasterUrls.Servers server) throws Exception {
         String url = FasterUrls.getVersionJsonv2WithFaster(server);
-        VersionsModel model = new Gson().fromJson(HttpConnectionUtil.doGet(url), VersionsModel.class);
+        VersionsModel model = GSON_PARSER.fromJson(HttpConnectionUtil.doGet(url), VersionsModel.class);
         Vector<OriginalVersionModel> t = new Vector<>();
         model.versions.forEach(s -> t.add(new OriginalVersionModel(s.id, s.type, s.releaseTime, s.url)));
         t.sort((originalVersionModel, t1) -> {
@@ -75,12 +76,12 @@ public class GetVersionList {
         String url = FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/minecraft/" + version, server);
         String r = HttpConnectionUtil.doGet(url);
         Vector<NewForgeItemModel> result = new Vector<>();
-        result = new Gson().fromJson(r, result.getClass());
+        result = GSON_PARSER.fromJson(r, result.getClass());
 
         Vector<NewForgeItemModel> r2 = new Vector<>();
 
         for (Object o : result) {
-            Gson gson = new Gson();
+            Gson gson = GSON_PARSER;
             r2.add(gson.fromJson(gson.toJson(o), NewForgeItemModel.class));
         }
 
@@ -131,7 +132,7 @@ public class GetVersionList {
         String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/game", server);
         String loaderVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", server);
         Vector<Map<String, String>> s = new Vector<>();
-        s = new Gson().fromJson(HttpConnectionUtil.doGet(fabricVersions), s.getClass());
+        s = GSON_PARSER.fromJson(HttpConnectionUtil.doGet(fabricVersions), s.getClass());
         Vector<String> versions = new Vector<>();
         for (Map<String, String> m : s){
             versions.add(m.get("version"));
@@ -139,7 +140,7 @@ public class GetVersionList {
         if (versions.contains(version)){
             Vector<String> result = new Vector<>();
             String raw = String.format("{\"versions\" : %s}", HttpConnectionUtil.doGet(loaderVersions));
-            FabricListModel vs = new Gson().fromJson(raw, FabricListModel.class);
+            FabricListModel vs = GSON_PARSER.fromJson(raw, FabricListModel.class);
             for (FabricLoaderVersionModel model : vs.versions){
                 result.add(model.version);
             }
@@ -154,7 +155,7 @@ public class GetVersionList {
         String loaderVersions = FasterUrls.fast("https://meta.quiltmc.org/v3/versions/loader", server);
 
         Vector<Map<String, String>> s = new Vector<>();
-        s = new Gson().fromJson(HttpConnectionUtil.doGet(quiltVersions), s.getClass());
+        s = GSON_PARSER.fromJson(HttpConnectionUtil.doGet(quiltVersions), s.getClass());
         Vector<String> versions = new Vector<>();
         for (Map<String, String> m : s){
             versions.add(m.get("version"));
@@ -162,7 +163,7 @@ public class GetVersionList {
         if (versions.contains(version)){
             Vector<String> result = new Vector<>();
             String raw = String.format("{\"versions\" : %s}", HttpConnectionUtil.doGet(loaderVersions));
-            FabricListModel vs = new Gson().fromJson(raw, FabricListModel.class);
+            FabricListModel vs = GSON_PARSER.fromJson(raw, FabricListModel.class);
             for (FabricLoaderVersionModel model : vs.versions){
                 result.add(model.version);
             }
@@ -174,12 +175,12 @@ public class GetVersionList {
     }
     public static OptifineAPIModel getOptifineVersionRaw() throws Exception {
         String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
-        Gson g = new Gson();
+        Gson g = GSON_PARSER;
         return g.fromJson(r, OptifineAPIModel.class);
     }
     public static Vector<OptifineJarModel> getOptifineVersionList(String version) throws Exception {
         String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
-        OptifineAPIModel model = new Gson().fromJson(r, OptifineAPIModel.class);
+        OptifineAPIModel model = GSON_PARSER.fromJson(r, OptifineAPIModel.class);
         if (model.versions.contains(version)){
             Vector<OptifineJarModel> jars = new Vector<>();
             model.files.forEach(optifineJarModel -> {
@@ -232,7 +233,7 @@ public class GetVersionList {
         }
         else{
             if (Objects.equals(n.type, "snapshot")) {
-                VersionJsonModel model = new Gson().fromJson(HttpConnectionUtil.doGet(n.url), VersionJsonModel.class);
+                VersionJsonModel model = GSON_PARSER.fromJson(HttpConnectionUtil.doGet(n.url), VersionJsonModel.class);
                 return model.assetIndex.get("id")+"-Snapshot";
             }
         }
@@ -250,7 +251,7 @@ public class GetVersionList {
         }
         else{
             if (Objects.equals(n.type, "snapshot")) {
-                VersionJsonModel model = new Gson().fromJson(HttpConnectionUtil.doGet(n.url), VersionJsonModel.class);
+                VersionJsonModel model = GSON_PARSER.fromJson(HttpConnectionUtil.doGet(n.url), VersionJsonModel.class);
                 return model.assetIndex.get("id");
             }
         }

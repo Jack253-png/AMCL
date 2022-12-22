@@ -1,6 +1,5 @@
 package com.mcreater.amcl.api.auth;
 
-import com.google.gson.Gson;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
@@ -30,6 +29,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class MSAuth implements AbstractAuth<MicrosoftUser>{
     public static final MSAuth AUTH_INSTANCE = new MSAuth();
@@ -159,7 +159,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             client.conn.setRequestProperty("Content-Type","application/json");
             client.conn.connect();
             BufferedWriter wrt2=new BufferedWriter(new OutputStreamWriter(client.conn.getOutputStream()));
-            wrt2.write(new Gson().toJson(data));
+            wrt2.write(GSON_PARSER.toJson(data));
             wrt2.flush();
             wrt2.close();
             JSONObject ob = client.readJSON(false);
@@ -195,7 +195,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             client.conn.setRequestProperty("Accept", "application/json");
             client.conn.connect();
             BufferedWriter wrt2=new BufferedWriter(new OutputStreamWriter(client.conn.getOutputStream()));
-            wrt2.write(new Gson().toJson(data));
+            wrt2.write(GSON_PARSER.toJson(data));
             wrt2.flush();
             wrt2.close();
             JSONObject ob = client.readJSON(false);
@@ -223,7 +223,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             client.conn.setRequestProperty("Accept", "application/json");
             client.conn.connect();
             BufferedWriter wrt2=new BufferedWriter(new OutputStreamWriter(client.conn.getOutputStream()));
-            wrt2.write(new Gson().toJson(data));
+            wrt2.write(GSON_PARSER.toJson(data));
             wrt2.flush();
             wrt2.close();
             JSONObject ob = client.readJSON(false);
@@ -268,7 +268,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             HttpClient client = HttpClient.getInstance(MC_PROFILE_URL);
             client.openConnection();
             client.conn.setRequestProperty("Authorization", String.format("Bearer %s", mcAccessToken));
-            return new Gson().fromJson(client.read(), McProfileModel.class);
+            return GSON_PARSER.fromJson(client.read(), McProfileModel.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -315,14 +315,14 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         String url = String.format("https://api.mojang.com/users/profiles/minecraft/%s", name.toLowerCase());
         HttpClient client = HttpClient.getInstance(url);
         client.openConnection();
-        McProfileModel model = new Gson().fromJson(client.read(), McProfileModel.class);
+        McProfileModel model = GSON_PARSER.fromJson(client.read(), McProfileModel.class);
         return getUserSkin(model.id);
     }
     public static String getUserUUID(String name) throws Exception {
         String url = String.format("https://api.mojang.com/users/profiles/minecraft/%s", name.toLowerCase());
         HttpClient client = HttpClient.getInstance(url);
         client.openConnection();
-        McProfileModel model = new Gson().fromJson(client.read(), McProfileModel.class);
+        McProfileModel model = GSON_PARSER.fromJson(client.read(), McProfileModel.class);
         return model.id;
     }
     public static McProfileModel getUserSkin(String uuid) throws Exception {
@@ -364,7 +364,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         catch (Exception ignored){
             model1.isSlim = false;
         }
-        McProfileModel model = new Gson().fromJson(objj.toString(), McProfileModel.class);
+        McProfileModel model = GSON_PARSER.fromJson(objj.toString(), McProfileModel.class);
         model.skin = model1;
         return model;
     }

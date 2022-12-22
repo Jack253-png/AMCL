@@ -9,6 +9,7 @@ import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.patcher.DepenciesLoader;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
+import com.mcreater.amcl.util.LoggerPrintStream;
 import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.SwingUtils;
@@ -50,6 +51,7 @@ public class StableMain {
         }
     };
     public static void main(String[] args) throws Exception {
+        LoggerPrintStream.setStdStream();
         System.setProperty("log4j.skipJansi", "false");
 
         GithubReleases.trustAllHosts();
@@ -68,6 +70,10 @@ public class StableMain {
             downloadDepenciesJars(addonItems);
             injectDepencies();
             fixPulseTimer();
+
+            LoggerPrintStream.OUT.initLog4j();
+            LoggerPrintStream.ERR.initLog4j();
+
             Logger logger = LogManager.getLogger(StableMain.class);
             logger.info("Initlaze : " + timer.getTimeString());
             ClassPathInjector.checkJavaFXState();

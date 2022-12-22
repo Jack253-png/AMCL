@@ -1,6 +1,5 @@
 package com.mcreater.amcl.game.launch;
 
-import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.StableMain;
@@ -67,6 +66,8 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
+
 public class Launch {
     public Process p;
     Logger logger = LogManager.getLogger(this.getClass());
@@ -125,8 +126,7 @@ public class Launch {
         }
         updater.accept(new ImmutablePair<>(0, 60), Launcher.languageManager.get("ui.launch._03"));
         String json_result = FileUtils.FileStringReader.read(json_file.getPath());
-        Gson g = new Gson();
-        VersionJsonModel r = g.fromJson(json_result, VersionJsonModel.class);
+        VersionJsonModel r = GSON_PARSER.fromJson(json_result, VersionJsonModel.class);
 
         File libf = new File(LinkPath.link(dir, "libraries"));
         if (!libf.exists()) {

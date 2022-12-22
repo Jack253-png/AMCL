@@ -1,6 +1,5 @@
 package com.mcreater.amcl.util.net;
 
-import com.google.gson.Gson;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -16,7 +15,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Map;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class HttpClient {
     public URL finalUrl;
@@ -88,6 +87,6 @@ public class HttpClient {
         return readJSONModel(true, clazz);
     }
     public <T> T readJSONModel(boolean autoConnect, Class<T> clazz) throws IOException {
-        return new Gson().fromJson(read(autoConnect, true), clazz);
+        return GSON_PARSER.fromJson(read(autoConnect, true), clazz);
     }
 }

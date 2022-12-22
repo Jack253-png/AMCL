@@ -1,30 +1,35 @@
 package com.mcreater.amcl.download;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.game.MavenPathConverter;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
-import com.mcreater.amcl.tasks.*;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.original.AssetsModel;
 import com.mcreater.amcl.model.original.VersionModel;
 import com.mcreater.amcl.model.original.VersionsModel;
+import com.mcreater.amcl.tasks.AssetsDownloadTask;
+import com.mcreater.amcl.tasks.LibDownloadTask;
+import com.mcreater.amcl.tasks.NativeDownloadTask;
+import com.mcreater.amcl.tasks.Task;
+import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
-import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
+
 public class OriginalDownload {
-    static GsonBuilder gb;
     static Vector<Task> tasks = new Vector<>();
     static int chunkSize;
     static String vj;
@@ -36,13 +41,10 @@ public class OriginalDownload {
         tasks.clear();
         OriginalDownload.chunkSize = chunkSize;
         String url = FasterUrls.getVersionJsonv2WithFaster(server);
-        gb = new GsonBuilder();
-        gb.setPrettyPrinting();
-        Gson g = gb.create();
         url = FasterUrls.fast(url, server);
         String result = HttpConnectionUtil.doGet(url);
 
-        VersionsModel model = g.fromJson(result, VersionsModel.class);
+        VersionsModel model = GSON_PARSER.fromJson(result, VersionsModel.class);
         String version_url = null;
         for (VersionModel m : model.versions){
             if (Objects.equals(id, m.id)){
@@ -62,7 +64,7 @@ public class OriginalDownload {
         bw.write(version_json);
         bw.close();
 
-        VersionJsonModel ver_j = g.fromJson(version_json, VersionJsonModel.class);
+        VersionJsonModel ver_j = GSON_PARSER.fromJson(version_json, VersionJsonModel.class);
         if (!Objects.equals(id, ver_j.id)){
             throw new IOException();
         }
@@ -99,7 +101,7 @@ public class OriginalDownload {
         bw.write(result);
         bw.close();
 
-        AssetsModel m = new Gson().fromJson(result, AssetsModel.class);
+        AssetsModel m = GSON_PARSER.fromJson(result, AssetsModel.class);
         for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()){
             String hash = entry.getValue().get("hash");
             tasks.add(new AssetsDownloadTask(hash, assets_objects, chunk, server));

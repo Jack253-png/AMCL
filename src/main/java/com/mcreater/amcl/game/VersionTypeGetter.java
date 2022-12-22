@@ -1,15 +1,19 @@
 package com.mcreater.amcl.game;
 
-import com.google.gson.Gson;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
-import com.mcreater.amcl.util.FileUtils.*;
+import com.mcreater.amcl.util.FileUtils.FileStringReader;
+import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
 import javafx.scene.image.Image;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Vector;
 
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 import static com.mcreater.amcl.util.svg.Images.fabric;
 import static com.mcreater.amcl.util.svg.Images.forge;
 import static com.mcreater.amcl.util.svg.Images.liteloader;
@@ -18,7 +22,7 @@ import static com.mcreater.amcl.util.svg.Images.original;
 import static com.mcreater.amcl.util.svg.Images.quilt;
 
 public class VersionTypeGetter {
-    public static enum VersionType {
+    public enum VersionType {
         ORIGINAL,
         FORGE,
         FABRIC,
@@ -183,7 +187,6 @@ public class VersionTypeGetter {
     public static VersionJsonModel getVersionModel(String dir, String version){
         String version_json = LinkPath.link(LinkPath.link(LinkPath.link(dir, "versions"), version), version + ".json");
         String json_result = FileStringReader.read(version_json);
-        Gson g = new Gson();
-        return g.fromJson(json_result, VersionJsonModel.class);
+        return GSON_PARSER.fromJson(json_result, VersionJsonModel.class);
     }
 }

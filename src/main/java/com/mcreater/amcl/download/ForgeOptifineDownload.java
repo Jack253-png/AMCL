@@ -2,7 +2,6 @@ package com.mcreater.amcl.download;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.GsonBuilder;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.api.reflect.ReflectedJar;
 import com.mcreater.amcl.download.model.NewForgeItemModel;
@@ -16,6 +15,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+
+import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class ForgeOptifineDownload {
     public static void download(String id, String minecraft_dir, String version_name, int chunkSize, NewForgeItemModel forge_version, Runnable r3, Runnable r, Runnable r2, String optifine_version, Runnable r4, Runnable r5, FasterUrls.Servers server) throws Exception {
@@ -102,10 +103,8 @@ public class ForgeOptifineDownload {
         obj2.put("name", libPath);
         ob.getJSONArray("libraries").add(obj2);
 
-        GsonBuilder gb = new GsonBuilder();
-        gb.setPrettyPrinting();
         BufferedWriter writer = new BufferedWriter(new FileWriter(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
-        writer.write(gb.create().toJson(ob));
+        writer.write(GSON_PARSER.toJson(ob));
         writer.close();
     }
 }
