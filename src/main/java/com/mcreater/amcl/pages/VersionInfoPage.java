@@ -247,11 +247,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
                     });
                 }
                 catch (Exception e){
-                    e.printStackTrace();
-                    CommonModInfoModel model = new CommonModInfoModel();
-                    model.path = file.getPath();
-                    RemoteMod m = new RemoteMod(model);
-                    Platform.runLater(() -> modList.addItem(m));
+                    SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.versioninfopage.mod.load.fail"));
                 }
                 double d = (double) modList.vecs.size() / (double) f.size();
                 double lat = bar.getProgress();

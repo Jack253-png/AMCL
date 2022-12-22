@@ -3,7 +3,7 @@ package com.mcreater.amcl.pages.dialogs.mod;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.controls.items.RadioButtonGroupV;
+import com.mcreater.amcl.controls.items.radio.RadioButtonGroupV;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
@@ -21,7 +21,7 @@ public class ModrinthMultiFileDialog extends AbstractDialog {
         ok.setFont(Fonts.t_f);
         ok.setOnAction(event -> close());
 
-        group = new RadioButtonGroupV(f.toArray(new String[]{}));
+        group = new RadioButtonGroupV(f.toArray(new String[0]));
         group.items.get(0).setSelected(true);
         layout.setBody(group);
         layout.setActions(ok);

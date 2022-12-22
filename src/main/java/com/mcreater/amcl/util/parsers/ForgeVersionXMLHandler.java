@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util.xml;
+package com.mcreater.amcl.util.parsers;
 
 import com.google.gson.internal.LinkedTreeMap;
 import org.xml.sax.Attributes;
@@ -10,10 +10,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;

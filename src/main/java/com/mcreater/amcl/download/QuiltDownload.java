@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Vector;
 
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class QuiltDownload {
@@ -50,7 +51,7 @@ public class QuiltDownload {
             }
             String url = FasterUrls.fast(lib.url + MavenPathConverter.get(lib.name).replace("\\", "/"), server);
             String path = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(lib.name));
-            new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+            createDirectory(path);
             ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(lib), Map.class));
             tasks.add(new LibDownloadTask(url, path, chunkSize));
         }
@@ -60,14 +61,14 @@ public class QuiltDownload {
             }
             String url = FasterUrls.fast(lib.url + MavenPathConverter.get(lib.name).replace("\\", "/"), server);
             String path = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(lib.name));
-            new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+            createDirectory(path);
             ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(lib), Map.class));
             tasks.add(new LibDownloadTask(url, path, chunkSize));
         }
 
         String url = FasterUrls.fast("https://maven.fabricmc.net/" + MavenPathConverter.get(model.intermediary.maven).replace("\\", "/"), server);
         String path = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model.intermediary.maven));
-        new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+        createDirectory(path);
         FabricLibModel model1 = new FabricLibModel();
         model1.name = model.intermediary.maven;
         model1.url = "https://maven.fabricmc.net/";
@@ -76,7 +77,7 @@ public class QuiltDownload {
 
         url = FasterUrls.fast("https://maven.quiltmc.org/repository/release/" + MavenPathConverter.get(model.loader.maven).replace("\\", "/"), server);
         path = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model.loader.maven));
-        new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+        createDirectory(path);
         model1 = new FabricLibModel();
         model1.name = model.loader.maven;
         model1.url = "https://maven.quiltmc.org/repository/release/";
@@ -85,7 +86,7 @@ public class QuiltDownload {
 
         url = FasterUrls.fast("https://maven.quiltmc.org/repository/release/" + MavenPathConverter.get(model.hashed.maven).replace("\\", "/"), server);
         path = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model.hashed.maven));
-        new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+        createDirectory(path);
         model1 = new FabricLibModel();
         model1.name = model.hashed.maven;
         model1.url = "https://maven.quiltmc.org/repository/release/";

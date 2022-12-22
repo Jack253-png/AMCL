@@ -12,6 +12,9 @@ import java.net.URL;
 import java.security.cert.X509Certificate;
 import java.util.Objects;
 
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.deleteFile;
+
 public class DownloadTask extends AbstractDownloadTask {
     public int chunkSize = 512;
     String hash;
@@ -47,13 +50,12 @@ public class DownloadTask extends AbstractDownloadTask {
         return c;
     }
     public void clean() throws IOException {
-        new File(local).delete();
-//        System.gc();
+        deleteFile(local);
     }
     public void download() throws IOException {
         inputStream = conn.getInputStream();
 
-        new File(StringUtils.GetFileBaseDir.get(this.local)).mkdirs();
+        createDirectory(this.local);
         fos = new FileOutputStream(this.local);
         byte[] buffer = new byte[chunkSize];
         int len;

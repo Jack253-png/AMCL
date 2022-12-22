@@ -1,7 +1,6 @@
-package com.mcreater.amcl.controls.items;
+package com.mcreater.amcl.controls.items.radio;
 
 public interface AbstractRadioButtonGroup {
     int getSelectedItem();
-    void selectFirst();
     void select(int index);
 }

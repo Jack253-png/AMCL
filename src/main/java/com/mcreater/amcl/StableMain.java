@@ -15,8 +15,8 @@ import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.SwingUtils;
 import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.operatingSystem.LocateHelper;
-import com.mcreater.amcl.util.xml.DepenciesXMLHandler;
-import com.mcreater.amcl.util.xml.DepencyItem;
+import com.mcreater.amcl.util.parsers.DepenciesJsonHandler;
+import com.mcreater.amcl.util.parsers.DepencyItem;
 import com.sun.javafx.tk.quantum.QuantumToolkit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,6 +25,8 @@ import javax.swing.*;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Vector;
+
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 
 public class StableMain {
     public static PreLanguageManager manager;
@@ -71,9 +73,6 @@ public class StableMain {
             injectDepencies();
             fixPulseTimer();
 
-            LoggerPrintStream.OUT.initLog4j();
-            LoggerPrintStream.ERR.initLog4j();
-
             Logger logger = LogManager.getLogger(StableMain.class);
             logger.info("Initlaze : " + timer.getTimeString());
             ClassPathInjector.checkJavaFXState();
@@ -98,12 +97,12 @@ public class StableMain {
         manager = new PreLanguageManager(PreLanguageManager.valueOf(LocateHelper.get()));
     }
     public static void downloadDepenciesJars(Vector<DepencyItem> addonItems) throws Exception {
-        addonItems.addAll(DepenciesXMLHandler.load());
+        addonItems.addAll(DepenciesJsonHandler.load());
         Vector<Task> tasks = new Vector<>();
         for (DepencyItem item : addonItems){
             String local = item.getLocal();
             if (!new File(local).exists()) {
-                new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
+                createDirectory(local);
                 tasks.add(new DownloadTask(item.getURL(), local, 2048));
             }
         }
@@ -113,7 +112,7 @@ public class StableMain {
         splashScreen.setVisible(true);
     }
     public static void injectDepencies() throws Exception {
-        for (DepencyItem item : DepenciesXMLHandler.load()){
+        for (DepencyItem item : DepenciesJsonHandler.load()){
             if (item.name.contains("org.openjfx:")){
                 if (!ClassPathInjector.javafx_useable){
                     ClassPathInjector.addJarUrl(new File(item.getLocal()).toURI().toURL());

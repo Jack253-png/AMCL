@@ -106,6 +106,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                             }).start();
                         });
                         dialog1.Create();
+                        break;
                     case 3:
                         OfflineUserCustomSkinDialog dialog2 = new OfflineUserCustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.login.offlineskin"));
                         dialog2.setCancel(event14 -> dialog2.close());
@@ -116,6 +117,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                             reloadUser();
                         });
                         dialog2.Create();
+                        break;
                 }
             });
             dialog.Create();
@@ -245,12 +247,12 @@ public class UserSelectPage extends AbstractAnimationPage {
                                         item.user.uuid = OffLineUser.SkinType.STEVE.uuid;
                                         item.user.toOfflineUser().is_slim = OffLineUser.SkinType.STEVE.isSlim;
                                         finalRunnable.run();
-                                        return;
+                                        break;
                                     case 1:
                                         item.user.uuid = OffLineUser.SkinType.ALEX.uuid;
                                         item.user.toOfflineUser().is_slim = OffLineUser.SkinType.ALEX.isSlim;
                                         finalRunnable.run();
-                                        return;
+                                        break;
                                     case 2:
                                         LoadingDialog dialog1 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.offline.id"));
                                         InputDialog dialog2 = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
@@ -290,6 +292,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                                             }
                                         }).start();
                                         dialog1.show();
+                                        break;
                                     case 3:
                                         OfflineUserCustomSkinDialog dialog3 = new OfflineUserCustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.login.offlineskin"));
                                         dialog3.setSkinPath(item.user.toOfflineUser().skin);
@@ -304,6 +307,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                                             finalRunnable.run();
                                         });
                                         dialog3.Create();
+                                        break;
                                 }
                             });
                             dialog.showAndWait();

@@ -25,7 +25,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 
-import static com.mcreater.amcl.download.OriginalDownload.createNewDir;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class MinecraftFixer {
@@ -58,7 +59,7 @@ public class MinecraftFixer {
         String index = assets + model.assetIndex.get("id") + ".json";
         String assets_root = LinkPath.link(minecraft_dir, "assets");
         String assets_objects = LinkPath.link(assets_root, "objects");
-        new File(assets_objects).mkdirs();
+        createDirectoryDirect(assets_objects);
         if (!HashHelper.getFileSHA1(new File(index)).equals(model.assetIndex.get("sha1"))){
             new DownloadTask(FasterUrls.fast(model.assetIndex.get("url"), server), index, chunk).setHash(model.assetIndex.get("sha1")).execute();
         }
@@ -94,7 +95,7 @@ public class MinecraftFixer {
     public static void checkLibs(int chunk, String dir, Vector<LibModel> libs, String version_dir, String version_name, FasterUrls.Servers server) throws FileNotFoundException {
         String lib_base_path = LinkPath.link(dir, "libraries");
         String native_base_path = LinkPath.link(version_dir, version_name + "-natives");
-        new File(lib_base_path).mkdirs();
+        createDirectoryDirect(lib_base_path);
         boolean has_321 = false;
         boolean has_322 = false;
         for (LibModel model1 : libs) {
@@ -122,7 +123,7 @@ public class MinecraftFixer {
                             String npath = LinkPath.link(lib_base_path, model1.downloads.classifiers.get(nativeName).path);
                             String nurl = model1.downloads.classifiers.get(nativeName).url;
                             String nhash = model1.downloads.classifiers.get(nativeName).sha1;
-                            createNewDir(npath);
+                            createDirectory(npath);
                             if (!HashHelper.getFileSHA1(new File(npath)).equals(nhash)) {
                                 if (nhash == null && !HashHelper.getFileSHA1(new File(npath)).equals("")) {
                                     continue;
@@ -136,7 +137,7 @@ public class MinecraftFixer {
                     String path = model1.downloads.artifact.get("path") != null ? LinkPath.link(lib_base_path, model1.downloads.artifact.get("path").replace("\\", File.separator)) : LinkPath.link(lib_base_path, MavenPathConverter.get(model1.name));
                     String url = model1.downloads.artifact.get("url");
                     String hash = model1.downloads.artifact.get("sha1");
-                    createNewDir(path);
+                    createDirectory(path);
 
                     if (b0) {
                         if (!HashHelper.getFileSHA1(new File(path)).equals(hash)) {

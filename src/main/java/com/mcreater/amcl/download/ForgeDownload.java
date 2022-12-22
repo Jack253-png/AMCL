@@ -34,6 +34,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.deleteDirectory;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.deleteFile;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 import static com.mcreater.amcl.util.StringUtils.ForgeMapplings.checkIsForgePath;
 import static com.mcreater.amcl.util.StringUtils.ForgeMapplings.checkIsMapKey;
@@ -61,12 +65,13 @@ public class ForgeDownload {
             u = FasterUrls.fast(model225.downloads.get("client_mappings").url, server);
         }
         catch (NullPointerException ignored){}
-        String installer_path = FileUtils.LinkPath.link(temp_path, "installer.jar");
+        String name = "installer.jar";
+        String installer_path = FileUtils.LinkPath.link(temp_path, name);
         String installer_url = GetVersionList.getForgeInstallerDownloadURL(forge_version, id, server);
 
         logger.info(String.format("finded forge installer url : %s", installer_url));
         deleteDirectory(new File(temp_path), temp_path);
-        new File(temp_path).mkdirs();
+        createDirectoryDirect(temp_path);
         if (!GetFileExists.get(installer_url)){
             throw new IOException("this version of forge cannot be automated");
         }
@@ -96,7 +101,7 @@ public class ForgeDownload {
                     }
                 }
                 else {
-                    new File(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path"))).mkdirs();
+                    createDirectory(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path")));
                     tasks.add(new LibDownloadTask(FasterUrls.fast(m.downloads.artifact.get("url"), server), FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path").replace("\\", "/")), chunkSize).setHash(m.downloads.artifact.get("sha1")));
                 }
             }
@@ -119,7 +124,7 @@ public class ForgeDownload {
 
             ForgeInjectModel model1 = GSON_PARSER.fromJson(FileUtils.FileStringReader.read(FileUtils.LinkPath.link(temp_path, "install_profile.json")), ForgeInjectModel.class);
             for (LibModel m1 : model1.libraries){
-                new File(StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")))).mkdirs();
+                createDirectory(FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")));
                 tasks.add(new LibDownloadTask(FasterUrls.fast(m1.downloads.artifact.get("url"), server), FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")), chunkSize).setHash(m1.downloads.artifact.get("sha1")));
             }
             TaskManager.addTasks(tasks);
@@ -170,7 +175,7 @@ public class ForgeDownload {
 
             for (OldForgeLibModel model1 : model.versionInfo.libraries){
                 String p = StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name)));
-                new File(p).mkdirs();
+                createDirectory(p);
                 if (model1.clientreq == null && model1.serverreq == null){
                     if (model1.name.contains("net.minecraftforge:minecraftforge") || model1.name.contains("net.minecraftforge:forge")) {
                         FileUtils.ChangeDir.saveNowDir();
@@ -263,26 +268,11 @@ public class ForgeDownload {
             TaskManager.execute("<old forge>");
         }
         FileUtils.del(temp_path);
+        deleteFile(String.format("%s.log", name));
     }
-    public static void deleteDirectory(File f, String orgin){
-        if (!f.exists()){
-            return;
-        }
-        if (f.isFile()){
-            f.delete();
-            return;
-        }
-        else{
-            for (File f1 : f.listFiles()){
-                deleteDirectory(f1, orgin);
-            }
-        }
-        if (!f.getPath().equals(orgin)) {
-            f.delete();
-        }
-    }
+
     public static void download_mojmaps(String local, FasterUrls.Servers server) throws IOException {
-        new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
+        createDirectory(local);
         new DownloadTask(FasterUrls.fast(u, server), local, 1024).execute();
     }
 }

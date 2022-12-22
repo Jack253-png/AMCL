@@ -235,3 +235,4 @@ ui.userselectpage.offline.id=Fetching player UUID...
 ui.userselectpage.modify.title=Modify user
 ui.bgm.lib.exc=Your platform did not support media lib.
 ui.userselectpage.login.browser=Open Browser
+ui.versioninfopage.mod.load.fail=Mod load failure

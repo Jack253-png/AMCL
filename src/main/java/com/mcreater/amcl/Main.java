@@ -1,21 +1,16 @@
 package com.mcreater.amcl;
 
+import com.mcreater.amcl.util.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.xml.sax.SAXException;
 
 import javax.swing.*;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 public class Main {
     static String[] args;
     static {
-        File f = new File("AMCL/logs/log.log");
-        f.delete();
+        FileUtils.OperateUtil.deleteFile("AMCL/logs/log.log");
     }
     public static Logger logger = LogManager.getLogger(Main.class);
     public static void start() {

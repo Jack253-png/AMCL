@@ -32,6 +32,8 @@ import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import com.mcreater.amcl.util.svg.Icons;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
@@ -281,12 +283,10 @@ public class Launcher {
         ThemeManager.applyTopBar(top);
         VBox v = new VBox();
         v.getChildren().addAll(top, last);
-        v.setStyle("-fx-background-color: transparent");
         p.getChildren().removeIf(node -> node.getClass() == VBox.class);
         p.getChildren().add(0, v);
         wrapper.getChildren().clear();
         wrapper.getChildren().add(p);
-        wrapper.setStyle("-fx-background-color: transparent");
 
         s.setFill(Color.TRANSPARENT);
         s.setRoot(wrapper);

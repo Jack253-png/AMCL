@@ -36,6 +36,7 @@ import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
 import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
 
 public class VersionSelectPage extends AbstractAnimationPage {
     public VBox dot_minecraft_dir;
@@ -119,7 +120,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
             }
             else {
                 String path = file.getPath();
-                new File(LinkPath.link(path, "versions")).mkdirs();
+                createDirectoryDirect(LinkPath.link(path, "versions"));
                 Vector<String> result = GetMinecraftVersion.get(path);
                 if (result == null) {
                     setDialog.run();

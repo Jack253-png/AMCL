@@ -25,6 +25,7 @@ import java.util.Vector;
 
 import static com.mcreater.amcl.util.FileUtils.FileStringReader;
 import static com.mcreater.amcl.util.FileUtils.LinkPath;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class FabricDownload {
@@ -55,7 +56,7 @@ public class FabricDownload {
                 }
                 String url = FasterUrls.fast(lib.url + MavenPathConverter.get(lib.name).replace("\\", "/"), server);
                 String path = LinkPath.link(lib_base, MavenPathConverter.get(lib.name));
-                new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+                createDirectory(path);
                 ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(lib), Map.class));
                 tasks.add(new LibDownloadTask(url, path, chunkSize));
             }
@@ -65,13 +66,13 @@ public class FabricDownload {
                 }
                 String url = FasterUrls.fast(lib.url + MavenPathConverter.get(lib.name).replace("\\", "/"), server);
                 String path = LinkPath.link(lib_base, MavenPathConverter.get(lib.name));
-                new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+                createDirectory(path);
                 ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(lib), Map.class));
                 tasks.add(new LibDownloadTask(url, path, chunkSize));
             }
             String url = FasterUrls.fast("https://maven.fabricmc.net/" + MavenPathConverter.get(model.intermediary.maven).replace("\\", "/"), server);
             String path = LinkPath.link(lib_base, MavenPathConverter.get(model.intermediary.maven));
-            new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+            createDirectory(path);
             FabricLibModel model1 = new FabricLibModel();
             model1.name = model.intermediary.maven;
             model1.url = "https://maven.fabricmc.net/";
@@ -80,7 +81,7 @@ public class FabricDownload {
 
             url = FasterUrls.fast("https://maven.fabricmc.net/" + MavenPathConverter.get(model.loader.maven).replace("\\", "/"), server);
             path = LinkPath.link(lib_base, MavenPathConverter.get(model.loader.maven));
-            new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+            createDirectory(path);
             model1 = new FabricLibModel();
             model1.name = model.loader.maven;
             model1.url = "https://maven.fabricmc.net/";
@@ -111,14 +112,14 @@ public class FabricDownload {
             for (FabricLibModel s : model.launcherMeta.libraries.common){
                 String url = FasterUrls.fast(J8Utils.requireNonNullElse(s.url, "https://libraries.minecraft.net/") + MavenPathConverter.get(s.name).replace("\\", "/"), server);
                 String path = LinkPath.link(lib_base, MavenPathConverter.get(s.name));
-                new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+                createDirectory(path);
                 ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(s), Map.class));
                 tasks.add(new LibDownloadTask(url, path, chunkSize));
             }
             for (FabricLibModel s : model.launcherMeta.libraries.client){
                 String url = FasterUrls.fast(J8Utils.requireNonNullElse(s.url, "https://libraries.minecraft.net/") + MavenPathConverter.get(s.name).replace("\\", "/"), server);
                 String path = LinkPath.link(lib_base, MavenPathConverter.get(s.name));
-                new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+                createDirectory(path);
                 ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(s), Map.class));
                 tasks.add(new LibDownloadTask(url, path, chunkSize));
             }

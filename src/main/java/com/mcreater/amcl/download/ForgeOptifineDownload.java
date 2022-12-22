@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.deleteFile;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class ForgeOptifineDownload {
@@ -50,8 +51,6 @@ public class ForgeOptifineDownload {
         int installer = jar.createNewInstance(jar.getJarClass("optifine.Installer"));
         r5.run();
 
-
-
         String ofEd;
 
         try {
@@ -72,13 +71,6 @@ public class ForgeOptifineDownload {
         catch (Exception e) {
             ofEd = optifine_version;
         }
-
-        // optifine main jar
-//        jar.invokeMethod(
-//                installer,
-//                "installOptiFineLibrary",
-//                new Object[]{version_name, ofEd, new File(FileUtils.LinkPath.link(minecraft_dir, "libraries")), false},
-//                String.class, String.class, File.class, boolean.class);
 
         String fileSrc = new File("opti.jar").getAbsolutePath();
         String fileBase = FileUtils.LinkPath.link(minecraft_dir, String.format("versions/%s/%s.jar", version_name, version_name));
@@ -106,5 +98,6 @@ public class ForgeOptifineDownload {
         BufferedWriter writer = new BufferedWriter(new FileWriter(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
         writer.write(GSON_PARSER.toJson(ob));
         writer.close();
+        deleteFile("opti.jar");
     }
 }

@@ -66,6 +66,8 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class Launch {
@@ -187,7 +189,7 @@ public class Launch {
                             if (l.name.contains("org.apache.logging.log4j:log4j-api:2.8.1") || l.name.contains("org.apache.logging.log4j:log4j-core:2.8.1")) {
                                 if (VersionTypeGetter.get(dir, version_name) == VersionTypeGetter.VersionType.FORGE) {
                                     String local = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)).replace("2.8.1", "2.15.0");
-                                    new File(StringUtils.GetFileBaseDir.get(local)).mkdirs();
+                                    createDirectory(local);
                                     String server = FasterUrls.fast(l.downloads.artifact.get("url"), dlserver).replace("2.8.1", "2.15.0");
                                     if (!Objects.equals(l.downloads.artifact.get("sha1"), FileUtils.HashHelper.getFileSHA1(new File(local)))) {
                                         new DownloadTask(server, local, 1024).setHash(l.downloads.artifact.get("sha1")).execute();
@@ -275,7 +277,7 @@ public class Launch {
         String old_assets = null;
         try {
             old_assets = LinkPath.link(dir, "assets/virtual/legacy");
-            new File(old_assets).mkdirs();
+            createDirectoryDirect(old_assets);
 
             String path = LinkPath.link(dir, "assets/indexes/pre-1.6.json");
             if (r.assetIndex != null) {
@@ -298,7 +300,7 @@ public class Launch {
                     File target = new File(pathAsset);
                     File origin = new File(hashedAsset);
 
-                    new File(StringUtils.GetFileBaseDir.get(pathAsset)).mkdirs();
+                    createDirectory(pathAsset);
 
                     if (!FileUtils.HashHelper.getFileSHA1(target).equals(hash2)) {
                         FileChannel in = new FileInputStream(origin).getChannel();

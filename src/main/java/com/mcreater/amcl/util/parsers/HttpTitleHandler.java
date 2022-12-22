@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util.xml;
+package com.mcreater.amcl.util.parsers;
 
 public class HttpTitleHandler {
     public static String load(String html) {

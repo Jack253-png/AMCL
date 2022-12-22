@@ -8,6 +8,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.auth.users.OffLineUser;
@@ -44,7 +45,7 @@ public final class JsonUtils {
                                     .name("state").value(userM.skin.state)
                                     .name("url").value(userM.skin.url)
                                     .name("variant").value(userM.skin.variant)
-                                    .name("cape_url").value(userM.skin.cape)
+                                    .name("cape").value(userM.skin.cape)
                                     .name("is_slim").value(userM.skin.isSlim)
                                 .endObject()
                            .endObject();
@@ -78,8 +79,34 @@ public final class JsonUtils {
                     boolean active = JsonUtils.JsonProcessors.parseBoolean(JsonUtils.JsonProcessors.getValue(content, "active"));
                     int user_type = (int) JsonUtils.JsonProcessors.parseLong(JsonUtils.JsonProcessors.getValue(content, "user_type"));
                     String access_token = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "access_token"));
+                    String refresh_token = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "refresh_token"));
+                    String uuid = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "uuid"));
+                    String user_name = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "user_name"));
 
-                    return new OffLineUser("000", "0000", false, null, null);
+                    String custom_skin_skin = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "custom_skin", "skin"));
+                    String custom_skin_cape = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "custom_skin", "cape"));
+                    boolean custom_skin_is_slim = JsonUtils.JsonProcessors.parseBoolean(JsonUtils.JsonProcessors.getValue(content, "custom_skin", "is_slim"));
+
+                    String skin_id = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "skin", "id"));
+                    String skin_state = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "skin", "state"));
+                    String skin_url = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "skin", "url"));
+                    String skin_variant = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "skin", "variant"));
+                    String skin_cape = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "skin", "cape"));
+                    boolean skin_is_slim = JsonUtils.JsonProcessors.parseBoolean(JsonUtils.JsonProcessors.getValue(content, "skin", "is_slim"));
+
+                    if (user_type == 1) {
+                        MSAuth.McProfileModel.McSkinModel model = new MSAuth.McProfileModel.McSkinModel();
+                        model.isSlim = skin_is_slim;
+                        model.id = skin_id;
+                        model.cape = skin_cape;
+                        model.url = skin_url;
+                        model.state = skin_state;
+                        model.variant = skin_variant;
+                        return new MicrosoftUser(access_token, user_name, uuid, model, refresh_token);
+                    }
+                    else {
+                        return new OffLineUser(user_name, uuid, custom_skin_is_slim, custom_skin_skin, custom_skin_cape);
+                    }
                 }
             })
             .registerTypeAdapter(LanguageManager.LanguageType.class, new TypeAdapter<LanguageManager.LanguageType>() {
@@ -112,10 +139,10 @@ public final class JsonUtils {
             })
             .create();
     public static class JsonProcessors {
-        public static Object getValue(Map<String, ?> map, String index) {
+        public static Object getValue(Map<String, ?> map, String... index) {
             Object tempObject = map;
-            for (String key : index.split("\\.")) {
-                boolean isArrayIndex = index.startsWith("[") && index.endsWith("]");
+            for (String key : index) {
+                boolean isArrayIndex = key.startsWith("[") && key.endsWith("]");
                 boolean isArray = tempObject instanceof Collection<?>;
                 boolean isMap = tempObject instanceof Map<?, ?>;
                 if (isArray != isArrayIndex) {

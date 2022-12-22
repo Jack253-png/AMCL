@@ -33,6 +33,35 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 public class FileUtils {
+    public static class OperateUtil {
+        public static void deleteFile(String path) {
+            System.out.println("deleting " + path);
+            new File(path).delete();
+        }
+        public static void deleteDirectory(File f, String orgin){
+            if (!f.exists()){
+                return;
+            }
+            if (f.isFile()){
+                f.delete();
+                return;
+            }
+            else {
+                for (File f1 : f.listFiles()){
+                    deleteDirectory(f1, orgin);
+                }
+            }
+            if (!f.getPath().equals(orgin)) {
+                f.delete();
+            }
+        }
+        public static void createDirectory(String path) {
+            new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+        }
+        public static void createDirectoryDirect(String path) {
+            new File(path).mkdirs();
+        }
+    }
     public static String getJavaExecutable() {
         String env = getJavaExecutableInEnv();
         if (env != null) return env;

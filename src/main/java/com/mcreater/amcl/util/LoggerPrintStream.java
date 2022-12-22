@@ -24,13 +24,9 @@ public class LoggerPrintStream extends PrintStream {
         STDERR
     }
     StreamType type;
-    Logger logger;
     public LoggerPrintStream(@NotNull OutputStream out, @NotNull StreamType type) {
         super(out);
         this.type = type;
-    }
-    public void initLog4j() {
-        logger = LogManager.getLogger(type);
     }
     private static boolean jansiLoaded() {
         try {
@@ -42,15 +38,14 @@ public class LoggerPrintStream extends PrintStream {
         }
     }
     private void jansiPrint(Object o, StreamType type) {
-        String s = String.format("[%s] %s", type, o);
         PrintStream stream = (PrintStream) out;
         if (jansiLoaded()) {
             AnsiConsole.systemInstall();
-            stream.print(ansi().fg(type == StreamType.STDERR ? Ansi.Color.RED : Ansi.Color.GREEN).a(s).reset());
+            stream.print(ansi().fg(type == StreamType.STDERR ? Ansi.Color.RED : Ansi.Color.GREEN).a(o).reset());
             AnsiConsole.systemUninstall();
         }
         else {
-            stream.print(s);
+            stream.print(o);
         }
     }
 
@@ -90,57 +85,47 @@ public class LoggerPrintStream extends PrintStream {
         jansiPrint(obj, type);
     }
 
-    private void loggerPrint(Object obj, StreamType type) {
-        String s = String.format("[%s] %s", type, obj);
-        if (logger != null) {
-            if (type == StreamType.STDERR) {
-                logger.error(s);
-            } else {
-                logger.info(s);
-            }
-        }
-        else {
-            super.println(s);
-        }
+    private void jansiPrintln(Object obj, StreamType type) {
+        jansiPrint(obj + "\n", type);
     }
 
     public void println(int x) {
-        loggerPrint(x, type);
+        jansiPrintln(x, type);
     }
 
     public void println(char x) {
-        loggerPrint(x, type);
+        jansiPrintln(x, type);
     }
 
     public void println(long x) {
-        loggerPrint(x, type);
+        jansiPrintln(x, type);
     }
 
     public void println(float x) {
-        loggerPrint(x, type);
+        jansiPrintln(x, type);
     }
 
     public void println(@NotNull char[] x) {
-        loggerPrint(x, type);
+        jansiPrintln(x, type);
     }
 
     public void println(double x) {
-        loggerPrint(x, type);
+        jansiPrintln(x, type);
     }
 
     public void println(@Nullable Object x) {
-        loggerPrint(x, type);
+        jansiPrintln(x, type);
     }
 
     public void println(@Nullable String x) {
-        loggerPrint(x, type);
+        jansiPrintln(x, type);
     }
 
     public void println(boolean x) {
-        loggerPrint(x, type);
+        jansiPrintln(x, type);
     }
 
     public void println() {
-        loggerPrint("", type);
+        jansiPrintln("", type);
     }
 }

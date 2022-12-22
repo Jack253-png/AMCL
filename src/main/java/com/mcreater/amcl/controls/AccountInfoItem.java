@@ -166,12 +166,6 @@ public class AccountInfoItem extends VBox {
         new Thread(() -> {
             ImmutablePair<Image, Image> head = getHeadImage(user);
             headImage.setImage(scrollImage(head.getKey(), (int) (32 / head.getKey().getWidth()), (int) (32 / head.getKey().getWidth())));
-            try {
-                ImageIO.write(SwingFXUtils.fromFXImage(scrollImage(head.getValue(), (int) (32 / head.getValue().getWidth()), (int) (32 / head.getValue().getWidth())), null), "png", new File(user.uuid + ".png"));
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
             headCoverImage.setImage(scrollImage(head.getValue(), (int) (32 / head.getValue().getWidth()), (int) (32 / head.getValue().getWidth())));
         }).start();
 

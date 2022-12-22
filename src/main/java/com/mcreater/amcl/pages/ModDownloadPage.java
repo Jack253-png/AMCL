@@ -9,9 +9,9 @@ import com.mcreater.amcl.api.modApi.curseforge.mod.CurseModModel;
 import com.mcreater.amcl.api.modApi.modrinth.ModrinthAPI;
 import com.mcreater.amcl.api.modApi.modrinth.mod.ModrinthModModel;
 import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileItemModel;
-import com.mcreater.amcl.controls.ServerMod;
-import com.mcreater.amcl.controls.ModFile;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
+import com.mcreater.amcl.controls.ModFile;
+import com.mcreater.amcl.controls.ServerMod;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.download.model.OriginalVersionModel;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
@@ -24,11 +24,10 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.FXUtils.Platform;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
-import com.mcreater.amcl.util.net.FasterUrls;
-import com.mcreater.amcl.util.FXUtils.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -119,24 +118,13 @@ public class ModDownloadPage extends AbstractAnimationPage {
                             }
                         }
                         else {
-                            ModrinthModFileItemModel model = null;
+                            ModrinthModFileItemModel model;
                             Vector<ModrinthModFileItemModel> files = new Vector<>(last.model.toModrinthFile().files);
-
-                            files.removeIf(modrinthModFileItemModel -> !modrinthModFileItemModel.filename.endsWith(".jar"));
-
-//                            if (last.model.toModrinthFile().files.size() >= 1) {
-//                                for (ModrinthModFileItemModel m : last.model.toModrinthFile().files) {
-//                                    if (m.filename.endsWith(".jar")) {
-//                                        model = m;
-//                                        break;
-//                                    }
-//                                }
-//                            }
 
                             Vector<String> f = new Vector<>();
                             files.forEach(modrinthModFileItemModel -> f.add(modrinthModFileItemModel.filename));
 
-                            AtomicInteger index = new AtomicInteger();
+                            AtomicInteger index = new AtomicInteger(0);
                             AtomicBoolean selected = new AtomicBoolean(false);
 
                             if (files.size() > 1) {

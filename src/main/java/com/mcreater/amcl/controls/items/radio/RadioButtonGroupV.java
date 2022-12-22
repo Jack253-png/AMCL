@@ -1,4 +1,4 @@
-package com.mcreater.amcl.controls.items;
+package com.mcreater.amcl.controls.items.radio;
 
 import com.jfoenix.controls.JFXRadioButton;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -34,11 +34,7 @@ public class RadioButtonGroupV extends VBox implements AbstractRadioButtonGroup 
         return -1;
     }
 
-    public void selectFirst() {
-        items.get(0).setSelected(true);
-    }
-
     public void select(int index) {
-        items.get(0).setSelected(true);
+        items.get(index).setSelected(true);
     }
 }

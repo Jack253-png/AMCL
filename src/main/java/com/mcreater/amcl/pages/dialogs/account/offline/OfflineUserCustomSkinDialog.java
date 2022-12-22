@@ -104,7 +104,7 @@ public class OfflineUserCustomSkinDialog extends AbstractDialog {
         event = new JFXButton(Launcher.languageManager.get("ui.dialogs.information.ok.name"));
         cancel = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
         ThemeManager.loadButtonAnimates(t, event, cancel, skinItem, capeItem, group);
-        layout.setActions(event, cancel);
+        layout.setActions(cancel, event);
         layout.setBody(box);
         layout.setHeading(t);
         setContent(layout);

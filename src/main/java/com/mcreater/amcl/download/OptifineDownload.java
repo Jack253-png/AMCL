@@ -20,6 +20,7 @@ import java.util.Vector;
 
 import static com.mcreater.amcl.util.FileUtils.FileStringReader;
 import static com.mcreater.amcl.util.FileUtils.LinkPath;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.deleteFile;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class OptifineDownload {
@@ -71,13 +72,6 @@ public class OptifineDownload {
         catch (Exception e) {
             ofEd = optifine_version;
         }
-
-        // optifine main jar
-//        jar.invokeMethod(
-//                installer,
-//                "installOptiFineLibrary",
-//                new Object[]{version_name, ofEd, new File(LinkPath.link(minecraft_dir, "libraries")), false},
-//                String.class, String.class, File.class, boolean.class);
 
         String fileSrc = new File("opti.jar").getAbsolutePath();
         String fileBase = FileUtils.LinkPath.link(minecraft_dir, String.format("versions/%s/%s.jar", version_name, version_name));
@@ -135,5 +129,6 @@ public class OptifineDownload {
         BufferedWriter writer = new BufferedWriter(new FileWriter(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
         writer.write(GSON_PARSER.toJson(f));
         writer.close();
+        deleteFile("opti.jar");
     }
 }

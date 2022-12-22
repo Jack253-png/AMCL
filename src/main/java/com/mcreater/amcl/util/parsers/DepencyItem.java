@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util.xml;
+package com.mcreater.amcl.util.parsers;
 
 import com.mcreater.amcl.patcher.DepenciesLoader;
 

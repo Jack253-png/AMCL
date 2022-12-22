@@ -65,10 +65,7 @@ public class ThemeManager {
     }
     public static void addLis(ChangeListener<Color> listener) {
         listener.changed(themeIconDark, themeIconDark.get(), themeIconDark.get());
-        themeIconDark.addListener((observable, oldValue, newValue) -> {
-            listener.changed(observable, oldValue, newValue);
-            System.out.println("tset");
-        });
+        themeIconDark.addListener(listener);
     }
 
     public static ObjectBinding<Color> createPaintBinding() {

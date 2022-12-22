@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class OriginalDownload {
@@ -55,7 +57,7 @@ public class OriginalDownload {
             throw new IOException();
         }
         String version_dir = LinkPath.link(minecraft_dir, "versions/" + version_name);
-        new File(version_dir).mkdirs();
+        createDirectoryDirect(version_dir);
 
         String version_json = HttpConnectionUtil.doGet(FasterUrls.fast(version_url, server));
         vj = version_json;
@@ -84,17 +86,13 @@ public class OriginalDownload {
         TaskManager.addTasks(tasks);
         TaskManager.execute("<vanilla>");
     }
-    public static void createNewDir(String path){
-        Vector<String> paths = new Vector<>(J8Utils.createList(path.replace("/", "\\").split("\\\\")));
-        new File(path.replace(paths.get(paths.size() - 1), "")).mkdirs();
-    }
     private static void downloadAssets(VersionJsonModel model, String minecraft_dir, FasterUrls.Servers server, int chunk) throws Exception {
         String assets_root = LinkPath.link(minecraft_dir, "assets");
         String assets_indexes = LinkPath.link(assets_root, "indexes");
         String assets_objects = LinkPath.link(assets_root, "objects");
-        new File(assets_root).mkdirs();
-        new File(assets_indexes).mkdirs();
-        new File(assets_objects).mkdirs();
+        createDirectoryDirect(assets_root);
+        createDirectoryDirect(assets_indexes);
+        createDirectoryDirect(assets_objects);
         String result = HttpConnectionUtil.doGet(FasterUrls.fast(model.assetIndex.get("url"), server));
         String assets_index_path = LinkPath.link(assets_indexes, model.assetIndex.get("id") + ".json");
         BufferedWriter bw = new BufferedWriter(new FileWriter(assets_index_path));
@@ -111,7 +109,7 @@ public class OriginalDownload {
     private static void downloadLibs(VersionJsonModel model, String minecraft_dir, String version_dir, String version_name, FasterUrls.Servers server, int chunk) throws FileNotFoundException {
         String lib_base_path = LinkPath.link(minecraft_dir, "libraries");
         String native_base_path = LinkPath.link(version_dir, version_name + "-natives");
-        new File(lib_base_path).mkdirs();
+        createDirectoryDirect(lib_base_path);
         boolean has_321 = false;
         boolean has_322 = false;
         for (LibModel model1 : model.libraries) {
@@ -137,7 +135,7 @@ public class OriginalDownload {
                             String npath = LinkPath.link(lib_base_path, model1.downloads.classifiers.get(nativeName).path);
                             String nurl = model1.downloads.classifiers.get(nativeName).url;
                             String nhash = model1.downloads.classifiers.get(nativeName).sha1;
-                            createNewDir(npath);
+                            createDirectory(npath);
                             if (!FileUtils.HashHelper.getFileSHA1(new File(npath)).equals(nhash)) {
                                 if (nhash == null && !FileUtils.HashHelper.getFileSHA1(new File(npath)).equals("")) {
                                     continue;
@@ -151,7 +149,7 @@ public class OriginalDownload {
                     String path = model1.downloads.artifact.get("path") != null ? LinkPath.link(lib_base_path, model1.downloads.artifact.get("path").replace("\\", File.separator)) : LinkPath.link(lib_base_path, MavenPathConverter.get(model1.name));
                     String url = model1.downloads.artifact.get("url");
                     String hash = model1.downloads.artifact.get("sha1");
-                    createNewDir(path);
+                    createDirectory(path);
 
                     if (b0) {
                         if (!FileUtils.HashHelper.getFileSHA1(new File(path)).equals(hash)) {

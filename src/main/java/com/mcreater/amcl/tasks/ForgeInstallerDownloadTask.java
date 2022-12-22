@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.deleteFile;
+
 public class ForgeInstallerDownloadTask extends AbstractDownloadTask {
     FileOutputStream fos = null;
     InputStream inputStream = null;
@@ -27,18 +29,16 @@ public class ForgeInstallerDownloadTask extends AbstractDownloadTask {
         c.setConnectTimeout(15000);
         return c;
     }
-    public void clean() throws IOException {
-        new File(local).delete();
+    public void clean() {
+        deleteFile(local);
     }
     public void download() throws IOException {
         inputStream = conn.getInputStream();
 
-        //写入到文件
         fos = new FileOutputStream(this.local);
         byte[] buffer = new byte[chunkSize];
         int len;
         while ((len = inputStream.read(buffer)) != -1) {
-//            System.out.println(Arrays.toString(buffer));
             fos.write(buffer, 0, len);
         }
         conn.disconnect();

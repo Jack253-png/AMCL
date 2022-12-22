@@ -15,7 +15,7 @@ import com.mcreater.amcl.model.original.VersionsModel;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
-import com.mcreater.amcl.util.xml.ForgeVersionXMLHandler;
+import com.mcreater.amcl.util.parsers.ForgeVersionXMLHandler;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

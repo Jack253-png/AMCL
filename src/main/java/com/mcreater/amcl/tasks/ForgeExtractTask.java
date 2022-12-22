@@ -16,6 +16,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
+
 public class ForgeExtractTask extends AbstractExecutableTask {
     public Integer exit = null;
     public String extractPath;
@@ -61,7 +64,7 @@ public class ForgeExtractTask extends AbstractExecutableTask {
         List<String> files = getAllFile("forgeTemp/maven/net/minecraftforge");
         files.forEach(s -> {
             String loc = LinkPath.link(extractPath, getFileName(s));
-            OriginalDownload.createNewDir(loc);
+            createDirectory(loc);
             try {
                 FileChannel output = new FileOutputStream(loc).getChannel();
                 try (FileChannel input = new FileInputStream(s).getChannel()){

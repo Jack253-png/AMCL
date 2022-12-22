@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util.xml;
+package com.mcreater.amcl.util.parsers;
 
 import com.google.gson.annotations.SerializedName;
 import com.mcreater.amcl.nativeInterface.OSInfo;
@@ -12,7 +12,7 @@ import java.util.Vector;
 
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
-public class DepenciesXMLHandler {
+public class DepenciesJsonHandler {
     public static Vector<DepencyItem> load() throws Exception {
         return load(ResourceGetter.get("assets/depencies.json"));
     }
