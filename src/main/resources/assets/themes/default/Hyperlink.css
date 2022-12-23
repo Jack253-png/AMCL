@@ -1,0 +1,5 @@
+* {
+    -fx-focus-color: transparent;
+    -fx-accent: black;
+    -fx-text-background-color: derive(-fx-accent,-15%);;
+}

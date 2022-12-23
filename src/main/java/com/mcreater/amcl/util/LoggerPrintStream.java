@@ -23,6 +23,7 @@ public class LoggerPrintStream extends PrintStream {
         STDOUT,
         STDERR
     }
+    public static boolean enableJansi = true;
     StreamType type;
     public LoggerPrintStream(@NotNull OutputStream out, @NotNull StreamType type) {
         super(out);
@@ -39,7 +40,7 @@ public class LoggerPrintStream extends PrintStream {
     }
     private void jansiPrint(Object o, StreamType type) {
         PrintStream stream = (PrintStream) out;
-        if (jansiLoaded()) {
+        if (jansiLoaded() && enableJansi) {
             AnsiConsole.systemInstall();
             stream.print(ansi().fg(type == StreamType.STDERR ? Ansi.Color.RED : Ansi.Color.GREEN).a(o).reset());
             AnsiConsole.systemUninstall();

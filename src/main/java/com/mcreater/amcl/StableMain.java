@@ -11,8 +11,8 @@ import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.LoggerPrintStream;
 import com.mcreater.amcl.util.SimpleFunctions;
-import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.SwingUtils;
+import com.mcreater.amcl.util.SystemPropertyParser;
 import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.operatingSystem.LocateHelper;
 import com.mcreater.amcl.util.parsers.DepenciesJsonHandler;
@@ -54,7 +54,10 @@ public class StableMain {
     };
     public static void main(String[] args) throws Exception {
         LoggerPrintStream.setStdStream();
-        System.setProperty("log4j.skipJansi", "false");
+
+        boolean enable_jansi = SystemPropertyParser.getBoolean("amcl.enableJansi");
+        SystemPropertyParser.set("log4j.skipJansi", Boolean.toString(!enable_jansi));
+        LoggerPrintStream.enableJansi = enable_jansi;
 
         GithubReleases.trustAllHosts();
         Fonts.loadSwingFont();
