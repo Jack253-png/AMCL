@@ -129,7 +129,7 @@ public class ThemeManager {
             if (button instanceof JFXButton){
                 ((JFXButton) button).setButtonType(JFXButton.ButtonType.RAISED);
                 buttons.add((JFXButton) button);
-                setButtonRadius(100);
+                setButtonRadius(0);
             }
             if (button instanceof JFXButton || button instanceof JFXSlider || button instanceof JFXComboBox){
                 button.setCursor(Cursor.HAND);
