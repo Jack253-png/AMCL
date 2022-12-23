@@ -8,7 +8,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class ClassPathInjector {
@@ -73,7 +72,7 @@ public class ClassPathInjector {
         if (version >= 9) {
             method.invoke(ucp, url);
         }
-        else if (!url.toString().contains("openjfx")){
+        else {
             method.invoke(ClassLoader.getSystemClassLoader(), url);
         }
     }
