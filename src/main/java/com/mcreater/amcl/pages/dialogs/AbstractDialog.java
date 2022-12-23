@@ -57,13 +57,13 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                 while (true) {
                     if (nowRadius.getValue().intValue() != exceptedRadius.getValue().intValue()) {
                         double now = nowRadius.get();
-                        nowRadius.set(now < exceptedRadius.get() ? now + blurRadius / 20 : now - blurRadius / 20);
+                        nowRadius.set(now < exceptedRadius.get() ? now + blurRadius / 40 : now - blurRadius / 40);
                     }
                     try {
                         dialogs.forEach(abstractDialog -> {
                             if (abstractDialog.dialogNowRadius.getValue().intValue() != abstractDialog.dialogExceptedRadius.getValue().intValue()) {
                                 double now2 = abstractDialog.dialogNowRadius.get();
-                                abstractDialog.dialogNowRadius.set(now2 < abstractDialog.dialogExceptedRadius.get() ? now2 + blurRadius / 20 : now2 - blurRadius / 20);
+                                abstractDialog.dialogNowRadius.set(now2 < abstractDialog.dialogExceptedRadius.get() ? now2 + blurRadius / 40 : now2 - blurRadius / 40);
                             }
                         });
                     }
@@ -85,10 +85,10 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                 contentContainer.setScaleY(.80);
             }
             public Animation createShowingAnimation(Node contentContainer, Node overlay) {
+                contentContainer.setScaleX(1);
+                contentContainer.setScaleY(1);
                 return new CachedTransition(contentContainer, new Timeline(
                         new KeyFrame(Duration.millis(1000),
-                                new KeyValue(contentContainer.scaleXProperty(), 1, Interpolator.EASE_OUT),
-                                new KeyValue(contentContainer.scaleYProperty(), 1, Interpolator.EASE_OUT),
                                 new KeyValue(overlay.opacityProperty(), 1, Interpolator.EASE_BOTH)
                         ))) {
                     {
@@ -109,7 +109,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                 };
             }
         });
-        this.initModality(Modality.APPLICATION_MODAL);
+        this.initModality(Modality.WINDOW_MODAL);
         this.setOverlayClose(false);
         Rectangle r = FXUtils.generateRect(width, height, 0);
         r.arcWidthProperty().bind(Launcher.radius);

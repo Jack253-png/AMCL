@@ -66,8 +66,8 @@ public class MicrosoftLoginDialog extends AbstractDialog {
         setContent(layout);
     }
     public synchronized MicrosoftUser login() throws Exception {
+        JFXSmoothScroll.smoothScrollBarToValue(bar, 0.05);
         MSAuth.AUTH_INSTANCE.setUpdater((integer, s) -> {
-            System.out.println(integer.doubleValue() / 100 + " " + s);
             FXUtils.Platform.runLater(() -> loginState.setText(s));
             JFXSmoothScroll.smoothScrollBarToValue(bar, integer.doubleValue() / 100);
         });

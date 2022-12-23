@@ -111,10 +111,10 @@ public class MinecraftFixer {
                 }
             }
         }
-        for (LibModel model1 : libs){
+        for (LibModel model1 : libs) {
             boolean b0 = !(has_322 && model1.name.contains("3.2.1"));
             String nativeName = StableMain.getSystem2.run();
-            if (model1.downloads != null){
+            if (model1.downloads != null) {
                 if (model1.downloads.classifiers != null) {
                     if (model1.downloads.classifiers.containsKey("natives-osx")) nativeName = nativeName.replace("natives-macos", "natives-osx").replace("-arm64", "");
 

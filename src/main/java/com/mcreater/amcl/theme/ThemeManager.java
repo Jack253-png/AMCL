@@ -55,12 +55,7 @@ public class ThemeManager {
         String theme_base_path = "assets/themes/%s/%s.css";
         for (Node n : GetAllNodes(topBar)){
             loadButtonAnimates(n);
-            if (n instanceof JFXButton){
-                String sheetPath = String.format(theme_base_path, themeName, n.getClass().getSimpleName());
-                if (!(ResourceGetter.get(sheetPath) == null)){
-                    ((Parent) n).getStylesheets().add(sheetPath);
-                }
-            }
+            if (n instanceof Parent) applyNode((Parent) n);
         }
     }
     public static void addLis(ChangeListener<Color> listener) {
@@ -133,8 +128,8 @@ public class ThemeManager {
         for (Node button : nodes) {
             if (button instanceof JFXButton){
                 ((JFXButton) button).setButtonType(JFXButton.ButtonType.RAISED);
-                button.setStyle("-fx-border-radius: 0px; -fx-background-radius: 0px");
                 buttons.add((JFXButton) button);
+                setButtonRadius(100);
             }
             if (button instanceof JFXButton || button instanceof JFXSlider || button instanceof JFXComboBox){
                 button.setCursor(Cursor.HAND);

@@ -52,15 +52,11 @@
 .scroll-bar:horizontal .thumb:hover,
 .scroll-bar:vertical .thumb:hover{
     -fx-background-color: -fx-slider-background-hover;
-    -fx-border-radius: 0;
-    -fx-background-radius: 0;
     -fx-pref-height: 0;
 }
 .scroll-bar:horizontal .thumb:pressed,
 .scroll-bar:vertical .thumb:pressed{
     -fx-background-color: -fx-slider-background-pressed;
-    -fx-border-radius: 0;
-    -fx-background-radius: 0;
     -fx-pref-height: 0;
 }
 
@@ -68,5 +64,6 @@
 .scroll-bar:vertical{
     visibility: hidden;
     -fx-pref-height: 0;
+    -fx-pref-width: 0;
     -fx-background-color: transparent;
 }

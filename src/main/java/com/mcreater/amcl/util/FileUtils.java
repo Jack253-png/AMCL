@@ -39,8 +39,8 @@ public class FileUtils {
                 Path path2 = Paths.get(path);
                 Files.deleteIfExists(path2);
             }
-            catch (Exception e) {
-                e.printStackTrace();
+            catch (Exception ignored) {
+
             }
         }
         public static void deleteDirectory(File f, String orgin){
