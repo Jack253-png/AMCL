@@ -277,7 +277,7 @@ public class FileUtils {
                     }
                     if(new File(outpath).isDirectory())
                         continue;
-                    if ((outpath.endsWith(".dll") || outpath.endsWith(".so") || outpath.endsWith(".dylib")) && !new File(outpath).exists()) {
+                    if ((outpath.endsWith(".dll") || outpath.endsWith(".so") || outpath.endsWith(".dylib"))) {
                         OutputStream out = Files.newOutputStream(Paths.get(outpath));
                         byte[] bf = new byte[4096];
                         int len;

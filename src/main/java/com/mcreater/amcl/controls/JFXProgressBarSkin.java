@@ -85,9 +85,7 @@ public class JFXProgressBarSkin extends ProgressIndicatorSkin {
         this.clip.resizeRelocate(0.0, 0.0, w, h);
         if (this.getSkinnable().isIndeterminate()) {
             this.createIndeterminateTimeline();
-            if (NodeHelper.isTreeShowing(this.getSkinnable()) || true) {
-                this.indeterminateTransition.play();
-            }
+            this.indeterminateTransition.play();
 
             this.bar.setClip(this.clip);
         } else if (this.indeterminateTransition != null) {
