@@ -2,6 +2,7 @@ package com.mcreater.amcl.tasks;
 
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.net.FasterUrls;
 
@@ -38,9 +39,6 @@ public class DownloadTask extends AbstractDownloadTask {
         this.hash = hash;
         return this;
     }
-    public boolean checkHashReverted(){
-        return !Objects.equals(hash, FileUtils.HashHelper.getFileSHA1(new File(local)));
-    }
     public HttpURLConnection getConnection() throws IOException {
         URL url = new URL(this.server);
         HttpURLConnection c = (HttpURLConnection) url.openConnection();
@@ -56,6 +54,7 @@ public class DownloadTask extends AbstractDownloadTask {
         inputStream = conn.getInputStream();
 
         createDirectory(this.local);
+        clean();
         fos = new FileOutputStream(this.local);
         byte[] buffer = new byte[chunkSize];
         int len;
@@ -84,42 +83,34 @@ public class DownloadTask extends AbstractDownloadTask {
         }
     }
     public Integer execute() throws IOException {
-        if ((hash != null) && (checkHashReverted())) {
+        boolean failVail = FileUtils.HashHelper.validateSHA1(new File(local), hash);
+        if (!failVail) {
             clean();
             try {
                 d();
             }
-            catch (Error e1){
-                e1.printStackTrace();
-            }
             catch (Exception e) {
-                fos.close();
+                e.printStackTrace();
+                J8Utils.runSafe(() -> fos.close());
                 clean();
                 execute();
             } finally {
-                try {
-                    fos.close();
-                    inputStream.close();
-                }
-                catch (NullPointerException ignored){
-                    return null;
-                }
+                J8Utils.runSafe(
+                        () -> fos.close(),
+                        () -> inputStream.close()
+                );
             }
         }
-        else{
-            if (hash == null){
-                while (true){
-                    try {
-                        clean();
-                        d();
-                        break;
-                    }
-                    catch (IOException ignored){}
+        else {
+            while (true){
+                try {
+                    clean();
+                    d();
+                    break;
                 }
+                catch (IOException ignored){}
             }
-            else if (checkHashReverted()){
-                execute();
-            }
+
         }
         return null;
     }

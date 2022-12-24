@@ -103,8 +103,7 @@ public class Launch {
         TaskManager.setUpdater((integer, s) -> updater.accept(new ImmutablePair<>(1, integer), s));
         TaskManager.setFinishRunnable(() -> {
             updater.accept(new ImmutablePair<>(1, 100), "");
-            TaskManager.setFinishRunnable(() -> {
-            });
+            TaskManager.setFinishRunnable(() -> {});
         });
         try {
             MinecraftFixer.fix(chunkSize, dir, version_name, dlserver);
@@ -191,7 +190,7 @@ public class Launch {
                                     String local = LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)).replace("2.8.1", "2.15.0");
                                     createDirectory(local);
                                     String server = FasterUrls.fast(l.downloads.artifact.get("url"), dlserver).replace("2.8.1", "2.15.0");
-                                    if (!Objects.equals(l.downloads.artifact.get("sha1"), FileUtils.HashHelper.getFileSHA1(new File(local)))) {
+                                    if (!FileUtils.HashHelper.validateSHA1(new File(local), l.downloads.artifact.get("sha1"))) {
                                         new DownloadTask(server, local, 1024).setHash(l.downloads.artifact.get("sha1")).execute();
                                     }
                                     libs.add(local);
@@ -272,57 +271,60 @@ public class Launch {
         } else {
             gamedir = new File(dir);
         }
-
-
-        String old_assets = null;
-        try {
-            old_assets = LinkPath.link(dir, "assets/virtual/legacy");
-            createDirectoryDirect(old_assets);
-
-            String path = LinkPath.link(dir, "assets/indexes/pre-1.6.json");
-            if (r.assetIndex != null) {
-                if (r.assetIndex.get("id") != null) {
-                    path = LinkPath.link(dir, String.format("assets/indexes/%s.json", r.assetIndex.get("id")));
-                }
+        String id = null;
+        if (r.assetIndex != null) {
+            if (r.assetIndex.get("id") != null) {
+                id = r.assetIndex.get("id");
             }
-
-            String json = FileUtils.FileStringReader.read(path);
-            JSONObject object = new JSONObject(json);
-
-            JSONObject objects = object.getJSONObject("objects");
-            String finalOld_assets = old_assets;
-            objects.keySet().forEach(s -> {
-                try {
-                    String hash2 = objects.getJSONObject(s).getString("hash");
-                    String pathAsset = LinkPath.link(finalOld_assets, s);
-                    String hashedAsset = LinkPath.link(dir, String.format("assets/objects/%s/%s", hash2.substring(0, 2), hash2));
-
-                    File target = new File(pathAsset);
-                    File origin = new File(hashedAsset);
-
-                    createDirectory(pathAsset);
-
-                    if (!FileUtils.HashHelper.getFileSHA1(target).equals(hash2)) {
-                        FileChannel in = new FileInputStream(origin).getChannel();
-                        FileChannel out = new FileOutputStream(target).getChannel();
-                        out.transferFrom(in, 0, in.size());
-                        in.close();
-                        out.close();
-                    }
-                } catch (Exception e) {
-                    logger.warn("Failed to copy assets", e);
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         Map<String, String> content = new HashMap<>();
-        content.put("${assets_root}", LinkPath.link(dir, "assets"));
-        if (r.assetIndex != null) {
-            if (r.assetIndex.get("id") != null) {
-                content.put("${assets_index_name}", r.assetIndex.get("id"));
+        String old_assets = LinkPath.link(dir, "assets/virtual/legacy");
+
+        if (id == null || Objects.equals(id, "pre-1.6")) {
+            try {
+                createDirectoryDirect(old_assets);
+
+                String path = LinkPath.link(dir, "assets/indexes/pre-1.6.json");
+                if (id != null) {
+                    path = LinkPath.link(dir, String.format("assets/indexes/%s.json", id));
+                }
+
+                String json = FileUtils.FileStringReader.read(path);
+                JSONObject object = new JSONObject(json);
+
+                JSONObject objects = object.getJSONObject("objects");
+                String finalOld_assets = old_assets;
+                objects.keySet().forEach(s -> {
+                    try {
+                        String hash2 = objects.getJSONObject(s).getString("hash");
+                        String pathAsset = LinkPath.link(finalOld_assets, s);
+                        String hashedAsset = LinkPath.link(dir, String.format("assets/objects/%s/%s", hash2.substring(0, 2), hash2));
+
+                        File target = new File(pathAsset);
+                        File origin = new File(hashedAsset);
+
+                        createDirectory(pathAsset);
+
+                        if (!FileUtils.HashHelper.validateSHA1(target, hash2)) {
+                            FileChannel in = new FileInputStream(origin).getChannel();
+                            FileChannel out = new FileOutputStream(target).getChannel();
+                            out.transferFrom(in, 0, in.size());
+                            in.close();
+                            out.close();
+                        }
+                    } catch (Exception e) {
+//                        logger.warn("Failed to copy assets", e);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+        }
+
+        content.put("${assets_root}", LinkPath.link(dir, "assets"));
+        if (id != null) {
+            content.put("${assets_index_name}", id);
         }
         content.put("${auth_player_name}", user.username);
         content.put("${user_type}", "mojang");

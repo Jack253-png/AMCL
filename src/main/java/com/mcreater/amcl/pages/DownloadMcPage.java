@@ -113,10 +113,12 @@ public class DownloadMcPage extends AbstractAnimationPage {
     public void loadVersions(){
         if (service != null) service.stop();
         Runnable r = () -> {
-            load.setDisable(true);
-            mainBox.setDisable(true);
-            Platform.runLater(mainBox.getChildren()::clear);
-            Platform.runLater(() -> mainBox.getChildren().add(bar));
+            Platform.runLater(() -> {
+                load.setDisable(true);
+                mainBox.setDisable(true);
+                mainBox.getChildren().clear();
+                mainBox.getChildren().add(bar);
+            });
             mainBox.setId("verList");
             Vector<OriginalVersionModel> vs;
             try {
@@ -175,9 +177,11 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 pane.getStyleClass().clear();
                 Platform.runLater(() -> mainBox.getChildren().add(pane));
                 Platform.runLater(() -> ThemeManager.loadButtonAnimates(pane));
-                mainBox.setDisable(false);
             }
-            load.setDisable(false);
+            Platform.runLater(() -> {
+                mainBox.setDisable(false);
+                load.setDisable(false);
+            });
         };
         service = new Thread(r);
         service.start();

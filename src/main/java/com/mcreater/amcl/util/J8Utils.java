@@ -3,11 +3,22 @@ package com.mcreater.amcl.util;
 import com.mcreater.amcl.util.system.MemoryReader;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
 public class J8Utils {
+    public static void runSafe(SafeRunnable... runnable) {
+        for (SafeRunnable r : runnable) {
+            try {
+                r.runSafe();
+            }
+            catch (Throwable ignored) {}
+        }
+    }
+    public interface SafeRunnable extends Runnable {
+        void runSafe() throws Throwable;
+        default void run() {}
+    }
     public static String rawToString(Object o){
         return String.format("%s@%s", o.getClass(), Integer.toHexString(o.hashCode()));
     }

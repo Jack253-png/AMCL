@@ -17,7 +17,6 @@ public class AssetsDownloadTask extends DownloadTask {
         this.chunkSize = chunkSize;
     }
     public Integer execute() throws IOException {
-        super.execute();
-        return null;
+        return super.execute();
     }
 }

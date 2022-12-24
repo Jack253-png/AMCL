@@ -228,7 +228,6 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             if (!(forge || optifine || fabric || fabricapi || optifabric || quilt)){
                 TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                 new Thread(() -> {
-                    long millis = System.currentTimeMillis();
                     Platform.runLater(dialog::Create);
                     try {
                         OriginalDownload.download(
@@ -247,8 +246,6 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     Platform.runLater(() -> install.setDisable(false));
                     dialog.setAll(100);
                     Platform.runLater(dialog::close);
-                    long end = System.currentTimeMillis();
-                    System.out.println((end - millis) / 1000);
                 }).start();
             }
             else{

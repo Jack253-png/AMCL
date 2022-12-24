@@ -135,8 +135,9 @@ public class OriginalDownload {
                             String nurl = model1.downloads.classifiers.get(nativeName).url;
                             String nhash = model1.downloads.classifiers.get(nativeName).sha1;
                             createDirectory(npath);
-                            if (!FileUtils.HashHelper.getFileSHA1(new File(npath)).equals(nhash)) {
-                                if (nhash == null && !FileUtils.HashHelper.getFileSHA1(new File(npath)).equals("")) {
+
+                            if (!FileUtils.HashHelper.validateSHA1(new File(npath), nhash)) {
+                                if (nhash == null && new File(npath).exists()) {
                                     continue;
                                 }
                                 tasks.add(new NativeDownloadTask(FasterUrls.fast(nurl, server), npath, native_base_path, chunk).setHash(nhash));
@@ -151,8 +152,8 @@ public class OriginalDownload {
                     createDirectory(path);
 
                     if (b0) {
-                        if (!FileUtils.HashHelper.getFileSHA1(new File(path)).equals(hash)) {
-                            if (hash == null && !FileUtils.HashHelper.getFileSHA1(new File(path)).equals("")) {
+                        if (!FileUtils.HashHelper.validateSHA1(new File(path), hash)) {
+                            if (hash == null && new File(path).exists()) {
                                 continue;
                             }
                             if (model1.name.contains(nativeName)) {

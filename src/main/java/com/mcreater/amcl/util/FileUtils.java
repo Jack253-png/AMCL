@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -26,6 +27,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.zip.ZipEntry;
@@ -200,7 +204,17 @@ public class FileUtils {
         }
     }
     public static class HashHelper {
-        public static String getFileSHA1(File file) {
+        public static boolean validateSHA1(File file, String target) {
+            if (!file.exists()) {
+                return false;
+            }
+            if (target == null) {
+                return true;
+            }
+            String fileSHA1 = getFileSHA1(file);
+            return Objects.equals(fileSHA1, target);
+        }
+        private static String getFileSHA1(File file) {
             MessageDigest md;
             FileInputStream fis = null;
             StringBuilder sha1Str = new StringBuilder();
@@ -257,27 +271,52 @@ public class FileUtils {
         }
     }
     public static class ZipUtil {
-        public static void unzip(String iy,String o) throws IOException {
-            File pathFile=new File(o);
-            if(!pathFile.exists()){
+        public static Map<String, String> getNativeHash(String iy) throws IOException {
+            Map<String, String> haMap = new HashMap<>();
+            ZipFile zp = new ZipFile(iy, Charset.forName("gbk"));
+            Enumeration<? extends ZipEntry> entries = zp.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.getName().endsWith(".sha1")) {
+                    InputStream stream = zp.getInputStream(entry);
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+
+                    String s = reader.readLine();
+                    reader.close();
+                    haMap.put(entry.getName().replace(".sha1", ""), s);
+                }
+            }
+            zp.close();
+            return haMap;
+        }
+        public static void unzip(String iy,String o) {
+            Map<String, String> haMap = new HashMap<>();
+            try {
+                haMap = getNativeHash(iy);
+            }
+            catch (Exception e) {}
+
+            File pathFile = new File(o);
+            if (!pathFile.exists()) {
                 pathFile.mkdirs();
             }
-            ZipFile zp=null;
-            try{
-                zp=new ZipFile(iy, Charset.forName("gbk"));
-                Enumeration<? extends ZipEntry> entries=zp.entries();
-                while (entries.hasMoreElements()){
-                    ZipEntry entry= entries.nextElement();
+            ZipFile zp;
+            try {
+                zp = new ZipFile(iy, Charset.forName("gbk"));
+                Enumeration<? extends ZipEntry> entries = zp.entries();
+                while (entries.hasMoreElements()) {
+                    ZipEntry entry = entries.nextElement();
                     String zipEntryName = entry.getName();
                     InputStream in = zp.getInputStream(entry);
-                    String outpath=(LinkPath.link(o, zipEntryName)).replace("/",File.separator);
+                    String outpath = (LinkPath.link(o, zipEntryName)).replace("/",File.separator);
                     File file = new File(outpath.substring(0,outpath.lastIndexOf(File.separator)));
-                    if(!file.exists()){
+                    if (!file.exists()) {
                         file.mkdirs();
                     }
-                    if(new File(outpath).isDirectory())
+                    if (new File(outpath).isDirectory())
                         continue;
-                    if ((outpath.endsWith(".dll") || outpath.endsWith(".so") || outpath.endsWith(".dylib"))) {
+                    boolean isPassed = HashHelper.validateSHA1(new File(outpath), haMap.get(new File(outpath).getName()));
+                    if ((outpath.endsWith(".dll") || outpath.endsWith(".so") || outpath.endsWith(".dylib")) && !isPassed) {
                         OutputStream out = Files.newOutputStream(Paths.get(outpath));
                         byte[] bf = new byte[4096];
                         int len;
@@ -289,7 +328,8 @@ public class FileUtils {
                     }
                 }
                 zp.close();
-            }catch ( Exception e){
+            }
+            catch (Exception e) {
                 e.printStackTrace();
             }
         }

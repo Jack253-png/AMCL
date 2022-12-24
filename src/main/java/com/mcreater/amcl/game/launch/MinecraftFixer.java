@@ -60,15 +60,14 @@ public class MinecraftFixer {
         String assets_root = LinkPath.link(minecraft_dir, "assets");
         String assets_objects = LinkPath.link(assets_root, "objects");
         createDirectoryDirect(assets_objects);
-        if (!HashHelper.getFileSHA1(new File(index)).equals(model.assetIndex.get("sha1"))){
+        if (!HashHelper.validateSHA1(new File(index), model.assetIndex.get("sha1"))){
             new DownloadTask(FasterUrls.fast(model.assetIndex.get("url"), server), index, chunk).setHash(model.assetIndex.get("sha1")).execute();
         }
         AssetsModel m = GSON_PARSER.fromJson(FileStringReader.read(index), AssetsModel.class);
         for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()){
             String hash = entry.getValue().get("hash");
             String s = String.format("%s/%s/%s", assets_objects, hash.substring(0, 2), hash).replace("\\", "/");
-            String hashT = HashHelper.getFileSHA1(new File(s));
-            if (!hashT.equals(hash)) {
+            if (!HashHelper.validateSHA1(new File(s), hash)) {
                 boolean contained = false;
                 for (Task task : tasks){
                     if (task instanceof AbstractDownloadTask) {
@@ -88,7 +87,7 @@ public class MinecraftFixer {
         String path = LinkPath.link(versionDir, String.format("%s.jar", versionName));
         String url = model.url;
         String hash = model.sha1;
-        if (!HashHelper.getFileSHA1(new File(path)).equals(hash)){
+        if (!HashHelper.validateSHA1(new File(path), hash)){
             tasks.add(new LibDownloadTask(FasterUrls.fast(url, server), path, chunk).setHash(hash));
         }
     }
@@ -124,8 +123,8 @@ public class MinecraftFixer {
                             String nurl = model1.downloads.classifiers.get(nativeName).url;
                             String nhash = model1.downloads.classifiers.get(nativeName).sha1;
                             createDirectory(npath);
-                            if (!HashHelper.getFileSHA1(new File(npath)).equals(nhash)) {
-                                if (nhash == null && !HashHelper.getFileSHA1(new File(npath)).equals("")) {
+                            if (!HashHelper.validateSHA1(new File(npath), nhash)) {
+                                if (nhash == null && new File(npath).exists()) {
                                     continue;
                                 }
                                 tasks.add(new NativeDownloadTask(FasterUrls.fast(nurl, server), npath, native_base_path, chunk).setHash(nhash));
@@ -140,8 +139,8 @@ public class MinecraftFixer {
                     createDirectory(path);
 
                     if (b0) {
-                        if (!HashHelper.getFileSHA1(new File(path)).equals(hash)) {
-                            if (hash == null && !HashHelper.getFileSHA1(new File(path)).equals("")) {
+                        if (!HashHelper.validateSHA1(new File(path), hash)) {
+                            if (hash == null && new File(path).exists()) {
                                 continue;
                             }
                             if (model1.name.contains(nativeName)) {
