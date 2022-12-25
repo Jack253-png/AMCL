@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
+import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.controls.AccountInfoItem;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
@@ -25,6 +26,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -34,6 +36,7 @@ import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
 import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
+import static com.mcreater.amcl.Launcher.configReader;
 
 public class UserSelectPage extends AbstractAnimationPage {
     VBox sideBar;
@@ -123,7 +126,15 @@ public class UserSelectPage extends AbstractAnimationPage {
         menuButtonMicrosoft.setFont(Fonts.s_f);
         menuButtonMicrosoft.setOnAction(event -> {
             MicrosoftLoginDialog dialog = new MicrosoftLoginDialog(Launcher.languageManager.get("ui.userselectpage._02.name"));
-            dialog.setCancelEvent(event16 -> dialog.close());
+            dialog.setCancelEvent(event16 -> {
+                dialog.stopLogin();
+                dialog.close();
+            });
+            dialog.setLoginEvent(microsoftUser -> {
+                configReader.configModel.accounts.add(microsoftUser);
+                dialog.close();
+                reloadUser();
+            });
             dialog.Create();
         });
 
@@ -219,6 +230,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                     new Thread(() -> {
                         try {
                             item.user.refresh();
+                            item.cutSkinStart();
                         } catch (IOException e) {
                             SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"));
                         }

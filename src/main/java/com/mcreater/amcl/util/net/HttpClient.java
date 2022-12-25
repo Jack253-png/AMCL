@@ -5,14 +5,19 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
@@ -88,5 +93,26 @@ public class HttpClient {
     }
     public <T> T readJSONModel(boolean autoConnect, Class<T> clazz) throws IOException {
         return GSON_PARSER.fromJson(read(autoConnect, true), clazz);
+    }
+    public void write(byte[] data) throws IOException {
+        try (OutputStream os = conn.getOutputStream()) {
+            os.write(data);
+        }
+    }
+
+    public void write(Map<Object, Object> data, Charset charset) throws IOException {
+        write(ofFormData1(data).getBytes(charset));
+    }
+
+    public void write(Map<Object, Object> data) throws IOException {
+        write(data, StandardCharsets.UTF_8);
+    }
+
+    public void writeJson(Map<Object, Object> data) throws IOException {
+
+        BufferedWriter wrt2=new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
+        wrt2.write(GSON_PARSER.toJson(data));
+        wrt2.flush();
+        wrt2.close();
     }
 }

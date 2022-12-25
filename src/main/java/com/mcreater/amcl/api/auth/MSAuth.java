@@ -18,9 +18,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,11 +40,14 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
     private static final String MC_STORE_URL = "https://api.minecraftservices.com/entitlements/mcstore";
     private static final String MC_PROFILE_URL = "https://api.minecraftservices.com/minecraft/profile";
 
+    public static final String MC_CAPE_MODIFY_URL = "https://api.minecraftservices.com/minecraft/profile/capes/active";
+    public static final String MC_PROFILE_API_URL = "https://api.minecraftservices.com/minecraft/profile";
+    public static final String MC_SKIN_MODIFY_URL = "https://api.minecraftservices.com/minecraft/profile/skins";
 
     private static final String SCOPE = "XboxLive.signin offline_access";
     private static final String DEVICE_CODE_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode";
-    private static final String TOKEN_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
-    private static final String CLIENT_ID = "1a969022-f24f-4492-a91c-6f4a6fcb373c";
+    public static final String TOKEN_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
+    public static final String CLIENT_ID = "1a969022-f24f-4492-a91c-6f4a6fcb373c";
     public static class DeviceCodeModel {
         public String user_code;
         public String device_code;
@@ -90,25 +91,22 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             client1.openConnection();
             client1.conn.setRequestMethod("POST");
             client1.conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
             client1.conn.setDoOutput(true);
-
-            try (OutputStream os = client1.conn.getOutputStream()) {
-                os.write(client1.ofFormData1(data).getBytes(StandardCharsets.UTF_8));
-            }
+            client1.write(data);
 
             try {
                 JSONObject object = client1.readJSON();
-                return getUserFromToken(new ImmutablePair<>("d=" + object.getString("access_token"), object.getString("refresh_token")));
+                try {
+                    return getUserFromToken(new ImmutablePair<>("d=" + object.getString("access_token"), object.getString("refresh_token")));
+                }
+                catch (Exception e) {
+                    throw e;
+                }
             }
             catch (Exception ignored) {
 
             }
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        AUTH_INSTANCE.generateDeviceCode(s -> {});
     }
 
     public BiConsumer<Integer, String> updater = (value, mess) -> {};
@@ -158,10 +156,8 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             client.conn.setRequestMethod("POST");
             client.conn.setRequestProperty("Content-Type","application/json");
             client.conn.connect();
-            BufferedWriter wrt2=new BufferedWriter(new OutputStreamWriter(client.conn.getOutputStream()));
-            wrt2.write(GSON_PARSER.toJson(data));
-            wrt2.flush();
-            wrt2.close();
+            client.writeJson(data);
+
             JSONObject ob = client.readJSON(false);
             String token = ob.getString("Token");
             String uhs = "";
@@ -194,10 +190,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             client.conn.setRequestProperty("Content-Type","application/json");
             client.conn.setRequestProperty("Accept", "application/json");
             client.conn.connect();
-            BufferedWriter wrt2=new BufferedWriter(new OutputStreamWriter(client.conn.getOutputStream()));
-            wrt2.write(GSON_PARSER.toJson(data));
-            wrt2.flush();
-            wrt2.close();
+            client.writeJson(data);
             JSONObject ob = client.readJSON(false);
             String uhs = "";
             for (Object o : ob.getJSONObject("DisplayClaims").getJSONArray("xui")){

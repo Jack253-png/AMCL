@@ -150,6 +150,17 @@ public class AccountInfoItem extends VBox {
         }
         return image1;
     }
+    private void cutSkin() {
+        ImmutablePair<Image, Image> head = getHeadImage(user);
+        headImage.setImage(scrollImage(head.getKey(), (int) (32 / head.getKey().getWidth()), (int) (32 / head.getKey().getWidth())));
+        headCoverImage.setImage(scrollImage(head.getValue(), (int) (32 / head.getValue().getWidth()), (int) (32 / head.getValue().getWidth())));
+    }
+    Thread cutSkinThread;
+    public void cutSkinStart() {
+        if (cutSkinThread != null) cutSkinThread.stop();
+        cutSkinThread = new Thread(this::cutSkin);
+        cutSkinThread.start();
+    }
     public AccountInfoItem(AbstractUser user, double width) {
         this.user = user;
         userName = new Label(user.username);
@@ -162,12 +173,7 @@ public class AccountInfoItem extends VBox {
         headCoverImage.setFitHeight(32);
 
         Pane con = new Pane(headImage, headCoverImage);
-
-        new Thread(() -> {
-            ImmutablePair<Image, Image> head = getHeadImage(user);
-            headImage.setImage(scrollImage(head.getKey(), (int) (32 / head.getKey().getWidth()), (int) (32 / head.getKey().getWidth())));
-            headCoverImage.setImage(scrollImage(head.getValue(), (int) (32 / head.getValue().getWidth()), (int) (32 / head.getValue().getWidth())));
-        }).start();
+        cutSkinStart();
 
         modify = new JFXButton();
         delete = new JFXButton();
