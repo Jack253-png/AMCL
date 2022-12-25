@@ -20,20 +20,16 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class MicrosoftUser extends AbstractUser {
-    public final MSAuth.McProfileModel.McSkinModel skin;
-    public MicrosoftUser(String accessToken, String username, String uuid, MSAuth.McProfileModel.McSkinModel skin, String refreshToken) {
+    public MicrosoftUser(String accessToken, String username, String uuid, String refreshToken) {
         super(accessToken, username, uuid, refreshToken);
-        this.skin = skin;
     }
-    public String toString(){
-        return super.toString() + "\nSkins : " + skin;
-    }
-    public Map<String, ImmutablePair<String, Boolean>> getCapes() throws Exception {
-        Map<String, ImmutablePair<String, Boolean>> capes = new HashMap<>();
+    public Vector<MSAuth.McProfileModel.McCapeModel> getCapes() throws Exception {
+        Vector<MSAuth.McProfileModel.McCapeModel> capes = new Vector<>();
 
         String url = "https://api.minecraftservices.com/minecraft/profile";
         HttpClient c = HttpClient.getInstance(url);
@@ -41,11 +37,39 @@ public class MicrosoftUser extends AbstractUser {
         c.conn.setRequestProperty("Authorization", "Bearer " + accessToken);
         JSONObject ob = c.readJSON();
         for (Object o : ob.getJSONArray("capes")){
-            JSONObject t1 = (JSONObject) o;
-            capes.put(t1.getString("alias"), new ImmutablePair<>(t1.getString("id"), t1.getString("state").equals("ACTIVE")));
+            if (o instanceof JSONObject) {
+                JSONObject t1 = (JSONObject) o;
+                MSAuth.McProfileModel.McCapeModel model = new MSAuth.McProfileModel.McCapeModel();
+                model.url = t1.getString("url");
+                model.id = t1.getString("id");
+                model.alias = t1.getString("alias");
+                model.state = t1.getString("state").equals("ACTIVE");
+                capes.add(model);
+            }
         }
         return capes;
         // https://wiki.vg/Mojang_API
+    }
+    public Vector<MSAuth.McProfileModel.McSkinModel> getSkins() throws IOException {
+        String url = "https://api.minecraftservices.com/minecraft/profile";
+        HttpClient c = HttpClient.getInstance(url);
+        c.openConnection();
+        c.conn.setRequestProperty("Authorization", "Bearer " + accessToken);
+        JSONObject obj = c.readJSON();
+        Vector<MSAuth.McProfileModel.McSkinModel> result = new Vector<>();
+        for (Object ob : obj.getJSONArray("skins")) {
+            if (ob instanceof JSONObject) {
+                JSONObject r = (JSONObject) ob;
+                MSAuth.McProfileModel.McSkinModel model = new MSAuth.McProfileModel.McSkinModel();
+                model.variant = r.getString("variant");
+                model.id = r.getString("id");
+                model.state = r.getString("state");
+                model.url = r.getString("url");
+                model.isSlim = r.getString("variant").equals("SLIM");
+                result.add(model);
+            }
+        }
+        return result;
     }
     public enum SkinType {
         STEVE("classic"),
@@ -93,8 +117,8 @@ public class MicrosoftUser extends AbstractUser {
         client.conn.connect();
         client.read();
     }
-    public void showCape(String capeID) throws Exception {
-        Map<Object, Object> data = J8Utils.createMap("capeId", capeID);
+    public void showCape(MSAuth.McProfileModel.McCapeModel model) throws Exception {
+        Map<Object, Object> data = J8Utils.createMap("capeId", model.id);
         String url = "https://api.minecraftservices.com/minecraft/profile/capes/active";
         HttpClient client = HttpClient.getInstance(url);
         client.openConnection();

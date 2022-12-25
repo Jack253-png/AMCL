@@ -22,7 +22,7 @@ public abstract class AbstractUser implements Serializable {
     public MicrosoftUser toMicrosoftUser() {
         return (MicrosoftUser) this;
     }
-    public AbstractUser(String accessToken, String username, String uuid, String refreshToken){
+    public AbstractUser(String accessToken, String username, String uuid, String refreshToken) {
         this.accessToken = accessToken;
         this.username = username;
         this.uuid = uuid;

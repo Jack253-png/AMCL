@@ -5,7 +5,6 @@ import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
-import com.mcreater.amcl.util.concurrent.ValueSet3;
 import com.mcreater.amcl.util.net.HttpClient;
 import com.mcreater.amcl.util.operatingSystem.SystemActions;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -29,6 +28,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class MSAuth implements AbstractAuth<MicrosoftUser>{
@@ -209,7 +209,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         }
     }
 
-    public ValueSet3<String, ImmutablePair<String, String>, McProfileModel.McSkinModel> acquireMinecraftToken(String xblUhs, String xblXsts, BiConsumer<Integer, String> updater) {
+    public ImmutablePair<String, ImmutablePair<String, String>> acquireMinecraftToken(String xblUhs, String xblXsts, BiConsumer<Integer, String> updater) {
         try {
             Map<Object, Object> data = J8Utils.createMap(
                     "identityToken", "XBL3.0 x=" + xblUhs + ";" + xblXsts
@@ -231,7 +231,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             McProfileModel contents = checkMcProfile(accessToken);
             updater.accept(85, Launcher.languageManager.get("ui.msauth._05_1"));
             if (contents.checkProfile() && checkMcStore(accessToken)){
-                return new ValueSet3<>(accessToken, new ImmutablePair<>(contents.name, contents.id), contents.skin);
+                return new ImmutablePair<>(accessToken, new ImmutablePair<>(contents.name, contents.id));
             }
             else {
                 throw new IOException("This user didn't had minecraft");
@@ -268,7 +268,9 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             HttpClient client = HttpClient.getInstance(MC_PROFILE_URL);
             client.openConnection();
             client.conn.setRequestProperty("Authorization", String.format("Bearer %s", mcAccessToken));
-            return GSON_PARSER.fromJson(client.read(), McProfileModel.class);
+            String json = client.read();
+            System.out.println(json);
+            return GSON_PARSER.fromJson(json, McProfileModel.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -286,9 +288,9 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         updater.accept(60, Launcher.languageManager.get("ui.msauth._04"));
         ImmutablePair<String, String> xsts = acquireXsts(xbl_token.getKey());
         updater.accept(80, Launcher.languageManager.get("ui.msauth._05"));
-        ValueSet3<String, ImmutablePair<String, String>, McProfileModel.McSkinModel> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey(), updater);
+        ImmutablePair<String, ImmutablePair<String, String>> content = acquireMinecraftToken(xbl_token.getValue(), xsts.getKey(), updater);
         updater.accept(90, Launcher.languageManager.get("ui.msauth._06"));
-        MicrosoftUser msu = new MicrosoftUser(content.getValue1(), content.getValue2().getKey(), content.getValue2().getValue(), content.getValue3(), token.getValue());
+        MicrosoftUser msu = new MicrosoftUser(content.getKey(), content.getValue().getKey(), content.getValue().getValue(), token.getValue());
         updater.accept(100, "");
         return msu;
     }
@@ -306,9 +308,12 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             public String variant;
             public String cape;
             public boolean isSlim;
-            public String toString(){
-                return url;
-            }
+        }
+        public static class McCapeModel {
+            public String alias;
+            public String id;
+            public boolean state;
+            public String url;
         }
     }
     public static McProfileModel getUserSkinFromName(String name) throws Exception {

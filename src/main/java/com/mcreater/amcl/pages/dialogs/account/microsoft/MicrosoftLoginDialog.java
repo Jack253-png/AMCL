@@ -16,6 +16,11 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.util.Vector;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.stage;
 
@@ -25,8 +30,12 @@ public class MicrosoftLoginDialog extends AbstractDialog {
     com.jfoenix.controls.JFXProgressBar bar;
     Label microsoftValidate;
     Label loginState;
+    @NotNull Consumer<MicrosoftUser> processor = user -> {};
     public void setCancelEvent(EventHandler<ActionEvent> event) {
         cancel.setOnAction(event);
+    }
+    public void setLoginEvent(@NotNull Consumer<MicrosoftUser> processor) {
+        this.processor = processor;
     }
     public MicrosoftLoginDialog(String title) {
         super(stage);
@@ -41,7 +50,7 @@ public class MicrosoftLoginDialog extends AbstractDialog {
             new Thread(() -> {
                 try {
                     MicrosoftUser user = login();
-                    System.out.println(user);
+                    processor.accept(user);
                 } catch (Exception e) {
                     SimpleDialogCreater.exception(e);
                 }

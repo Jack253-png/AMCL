@@ -39,15 +39,6 @@ public final class JsonUtils {
                                 .name("refresh_token").value(userM.refreshToken)
                                 .name("uuid").value(userM.uuid)
                                 .name("user_name").value(userM.username)
-                                .name("skin")
-                                .beginObject()
-                                    .name("id").value(userM.skin.id)
-                                    .name("state").value(userM.skin.state)
-                                    .name("url").value(userM.skin.url)
-                                    .name("variant").value(userM.skin.variant)
-                                    .name("cape").value(userM.skin.cape)
-                                    .name("is_slim").value(userM.skin.isSlim)
-                                .endObject()
                            .endObject();
                     }
                     else if (value instanceof OffLineUser) {
@@ -87,25 +78,15 @@ public final class JsonUtils {
                     String custom_skin_cape = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "custom_skin", "cape"));
                     boolean custom_skin_is_slim = JsonUtils.JsonProcessors.parseBoolean(JsonUtils.JsonProcessors.getValue(content, "custom_skin", "is_slim"));
 
-                    String skin_id = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "skin", "id"));
-                    String skin_state = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "skin", "state"));
-                    String skin_url = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "skin", "url"));
-                    String skin_variant = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "skin", "variant"));
-                    String skin_cape = JsonUtils.JsonProcessors.parseString(JsonUtils.JsonProcessors.getValue(content, "skin", "cape"));
-                    boolean skin_is_slim = JsonUtils.JsonProcessors.parseBoolean(JsonUtils.JsonProcessors.getValue(content, "skin", "is_slim"));
-
                     if (user_type == 1) {
-                        MSAuth.McProfileModel.McSkinModel model = new MSAuth.McProfileModel.McSkinModel();
-                        model.isSlim = skin_is_slim;
-                        model.id = skin_id;
-                        model.cape = skin_cape;
-                        model.url = skin_url;
-                        model.state = skin_state;
-                        model.variant = skin_variant;
-                        return new MicrosoftUser(access_token, user_name, uuid, model, refresh_token);
+                        MicrosoftUser user = new MicrosoftUser(access_token, user_name, uuid, refresh_token);
+                        user.active = active;
+                        return user;
                     }
                     else {
-                        return new OffLineUser(user_name, uuid, custom_skin_is_slim, custom_skin_skin, custom_skin_cape);
+                        OffLineUser user2 = new OffLineUser(user_name, uuid, custom_skin_is_slim, custom_skin_skin, custom_skin_cape);
+                        user2.active = active;
+                        return user2;
                     }
                 }
             })
