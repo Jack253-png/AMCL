@@ -64,6 +64,21 @@ public class FileUtils {
                 f.delete();
             }
         }
+        public static void deleteDirectory(File f){
+            if (!f.exists()){
+                return;
+            }
+            if (f.isFile()){
+                f.delete();
+                return;
+            }
+            else {
+                for (File f1 : f.listFiles()){
+                    deleteDirectory(f1);
+                }
+            }
+            f.delete();
+        }
         public static void createDirectory(String path) {
             new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
         }
@@ -233,6 +248,7 @@ public class FileUtils {
                     sha1Str.append(shaHex);
                 }
             } catch (NoSuchAlgorithmException | IOException e) {
+                e.printStackTrace();
             } finally {
                 if (fis != null) {
                     try {
@@ -262,10 +278,10 @@ public class FileUtils {
                     try {
                         fu.moveToTrash(f);
                     } catch (IOException e) {
-                        f.delete();
+                        OperateUtil.deleteDirectory(f);
                     }
                 } else {
-                    f.delete();
+                    OperateUtil.deleteDirectory(f);
                 }
             }
         }

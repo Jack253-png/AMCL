@@ -61,7 +61,7 @@ public class MinecraftFixer {
         String assets_objects = LinkPath.link(assets_root, "objects");
         createDirectoryDirect(assets_objects);
         if (!HashHelper.validateSHA1(new File(index), model.assetIndex.get("sha1"))){
-            new DownloadTask(FasterUrls.fast(model.assetIndex.get("url"), server), index, chunk).setHash(model.assetIndex.get("sha1")).execute();
+            new DownloadTask(FasterUrls.fast(model.assetIndex.get("url"), server), index, chunk).execute();
         }
         AssetsModel m = GSON_PARSER.fromJson(FileStringReader.read(index), AssetsModel.class);
         for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()){

@@ -19,6 +19,7 @@ import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.nativeInterface.EnumWindow;
+import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
@@ -30,7 +31,6 @@ import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FileUtils.ZipUtil;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.LogLineDetecter;
-import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.java.JVMArgs;
 import com.mcreater.amcl.util.net.FasterUrls;
@@ -271,7 +271,7 @@ public class Launch {
         } else {
             gamedir = new File(dir);
         }
-        String id = null;
+        String id = "pre-1.6";
         if (r.assetIndex != null) {
             if (r.assetIndex.get("id") != null) {
                 id = r.assetIndex.get("id");
@@ -279,26 +279,23 @@ public class Launch {
         }
 
         Map<String, String> content = new HashMap<>();
-        String old_assets = LinkPath.link(dir, "assets/virtual/legacy");
+//        String old_assets = LinkPath.link(dir, "assets/virtual/" + id);
+        String old_assets = LinkPath.link(dir, "resources");
 
-        if (id == null || Objects.equals(id, "pre-1.6")) {
+        if (Objects.equals(id, "pre-1.6")) {
             try {
                 createDirectoryDirect(old_assets);
 
-                String path = LinkPath.link(dir, "assets/indexes/pre-1.6.json");
-                if (id != null) {
-                    path = LinkPath.link(dir, String.format("assets/indexes/%s.json", id));
-                }
+                String path = LinkPath.link(dir, String.format("assets/indexes/%s.json", id));
 
                 String json = FileUtils.FileStringReader.read(path);
                 JSONObject object = new JSONObject(json);
 
                 JSONObject objects = object.getJSONObject("objects");
-                String finalOld_assets = old_assets;
                 objects.keySet().forEach(s -> {
                     try {
                         String hash2 = objects.getJSONObject(s).getString("hash");
-                        String pathAsset = LinkPath.link(finalOld_assets, s);
+                        String pathAsset = LinkPath.link(old_assets, s);
                         String hashedAsset = LinkPath.link(dir, String.format("assets/objects/%s/%s", hash2.substring(0, 2), hash2));
 
                         File target = new File(pathAsset);
@@ -543,7 +540,7 @@ public class Launch {
                 line.contains("LWJGL Version") ||
                 line.contains("Turning of ImageIO disk-caching") ||
                 line.contains("Loading current icons for window from:")){
-                    if (ClassPathInjector.version <= 8) failedRunnable.run();
+                    if (ClassPathInjector.version <= 8 || OSInfo.isLinux()) failedRunnable.run();
                 }
             }
         } catch (IOException e) {
@@ -551,7 +548,7 @@ public class Launch {
             StringWriter writer = new StringWriter();
             PrintWriter print = new PrintWriter(writer);
             e.printStackTrace(print);
-            logProperty.get().append(writer.toString());
+            logProperty.get().append(writer);
             print.close();
         } finally {
             try {
