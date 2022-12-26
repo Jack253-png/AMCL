@@ -101,7 +101,7 @@ public class DownloadTask extends AbstractDownloadTask {
                 );
             }
         }
-        else {
+        else if (hash == null) {
             while (true){
                 try {
                     clean();
@@ -110,7 +110,6 @@ public class DownloadTask extends AbstractDownloadTask {
                 }
                 catch (IOException ignored){}
             }
-
         }
         return null;
     }
