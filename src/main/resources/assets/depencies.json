@@ -89,19 +89,6 @@
                   "isMultiPlatform": true
                 },
 
-                {
-                  "name": "org.openjfx:javafx-media:win:17.0.2",
-                  "mac": "org.openjfx:javafx-media:mac:17.0.2",
-                  "linux": "org.openjfx:javafx-media:linux:17.0.2",
-                  "win-x86": "org.openjfx:javafx-media:win-x86:17.0.2",
-                  "mac-arm64": "org.openjfx:javafx-media:mac-aarch64:17.0.2",
-                  "linux-arm64": "org.openjfx:javafx-media:linux-aarch64:17.0.2",
-                  "windows-arm": "org.openjfx:javafx-media:17.0.2",
-                  "linux-arm32": "org.openjfx:javafx-media:17.0.2",
-                  "linux-loongarch": "org.openjfx:javafx-media:17.0.2",
-                  "isMultiPlatform": true
-                },
-
                 {"name": "com.github.oshi:oshi-core:6.2.2"},
                 {"name": "org.threeten:threetenbp:1.3.6"},
                 {"name": "org.slf4j:slf4j-api:1.7.25"},

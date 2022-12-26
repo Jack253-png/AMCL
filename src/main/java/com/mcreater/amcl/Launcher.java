@@ -1,7 +1,6 @@
 package com.mcreater.amcl;
 
 import com.jfoenix.controls.JFXButton;
-import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.nativeInterface.OSInfo;
@@ -152,9 +151,6 @@ public class Launcher {
             ThemeManager.loadButtonAnimateParent(CONFIGPAGE.p);
             last = MAINPAGE;
             setPage(last, last);
-
-            BGMManager.init();
-            BGMManager.start();
 
             stage.initStyle(StageStyle.TRANSPARENT);
             refresh();

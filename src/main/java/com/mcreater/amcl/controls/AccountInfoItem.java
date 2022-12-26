@@ -63,8 +63,9 @@ public class AccountInfoItem extends VBox {
                 return new ImmutablePair<>(cutHeadImage(new Image(createInputstreamFromFile(new File(user1.skin))))
                         , cutHeadCoverImage(new Image(createInputstreamFromFile(new File(user1.skin)))));
             }
+
         }
-        switch (user.uuid) {
+        switch (user.uuid.toLowerCase()) {
             case "000000000000300a9d83f9ec9e7fae8e":
                 return new ImmutablePair<>(cutHeadImage(SkinView.STEVE), cutHeadCoverImage(SkinView.STEVE));
             case "000000000000300a9d83f9ec9e7fae8d":

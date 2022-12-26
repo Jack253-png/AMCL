@@ -17,10 +17,7 @@ import org.json.JSONObject;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
@@ -99,7 +96,6 @@ public class MicrosoftUser extends AbstractUser {
         if (resp.getStatusLine().getStatusCode() <= 399) {
             HttpEntity he = resp.getEntity();
             respContent = EntityUtils.toString(he, "UTF-8");
-            System.out.println(respContent);
         }
         else {
             throw new Exception();

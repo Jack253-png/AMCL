@@ -2,10 +2,8 @@ package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.audio.BGMManager;
 import com.mcreater.amcl.game.GetMinecraftVersion;
 import com.mcreater.amcl.game.launch.Launch;
-import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
@@ -16,10 +14,8 @@ import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.JsonUtils;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.Sleeper;
-import com.mcreater.amcl.util.net.FasterUrls;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -156,9 +152,6 @@ public class MainPage extends AbstractAnimationPage {
         stopProcess = new JFXButton();
         stopProcess.setId("launch-button");
         stopProcess.setFont(Fonts.s_f);
-        ListChangeListener<Launch> listener = c -> BGMManager.startOrStop(game.size() == 0);
-        game.addListener(listener);
-        listener.onChanged(null);
 
         stopProcess.setOnAction(event -> {
             if (game.size() == 0) {
