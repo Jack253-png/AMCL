@@ -75,7 +75,7 @@ public class OptifineDownload {
 
         String fileSrc = new File("opti.jar").getAbsolutePath();
         String fileBase = FileUtils.LinkPath.link(minecraft_dir, String.format("versions/%s/%s.jar", version_name, version_name));
-        String fileDest = FileUtils.LinkPath.link(minecraft_dir, String.format("libraries/optifine/Optifine/%s_%s/OptiFine-%s_%s.jar", id, ofEd, id, ofEd));
+        String fileDest = FileUtils.LinkPath.link(minecraft_dir, String.format("libraries/optifine/OptiFine/%s_%s/OptiFine-%s_%s.jar", id, ofEd, id, ofEd));
         new File(fileDest).getParentFile().mkdirs();
 
         jar.invokeStaticMethod(

@@ -9,7 +9,9 @@ import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
+import org.json.JSONWriter;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -74,7 +76,7 @@ public class ForgeOptifineDownload {
 
         String fileSrc = new File("opti.jar").getAbsolutePath();
         String fileBase = FileUtils.LinkPath.link(minecraft_dir, String.format("versions/%s/%s.jar", version_name, version_name));
-        String fileDest = FileUtils.LinkPath.link(minecraft_dir, String.format("libraries/optifine/Optifine/%s_%s/OptiFine-%s_%s.jar", id, ofEd, id, ofEd));
+        String fileDest = FileUtils.LinkPath.link(minecraft_dir, String.format("libraries/optifine/OptiFine/%s_%s/OptiFine-%s_%s.jar", id, ofEd, id, ofEd));
         new File(fileDest).getParentFile().mkdirs();
 
         jar.invokeStaticMethod(
@@ -91,9 +93,14 @@ public class ForgeOptifineDownload {
         String libPath = String.format("optifine:OptiFine:%s_%s", id, ofEd);
         JSONObject ob = JSON.parseObject(vj);
 
-        JSONObject obj2 = new JSONObject();
-        obj2.put("name", libPath);
-        ob.getJSONArray("libraries").add(obj2);
+        ob.getJSONArray("libraries").add(
+                new JSONObject(
+                        J8Utils.createMap(
+                                String.class, Object.class,
+                                "name", libPath
+                        )
+                )
+        );
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
         writer.write(GSON_PARSER.toJson(ob));

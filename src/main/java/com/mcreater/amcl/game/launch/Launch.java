@@ -183,7 +183,9 @@ public class Launch {
                             }
                         }
                     }
-                    if (new File(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name))).exists()) {
+                    File st = new File(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)));
+                    System.out.printf("Lib %s: %s\n", st, st.exists());
+                    if (st.exists()) {
                         if (!libs.contains(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)))) {
                             if (l.name.contains("org.apache.logging.log4j:log4j-api:2.8.1") || l.name.contains("org.apache.logging.log4j:log4j-core:2.8.1")) {
                                 if (VersionTypeGetter.get(dir, version_name) == VersionTypeGetter.VersionType.FORGE) {
