@@ -7,6 +7,7 @@ import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.original.AssetsModel;
 import com.mcreater.amcl.model.original.VersionModel;
 import com.mcreater.amcl.model.original.VersionsModel;
+import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.tasks.AssetsDownloadTask;
 import com.mcreater.amcl.tasks.LibDownloadTask;
 import com.mcreater.amcl.tasks.NativeDownloadTask;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
@@ -109,28 +111,16 @@ public class OriginalDownload {
         String lib_base_path = LinkPath.link(minecraft_dir, "libraries");
         String native_base_path = LinkPath.link(version_dir, version_name + "-natives");
         createDirectoryDirect(lib_base_path);
-        boolean has_321 = false;
-        boolean has_322 = false;
-        for (LibModel model1 : model.libraries) {
-            if (model1.downloads.artifact != null) {
-                String u = model1.downloads.artifact.get("url");
-                if (!has_321 && u.contains("3.2.1")) {
-                    has_321 = true;
-                }
-                if (!has_322 && u.contains("3.2.2")) {
-                    has_322 = true;
-                }
-            }
-        }
+
         String nativeName = StableMain.getSystem2.run();
         for (LibModel model1 : model.libraries) {
-            boolean b0 = !(has_322 && model1.name.contains("3.2.1"));
-            if (model1.downloads != null){
-                if (model1.downloads.classifiers != null) {
-                    if (model1.downloads.classifiers.containsKey("natives-osx")) nativeName = nativeName.replace("natives-macos", "natives-osx").replace("-arm64", "");
+            if (checkAllowState(model1)) {
+                if (model1.downloads != null) {
+                    if (model1.downloads.classifiers != null) {
+                        if (model1.downloads.classifiers.containsKey("natives-osx"))
+                            nativeName = nativeName.replace("natives-macos", "natives-osx").replace("-arm64", "");
 
-                    if (model1.downloads.classifiers.get(nativeName) != null) {
-                        if (b0) {
+                        if (model1.downloads.classifiers.get(nativeName) != null) {
                             String npath = LinkPath.link(lib_base_path, model1.downloads.classifiers.get(nativeName).path);
                             String nurl = model1.downloads.classifiers.get(nativeName).url;
                             String nhash = model1.downloads.classifiers.get(nativeName).sha1;
@@ -144,14 +134,12 @@ public class OriginalDownload {
                             }
                         }
                     }
-                }
-                if (model1.downloads.artifact != null) {
-                    String path = model1.downloads.artifact.get("path") != null ? LinkPath.link(lib_base_path, model1.downloads.artifact.get("path").replace("\\", File.separator)) : LinkPath.link(lib_base_path, MavenPathConverter.get(model1.name));
-                    String url = model1.downloads.artifact.get("url");
-                    String hash = model1.downloads.artifact.get("sha1");
-                    createDirectory(path);
+                    if (model1.downloads.artifact != null) {
+                        String path = model1.downloads.artifact.get("path") != null ? LinkPath.link(lib_base_path, model1.downloads.artifact.get("path").replace("\\", File.separator)) : LinkPath.link(lib_base_path, MavenPathConverter.get(model1.name));
+                        String url = model1.downloads.artifact.get("url");
+                        String hash = model1.downloads.artifact.get("sha1");
+                        createDirectory(path);
 
-                    if (b0) {
                         if (!FileUtils.HashHelper.validateSHA1(new File(path), hash)) {
                             if (hash == null && new File(path).exists()) {
                                 continue;
@@ -166,5 +154,30 @@ public class OriginalDownload {
                 }
             }
         }
+    }
+
+    public static boolean checkAllowState(LibModel model) {
+        if (model.rules == null) return true;
+        AtomicBoolean allowed = new AtomicBoolean(false);
+        AtomicBoolean usaled = new AtomicBoolean(false);
+        model.rules.forEach(rulesModel -> {
+            if (rulesModel.os == null) {
+                if (!usaled.get()) allowed.set(toAllowState(rulesModel.action));
+            }
+            else {
+                if (specialEqual(rulesModel.os.name, OSInfo.getOSNameCore()) && specialEqual(rulesModel.os.arch, OSInfo.getOSArchCore())) {
+                    allowed.set(toAllowState(rulesModel.action));
+                    usaled.set(true);
+                }
+            }
+        });
+        return allowed.get();
+    }
+    private static boolean toAllowState(String s) {
+        return specialEqual(s, "allow");
+    }
+    private static boolean specialEqual(String a, String b) {
+        if (a == null || b == null) return true;
+        else return Objects.equals(a, b);
     }
 }

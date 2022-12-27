@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 
+import static com.mcreater.amcl.download.OriginalDownload.checkAllowState;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
@@ -95,30 +96,15 @@ public class MinecraftFixer {
         String lib_base_path = LinkPath.link(dir, "libraries");
         String native_base_path = LinkPath.link(version_dir, version_name + "-natives");
         createDirectoryDirect(lib_base_path);
-        boolean has_321 = false;
-        boolean has_322 = false;
         for (LibModel model1 : libs) {
-            if (model1.downloads != null) {
-                if (model1.downloads.artifact != null) {
-                    String u = model1.downloads.artifact.get("url");
-                    if (!has_321 && u.contains("3.2.1")) {
-                        has_321 = true;
-                    }
-                    if (!has_322 && u.contains("3.2.2")) {
-                        has_322 = true;
-                    }
-                }
-            }
-        }
-        for (LibModel model1 : libs) {
-            boolean b0 = !(has_322 && model1.name.contains("3.2.1"));
-            String nativeName = StableMain.getSystem2.run();
-            if (model1.downloads != null) {
-                if (model1.downloads.classifiers != null) {
-                    if (model1.downloads.classifiers.containsKey("natives-osx")) nativeName = nativeName.replace("natives-macos", "natives-osx").replace("-arm64", "");
+            if (checkAllowState(model1)) {
+                String nativeName = StableMain.getSystem2.run();
+                if (model1.downloads != null) {
+                    if (model1.downloads.classifiers != null) {
+                        if (model1.downloads.classifiers.containsKey("natives-osx"))
+                            nativeName = nativeName.replace("natives-macos", "natives-osx").replace("-arm64", "");
 
-                    if (model1.downloads.classifiers.get(nativeName) != null) {
-                        if (b0) {
+                        if (model1.downloads.classifiers.get(nativeName) != null) {
                             String npath = LinkPath.link(lib_base_path, model1.downloads.classifiers.get(nativeName).path);
                             String nurl = model1.downloads.classifiers.get(nativeName).url;
                             String nhash = model1.downloads.classifiers.get(nativeName).sha1;
@@ -131,14 +117,12 @@ public class MinecraftFixer {
                             }
                         }
                     }
-                }
-                if (model1.downloads.artifact != null) {
-                    String path = model1.downloads.artifact.get("path") != null ? LinkPath.link(lib_base_path, model1.downloads.artifact.get("path").replace("\\", File.separator)) : LinkPath.link(lib_base_path, MavenPathConverter.get(model1.name));
-                    String url = model1.downloads.artifact.get("url");
-                    String hash = model1.downloads.artifact.get("sha1");
-                    createDirectory(path);
+                    if (model1.downloads.artifact != null) {
+                        String path = model1.downloads.artifact.get("path") != null ? LinkPath.link(lib_base_path, model1.downloads.artifact.get("path").replace("\\", File.separator)) : LinkPath.link(lib_base_path, MavenPathConverter.get(model1.name));
+                        String url = model1.downloads.artifact.get("url");
+                        String hash = model1.downloads.artifact.get("sha1");
+                        createDirectory(path);
 
-                    if (b0) {
                         if (!HashHelper.validateSHA1(new File(path), hash)) {
                             if (hash == null && new File(path).exists()) {
                                 continue;

@@ -63,4 +63,29 @@ public class OSInfo {
         LINUX_ARM32,
         LINUX_LOONGARCH64_OW
     }
+
+    public static String getOSNameCore() {
+        if (isWin()) {
+            return "windows";
+        }
+        else if (isLinux()) {
+            return "linux";
+        }
+        else if (isMac()) {
+            return "osx";
+        }
+        return "windows";
+    }
+
+    public static String getOSArchCore() {
+        if (isX86()) {
+            return "x86";
+        }
+        else if (isArm32() || isArm64()) {
+            return "arm";
+        }
+        else {
+            return System.getProperty("os.arch", "x86_64");
+        }
+    }
 }

@@ -66,6 +66,7 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.function.BiConsumer;
 
+import static com.mcreater.amcl.download.OriginalDownload.checkAllowState;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
@@ -135,28 +136,12 @@ public class Launch {
         }
         Vector<String> libs = new Vector<>();
         Vector<String> natives = new Vector<>();
-        int s0 = 0;
-        boolean has_322 = false;
-        boolean has_321 = false;
-        for (LibModel model1 : r.libraries) {
-            try {
-                if (model1.downloads.artifact != null) {
-                    String u = model1.downloads.artifact.get("url");
-                    if (!has_321 && u.contains("3.2.1")) {
-                        has_321 = true;
-                    }
-                    if (!has_322 && u.contains("3.2.2")) {
-                        has_322 = true;
-                    }
-                }
-            } catch (Exception ignored) {
 
-            }
-        }
+        int s0 = 0;
         String nativeName = StableMain.getSystem2.run();
         for (LibModel l : r.libraries) {
-            if (l.name != null) {
-                if (!(l.name.contains("3.2.1") && has_322)) {
+            if (checkAllowState(l)) {
+                if (l.name != null) {
                     if (l.downloads != null) {
                         if (l.downloads.classifiers != null) {
                             if (l.downloads.classifiers.containsKey("natives-osx"))
