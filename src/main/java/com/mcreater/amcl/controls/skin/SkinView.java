@@ -1,8 +1,12 @@
 package com.mcreater.amcl.controls.skin;
 
-import com.mcreater.amcl.controls.skin.animation.SkinAniRunning;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
-import javafx.scene.*;
+import javafx.scene.AmbientLight;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.PerspectiveCamera;
+import javafx.scene.SceneAntialiasing;
+import javafx.scene.SubScene;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;

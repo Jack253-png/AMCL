@@ -15,9 +15,7 @@ import com.mcreater.amcl.util.FXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;

@@ -1,6 +1,5 @@
 package com.mcreater.amcl.game.launch;
 
-import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.api.auth.LocalYggdrasilServer;
@@ -16,6 +15,7 @@ import com.mcreater.amcl.exceptions.BadVersionDirException;
 import com.mcreater.amcl.exceptions.ProcessException;
 import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.game.VersionTypeGetter;
+import com.mcreater.amcl.model.ArgItemModel;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.nativeInterface.EnumWindow;
@@ -30,6 +30,7 @@ import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FileUtils.ZipUtil;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.JsonUtils;
 import com.mcreater.amcl.util.LogLineDetecter;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.java.JVMArgs;
@@ -58,12 +59,13 @@ import java.net.BindException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 import static com.mcreater.amcl.download.OriginalDownload.checkAllowState;
@@ -213,7 +215,7 @@ public class Launch {
             }
             updater.accept(new ImmutablePair<>(0, 85), Launcher.languageManager.get("ui.launch._06"));
         }
-        StringBuilder classpath = new StringBuilder("");
+        StringBuilder classpath = new StringBuilder();
         for (String s : libs) {
             classpath.append(s).append(File.pathSeparator);
         }
@@ -230,19 +232,37 @@ public class Launch {
                 if (r.arguments.game != null) {
                     for (Object s : r.arguments.game) {
                         if (s != null) {
-                            try {
+                            if (s instanceof String) {
                                 arguList.add((String) s);
-                            } catch (ClassCastException e) {
-                                LinkedTreeMap ltm = (LinkedTreeMap) s;
-                                try {
-                                    for (String s1 : (ArrayList<String>) ltm.get("value")) {
-                                        if (!s1.contains("demo")) {
-                                            arguList.add(s1);
+                            }
+                            else {
+                                Map<String, Boolean> result = J8Utils.createMap(
+                                        String.class, Boolean.class,
+                                        "is_demo_user", false,
+                                        "has_custom_resolution", true
+                                );
+
+                                System.out.println(s);
+                                ArgItemModel model = GSON_PARSER.fromJson(GSON_PARSER.toJson(s), ArgItemModel.class);
+
+                                AtomicBoolean b = new AtomicBoolean(true);
+                                model.rules.forEach(rulesModel -> {
+                                    int part = 0;
+                                    for (Map.Entry<String, Boolean> entry : rulesModel.features.entrySet()) {
+                                        if (JsonUtils.JsonProcessors.parseBoolean(result.get(entry.getKey())) == JsonUtils.JsonProcessors.parseBoolean(entry.getValue())) {
+                                            part++;
                                         }
                                     }
-                                } catch (ClassCastException e1) {
-                                    if (!((String) ltm.get("value")).contains("demo")) {
-                                        arguList.add((String) ltm.get("value"));
+
+                                    if (rulesModel.features.size() == part) b.set(false);
+                                });
+
+                                if (!b.get()) {
+                                    if (model.value instanceof String) {
+                                        arguList.add((String) model.value);
+                                    }
+                                    else if (model.value instanceof List<?>) {
+                                        arguList.addAll((List<String>) model.value);
                                     }
                                 }
                             }
@@ -267,7 +287,7 @@ public class Launch {
 
         Map<String, String> content = new HashMap<>();
 //        String old_assets = LinkPath.link(dir, "assets/virtual/" + id);
-        String old_assets = LinkPath.link(dir, "resources");
+        String old_assets = LinkPath.link(gamedir.getAbsolutePath(), "resources");
 
         if (Objects.equals(id, "pre-1.6")) {
             try {

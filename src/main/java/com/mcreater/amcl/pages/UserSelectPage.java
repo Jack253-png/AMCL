@@ -4,7 +4,6 @@ import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
-import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.controls.AccountInfoItem;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
@@ -25,9 +24,7 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
