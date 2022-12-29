@@ -1,15 +1,15 @@
 .titled-pane
 {
-    -fx-skin: "javafx.scene.control.skin.TitledPaneSkin";
-    -fx-text-fill: black;
+    /*-fx-skin: "javafx.scene.control.skin.TitledPaneSkin";*/
+    -fx-text-fill: rgba(18, 18, 18);
 }
 .titled-pane:focused
 {
-    -fx-text-fill: white;
+    -fx-text-fill: rgba(18, 18, 18);
 }
 .titled-pane > .title
 {
-    -fx-background-color: rgba(173,216,246,0);
+    -fx-background-color: transparent;
 }
 
 .titled-pane:focused > .title
@@ -28,7 +28,7 @@
 .titled-pane > .title > .arrow-button .arrow
 {
     -fx-background-color: rgb(0,0,0);
-    -fx-background-insets: 1 0 -1 0, 0;
+    -fx-background-insets: 0 0 0 0, 0;
     -fx-padding: 0.25em 0.25em 0.25em 0.25em;
     -fx-shape: "M 0 0 0 0 0 0";
 }
@@ -40,21 +40,21 @@
 
 .titled-pane > *.content
 {
-    -fx-background-color:rgb(255, 255, 255);
-    -fx-background-insets: 0, 0 1 1 1;
+    -fx-background-color:rgba(18, 18, 18);
+    -fx-background-insets: 0, 0 0 0 0;
     -fx-padding: 0.167em;
 }
 
 .titled-pane:focused > .title > .arrow-button .arrow
 {
-    -fx-background-color: white;
+    -fx-background-color: rgba(18, 18, 18);
 }
 .titled-pane > *.content {
     -fx-background-color: transparent
 }
 #update-is-prerelease > *.content {
     -fx-background-color:rgb(245, 80, 102);
-    -fx-background-insets: 0, 0 1 1 1;
+    -fx-background-insets: 0, 0 0 0 0;
     -fx-padding: 0.167em;
 }
 #update-is-prerelease .title {
@@ -62,7 +62,7 @@
 }
 #update-is-not-prerelease > *.content {
     -fx-background-color:rgb(173, 216, 246);
-    -fx-background-insets: 0, 0 1 1 1;
+    -fx-background-insets: 0, 0 0 0 0;
     -fx-padding: 0.167em;
 }
 #update-is-not-prerelease .title {

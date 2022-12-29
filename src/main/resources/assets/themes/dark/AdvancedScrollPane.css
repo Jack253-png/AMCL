@@ -1,9 +1,10 @@
 * {
-    -fx-slider-background: rgba(255, 255, 255, 0.2);
-    -fx-slider-background-hover: rgba(255, 255, 255, 0.4);
-    -fx-slider-background-pressed: rgba(255, 255, 255, 0.8);
-    -fx-scroll-pane-background: rgba(0, 0, 0, 0.5);
+    -fx-slider-background: rgba(243, 243, 243, 0.2);
+    -fx-slider-background-hover: rgba(243, 243, 243, 0.4);
+    -fx-slider-background-pressed: rgba(243, 243, 243, 0.8);
+    -fx-scroll-pane-background: rgba(18, 18, 18, 0.5);
     -fx-slider-width: 10;
+
 }
 
 .viewport {

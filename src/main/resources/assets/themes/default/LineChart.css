@@ -8,5 +8,5 @@
     -fx-background-color: transparent;
 }
 .chart-title {
-    -fx-text-fill: black;
+    -fx-text-fill: rgba(18, 18, 18);
 }

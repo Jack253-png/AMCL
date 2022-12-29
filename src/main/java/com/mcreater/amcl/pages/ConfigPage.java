@@ -236,7 +236,6 @@ public class ConfigPage extends AbstractMenuBarPage {
         configs_box = new VBox();
         configs_box.setSpacing(10);
         configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6, vo);
-        configs_box.setId("config-box");
 
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
         java_add.setButtonType(JFXButton.ButtonType.RAISED);

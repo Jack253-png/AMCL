@@ -1,9 +1,7 @@
 #game-menu,
 #config-menu,
 #info-menu,
-#verList {
-    -fx-background-color : rgba(0, 0, 0, 0.50);
-}
+#verList,
 #config-box {
-    -fx-background-color : rgba(0, 0, 0, 0.00);
+    -fx-background-color : rgba(18, 18, 18, 0.50);
 }

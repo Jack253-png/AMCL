@@ -1,8 +1,8 @@
 * {
-    -fx-slider-background: rgba(0, 0, 0, 0.2);
-    -fx-slider-background-hover: rgba(0, 0, 0, 0.4);
-    -fx-slider-background-pressed: rgba(0, 0, 0);
-    -fx-scroll-pane-background: rgba(255, 255, 255, 0.5);
+    -fx-slider-background: rgba(18, 18, 18, 0.2);
+    -fx-slider-background-hover: rgba(18, 18, 18, 0.4);
+    -fx-slider-background-pressed: rgba(18, 18, 18);
+    -fx-scroll-pane-background: rgba(243, 243, 243, 0.5);
     -fx-slider-width: 10;
 }
 
