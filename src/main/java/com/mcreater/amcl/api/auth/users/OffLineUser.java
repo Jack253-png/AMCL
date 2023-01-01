@@ -1,7 +1,10 @@
 package com.mcreater.amcl.api.auth.users;
 
+import com.mcreater.amcl.api.auth.LocalYggdrasilServer;
+
 import javax.imageio.ImageIO;
 import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 public class OffLineUser extends AbstractUser {
@@ -23,6 +26,25 @@ public class OffLineUser extends AbstractUser {
         this.is_slim = is_slim;
         this.skin = skin;
         this.cape = cape;
+    }
+
+    public boolean hasCustomSkin() {
+        return skinUseable() || capeUseable();
+    }
+    public File tryGetSkin() {
+        return skinUseable() ? new File(skin) : null;
+    }
+    public File tryGetCape() {
+        return capeUseable() ? new File(cape) : null;
+    }
+    public LocalYggdrasilServer.Player toYggdrasilPlayer() throws IOException {
+        return new LocalYggdrasilServer.Player(
+                uuid,
+                username,
+                tryGetSkin(),
+                tryGetCape(),
+                is_slim
+        );
     }
 
     public void refresh() {

@@ -449,23 +449,12 @@ public class Launch {
             LocalYggdrasilServer server = null;
             if (user instanceof OffLineUser) {
                 OffLineUser temp_user = (OffLineUser) user;
-                if (temp_user.skinUseable() || temp_user.capeUseable()) {
-                    File skin = null;
-                    File cape = null;
-                    if (temp_user.skinUseable()) skin = new File(temp_user.skin);
-                    if (temp_user.capeUseable()) cape = new File(temp_user.cape);
-
+                if (temp_user.hasCustomSkin()) {
                     while (true) {
                         try {
                             updater.accept(new ImmutablePair<>(0, 90), String.format(Launcher.languageManager.get("ui.userselectpage.launch.tryOpenServer"), port));
                             server = new LocalYggdrasilServer(port);
-                            server.getPlayers().add(new LocalYggdrasilServer.Player(
-                                    user.uuid,
-                                    user.username,
-                                    skin,
-                                    cape,
-                                    temp_user.is_slim
-                            ));
+                            server.getPlayers().add(temp_user.toYggdrasilPlayer());
                             server.start();
                             break;
                         } catch (BindException e) {
