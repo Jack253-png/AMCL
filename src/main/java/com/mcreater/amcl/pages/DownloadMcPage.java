@@ -16,21 +16,13 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FXUtils.Platform;
 import com.mcreater.amcl.util.J8Utils;
-import com.mcreater.amcl.util.net.FasterUrls;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
 import javafx.scene.control.TitledPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 
-import java.awt.*;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,7 +36,6 @@ import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
-import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
 
 public class DownloadMcPage extends AbstractAnimationPage {
     VBox mainBox;
@@ -57,6 +48,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
     public Vector<TitledPane> panes = new Vector<>();
     com.jfoenix.controls.JFXProgressBar bar;
     Thread service;
+    boolean inited = false;
     public DownloadMcPage(int width, int height){
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -94,7 +86,6 @@ public class DownloadMcPage extends AbstractAnimationPage {
         menu.setId("config-menu");
         menu.getChildren().addAll(box);
         FXUtils.ControlSize.set(menu, this.width / 4,this.height - t_size);
-        loadVersions();
         setP1(p1);
         setType(setting);
 
@@ -220,7 +211,10 @@ public class DownloadMcPage extends AbstractAnimationPage {
     public void refresh(){
         p1.set(this.opacityProperty());
         setType(setted);
-        loadVersions();
+        if (!inited) {
+            loadVersions();
+            inited = true;
+        }
     }
     public void refreshLanguage(){
         name = Launcher.languageManager.get("ui.downloadmcpage.name");

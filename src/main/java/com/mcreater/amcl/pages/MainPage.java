@@ -20,6 +20,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -56,6 +57,11 @@ public class MainPage extends AbstractAnimationPage {
     public static JFXButton users;
     public static JFXButton stopProcess;
     public static final AtomicBoolean clearingThread = new AtomicBoolean(false);
+
+    public static ImageView headView;
+    public static ImageView headCoverView;
+    public static Pane container;
+
     public static void tryToRemoveLaunch(Launch launch){
         new Thread(() -> {
             while (true){
@@ -234,6 +240,12 @@ public class MainPage extends AbstractAnimationPage {
             }
         });
 
+        headView = new ImageView();
+        headCoverView = new ImageView();
+        container = new Pane(headView, headCoverView);
+
+        users.setGraphic(container);
+
         GameMenu = new VBox();
         GameMenu.setId("game-menu");
         FXUtils.ControlSize.set(GameMenu, width / 4, height);
@@ -292,8 +304,7 @@ public class MainPage extends AbstractAnimationPage {
     }
     public static class Spacer extends Label {
         public Spacer(){
-            super();
-            this.setText("");
+            super("");
         }
     }
     public void clean_null_version(boolean isDirExts){
