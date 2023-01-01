@@ -1,9 +1,6 @@
 package com.mcreater.amcl.util.net;
 
-import com.mcreater.amcl.api.auth.LocalYggdrasilServer;
 import fi.iki.elonen.NanoHTTPD;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +13,6 @@ import static com.mcreater.amcl.util.JsonUtils.GSON;
 
 public class HTTPServer extends NanoHTTPD {
     public final String rooturl;
-    private final Logger logger = LogManager.getLogger(LocalYggdrasilServer.class);
     private final List<Route> routes = new Vector<>();
     public HTTPServer(int port) {
         super(port);
@@ -38,7 +34,6 @@ public class HTTPServer extends NanoHTTPD {
         for (Route route : routes) {
             if (route.isMatch(session)) {
                 try {
-                    logger.info(String.format("Find serve target %s -> %s", route, session));
                     return route.serve(session);
                 } catch (Throwable e) {
                     e.printStackTrace();
@@ -59,6 +54,7 @@ public class HTTPServer extends NanoHTTPD {
         boolean isMatch(IHTTPSession session);
         String getProperty(String key);
         Response serve(IHTTPSession session) throws Throwable;
+        IHTTPSession getSession();
     }
 
     public static class RouteImpl implements Route {
@@ -66,12 +62,14 @@ public class HTTPServer extends NanoHTTPD {
         private Matcher matcher;
         private final Method allowedMethod;
         private ThrowableRunnable<Response, RouteImpl> runnable;
+        private IHTTPSession session;
         public RouteImpl(Method method, Pattern pattern, ThrowableRunnable<Response, RouteImpl> runnable) {
             this.allowedMethod = method;
             this.pattern = pattern;
             this.runnable = runnable;
         }
         public boolean isMatch(IHTTPSession session) {
+            this.session = session;
             if (allowedMethod == session.getMethod()) {
                 matcher = pattern.matcher(session.getUri());
                 return matcher.matches();
@@ -85,6 +83,10 @@ public class HTTPServer extends NanoHTTPD {
 
         public Response serve(IHTTPSession session) throws Throwable {
             return runnable.run(this);
+        }
+
+        public IHTTPSession getSession() {
+            return session;
         }
     }
 
