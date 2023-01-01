@@ -3,7 +3,7 @@ package com.mcreater.amcl.api.auth;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.JsonUtils;
 import com.mcreater.amcl.util.KeyUtils;
-import fi.iki.elonen.NanoHTTPD;
+import com.mcreater.amcl.util.net.HTTPServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,78 +19,37 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Vector;
+import java.util.regex.Pattern;
 
+import static com.mcreater.amcl.util.FileUtils.HashHelper.computeTextureHash;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class LocalYggdrasilServer extends NanoHTTPD {
+public class LocalYggdrasilServer extends HTTPServer {
     private final KeyPair keyPair = KeyUtils.generateKey();
-    private Player current_player;
-    public final String rooturl;
-    public static final int DEFAULT_PORT = 10078;
+    private final List<Player> players = new Vector<>();
     private final Logger logger = LogManager.getLogger(LocalYggdrasilServer.class);
     public LocalYggdrasilServer(int port) {
         super(port);
-        rooturl = "http://localhost:" + port;
-        logger.info(String.format("openning yggdrasil server on %s", rooturl));
+        addRoute(new RouteImpl(Method.GET, Pattern.compile("^/$"), this::root));
+        addRoute(new RouteImpl(Method.GET, Pattern.compile("/status"), this::status));
+        addRoute(new RouteImpl(Method.GET, Pattern.compile("/sessionserver/session/minecraft/profile/(?<uuid>[a-f0-9]*)"), this::getProfile));
+        addRoute(new RouteImpl(Method.GET, Pattern.compile("/textures/(?<hash>[a-f0-9]*)"), this::getTexture));
     }
-    public LocalYggdrasilServer(){
-        this(DEFAULT_PORT);
-    }
-    public void setCurrent_player(Player p){
-        current_player = p;
-    }
-    private static void putInt(byte[] array, int offset, int x) {
-        array[offset] = (byte) (x >> 24 & 0xff);
-        array[offset + 1] = (byte) (x >> 16 & 0xff);
-        array[offset + 2] = (byte) (x >> 8 & 0xff);
-        array[offset + 3] = (byte) (x & 0xff);
-    }
-    private static String computeTextureHash(BufferedImage img) {
-        MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-        int width = img.getWidth();
-        int height = img.getHeight();
-        byte[] buf = new byte[4096];
-
-        putInt(buf, 0, width);
-        putInt(buf, 4, height);
-        int pos = 8;
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                putInt(buf, pos, img.getRGB(x, y));
-                if (buf[pos] == 0) {
-                    buf[pos + 1] = buf[pos + 2] = buf[pos + 3] = 0;
-                }
-                pos += 4;
-                if (pos == buf.length) {
-                    pos = 0;
-                    digest.update(buf, 0, buf.length);
-                }
-            }
-        }
-        if (pos > 0) {
-            digest.update(buf, 0, pos);
-        }
-
-        byte[] sha256 = digest.digest();
-        return String.format("%0" + (sha256.length << 1) + "x", new BigInteger(1, sha256));
+    public List<Player> getPlayers() {
+        return players;
     }
     public static class Player {
         public String uuid;
         public String name;
         public File skin;
         public File cape;
-        public File elytra;
         public boolean is_slim;
 
         public String skin_hash;
         public String cape_hash;
-        public String elytra_hash;
 
         public Player(String uuid, String name, File skin, File cape, boolean is_slim) throws IOException {
             this.uuid = uuid;
@@ -102,85 +61,60 @@ public class LocalYggdrasilServer extends NanoHTTPD {
             if (cape != null) cape_hash = computeTextureHash(ImageIO.read(cape));
         }
     }
-    public Response serve(IHTTPSession session) {
-        String uri = session.getUri();
-        logger.info(String.format("Request Header : %s, Url : %s, Method : %s", session.getHeaders(), uri, session.getMethod().toString()));
-        if (uri.length() <= 1){
-            return root();
-        }
-        else if (uri.startsWith("/status")){
-            return status();
-        }
-        else if (uri.startsWith("/sessionserver/session/minecraft/profile/")){
-            return getProfile(uri);
-        }
-        else if (uri.startsWith("/textures/")){
-            try {
-                return getTexture(uri);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+    private Response getTexture(RouteImpl route) throws IOException {
+        String hash = route.getProperty("hash");
+
+        for (Player player : players) {
+            if (hash.equals(player.cape_hash)){
+                return returnImage(player.cape, hash);
+            }
+            else if (hash.equals(player.skin_hash)){
+                return returnImage(player.skin, hash);
             }
         }
         return notFound();
     }
-    private Response getTexture(String uri) throws IOException {
-        String hash = uri.replace("/textures/", "");
-        if (hash.equals(current_player.cape_hash)){
-            return returnImage(current_player.cape, hash);
-        }
-        else if (hash.equals(current_player.skin_hash)){
-            return returnImage(current_player.skin, hash);
-        }
-        else if (hash.equals(current_player.elytra_hash)){
-            return returnImage(current_player.elytra, hash);
-        }
-        else {
-            return notFound();
-        }
-    }
-    private Response getProfile(String uri){
-        String uuid = uri.replace("/sessionserver/session/minecraft/profile/", "");
+    private Response getProfile(RouteImpl route) {
+        String uuid = route.getProperty("uuid");
 
-        if (uuid.equals(current_player.uuid)){
-            Map<String, Object> tex = new HashMap<>();
-            if (current_player.skin != null) {
-                if (current_player.is_slim) {
-                    tex.put("SKIN", J8Utils.createMap(
-                            "url", rooturl + "/textures/" + current_player.skin_hash,
-                            "metadata", J8Utils.createMap(
-                                    "model", "slim"
-                            )));
-                } else {
-                    tex.put("SKIN", J8Utils.createMap("url", rooturl + "/textures/" + current_player.skin_hash));
+        for (Player player : players) {
+            if (uuid.equals(player.uuid)) {
+                Map<String, Object> tex = new HashMap<>();
+                if (player.skin != null) {
+                    if (player.is_slim) {
+                        tex.put("SKIN", J8Utils.createMap(
+                                "url", getRootURL() + "/textures/" + player.skin_hash,
+                                "metadata", J8Utils.createMap(
+                                        "model", "slim"
+                                )));
+                    } else {
+                        tex.put("SKIN", J8Utils.createMap("url", getRootURL() + "/textures/" + player.skin_hash));
+                    }
                 }
-            }
-            if (current_player.cape != null){
-                tex.put("CAPE", J8Utils.createMap("url", rooturl + "/textures/" + current_player.cape_hash));
-            }
-            if (current_player.elytra != null){
-                tex.put("ELYTRA", J8Utils.createMap("url", rooturl + "/textures/" + current_player.elytra_hash));
-            }
+                if (player.cape != null) {
+                    tex.put("CAPE", J8Utils.createMap("url", getRootURL() + "/textures/" + player.cape_hash));
+                }
 
-            Map<String, Object> textureResponse = J8Utils.createMap(String.class, Object.class,
-                    "timestamp", System.currentTimeMillis(),
-                    "profileId", current_player.uuid,
-                    "profileName", current_player.name,
-                    "textures", tex
-            );
-            String traseStr = new String(Base64.getEncoder().encode(JsonUtils.GSON.toJson(textureResponse).getBytes(UTF_8)));
-            return ok(
-                    J8Utils.createMap(
-                            "id", current_player.uuid,
-                            "name", current_player.name,
-                            "properties", J8Utils.createList(
-                                    J8Utils.createMap(
-                                            "name", "textures",
-                                            "value", traseStr
-                                    )
-                            )
-                    )
-            );
-
+                Map<String, Object> textureResponse = J8Utils.createMap(String.class, Object.class,
+                        "timestamp", System.currentTimeMillis(),
+                        "profileId", player.uuid,
+                        "profileName", player.name,
+                        "textures", tex
+                );
+                String traseStr = new String(Base64.getEncoder().encode(JsonUtils.GSON.toJson(textureResponse).getBytes(UTF_8)));
+                return ok(
+                        J8Utils.createMap(
+                                "id", player.uuid,
+                                "name", player.name,
+                                "properties", J8Utils.createList(
+                                        J8Utils.createMap(
+                                                "name", "textures",
+                                                "value", traseStr
+                                        )
+                                )
+                        )
+                );
+            }
         }
         return notFound();
     }
@@ -194,7 +128,7 @@ public class LocalYggdrasilServer extends NanoHTTPD {
         logger.info(String.format("accessing : %s", f));
         return response;
     }
-    private Response root(){
+    private Response root(RouteImpl route){
         if (keyPair != null) {
             return ok(J8Utils.createMap(
                     "signaturePublickey", KeyUtils.toPEMPublicKey(keyPair.getPublic()),
@@ -220,7 +154,7 @@ public class LocalYggdrasilServer extends NanoHTTPD {
         }
     }
 
-    private Response status(){
+    private Response status(RouteImpl route){
         return ok(J8Utils.createMap("user.count", 0, "token.count", 0, "pendingAuthentication.count", 0));
     }
 

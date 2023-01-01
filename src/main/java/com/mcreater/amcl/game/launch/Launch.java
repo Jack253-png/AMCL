@@ -242,7 +242,6 @@ public class Launch {
                                         "has_custom_resolution", true
                                 );
 
-                                System.out.println(s);
                                 ArgItemModel model = GSON_PARSER.fromJson(GSON_PARSER.toJson(s), ArgItemModel.class);
 
                                 AtomicBoolean b = new AtomicBoolean(true);
@@ -446,7 +445,6 @@ public class Launch {
             stream.close();
             output.close();
 
-            String authLibInjectorArg = "";
             int port = 2;
             LocalYggdrasilServer server = null;
             if (user instanceof OffLineUser) {
@@ -461,7 +459,7 @@ public class Launch {
                         try {
                             updater.accept(new ImmutablePair<>(0, 90), String.format(Launcher.languageManager.get("ui.userselectpage.launch.tryOpenServer"), port));
                             server = new LocalYggdrasilServer(port);
-                            server.setCurrent_player(new LocalYggdrasilServer.Player(
+                            server.getPlayers().add(new LocalYggdrasilServer.Player(
                                     user.uuid,
                                     user.username,
                                     skin,
@@ -488,10 +486,9 @@ public class Launch {
             updater.accept(new ImmutablePair<>(0, 90), Launcher.languageManager.get("ui.launch._07"));
 
             final String[] rs = {""};
-
             argList.forEach(s -> rs[0] += "\"" + s + "\" ");
-
             logger.info(String.format("Getted Command Line : %s", rs[0]));
+
             updater.accept(new ImmutablePair<>(0, 95), Launcher.languageManager.get("ui.launch._08"));
             try {
                 p = Runtime.getRuntime().exec(argList.toArray(new String[0]), null, new File(dir));

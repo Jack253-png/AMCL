@@ -6,6 +6,7 @@ import com.mcreater.amcl.patcher.ClassPathInjector;
 import jnr.posix.POSIX;
 import jnr.posix.POSIXFactory;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -219,6 +221,46 @@ public class FileUtils {
         }
     }
     public static class HashHelper {
+        private static void putInt(byte[] array, int offset, int x) {
+            array[offset] = (byte) (x >> 24 & 0xff);
+            array[offset + 1] = (byte) (x >> 16 & 0xff);
+            array[offset + 2] = (byte) (x >> 8 & 0xff);
+            array[offset + 3] = (byte) (x & 0xff);
+        }
+        public static String computeTextureHash(BufferedImage img) {
+            MessageDigest digest;
+            try {
+                digest = MessageDigest.getInstance("SHA-256");
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
+            int width = img.getWidth();
+            int height = img.getHeight();
+            byte[] buf = new byte[4096];
+
+            putInt(buf, 0, width);
+            putInt(buf, 4, height);
+            int pos = 8;
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    putInt(buf, pos, img.getRGB(x, y));
+                    if (buf[pos] == 0) {
+                        buf[pos + 1] = buf[pos + 2] = buf[pos + 3] = 0;
+                    }
+                    pos += 4;
+                    if (pos == buf.length) {
+                        pos = 0;
+                        digest.update(buf, 0, buf.length);
+                    }
+                }
+            }
+            if (pos > 0) {
+                digest.update(buf, 0, pos);
+            }
+
+            byte[] sha256 = digest.digest();
+            return String.format("%0" + (sha256.length << 1) + "x", new BigInteger(1, sha256));
+        }
         public static boolean validateSHA1(File file, String target) {
             if (!file.exists()) {
                 return false;
