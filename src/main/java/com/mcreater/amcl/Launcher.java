@@ -60,6 +60,8 @@ import java.io.File;
 import java.util.List;
 import java.util.Vector;
 
+import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
+
 public class Launcher {
     static Logger logger = LogManager.getLogger(Launcher.class);
     public static Scene s = new Scene(new Pane(), Color.TRANSPARENT);
@@ -272,7 +274,7 @@ public class Launcher {
         title.add(cl, 1, 0, 1, 1);
         top.getChildren().add(title);
 
-        new WindowMovement().windowMove(top, stage);
+        FXUtils.WindowMovement.getInstance().windowMove(top, stage);
 
         ThemeManager.applyTopBar(top);
         VBox v = new VBox();
@@ -328,77 +330,78 @@ public class Launcher {
             }
         }
 
-        WritableImage result;
-        if (last.getBufferedBackground() == null && !hasBinded) {
-            result = FXUtils.ImageConverter.convertToWritableImage(wap);
-            WritableImage original = FXUtils.ImagePreProcesser.cutImage(result, 0, 0, (int) result.getWidth(), (int) result.getHeight());
+        WritableImage result = FXUtils.ImageConverter.convertToWritableImage(wap);
+        boolean blurEnabled = false;
 
-            FXUtils.ImagePreProcesser.process(
-                    result,
-                    (view, image) -> view.setEffect(new GaussianBlur(100)),
-                    (view, image) -> {
-                        Rectangle clip = new Rectangle(
-                                view.getFitWidth() / 7 * 6,
-                                view.getFitHeight() / 12 * 11
-                        );
-                        clip.setArcWidth(0);
-                        clip.setArcHeight(0);
-                        view.setClip(clip);
-                    }
-            );
+        if (blurEnabled) {
+            if (last.getBufferedBackground() == null && !hasBinded) {
+                WritableImage original = FXUtils.ImagePreProcesser.cutImage(result, 0, 0, (int) result.getWidth(), (int) result.getHeight());
 
-            FXUtils.ImagePreProcesser.process(
-                    result,
-                    (view, image) -> {
-                        List<AnimationPage.NodeInfo> nodes = new Vector<>();
-                        for (AnimationPage.NodeInfo box : last.nodes) {
-                            if (box != null) {
-                                nodes.add(new AnimationPage.NodeInfo(
-                                        box.size.getMinX(),
-                                        box.size.getMinY(),
-                                        box.size.getWidth(),
-                                        box.size.getHeight()
-                                ));
-                            }
-                            else {
-                                nodes.add(null);
-                            }
+                FXUtils.ImagePreProcesser.process(
+                        result,
+                        (view, image) -> view.setEffect(new GaussianBlur(100)),
+                        (view, image) -> {
+                            Rectangle clip = new Rectangle(
+                                    view.getFitWidth() / 7 * 6,
+                                    view.getFitHeight() / 12 * 11
+                            );
+                            clip.setArcWidth(0);
+                            clip.setArcHeight(0);
+                            view.setClip(clip);
                         }
+                );
 
-                        nodes.add(new AnimationPage.NodeInfo(0, 0, width, barSize));
-
-                        for (AnimationPage.NodeInfo node : nodes) {
-                            if (node != null) {
-                                node.size = new BoundingBox(node.size.getMinX(), node.size.getMinY(), node.size.getWidth() * 0.8615384615384616, node.size.getHeight() * 0.9);
-                            }
-                        }
-
-                        for (int x = 0; x < image.getWidth(); x++) {
-                            for (int y = 0; y < image.getHeight(); y++) {
-                                if (!last.nodes.contains(null) && !FXUtils.gemotryInned(new Point2D(x / widthRadius, y / heightRadius), nodes)) {
-                                    image.getPixelWriter().setColor(
-                                            x, y,
-                                            original.getPixelReader().getColor(x, y)
-                                    );
-                                }
-                                else {
-                                    image.getPixelWriter().setColor(
-                                            x, y,
-                                            FXUtils.ImagePreProcesser.noTransparent(image.getPixelReader().getColor(x, y))
-                                    );
+                FXUtils.ImagePreProcesser.process(
+                        result,
+                        (view, image) -> {
+                            List<AnimationPage.NodeInfo> nodes = new Vector<>();
+                            for (AnimationPage.NodeInfo box : last.nodes) {
+                                if (box != null) {
+                                    nodes.add(new AnimationPage.NodeInfo(
+                                            box.size.getMinX(),
+                                            box.size.getMinY(),
+                                            box.size.getWidth(),
+                                            box.size.getHeight()
+                                    ));
+                                } else {
+                                    nodes.add(null);
                                 }
                             }
-                        }
-                    }
-            );
 
-            last.setBufferedBackground(result);
-            for (AbstractAnimationPage pag : last.bindedPageproperty().get()) {
-                if (pag != null) pag.setBufferedBackground(result);
+                            nodes.add(new AnimationPage.NodeInfo(0, 0, width, barSize));
+                            for (AnimationPage.NodeInfo node : nodes) {
+                                if (node != null) {
+                                    node.size = new BoundingBox(node.size.getMinX(), node.size.getMinY(), node.size.getWidth() * 0.8615384615384616, node.size.getHeight() * 0.9);
+                                }
+                            }
+
+                            for (double x = 0; x < image.getWidth(); x++) {
+                                for (double y = 0; y < image.getHeight(); y++) {
+                                    int recledX = (int) (x / widthRadius);
+                                    int recledY = (int) (y / heightRadius);
+                                    if (!last.nodes.contains(null) && !FXUtils.gemotryInned(new Point2D(recledX, recledY), nodes)) {
+                                        image.getPixelWriter().setColor(
+                                                (int) x, (int) y,
+                                                original.getPixelReader().getColor((int) x, (int) y)
+                                        );
+                                    } else {
+                                        image.getPixelWriter().setColor(
+                                                (int) x, (int) y,
+                                                transparent(image.getPixelReader().getColor((int) x, (int) y), 1.0)
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                );
+
+                last.setBufferedBackground(result);
+                for (AbstractAnimationPage pag : last.bindedPageproperty().get()) {
+                    if (pag != null) pag.setBufferedBackground(result);
+                }
+            } else {
+                result = ha.getBufferedBackground();
             }
-        }
-        else {
-            result = ha.getBufferedBackground();
         }
 
         BackgroundImage im = new BackgroundImage(

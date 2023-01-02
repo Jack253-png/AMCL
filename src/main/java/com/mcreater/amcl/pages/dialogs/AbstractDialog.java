@@ -2,6 +2,7 @@ package com.mcreater.amcl.pages.dialogs;
 
 import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXAlert;
+import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.transitions.CachedTransition;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.theme.ThemeManager;
@@ -20,6 +21,7 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.Labeled;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -31,6 +33,8 @@ import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.mcreater.amcl.Launcher.height;
 import static com.mcreater.amcl.Launcher.width;
@@ -141,7 +145,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
         ThemeManager.addLis((observable, oldValue, newValue) -> FXUtils.toNodeClass(
                 getDialogPane().getContent(), Pane.class
         ).getChildren().forEach(node -> {
-            if (node instanceof Region)
+            if (node instanceof Region) {
                 ((Region) node).setBackground(new Background(
                         new BackgroundFill(
                                 transparent(newValue, 0.8),
@@ -149,6 +153,7 @@ public abstract class AbstractDialog extends JFXAlert<String> {
                                 Insets.EMPTY
                         )
                 ));
+            }
         }));
 
         super.setContent(content);

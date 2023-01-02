@@ -23,6 +23,7 @@ public class AboutDialog extends AbstractDialog {
     JFXButton checkUpdate;
     public AboutDialog() {
         super(Launcher.stage);
+        setTitle(Launcher.languageManager.get("ui.about.title"));
         JFXDialogLayout layout = new JFXDialogLayout();
         Label title = new Label(Launcher.languageManager.get("ui.about.title"));
         title.setFont(Fonts.s_f);

@@ -22,6 +22,7 @@ public class SimpleDialog extends JFXAlert<String> {
     }
 
     public SimpleDialog(String title, String message, MessageType type, EventHandler<ActionEvent> onAction){
+        setTitle(title);
         JFXButton quit = new JFXButton(StableMain.manager.get(type.lang_key));
         quit.setFont(Fonts.t_f);
         quit.setOnAction(onAction);

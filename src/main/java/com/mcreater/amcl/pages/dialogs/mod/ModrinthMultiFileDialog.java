@@ -15,6 +15,7 @@ public class ModrinthMultiFileDialog extends AbstractDialog {
     RadioButtonGroupV group;
     public ModrinthMultiFileDialog(Vector<String> f, String title) {
         super(Launcher.stage);
+        setTitle(title);
         JFXDialogLayout layout = new JFXDialogLayout();
 
         JFXButton ok = new JFXButton(Launcher.languageManager.get("ui.dialogs.information.ok.name"));

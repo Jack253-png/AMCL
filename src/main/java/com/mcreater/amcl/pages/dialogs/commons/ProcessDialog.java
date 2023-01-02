@@ -19,6 +19,7 @@ public class ProcessDialog extends AbstractDialog {
     public JFXDialogLayout layout;
     public ProcessDialog(int process_num, String title){
         super(Launcher.stage);
+        setTitle(title);
         layout = new JFXDialogLayout();
         progresses = new Vector<>();
         l = new Label();

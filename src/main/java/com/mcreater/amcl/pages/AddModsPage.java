@@ -28,7 +28,6 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 
 import java.io.IOException;
 import java.util.Vector;
@@ -90,7 +89,6 @@ public class AddModsPage extends AbstractAnimationPage {
         });
         modlist.page.setStyle("-fx-background-color: transparent");
 
-
         submit.setOnAction(event -> search());
         pane.setAlignment(Pos.TOP_CENTER);
         add(item, 0, 0, 1, 1);
@@ -100,7 +98,7 @@ public class AddModsPage extends AbstractAnimationPage {
         add(bar, 0, 4, 2, 1);
         ThemeManager.addLis((observable, oldValue, newValue) -> setBackground(new Background(
                 new BackgroundFill(
-                        transparent(newValue, 0.5),
+                        transparent(newValue, 0.45),
                         CornerRadii.EMPTY,
                         Insets.EMPTY
                 )

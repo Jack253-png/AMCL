@@ -29,16 +29,47 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Vector;
 
+import static com.mcreater.amcl.Launcher.height;
+import static com.mcreater.amcl.Launcher.width;
+
 public class FXUtils {
+    public static class WindowMovement {
+        double x1;
+        double y1;
+        double x_stage;
+        double y_stage;
+        public static WindowMovement getInstance() {
+            return new WindowMovement();
+        }
+        private WindowMovement() {}
+        public <V extends Region, K extends Stage> void windowMove(V listenedObject, K stage) {
+            Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
+            listenedObject.setOnMouseDragged(event -> {
+                double x = this.x_stage + event.getScreenX() - this.x1;
+                double y = this.y_stage + event.getScreenY() - this.y1;
+                if (x >= 0 && x <= scrSize.getWidth() - width) stage.setX(x);
+                if (y >= 0 && y <= scrSize.getHeight() - height) stage.setY(y);
+            });
+            listenedObject.setOnDragEntered(null);
+            listenedObject.setOnMousePressed(event -> {
+                this.x1 = event.getScreenX();
+                this.y1 = event.getScreenY();
+                this.x_stage = stage.getX();
+                this.y_stage = stage.getY();
+            });
+        }
+    }
     public static class ImageConverter {
         public static WritableImage convertToWritableImage(Image image){
             return new WritableImage(image.getPixelReader(), (int) image.getWidth(), (int) image.getHeight());

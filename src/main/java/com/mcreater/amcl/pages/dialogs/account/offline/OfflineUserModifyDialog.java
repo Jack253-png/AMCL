@@ -29,6 +29,7 @@ public class OfflineUserModifyDialog extends AbstractDialog {
     }
     public OfflineUserModifyDialog(@NotNull OffLineUser user, String title) {
         super(Launcher.stage);
+        setTitle(title);
         this.user = user;
 
         JFXDialogLayout layout = new JFXDialogLayout();

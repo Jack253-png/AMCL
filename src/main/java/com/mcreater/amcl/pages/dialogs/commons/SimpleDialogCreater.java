@@ -23,11 +23,12 @@ public class SimpleDialogCreater {
     public static void createWithNoSync(String Title, String HeaderText, String ContentText) {
         createImpl(Title, HeaderText, ContentText);
     }
-    private static void createImpl(String Title, String HeaderText, String ContentText){
+    private static void createImpl(String titleString, String HeaderText, String ContentText){
         AbstractDialog alert = new AbstractDialog(Launcher.stage) {};
+        alert.setTitle(titleString);
 
         JFXDialogLayout layout = new JFXDialogLayout();
-        Label title = setFont(new Label(Title), Fonts.s_f);
+        Label title = setFont(new Label(titleString), Fonts.s_f);
         Label body = setFont(new Label(HeaderText + "\n" + ContentText), Fonts.t_f);
         layout.setHeading(title);
         layout.setBody(body);

@@ -28,6 +28,7 @@ public class OfflineUserCreateDialog extends AbstractDialog {
     }
     public OfflineUserCreateDialog(String title) {
         super(Launcher.stage);
+        setTitle(title);
         JFXDialogLayout layout = new JFXDialogLayout();
 
         userName = new StringItem(Launcher.languageManager.get("ui.userselectpage.nameItem"), 300);

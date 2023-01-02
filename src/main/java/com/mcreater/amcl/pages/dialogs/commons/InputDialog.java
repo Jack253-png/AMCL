@@ -30,6 +30,7 @@ public class InputDialog extends AbstractDialog {
     }
     public InputDialog(String title){
         super(Launcher.stage);
+        setTitle(title);
         JFXDialogLayout layout = new JFXDialogLayout();
 
         f = new JFXTextField();

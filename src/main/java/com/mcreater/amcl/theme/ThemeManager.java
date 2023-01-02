@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
 

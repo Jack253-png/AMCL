@@ -14,6 +14,7 @@ public class RequiredModDialog extends AbstractDialog {
     public SmoothableListView<ServerMod> items;
     public RequiredModDialog(String title) {
         super(Launcher.stage);
+        setTitle(title);
         JFXDialogLayout layout = new JFXDialogLayout();
 
         Label head = setFont(new Label(title), Fonts.s_f);

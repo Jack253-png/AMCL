@@ -15,6 +15,7 @@ public class LoadingDialog extends AbstractDialog {
     public JFXSpinner spinner;
     public LoadingDialog(String title){
         super(Launcher.stage);
+        setTitle(title);
         JFXDialogLayout layout = new JFXDialogLayout();
         l = new Label();
         l.setFont(Fonts.t_f);
