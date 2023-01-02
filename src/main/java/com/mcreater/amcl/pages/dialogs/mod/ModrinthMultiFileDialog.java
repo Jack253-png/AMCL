@@ -31,7 +31,7 @@ public class ModrinthMultiFileDialog extends AbstractDialog {
 
         this.setOnHidden(event -> {});
         this.setOnHiding(event -> {});
-        ThemeManager.loadButtonAnimates(layout);
+        ThemeManager.loadNodeAnimations(layout);
     }
 
     public int getIndex() {

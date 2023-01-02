@@ -55,6 +55,7 @@ public class MicrosoftLoginDialog extends AbstractDialog {
                     FXUtils.Platform.runLater(this::close);
                     SimpleDialogCreater.exception(e);
                 }
+                login.setDisable(false);
             });
             loginThread.start();
         });
@@ -70,7 +71,7 @@ public class MicrosoftLoginDialog extends AbstractDialog {
 
         bar = JFXProgressBar.createProgressBar();
 
-        ThemeManager.loadButtonAnimates(cancel, login, microsoftValidate, label, bar, loginState);
+        ThemeManager.loadNodeAnimations(cancel, login, microsoftValidate, label, bar, loginState);
         layout.setBody(new VBox(microsoftValidate, loginState));
         layout.setActions(bar, cancel, login);
         layout.setHeading(label);
@@ -87,6 +88,6 @@ public class MicrosoftLoginDialog extends AbstractDialog {
             FXUtils.Platform.runLater(() -> loginState.setText(s));
             JFXSmoothScroll.smoothScrollBarToValue(bar, integer.doubleValue() / 100);
         });
-        return MSAuth.AUTH_INSTANCE.generateDeviceCode(code -> FXUtils.Platform.runLater(() -> microsoftValidate.setText(code)));
+        return MSAuth.AUTH_INSTANCE.generateDeviceCode((code, url) -> FXUtils.Platform.runLater(() -> microsoftValidate.setText(Launcher.languageManager.get("ui.mslogin.token", code, url))));
     }
 }

@@ -23,7 +23,6 @@ import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.chart.Chart;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -31,7 +30,6 @@ import javafx.stage.FileChooser;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
@@ -64,7 +62,11 @@ public class ConfigPage extends AbstractMenuBarPage {
     public Pane p;
     public com.jfoenix.controls.JFXProgressBar bar1;
     public com.jfoenix.controls.JFXProgressBar bar2;
+    public JFXButton looklike_setting;
+    AdvancedScrollPane p2;
     Label ltitle;
+    VBox looklike_config_box;
+    public BooleanItem item7;
     public ConfigPage(int width, int height) {
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -102,7 +104,7 @@ public class ConfigPage extends AbstractMenuBarPage {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle(Launcher.languageManager.get("ui.configpage.java_choose.title"));
             fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(Launcher.languageManager.get("ui.configpage.java_choose.filename.description"), "java.exe"),
-                    new FileChooser.ExtensionFilter("Mac Executable", "*"));
+                    new FileChooser.ExtensionFilter("UNIX Executable", "java"));
             File choosed_path = fileChooser.showOpenDialog(Launcher.stage);
             if (choosed_path != null) {
                 if (!Launcher.configReader.configModel.selected_java.contains(choosed_path.getPath())) {
@@ -124,7 +126,7 @@ public class ConfigPage extends AbstractMenuBarPage {
                 } catch (ExecutionException | InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.java_info.title"), String.format(Launcher.languageManager.get("ui.configpage.java_info.Headercontent"), v.get(0), v.get(1)), "");
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.java_info.title"), Launcher.languageManager.get("ui.configpage.java_info.Headercontent", v.get(0), v.get(1)), "");
             }
             else{
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.select_java.title"), Launcher.languageManager.get("ui.configpage.select_java.Headercontent"), "");
@@ -175,13 +177,21 @@ public class ConfigPage extends AbstractMenuBarPage {
         item6.cont.setOrientation(Orientation.HORIZONTAL);
         item6.cont.valueProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.downloadChunkSize = newValue.intValue());
 
-        FXUtils.ControlSize.setHeight(item, 30);
-        FXUtils.ControlSize.setHeight(item2, 30);
-        FXUtils.ControlSize.setHeight(item2, 30);
-        FXUtils.ControlSize.setHeight(item3, 30);
-        FXUtils.ControlSize.setHeight(item4, 30);
-        FXUtils.ControlSize.setHeight(item5, 30);
-        FXUtils.ControlSize.setHeight(item6, 30);
+        item7 = new BooleanItem("", this.width / 4 * 3 - 10);
+        item7.cont.setSelected(Launcher.configReader.configModel.enable_blur);
+        item7.cont.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            Launcher.configReader.configModel.enable_blur = newValue;
+            Launcher.clearBgBuffer();
+        });
+
+//        FXUtils.ControlSize.setHeight(item, 30);
+//        FXUtils.ControlSize.setHeight(item2, 30);
+//        FXUtils.ControlSize.setHeight(item2, 30);
+//        FXUtils.ControlSize.setHeight(item3, 30);
+//        FXUtils.ControlSize.setHeight(item4, 30);
+//        FXUtils.ControlSize.setHeight(item5, 30);
+//        FXUtils.ControlSize.setHeight(item6, 30);
+//        FXUtils.ControlSize.setHeight(item7, 30);
 
         p = new Pane();
         bar1 = JFXProgressBar.createProgressBar();
@@ -209,15 +219,15 @@ public class ConfigPage extends AbstractMenuBarPage {
                 double targetMCMemPercent = Timer.division(MemoryReader.getUsedMemory() + Launcher.configReader.configModel.max_memory * 1024 * 1024L, MemoryReader.getTotalMemory());
                 double sysMemPercent = Timer.division(MemoryReader.getUsedMemory(), MemoryReader.getTotalMemory());
 
-                String totalS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.total.name"), MemoryReader.convertMemToString(MemoryReader.getTotalMemory()));
-                String usedS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.used.name"), MemoryReader.convertMemToString(MemoryReader.getUsedMemory()));
+                String totalS = Launcher.languageManager.get("ui.configpage.mem.bar.total.name", MemoryReader.convertMemToString(MemoryReader.getTotalMemory()));
+                String usedS = Launcher.languageManager.get("ui.configpage.mem.bar.used.name", MemoryReader.convertMemToString(MemoryReader.getUsedMemory()));
 
                 String targetMcMemS;
                 if (MemoryReader.getUsedMemory() + targetMCMem * 1024 * 1024L < MemoryReader.getTotalMemory()){
-                    targetMcMemS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.name"), MemoryReader.convertMemToString((long) (targetMCMem * 1024 * 1024L)));
+                    targetMcMemS = Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.name", MemoryReader.convertMemToString((long) (targetMCMem * 1024 * 1024L)));
                 }
                 else {
-                    targetMcMemS = String.format(Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.out.name"), MemoryReader.convertMemToString((long) (targetMCMem * 1024 * 1024L)), MemoryReader.convertMemToString(MemoryReader.getFreeMemory()));
+                    targetMcMemS = Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.out.name", MemoryReader.convertMemToString((long) (targetMCMem * 1024 * 1024L)), MemoryReader.convertMemToString(MemoryReader.getFreeMemory()));
                 }
                 Platform.runLater(() -> bar2.setProgress(sysMemPercent));
                 Platform.runLater(() -> bar1.setProgress(targetMCMemPercent));
@@ -233,9 +243,11 @@ public class ConfigPage extends AbstractMenuBarPage {
 
         FXUtils.ControlSize.setAll(width / 5 * 3, 3, p, bar1, bar2);
 
-        configs_box = new VBox();
+        configs_box = new VBox(item, item2, item4, item5, item6, vo);
         configs_box.setSpacing(10);
-        configs_box.getChildren().addAll(item, item2, item3, item4, item5, item6, vo);
+
+        looklike_config_box = new VBox(item3, item7);
+        looklike_config_box.setSpacing(10);
 
         java_get.setButtonType(JFXButton.ButtonType.RAISED);
         java_add.setButtonType(JFXButton.ButtonType.RAISED);
@@ -243,12 +255,20 @@ public class ConfigPage extends AbstractMenuBarPage {
         mainBox = new VBox();
 
         p1 = new AdvancedScrollPane(this.width / 4 * 3, this.height - t_size, configs_box, false);
+        p2 = new AdvancedScrollPane(this.width / 4 * 3, this.height - t_size, looklike_config_box, false);
 
         setting = new JFXButton();
         setting.setFont(Fonts.s_f);
         setting.setOnAction(event -> super.setP1(0));
         FXUtils.ControlSize.setWidth(setting, this.width / 4);
+
+        looklike_setting = new JFXButton();
+        looklike_setting.setFont(Fonts.s_f);
+        looklike_setting.setOnAction(event -> super.setP1(1));
+        FXUtils.ControlSize.setWidth(looklike_setting, this.width / 4);
+
         super.addNewPair(new ImmutablePair<>(setting, p1));
+        super.addNewPair(new ImmutablePair<>(looklike_setting, p2));
         super.setP1(0);
         super.setButtonType(JFXButton.ButtonType.RAISED);
         nodes.add(null);
@@ -292,8 +312,10 @@ public class ConfigPage extends AbstractMenuBarPage {
         item4.name.setText(Launcher.languageManager.get("ui.configpage.java_label.name"));
         item5.name.setText(Launcher.languageManager.get("ui.configpage.item5.name"));
         item6.name.setText(Launcher.languageManager.get("ui.configpage.item6.name"));
+        item7.name.setText(Launcher.languageManager.get("ui.configpage.item7.name"));
 
         setting.setText(Launcher.languageManager.get("ui.configpage.menu._01"));
+        looklike_setting.setText(Launcher.languageManager.get("ui.configpage.menu._02"));
         ltitle.setText(Launcher.languageManager.get("ui.configpage.mem.bar.title"));
     }
 

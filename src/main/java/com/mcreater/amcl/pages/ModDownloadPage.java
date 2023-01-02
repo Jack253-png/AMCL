@@ -77,7 +77,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
         public DepencyModPage(double width, double height, AbstractAnimationPage last) {
             super(width, height);
             l = last;
-            ThemeManager.loadButtonAnimates(this);
+            ThemeManager.loadNodeAnimations(this);
         }
     }
     public ModDownloadPage(double width, double height) {
@@ -159,7 +159,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         do {
                             Thread.sleep(500);
                             double processTemp = (double) downloaded.get() / (double)  tasks.size();
-                            dialog.setV(0, (int) (10 + 90 * processTemp), String.format(Launcher.languageManager.get("ui.downloadmod._04"), downloaded.get(), tasks.size()));
+                            dialog.setV(0, (int) (10 + 90 * processTemp), Launcher.languageManager.get("ui.downloadmod._04", downloaded.get(), tasks.size()));
                         } while (downloaded.get() != tasks.size());
                     }
                     catch (Exception e) {
@@ -324,7 +324,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         FXUtils.ControlSize.setWidth(b, this.width - 15);
                         FXUtils.ControlSize.setWidth(v, this.width - 15);
                         Platform.runLater(() -> v.getChildren().add(pane));
-                        Platform.runLater(() -> ThemeManager.loadButtonAnimates(pane));
+                        Platform.runLater(() -> ThemeManager.loadNodeAnimations(pane));
                         Sleeper.sleep(25);
                     }
                     Platform.runLater(() -> {

@@ -12,7 +12,6 @@ import javafx.scene.paint.Paint;
 
 import java.util.concurrent.Callable;
 
-import static com.mcreater.amcl.util.FXUtils.ColorUtil;
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
 
@@ -29,7 +28,7 @@ public class DepencyItem extends VBox {
         this.lencinsesUI.setFont(Fonts.t_f);
         this.setSpacing(8);
         this.getChildren().addAll(this.name, this.copyrightUI, this.lencinsesUI);
-        ThemeManager.loadButtonAnimates(this);
+        ThemeManager.loadNodeAnimations(this);
         ThemeManager.addLis((observable, oldValue, newValue) -> {
             copyrightUI.textFillProperty().bind(Bindings.createObjectBinding((Callable<Paint>) () -> reverse(transparent((Color) newValue, 0.75))));
             lencinsesUI.textFillProperty().bind(Bindings.createObjectBinding((Callable<Paint>) () -> reverse(transparent((Color) newValue, 0.75))));

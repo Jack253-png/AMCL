@@ -6,7 +6,6 @@ import com.jfoenix.controls.JFXSlider;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
-import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.util.FXUtils;
@@ -32,8 +31,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
+import static com.mcreater.amcl.Launcher.pages;
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
 
 public class ThemeManager {
@@ -53,9 +52,8 @@ public class ThemeManager {
         else{
             topBar.getStylesheets().add(cssPath);
         }
-        String theme_base_path = "assets/themes/%s/%s.css";
         for (Node n : GetAllNodes(topBar)){
-            loadButtonAnimates(n);
+            loadNodeAnimations(n);
             if (n instanceof Parent) applyNode((Parent) n);
         }
     }
@@ -93,7 +91,7 @@ public class ThemeManager {
             }
         }
         for (Node n : controls){
-            loadButtonAnimates(n);
+            loadNodeAnimations(n);
             String sheetPath = String.format(theme_base_path, themeName, n.getClass().getSimpleName());
             logger.info(String.format("loading style for control %s", n.getClass().getSimpleName()));
             if (n instanceof Parent) {
@@ -106,7 +104,7 @@ public class ThemeManager {
     }
     public static Node loadSingleNodeAnimate(Node node){
         if (node instanceof Parent) applyNode((Parent) node);
-        loadButtonAnimates(node);
+        loadNodeAnimations(node);
         return node;
     }
 
@@ -122,7 +120,7 @@ public class ThemeManager {
 
         }
     }
-    public static void loadButtonAnimates(Node... nodes) {
+    public static void loadNodeAnimations(Node... nodes) {
         for (Node n : nodes) {
             if (n instanceof Parent) applyNode((Parent) n);
         }
@@ -140,10 +138,10 @@ public class ThemeManager {
                 generateAnimations(button, 0.6D, 1D, 200, button.opacityProperty());
             }
             else if (button instanceof Pane){
-                loadButtonAnimates(GetAllNodes((Parent) button).toArray(new Node[0]));
+                loadNodeAnimations(GetAllNodes((Parent) button).toArray(new Node[0]));
             }
             if (button instanceof TitledPane){
-                loadButtonAnimates(GetAllNodes((Parent) ((TitledPane) button).getContent()).toArray(new Node[0]));
+                loadNodeAnimations(GetAllNodes((Parent) ((TitledPane) button).getContent()).toArray(new Node[0]));
             }
         }
     }
@@ -181,9 +179,9 @@ public class ThemeManager {
     }
 
     public static void freshTheme() throws IllegalAccessException {
-        ThemeManager.apply(LanguageManager.bindedPages);
+        ThemeManager.apply(pages);
         ThemeManager.applyTopBar(Launcher.top);
         Launcher.setPageCore();
-        LanguageManager.bindedPages.forEach(AbstractAnimationPage::refreshType);
+        pages.forEach(AbstractAnimationPage::refreshType);
     }
 }

@@ -73,7 +73,7 @@ import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
-public class Launch {
+public class LaunchCore {
     public Process p;
     Logger logger = LogManager.getLogger(this.getClass());
     SimpleObjectProperty<StringBuilder> logProperty = new SimpleObjectProperty<>(new StringBuilder());
@@ -194,9 +194,9 @@ public class Launch {
                 }
             }
             s0 += 1;
-            updater.accept(new ImmutablePair<>(0, 75 + 5 * s0 / r.libraries.size()), String.format(Launcher.languageManager.get("ui.launch._04"), l.name));
+            updater.accept(new ImmutablePair<>(0, 75 + 5 * s0 / r.libraries.size()), Launcher.languageManager.get("ui.launch._04", l.name));
         }
-        updater.accept(new ImmutablePair<>(0, 80), String.format(Launcher.languageManager.get("ui.launch._05"), r.libraries.size()));
+        updater.accept(new ImmutablePair<>(0, 80), Launcher.languageManager.get("ui.launch._05", r.libraries.size()));
         File nativef = new File(LinkPath.link(f.getPath(), version_name + "-natives"));
         if (!nativef.exists()) {
             boolean b = nativef.mkdirs();
@@ -452,7 +452,7 @@ public class Launch {
                 if (temp_user.hasCustomSkin()) {
                     while (true) {
                         try {
-                            updater.accept(new ImmutablePair<>(0, 90), String.format(Launcher.languageManager.get("ui.userselectpage.launch.tryOpenServer"), port));
+                            updater.accept(new ImmutablePair<>(0, 90), Launcher.languageManager.get("ui.userselectpage.launch.tryOpenServer", port));
                             server = new LocalYggdrasilServer(port);
                             server.getPlayers().add(temp_user.toYggdrasilPlayer());
                             server.start();

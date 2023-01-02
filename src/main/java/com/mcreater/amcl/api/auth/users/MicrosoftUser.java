@@ -151,7 +151,6 @@ public class MicrosoftUser extends AbstractUser {
 
     public boolean vaildate() {
         try {
-            GithubReleases.trustAllHosts();
             MSAuth.AUTH_INSTANCE.checkMcStore(accessToken);
             return true;
         }

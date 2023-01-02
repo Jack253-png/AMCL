@@ -31,10 +31,10 @@ public class ProcessDialog extends AbstractDialog {
             bar.setId("game-memory");
             progresses.add(bar);
             b.getChildren().add(bar);
-            ThemeManager.loadButtonAnimates(bar);
+            ThemeManager.loadNodeAnimations(bar);
         }
         Label head = setFont(new Label(title), Fonts.s_f);
-        ThemeManager.loadButtonAnimates(l, head);
+        ThemeManager.loadNodeAnimations(l, head);
         b.getChildren().add(l);
         layout.setHeading(head);
         layout.setBody(b);

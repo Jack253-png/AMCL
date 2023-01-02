@@ -41,6 +41,7 @@ import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
 import static com.mcreater.amcl.pages.DownloadAddonSelectPage.isValidFileName;
+import static com.mcreater.amcl.util.J8Utils.runSafe;
 
 public class VersionInfoPage extends AbstractMenuBarPage {
     public JFXButton mainInfoButton;
@@ -156,7 +157,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         FXUtils.ControlSize.set(delete, t_size, t_size);
 
         delete.setOnAction(event -> {
-            ProcessDialog dialog = new ProcessDialog(1, String.format(Launcher.languageManager.get("ui.versioninfopage.deletemod.deleteing.title"), modList.selectedItem.name.getText()));
+            ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.versioninfopage.deletemod.deleteing.title", modList.selectedItem.name.getText()));
             dialog.Create();
             dialog.setV(0, 50, modList.selectedItem.name.getText());
             new Thread(() -> {
@@ -220,6 +221,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         view.setFitWidth(40);
         view.setFitHeight(40);
         view.setImage(VersionTypeGetter.VersionType.getImage(type));
+
         fabricversion.setText(VersionTypeGetter.getFabricVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
         forgeversion.setText(VersionTypeGetter.getForgeVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
         optiversion.setText(VersionTypeGetter.getOptifineVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));

@@ -455,7 +455,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
 
         box.add(versionfinalName, 0, 8, 1, 1);
         box.add(install, 0, 9, 1, 1);
-        ThemeManager.loadButtonAnimates(id, forge, optifine, fabric, fabricapi, optifabric, versionfinalName, install, quilt, quiltapi);
+        ThemeManager.loadNodeAnimations(id, forge, optifine, fabric, fabricapi, optifabric, versionfinalName, install, quilt, quiltapi);
         this.add(p, 0, 0, 1, 1);
 
         nodes.add(null);

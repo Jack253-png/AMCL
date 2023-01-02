@@ -50,7 +50,7 @@ public class AdvancedScrollPane extends ScrollPane implements SettingsAnimationP
         this.content = content;
         init();
         JFXSmoothScroll.smoothScrolling(this, 0.8);
-        ThemeManager.loadButtonAnimates(this.content);
+        ThemeManager.loadNodeAnimations(this.content);
         ThemeManager.applyNode(this);
         getStyleClass().add("setting-page");
     }

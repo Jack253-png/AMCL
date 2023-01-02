@@ -142,7 +142,7 @@ public class AddModsPage extends AbstractAnimationPage {
             Platform.runLater(() -> modlist.addItem(m));
             double finalLoaded = loaded;
             JFXSmoothScroll.smoothScrollBarToValue(bar, finalLoaded / mods.size());
-            ThemeManager.loadButtonAnimates(m);
+            ThemeManager.loadNodeAnimations(m);
             Sleeper.sleep(150);
         }
         Platform.runLater(() -> modlist.setDisable(false));

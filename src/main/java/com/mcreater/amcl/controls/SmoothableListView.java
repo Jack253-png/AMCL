@@ -6,8 +6,6 @@ import com.mcreater.amcl.util.FXUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +29,7 @@ public class SmoothableListView<T extends Region> extends VBox {
     public SmoothableListView(double width, double height) {
         page = new AdvancedScrollPane(width, height, this, false);
         this.setSpacing(5);
-        ThemeManager.loadButtonAnimates(this);
+        ThemeManager.loadNodeAnimations(this);
 
         ThemeManager.applyNode(page, "SmoothableListView");
         page.setStyle("-fx-background-color: transparent");
@@ -48,7 +46,7 @@ public class SmoothableListView<T extends Region> extends VBox {
 
         bs.add(button);
 
-        ThemeManager.loadButtonAnimates(button);
+        ThemeManager.loadNodeAnimations(button);
 
         button.setOnAction(event -> {
             selectedItem = item;

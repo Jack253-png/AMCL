@@ -3,7 +3,7 @@ package com.mcreater.amcl.pages;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.game.GetMinecraftVersion;
-import com.mcreater.amcl.game.launch.Launch;
+import com.mcreater.amcl.game.launch.LaunchCore;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
@@ -50,7 +50,7 @@ public class MainPage extends AbstractAnimationPage {
     public static JFXButton launchButton;
     public static VBox launchBox;
     public boolean is_vaild_minecraft_dir;
-    public static ObservableList<Launch> game;
+    public static ObservableList<LaunchCore> game;
     public static Logger logger = LogManager.getLogger(MainPage.class);
     public static ProcessDialog launchDialog;
     public static ProcessDialog versionLoadDialog;
@@ -62,11 +62,11 @@ public class MainPage extends AbstractAnimationPage {
     public static ImageView headCoverView;
     public static Pane container;
 
-    public static void tryToRemoveLaunch(Launch launch){
+    public static void tryToRemoveLaunch(LaunchCore launchCore){
         new Thread(() -> {
             while (true){
                 if (!clearingThread.get()){
-                    game.remove(launch);
+                    game.remove(launchCore);
                     break;
                 }
             }
@@ -74,7 +74,7 @@ public class MainPage extends AbstractAnimationPage {
     }
     public void stopAllProcess(){
         clearingThread.set(true);
-        game.forEach(Launch::stop_process);
+        game.forEach(LaunchCore::stop_process);
         clearingThread.set(false);
     }
     public MainPage(double width,double height) {
@@ -96,28 +96,28 @@ public class MainPage extends AbstractAnimationPage {
                 launchDialog.setV(0, 0, Launcher.languageManager.get("ui.mainpage.launch._02"));
 
                 JFXButton stopAction = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
-                ThemeManager.loadButtonAnimates(stopAction);
+                ThemeManager.loadNodeAnimations(stopAction);
 
                 launchDialog.layout.setActions(stopAction);
-                AtomicReference<Launch> core = new AtomicReference<>(null);
+                AtomicReference<LaunchCore> core = new AtomicReference<>(null);
                 Thread la = new Thread(() -> {
                     try {
                         if (new File(Launcher.configReader.configModel.selected_java_index).exists()) {
                             if (UserSelectPage.user.get() != null) {
-                                Launch launch1 = new Launch();
-                                game.add(launch1);
-                                Thread.currentThread().setName(String.format("Launch Thread #%d", game.size() - 1));
+                                LaunchCore launchCore1 = new LaunchCore();
+                                game.add(launchCore1);
+                                Thread.currentThread().setName(String.format("LaunchCore Thread #%d", game.size() - 1));
 
-                                launch1.setUpdater((barIndex, s) -> launchDialog.setV(barIndex.getKey(), barIndex.getValue(), s));
-                                launch1.setFailedRunnable(() -> FXUtils.Platform.runLater(() -> launchDialog.close()));
+                                launchCore1.setUpdater((barIndex, s) -> launchDialog.setV(barIndex.getKey(), barIndex.getValue(), s));
+                                launchCore1.setFailedRunnable(() -> FXUtils.Platform.runLater(() -> launchDialog.close()));
 
-                                core.set(launch1);
+                                core.set(launchCore1);
                                 FXUtils.Platform.runLater(() -> {
                                     launchDialog.setAll(0);
                                     launchDialog.show();
                                 });
 
-                                launch1.launch(
+                                launchCore1.launch(
                                         Launcher.configReader.configModel.selected_java_index, Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.change_game_dir,
                                         Launcher.configReader.configModel.max_memory,
                                         UserSelectPage.user.get(),
@@ -293,12 +293,12 @@ public class MainPage extends AbstractAnimationPage {
         }.start();
         bindedPageproperty().get().add(MAINPAGE);
     }
-    public static void check(Launch launchCore){
+    public static void check(LaunchCore launchCore){
         Platform.runLater(launchDialog::close);
         if (launchCore.exitCode != null){
             logger.info("Minecraft exited with code " + launchCore.exitCode);
             if (launchCore.exitCode != 0){
-                SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.minecraftExit.title"), String.format(Launcher.languageManager.get("ui.mainpage.minecraftExit.Headercontent"), launchCore),String.format(Launcher.languageManager.get("ui.mainpage.minecraftExit.content"), launchCore.exitCode));
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.minecraftExit.title"), Launcher.languageManager.get("ui.mainpage.minecraftExit.Headercontent", launchCore), Launcher.languageManager.get("ui.mainpage.minecraftExit.content", launchCore.exitCode));
             }
         }
     }
@@ -383,7 +383,7 @@ public class MainPage extends AbstractAnimationPage {
 
     public void refreshLanguage(){
         name = Launcher.languageManager.get("ui.mainpage.name");
-        title.setText(String.format(Launcher.languageManager.get("ui.title"), VersionInfo.launcher_name, VersionInfo.launcher_version));
+        title.setText(Launcher.languageManager.get("ui.title", VersionInfo.launcher_name, VersionInfo.launcher_version));
         launch.setText(Launcher.languageManager.get("ui.mainpage.launchTitle.launch.name"));
         set.setText(Launcher.languageManager.get("ui.mainpage.settings.name"));
         choose_version.setText(Launcher.languageManager.get("ui.mainpage.choose_version.name"));

@@ -1,5 +1,6 @@
 package com.mcreater.amcl.config;
 
+import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.J8Utils;
 
 import java.io.File;
@@ -50,9 +51,6 @@ public class ConfigWriter {
         if (configModel.downloadChunkSize < 512 || configModel.downloadChunkSize > 8192){
             configModel.downloadChunkSize = 2048;
         }
-        if (configModel.showingUpdateSpped < 500 || configModel.showingUpdateSpped > 1000){
-            configModel.showingUpdateSpped = 500;
-        }
         Vector<String> dirs = new Vector<>();
         configModel.selected_minecraft_dir.forEach(s -> {
             if (!new File(s).exists()){
@@ -60,6 +58,36 @@ public class ConfigWriter {
             }
         });
         configModel.selected_minecraft_dir.removeAll(dirs);
+
+        Vector<String> java = new Vector<>();
+        configModel.selected_java.forEach(s -> {
+            if (!new File(s).exists()) {
+                java.add(s);
+            }
+        });
+        configModel.selected_java.removeAll(java);
+
+        if (configModel.selected_minecraft_dir.size() == 0) {
+            File dir = new File(new File(System.getProperty("java.class.path")).getParent(), ".minecraft");
+            dir.mkdirs();
+            configModel.selected_minecraft_dir.add(dir.getAbsolutePath());
+        }
+
+        if (configModel.selected_java.size() == 0) {
+            Vector<File> files = FileUtils.getJavaTotal();
+            Vector<String> stringPaths = new Vector<>();
+            files.forEach(file -> stringPaths.add(file.getAbsolutePath()));
+            System.out.println(stringPaths);
+            configModel.selected_java.addAll(stringPaths);
+        }
+
+        for (String s : configModel.selected_java) {
+            if (s.equals(configModel.selected_java_index)) {
+                configModel.selected_java_index = "";
+                break;
+            }
+        }
+
         write();
     }
 }

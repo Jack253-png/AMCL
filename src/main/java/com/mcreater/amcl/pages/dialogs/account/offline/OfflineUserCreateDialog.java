@@ -4,7 +4,6 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.items.ListItem;
-import com.mcreater.amcl.controls.items.StringButtonItem;
 import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -53,7 +52,7 @@ public class OfflineUserCreateDialog extends AbstractDialog {
         ThemeManager.applyNode(userSkin.cont);
         userSkin.cont.getSelectionModel().selectFirst();
 
-        ThemeManager.loadButtonAnimates(cancel, create, t, userName, userSkin);
+        ThemeManager.loadNodeAnimations(cancel, create, t, userName, userSkin);
         layout.setHeading(t);
         layout.setActions(cancel, create);
         layout.setBody(content);

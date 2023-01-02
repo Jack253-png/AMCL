@@ -23,6 +23,7 @@ import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
@@ -95,6 +96,7 @@ public class Launcher {
     public static Pane wrapper = new Pane();
     public static final SimpleDoubleProperty radius = new SimpleDoubleProperty(30);
     public static VBox top = new VBox();
+    public static final Vector<AbstractAnimationPage> pages = new Vector<>();
     public static void initConfig() {
         try {
             FileUtils.ChangeDir.saveNowDir();
@@ -115,7 +117,7 @@ public class Launcher {
     public static void initLanguageManager(LanguageManager.LanguageType type) {
         languageManager = new LanguageManager(type);
     }
-    public static void initLanguageManager() {
+    public static void basicInitialize() {
         initConfig();
         initLanguageManager(configReader.configModel.language);
     }
@@ -127,7 +129,7 @@ public class Launcher {
             setGeometry(stage, width, height);
             bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true);
             logger.info("Launcher Version : " + VersionInfo.launcher_version);
-            initLanguageManager();
+            basicInitialize();
 
             MAINPAGE = new MainPage(width, height);
             CONFIGPAGE = new ConfigPage(width, height);
@@ -139,9 +141,10 @@ public class Launcher {
             DOWNLOADADDONSELECTPAGE = new DownloadAddonSelectPage(width, height);
             USERSELECTPAGE = new UserSelectPage(width, height);
 
-            languageManager.bindAll(MAINPAGE, CONFIGPAGE, VERSIONSELECTPAGE, VERSIONINFOPAGE, ADDMODSPAGE, MODDOWNLOADPAGE, DOWNLOADMCPAGE, DOWNLOADADDONSELECTPAGE, USERSELECTPAGE);
+            pages.addAll(J8Utils.createList(MAINPAGE, CONFIGPAGE, VERSIONSELECTPAGE, VERSIONINFOPAGE, ADDMODSPAGE, MODDOWNLOADPAGE, DOWNLOADMCPAGE, DOWNLOADADDONSELECTPAGE, USERSELECTPAGE));
+            languageManager.setListener(() -> pages.forEach(AbstractAnimationPage::refreshLanguage));
 
-            ThemeManager.apply(LanguageManager.bindedPages);
+            ThemeManager.apply(pages);
 
             CONFIGPAGE.bar1.setOnMouseEntered(event -> {});
             CONFIGPAGE.bar1.setOnMouseExited(event -> {});
@@ -305,10 +308,10 @@ public class Launcher {
         logger.info("setted size (" + width+", "+height+") for stage " + s);
     }
     public static void refresh(){
-        stage.setTitle(String.format(languageManager.get("ui.title"), VersionInfo.launcher_name, VersionInfo.launcher_version));
+        stage.setTitle(languageManager.get("ui.title", VersionInfo.launcher_name, VersionInfo.launcher_version));
     }
     public static void clearBgBuffer() {
-        LanguageManager.bindedPages.forEach(page -> page.setBufferedBackground(null));
+        pages.forEach(page -> page.setBufferedBackground(null));
         refreshBackground();
     }
     public static void refreshBackground(){
@@ -331,9 +334,8 @@ public class Launcher {
         }
 
         WritableImage result = FXUtils.ImageConverter.convertToWritableImage(wap);
-        boolean blurEnabled = false;
 
-        if (blurEnabled) {
+        if (configReader.configModel.enable_blur) {
             if (last.getBufferedBackground() == null && !hasBinded) {
                 WritableImage original = FXUtils.ImagePreProcesser.cutImage(result, 0, 0, (int) result.getWidth(), (int) result.getHeight());
 

@@ -9,6 +9,7 @@ import com.mcreater.amcl.controls.AccountInfoItem;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.pages.dialogs.account.microsoft.MicrosoftLoginDialog;
+import com.mcreater.amcl.pages.dialogs.account.microsoft.MicrosoftModifyDialog;
 import com.mcreater.amcl.pages.dialogs.account.offline.OfflineUserCreateDialog;
 import com.mcreater.amcl.pages.dialogs.account.offline.OfflineUserCustomSkinDialog;
 import com.mcreater.amcl.pages.dialogs.account.offline.OfflineUserModifyDialog;
@@ -20,6 +21,8 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -318,8 +321,12 @@ public class UserSelectPage extends AbstractAnimationPage {
                             });
                             dialog.showAndWait();
                             return;
+                        case AbstractUser.MICROSOFT:
+                            MicrosoftModifyDialog dialog1 = new MicrosoftModifyDialog(Launcher.languageManager.get("ui.userselectpage.modify.title"));
+                            dialog1.setFinish(event16 -> dialog1.close());
+                            dialog1.showAndWait();
+                            return;
                         default:
-                            // TODO microsoft user modify (to be done)
                     }
                 });
                 FXUtils.Platform.runLater(() -> userList.addItem(item));

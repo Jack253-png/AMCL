@@ -10,6 +10,7 @@ import javafx.scene.image.Image;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
 
@@ -131,9 +132,9 @@ public class VersionTypeGetter {
     public static String getFabricVersion(String dir, String version){
         VersionJsonModel v = getVersionModel(dir, version);
         String fabricVersion = Launcher.languageManager.get("ui.versioninfopage.noFabric");
-        for (LibModel model : v.libraries){
+        for (LibModel model : v.libraries) {
             if (model.name.contains("net.fabricmc:fabric-loader:")){
-                fabricVersion = String.format(Launcher.languageManager.get("ui.versioninfopage.hasfabric"), J8Utils.createList(model.name.split(":")).get(2));
+                fabricVersion = Launcher.languageManager.get("ui.versioninfopage.hasfabric", J8Utils.createList(model.name.split(":")).get(2));
             }
         }
         return fabricVersion;
@@ -144,11 +145,11 @@ public class VersionTypeGetter {
         for (LibModel model : v.libraries){
             if (model.name.contains("net.minecraftforge:forge:") || model.name.contains("net.minecraftforge:fmlloader:")){
                 String n = J8Utils.createList(J8Utils.createList(model.name.split(":")).get(2).split("-")).get(1);
-                forge = String.format(Launcher.languageManager.get("ui.versioninfopage.hasforge"), n).replace(v.id+"-", "");
+                forge = Launcher.languageManager.get("ui.versioninfopage.hasforge", n).replace(v.id+"-", "");
             }
             else if (model.name.contains("net.minecraftforge:minecraftforge:")){
                 String n = J8Utils.createList(J8Utils.createList(model.name.split(":")).get(2).split("-")).get(0);
-                forge = String.format(Launcher.languageManager.get("ui.versioninfopage.hasforge"), n);
+                forge = Launcher.languageManager.get("ui.versioninfopage.hasforge", n);
             }
         }
         return forge;
@@ -164,10 +165,10 @@ public class VersionTypeGetter {
                 if (idHD >= 0) {
                     if (idHD > 0) {
                         f2.subList(0, idHD).clear();
-                        opti = String.format(Launcher.languageManager.get("ui.versioninfopage.hasoptifine"), String.join("_", f2));
+                        opti = Launcher.languageManager.get("ui.versioninfopage.hasoptifine", String.join("_", f2));
                     }
                     else {
-                        opti = String.format(Launcher.languageManager.get("ui.versioninfopage.hasoptifine"), f);
+                        opti = Launcher.languageManager.get("ui.versioninfopage.hasoptifine", f);
                     }
                 }
             }
@@ -179,7 +180,7 @@ public class VersionTypeGetter {
         String lite = Launcher.languageManager.get("ui.versioninfopage.noLiteloader");
         for (LibModel model : v.libraries) {
             if (model.name.contains("com.mumfrey:liteloader:")) {
-                lite = String.format(Launcher.languageManager.get("ui.versioninfopage.hasliteloader"), J8Utils.createList(model.name.split(":")).get(2));
+                lite = Launcher.languageManager.get("ui.versioninfopage.hasliteloader", J8Utils.createList(model.name.split(":")).get(2));
             }
         }
         return lite;

@@ -40,7 +40,7 @@ public class SimpleDialogCreater {
         layout.setActions(addButton);
 
         alert.setContent(layout);
-        ThemeManager.loadButtonAnimates(title, body, addButton);
+        ThemeManager.loadNodeAnimations(title, body, addButton);
         alert.showAndWait();
     }
     public static void exception(Throwable cause, String subtitle) {
@@ -95,7 +95,7 @@ public class SimpleDialogCreater {
         layout.setBody(page);
 
         alert.setContent(layout);
-        ThemeManager.loadButtonAnimates(title, addButton);
+        ThemeManager.loadNodeAnimations(title, addButton);
         alert.showAndWait();
     }
     private static Label setFont(Label l, Font font){

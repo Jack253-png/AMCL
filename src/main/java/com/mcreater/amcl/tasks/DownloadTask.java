@@ -114,28 +114,13 @@ public class DownloadTask extends AbstractDownloadTask {
         return null;
     }
     private static final TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
-        @Override
         public java.security.cert.X509Certificate[] getAcceptedIssuers() {
             return new java.security.cert.X509Certificate[]{};
         }
-
-        @Override
-        public void checkClientTrusted(X509Certificate[] chain, String authType) {
-        }
-
-        @Override
-        public void checkServerTrusted(X509Certificate[] chain, String authType) {
-        }
+        public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+        public void checkServerTrusted(X509Certificate[] chain, String authType) {}
     }};
-
-    /**
-     * 设置不验证主机
-     */
     private static final HostnameVerifier DO_NOT_VERIFY = (hostname, session) -> true;
-
-    /**
-     * 信任所有
-     */
     private static SSLSocketFactory trustAllHosts(HttpsURLConnection connection) {
         SSLSocketFactory oldFactory = connection.getSSLSocketFactory();
         try {

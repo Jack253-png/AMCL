@@ -53,7 +53,7 @@ public abstract class TaskManager {
                 executed += 1;
                 logger.info(String.format("executed %d of %d", executed, tasks.size()));
                 if (tasks.size() != 0) {
-                    updater.accept((int) ((double) executed) * 100 / tasks.size(), String.format(Launcher.languageManager.get("ui.fix._03"), executed, tasks.size()));
+                    updater.accept((int) ((double) executed) * 100 / tasks.size(), Launcher.languageManager.get("ui.fix._03", executed, tasks.size()));
                 }
             }
             tasks.clear();

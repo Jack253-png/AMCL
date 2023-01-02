@@ -1,11 +1,10 @@
 package com.mcreater.amcl.util.java;
 
-import com.mcreater.amcl.game.launch.Launch;
+import com.mcreater.amcl.game.launch.LaunchCore;
 import com.mcreater.amcl.util.J8Utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -25,7 +24,7 @@ public class JavaInfoGetter implements Callable<Vector<String>> {
             String p = f.getPath();
             Process proc = new ProcessBuilder(p, "-version").start();
             String resu;
-            resu = Launch.ret(proc.getErrorStream());
+            resu = LaunchCore.ret(proc.getErrorStream());
             Vector<String> compled = fromArrayToVector(resu.split("\n"));
             Vector<String> version_info = fromArrayToVector(compled.get(0).split(" "));
             String version = "1.0.0";

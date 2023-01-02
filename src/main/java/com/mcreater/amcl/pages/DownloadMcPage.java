@@ -167,7 +167,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 });
                 pane.getStyleClass().clear();
                 Platform.runLater(() -> mainBox.getChildren().add(pane));
-                Platform.runLater(() -> ThemeManager.loadButtonAnimates(pane));
+                Platform.runLater(() -> ThemeManager.loadNodeAnimations(pane));
             }
             Platform.runLater(() -> {
                 mainBox.setDisable(false);

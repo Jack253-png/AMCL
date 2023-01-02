@@ -23,9 +23,6 @@ import java.util.Vector;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class GithubReleases {
-    static {
-        trustAllHosts();
-    }
     private static final String api_url = "https://api.github.com";
     public static Vector<ReleaseModel> getReleases(){
         try{

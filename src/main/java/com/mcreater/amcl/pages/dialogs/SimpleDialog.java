@@ -11,7 +11,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 
 public class SimpleDialog extends JFXAlert<String> {
-    public static enum MessageType {
+    public enum MessageType {
         OK("ui.dialogs.information.ok.name"),
         CONTINUE("ui.dialogs.information.continue.name"),
         QUIT("ui.dialogs.information.quit.name");
@@ -33,7 +33,7 @@ public class SimpleDialog extends JFXAlert<String> {
         layout.setBody(mess);
         layout.setActions(quit);
 
-        ThemeManager.loadButtonAnimates(quit, mess);
+        ThemeManager.loadNodeAnimations(quit, mess);
 
         setTitle(title);
         setContent(layout);

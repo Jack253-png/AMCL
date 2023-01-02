@@ -55,8 +55,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         public int expires_in;
         public int interval;
     }
-    public MicrosoftUser generateDeviceCode(Consumer<String> regIs) throws Exception {
-        GithubReleases.trustAllHosts();
+    public MicrosoftUser generateDeviceCode(BiConsumer<String, String> regIs) throws Exception {
         HttpClient client = HttpClient.getInstance(DEVICE_CODE_URL, J8Utils.createMap(
                 "client_id", CLIENT_ID,
                 "scope", SCOPE
@@ -64,7 +63,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         client.openConnection();
         DeviceCodeModel model = client.readJSONModel(DeviceCodeModel.class);
 
-        regIs.accept(model.user_code);
+        regIs.accept(model.user_code, model.verification_uri);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         Transferable t = new StringSelection(model.user_code);
         clipboard.setContents(t, (clipboard1, transferable) -> {});
@@ -116,7 +115,6 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
 
     private MSAuth() {}
     public ImmutablePair<String, String> acquireAccessToken(String authcode) {
-        GithubReleases.trustAllHosts();
         Map<Object, Object> data = new HashMap<>();
         data.put("client_id", "00000000402b5328");
         data.put("code", authcode);

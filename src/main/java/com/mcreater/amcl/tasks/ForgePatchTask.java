@@ -1,7 +1,7 @@
 package com.mcreater.amcl.tasks;
 
 import com.mcreater.amcl.download.ForgeDownload;
-import com.mcreater.amcl.game.launch.Launch;
+import com.mcreater.amcl.game.launch.LaunchCore;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
@@ -68,11 +68,11 @@ public class ForgePatchTask extends AbstractExecutableTask {
             try {
                 CountDownLatch latch = new CountDownLatch(2);
                 new Thread(() -> {
-                    Launch.loadOut(p.getInputStream(), System.out);
+                    LaunchCore.loadOut(p.getInputStream(), System.out);
                     latch.countDown();
                 }).start();
                 new Thread(() -> {
-                    Launch.loadOut(p.getErrorStream(), System.err);
+                    LaunchCore.loadOut(p.getErrorStream(), System.err);
                     latch.countDown();
                 }).start();
                 latch.await();

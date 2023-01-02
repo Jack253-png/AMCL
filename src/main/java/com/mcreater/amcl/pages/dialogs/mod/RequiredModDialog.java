@@ -31,6 +31,6 @@ public class RequiredModDialog extends AbstractDialog {
         this.setOnHidden(event -> {});
         this.setOnHiding(event -> {});
         setContent(layout);
-        ThemeManager.loadButtonAnimates(head, button);
+        ThemeManager.loadNodeAnimations(head, button);
     }
 }

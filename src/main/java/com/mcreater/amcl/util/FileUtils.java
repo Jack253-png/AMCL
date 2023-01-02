@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -91,11 +92,72 @@ public class FileUtils {
     public static String getJavaExecutable() {
         String env = getJavaExecutableInEnv();
         if (env != null) return env;
-        Vector<File> path = getJavaExecutableInPath();
+        Vector<File> path = getJavaTotal();
         if (path.size() > 0) {
             return path.get(0).getAbsolutePath();
         }
         return getCurrentJavaExecutable();
+    }
+    public static Vector<File> getJavaTotal() {
+        Vector<File> java = getJavaExecutableInPath();
+        for (File f : getJavaInSystemPath()) {
+            AtomicBoolean b = new AtomicBoolean(false);
+            java.forEach(file -> {
+                if (file.getAbsolutePath().equals(f.getAbsolutePath())) {
+                    b.set(true);
+                }
+            });
+            if (!b.get()) {
+                java.add(f);
+            }
+        }
+        return java;
+    }
+    private static Vector<File> getJavaInSystemPath() {
+        Vector<File> basePaths = new Vector<>();
+        if (OSInfo.isWin()) basePaths.add(new File("C:/Program Files/Java"));
+        if (OSInfo.isMac()) basePaths.addAll(J8Utils.createList(
+                new File("/Library/Java/JavaVirtualMachines"),
+                new File("/System/Library/Java/JavaVirtualMachines")
+        ));
+        if (OSInfo.isLinux()) basePaths.add(new File("/usr/lib/jvm"));
+
+        CountDownLatch latch = new CountDownLatch(basePaths.size());
+        Vector<Thread> threads = new Vector<>();
+        Vector<File> paths = new Vector<>();
+        for (File p : basePaths) {
+            threads.add(new Thread(() -> {
+                try {
+                    paths.addAll(getJavaInSelPath(p));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                latch.countDown();
+            }));
+        }
+        threads.forEach(Thread::start);
+        try {latch.await();}
+        catch (Exception ignored) {}
+
+        return paths;
+    }
+    private static Vector<File> getJavaInSelPath(File f) throws IOException {
+        Vector<File> files = new Vector<>();
+        Files.walkFileTree(f.toPath(), new SimpleFileVisitor<Path>() {
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                File f = file.toFile();
+                if (f.getName().endsWith(OSInfo.isWin() ? "java.exe" : "java")) {
+                    files.add(f);
+                }
+                return FileVisitResult.CONTINUE;
+            }
+
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                return FileVisitResult.CONTINUE;
+            }
+        });
+        return files;
     }
     public static String getCurrentJavaExecutable() {
         String home = System.getProperty("java.home");

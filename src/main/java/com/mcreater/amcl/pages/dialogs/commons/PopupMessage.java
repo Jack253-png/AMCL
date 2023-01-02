@@ -6,8 +6,6 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import javafx.animation.PathTransition;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -72,7 +70,7 @@ public class PopupMessage {
         }
         Labeled finalL = l;
         Platform.runLater(() -> createMessageInternal(finalL, text));
-        ThemeManager.loadButtonAnimates(l);
+        ThemeManager.loadNodeAnimations(l);
         return finalL;
     }
     private static Labeled createMessageInternal(Labeled circle, String text) {

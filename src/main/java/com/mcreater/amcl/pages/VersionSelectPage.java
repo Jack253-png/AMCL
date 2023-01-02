@@ -158,7 +158,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
         ThemeManager.applyNode(dirs);
 
         AdvancedScrollPane p = new AdvancedScrollPane(width / 4, height, dot_minecraft_dir);
-        ThemeManager.loadButtonAnimates(title, dirs, select_version, buttons);
+        ThemeManager.loadNodeAnimations(title, dirs, select_version, buttons);
 
         this.add(p, 0, 0, 1, 1);
         this.add(versionlist,1,0 ,1,1);
@@ -224,10 +224,10 @@ public class VersionSelectPage extends AbstractAnimationPage {
                         Platform.runLater(() -> {
                             VersionItem i = new VersionItem(s, finalF);
                             version_list.addItem(i);
-                            ThemeManager.loadButtonAnimates(i);
+                            ThemeManager.loadNodeAnimations(i);
                         });
                         ld += 1;
-                        MainPage.versionLoadDialog.setV(0, ld * 100 / dg, String.format(Launcher.languageManager.get("ui.versionListLoad._01"), s));
+                        MainPage.versionLoadDialog.setV(0, ld * 100 / dg, Launcher.languageManager.get("ui.versionListLoad._01", s));
                     }
                 }
             }

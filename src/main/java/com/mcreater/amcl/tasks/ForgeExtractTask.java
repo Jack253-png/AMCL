@@ -1,7 +1,6 @@
 package com.mcreater.amcl.tasks;
 
-import com.mcreater.amcl.download.OriginalDownload;
-import com.mcreater.amcl.game.launch.Launch;
+import com.mcreater.amcl.game.launch.LaunchCore;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Vector;
 
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
-import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
 
 public class ForgeExtractTask extends AbstractExecutableTask {
     public Integer exit = null;
@@ -49,8 +47,8 @@ public class ForgeExtractTask extends AbstractExecutableTask {
         Process p = Runtime.getRuntime().exec(command.toArray(new String[0]));
         while (true){
             try{
-                System.out.println(Launch.ret(p.getInputStream()));
-                System.out.println(Launch.ret(p.getErrorStream()));
+                System.out.println(LaunchCore.ret(p.getInputStream()));
+                System.out.println(LaunchCore.ret(p.getErrorStream()));
                 copy();
                 exit = p.exitValue();
                 return exit;

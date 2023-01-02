@@ -28,6 +28,6 @@ public class LoadingDialog extends AbstractDialog {
         layout.setHeading(title1);
         layout.setBody(b);
         this.setContent(layout);
-        ThemeManager.loadButtonAnimates(title1, spinner);
+        ThemeManager.loadNodeAnimations(title1, spinner);
     }
 }

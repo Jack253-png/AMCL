@@ -73,7 +73,7 @@ public class AboutDialog extends AbstractDialog {
                 new DepencyItem("OSHI Core", "", "This project is licensed under the MIT License.").toMaterial()
         );
 
-        ThemeManager.loadButtonAnimates(title, ok, checkUpdate, page);
+        ThemeManager.loadNodeAnimations(title, ok, checkUpdate, page);
         layout.setHeading(title);
         layout.setBody(page);
         layout.setActions(checkUpdate, ok);

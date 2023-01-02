@@ -58,7 +58,7 @@ public class OfflineUserModifyDialog extends AbstractDialog {
         layout.setBody(container);
         layout.setActions(cancelButton, okButton);
         layout.setHeading(t);
-        ThemeManager.loadButtonAnimates(cancelButton, okButton, userName, userSkin, t);
+        ThemeManager.loadNodeAnimations(cancelButton, okButton, userName, userSkin, t);
         setContent(layout);
     }
     public String getInputedUserName() {

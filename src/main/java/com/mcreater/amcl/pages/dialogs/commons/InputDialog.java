@@ -1,6 +1,5 @@
 package com.mcreater.amcl.pages.dialogs.commons;
 
-import com.jfoenix.animation.alert.JFXAlertAnimation;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXTextField;
@@ -12,7 +11,6 @@ import com.mcreater.amcl.util.FXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
-import javafx.stage.Modality;
 
 public class InputDialog extends AbstractDialog {
     EventHandler<ActionEvent> event = event -> {};
@@ -37,7 +35,7 @@ public class InputDialog extends AbstractDialog {
         FXUtils.fixJFXTextField(f);
 
         Label head = setFont(new Label(title), Fonts.s_f);
-        ThemeManager.loadButtonAnimates(f, head);
+        ThemeManager.loadNodeAnimations(f, head);
         layout.setHeading(head);
         layout.setBody(f);
         addButton = new JFXButton(Launcher.languageManager.get("ui.dialogs.information.ok.name"));
@@ -49,7 +47,7 @@ public class InputDialog extends AbstractDialog {
         cancelButton.setDefaultButton(true);
         cancelButton.setOnAction(cancel);
         layout.setActions(cancelButton, addButton);
-        ThemeManager.loadButtonAnimates(addButton, cancelButton);
+        ThemeManager.loadNodeAnimations(addButton, cancelButton);
         this.setOnHidden(event -> {});
         this.setOnHiding(event -> {});
         this.setContent(layout);
