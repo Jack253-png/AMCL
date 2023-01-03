@@ -109,6 +109,7 @@ public class Launcher {
 
     private static Timeline onStageShow;
     private static Timeline onStageExit;
+    private static boolean iconified;
     public static void initConfig() {
         try {
             FileUtils.ChangeDir.saveNowDir();
@@ -210,7 +211,10 @@ public class Launcher {
                                     wrapper.opacityProperty(),
                                     1,
                                     Interpolator.EASE_BOTH
-                            ),
+                            )
+                    ),
+                    new KeyFrame(
+                            Duration.seconds(2.5),
                             new KeyValue(
                                     wrapper.scaleXProperty(),
                                     1,
@@ -228,7 +232,7 @@ public class Launcher {
 
             onStageExit = new Timeline(
                     new KeyFrame(
-                            Duration.millis(100),
+                            Duration.millis(50),
                             new KeyValue(
                                     wrapper.opacityProperty(),
                                     1,
@@ -246,12 +250,15 @@ public class Launcher {
                             )
                     ),
                     new KeyFrame(
-                            Duration.seconds(1),
+                            Duration.seconds(0.5),
                             new KeyValue(
                                     wrapper.opacityProperty(),
                                     0,
                                     Interpolator.EASE_BOTH
-                            ),
+                            )
+                    ),
+                    new KeyFrame(
+                            Duration.seconds(1),
                             new KeyValue(
                                     wrapper.scaleXProperty(),
                                     0.8,
@@ -268,48 +275,7 @@ public class Launcher {
             onStageExit.setAutoReverse(false);
 
             stage.show();
-            onStageShow.setOnFinished(event -> {
-                onStageShow.getKeyFrames().clear();
-                onStageShow.getKeyFrames().addAll(
-                        new KeyFrame(
-                                Duration.millis(100),
-                                new KeyValue(
-                                        wrapper.opacityProperty(),
-                                        0,
-                                        Interpolator.EASE_BOTH
-                                ),
-                                new KeyValue(
-                                        wrapper.scaleXProperty(),
-                                        0.8,
-                                        Interpolator.EASE_BOTH
-                                ),
-                                new KeyValue(
-                                        wrapper.scaleYProperty(),
-                                        0.8,
-                                        Interpolator.EASE_BOTH
-                                )
-                        ),
-                        new KeyFrame(
-                                Duration.seconds(1),
-                                new KeyValue(
-                                        wrapper.opacityProperty(),
-                                        1,
-                                        Interpolator.EASE_BOTH
-                                ),
-                                new KeyValue(
-                                        wrapper.scaleXProperty(),
-                                        1,
-                                        Interpolator.EASE_BOTH
-                                ),
-                                new KeyValue(
-                                        wrapper.scaleYProperty(),
-                                        1,
-                                        Interpolator.EASE_BOTH
-                                )
-                        ));
-                onStageShow.setOnFinished(event1 -> {});
-            });
-            onStageShow.playFromStart();
+            playStageAnimation(false, () -> {});
 
             StableMain.splashScreen.setVisible(false);
         }
@@ -322,6 +288,18 @@ public class Launcher {
             );
             StableMain.splashScreen.setVisible(false);
             dialog.showAndWait();
+        }
+    }
+    private static void playStageAnimation(boolean isExit, Runnable finisher) {
+        if (isExit) {
+            onStageShow.stop();
+            onStageExit.setOnFinished(event -> finisher.run());
+            onStageExit.playFromStart();
+        }
+        else {
+            onStageExit.stop();
+            onStageShow.setOnFinished(event -> finisher.run());
+            onStageShow.playFromStart();
         }
     }
     public static void setPage(AbstractAnimationPage n, AbstractAnimationPage caller) {
@@ -360,15 +338,11 @@ public class Launcher {
         close.setPrefHeight(t_size / 6 * 5);
         close.setGraphic(getSVGManager().close(ThemeManager.createPaintBinding(), t_size / 3 * 2, t_size / 3 * 2));
         close.setButtonType(JFXButton.ButtonType.RAISED);
-        close.setOnAction(event -> {
-            onStageShow.stop();
-            onStageExit.setOnFinished(event1 -> {
-                stage.close();
-                Platform.exit();
-                System.exit(0);
-            });
-            onStageExit.playFromStart();
-        });
+        close.setOnAction(event -> playStageAnimation(true, () -> {
+            stage.close();
+            Platform.exit();
+            System.exit(0);
+        }));
         Rectangle rect = new Rectangle(t_size / 2.5, t_size / 15, Color.BLACK);
         rect.fillProperty().bind(ThemeManager.createPaintBinding());
 
@@ -377,17 +351,7 @@ public class Launcher {
         min.setPrefHeight(t_size / 2.5);
         min.setGraphic(rect);
         min.setButtonType(JFXButton.ButtonType.RAISED);
-        min.setOnAction(event -> {
-            onStageShow.stop();
-            onStageExit.setOnFinished(event12 -> Launcher.stage.setIconified(true));
-            onStageExit.playFromStart();
-        });
-
-        Launcher.stage.iconifiedProperty().addListener((observable, oldValue, newValue) -> {
-            (newValue ? onStageShow : onStageExit).stop();
-            wrapper.setOpacity(oldValue ? 0 : 1);
-            (newValue ? onStageExit : onStageShow).playFromStart();
-        });
+        min.setOnAction(event -> stage.setIconified(true));
 
         back.setPrefWidth(t_size / 2.5);
         back.setPrefHeight(t_size / 2.5);

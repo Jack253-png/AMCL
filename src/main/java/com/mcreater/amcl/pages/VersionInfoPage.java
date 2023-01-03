@@ -31,6 +31,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -80,7 +81,14 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         modsMenu = new JFXButton();
         modsMenu.setFont(Fonts.s_f);
         FXUtils.ControlSize.setWidth(modsMenu, this.width / 4);
-        modsMenu.setOnAction(event -> this.setP1(1));
+        modsMenu.setOnAction(event -> {
+            if (!ModHelper.isModded(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index)) {
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.versioninfopage.unModded.title"), Launcher.languageManager.get("ui.versioninfopage.unModded.content"), "");
+            }
+            else {
+                this.setP1(1);
+            }
+        });
 
         b = new VBox();
         info = new GridPane();
@@ -183,15 +191,9 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
         super.addNewPair(new ImmutablePair<>(mainInfoButton, p1));
         super.addNewPair(new ImmutablePair<>(modsMenu, p2));
-        super.setOnAction((i) -> {
+        super.setOnAction(i -> {
             setted = super.menubuttons.get(i);
-            AdvancedScrollPane p = super.pages.get(i);
-            if (p == p2){
-                p.setDisable(!ModHelper.isModded(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
-                if (p.isDisabled()) {
-                    SimpleDialogCreater.create(Launcher.languageManager.get("ui.versioninfopage.unModded.title"), Launcher.languageManager.get("ui.versioninfopage.unModded.content"), "");
-                }
-            }
+            setType(setted);
         });
         super.setP1(0);
         super.setButtonType(JFXButton.ButtonType.RAISED);

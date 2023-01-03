@@ -23,12 +23,12 @@ public class Main {
         catch (Exception e) {
             logger.error("Error while launcher running", e);
             StableMain.splashScreen.setVisible(false);
-            JOptionPane.showMessageDialog(null, "If tou want to see the infomation, please visit the log file.", "Exception", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "If you want to see the infomation, please visit the log file.", "Exception", JOptionPane.ERROR_MESSAGE);
         }
         catch (Error e){
             logger.error("Error while loading native libs", e);
             StableMain.splashScreen.setVisible(false);
-            JOptionPane.showMessageDialog(null, "If tou want to see the infomation, please visit the log file.", "Native Lib Exception", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "If you want to see the infomation, please visit the log file.", "Native Lib Exception", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

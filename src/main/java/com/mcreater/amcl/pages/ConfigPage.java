@@ -14,6 +14,7 @@ import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.concurrent.Sleeper;
@@ -21,6 +22,8 @@ import com.mcreater.amcl.util.java.JavaInfoGetter;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -34,6 +37,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -49,6 +53,7 @@ public class ConfigPage extends AbstractMenuBarPage {
     VBox configs_box;
     public JFXButton java_add;
     public JFXButton java_get;
+    public JFXButton java_find;
     final Map<String, String> langs;
     JFXButton setting;
     AdvancedScrollPane p1;
@@ -98,7 +103,6 @@ public class ConfigPage extends AbstractMenuBarPage {
         item2.cont.valueProperty().addListener((observable, oldValue, newValue) -> Launcher.configReader.configModel.max_memory = newValue.intValue());
 
         java_add = new JFXButton();
-        java_add.setDefaultButton(true);
         java_add.setFont(Fonts.t_f);
         java_add.setOnAction(event -> {
             FileChooser fileChooser = new FileChooser();
@@ -115,7 +119,6 @@ public class ConfigPage extends AbstractMenuBarPage {
         });
 
         java_get = new JFXButton();
-        java_get.setDefaultButton(true);
         java_get.setFont(Fonts.t_f);
         java_get.setOnAction(event -> new Thread(() -> {
             java_get.setDisable(true);
@@ -134,8 +137,26 @@ public class ConfigPage extends AbstractMenuBarPage {
             java_get.setDisable(false);
         }).start());
 
+        java_find = new JFXButton();
+        java_find.setFont(Fonts.t_f);
+        java_find.setOnAction(event -> {
+            java_find.setDisable(true);
+            try {
+                Vector<File> f = FileUtils.getJavaTotal();
+                Vector<String> fina = new Vector<>();
+                f.forEach(file -> {
+                    if (!Launcher.configReader.configModel.selected_java.contains(file.getAbsolutePath())) {
+                        fina.add(file.getAbsolutePath());
+                    }
+                });
+                Launcher.configReader.configModel.selected_java.addAll(fina);
+            }
+            catch (Exception ignored) {}
+            java_find.setDisable(false);
+        });
+
         item4 = new MuiltButtonListItem<>("", this.width / 4 * 3 - 10);
-        item4.addButtons(java_get, java_add);
+        item4.addButtons(java_find, java_get, java_add);
         item4.cont.setOnAction(event -> {
             if (item4.cont.getValue() == null && item4.cont.getItems().size() > 0) {
                 item4.cont.getSelectionModel().select(0);
@@ -291,12 +312,13 @@ public class ConfigPage extends AbstractMenuBarPage {
             l.setFont(Fonts.t_f);
             item4.cont.getItems().add(l);
         }
-        if (Launcher.configReader.configModel.selected_java.contains(Launcher.configReader.configModel.selected_java_index) || new File(Launcher.configReader.configModel.selected_java_index).exists()){
+        if (Launcher.configReader.configModel.selected_java.contains(Launcher.configReader.configModel.selected_java_index)){
             item4.cont.getSelectionModel().select(Launcher.configReader.configModel.selected_java.indexOf(Launcher.configReader.configModel.selected_java_index));
         }
-        else{
+        else {
             item4.cont.getSelectionModel().clearSelection();
         }
+        System.out.println(item4.cont.getItems());
     }
     public void refresh(){
         p1.set(this.opacityProperty());
@@ -322,6 +344,7 @@ public class ConfigPage extends AbstractMenuBarPage {
     public void refreshType(){
         java_add.setGraphic(Launcher.getSVGManager().plus(ThemeManager.createPaintBinding(), 15, 15));
         java_get.setGraphic(Launcher.getSVGManager().dotsHorizontal(ThemeManager.createPaintBinding(), 15, 15));
+        java_find.setGraphic(Launcher.getSVGManager().export(ThemeManager.createPaintBinding(), 15, 15));
     }
 
     public void onExitPage() {

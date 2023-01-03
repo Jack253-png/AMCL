@@ -3,24 +3,16 @@ package com.mcreater.amcl.pages.interfaces;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
-import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
-
-import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
-import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
+import java.util.function.Consumer;
 
 public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
     public Vector<AdvancedScrollPane> pages;
@@ -30,10 +22,7 @@ public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
     public VBox mainBox;
     public JFXButton setted;
     public VBox menu;
-    LoadPageEvent e = (i) -> {};
-    public interface LoadPageEvent{
-        void run(int i);
-    }
+    Consumer<Integer> e = i -> {};
     public AbstractMenuBarPage(double width, double height) {
         super(width, height);
         pages = new Vector<>();
@@ -44,7 +33,7 @@ public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
         totalMap = new HashMap<>();
         last = null;
     }
-    public void setOnAction(LoadPageEvent runnable){
+    public void setOnAction(Consumer<Integer> runnable){
         this.e = runnable;
     }
     public void setType(JFXButton b){
@@ -75,7 +64,7 @@ public abstract class AbstractMenuBarPage extends AbstractAnimationPage{
                 r.run();
             }
         }
-        e.run(i);
+        e.accept(i);
         setType(menubuttons.get(i));
     }
     public void addNewPair(ImmutablePair<JFXButton, AdvancedScrollPane> pair){
