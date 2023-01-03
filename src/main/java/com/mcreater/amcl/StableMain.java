@@ -9,7 +9,6 @@ import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.patcher.DepenciesLoader;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
-import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.LoggerPrintStream;
 import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.SwingUtils;
@@ -26,7 +25,6 @@ import javax.swing.*;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.Vector;
-import java.util.function.Consumer;
 
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 

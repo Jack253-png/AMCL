@@ -31,8 +31,16 @@ import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import com.mcreater.amcl.util.svg.Icons;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -54,6 +62,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -96,6 +106,9 @@ public class Launcher {
     public static final SimpleDoubleProperty radius = new SimpleDoubleProperty(30);
     public static VBox top = new VBox();
     public static final Vector<AbstractAnimationPage> pages = new Vector<>();
+
+    private static Timeline onStageShow;
+    private static Timeline onStageExit;
     public static void initConfig() {
         try {
             FileUtils.ChangeDir.saveNowDir();
@@ -172,10 +185,135 @@ public class Launcher {
             rect.arcHeightProperty().bind(Launcher.radius);
             wrapper.setClip(rect);
 
+            onStageShow = new Timeline(
+                    new KeyFrame(
+                            Duration.millis(100),
+                            new KeyValue(
+                                    wrapper.opacityProperty(),
+                                    0,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    wrapper.scaleXProperty(),
+                                    0.8,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    wrapper.scaleYProperty(),
+                                    0.8,
+                                    Interpolator.EASE_BOTH
+                            )
+                    ),
+                    new KeyFrame(
+                            Duration.seconds(2),
+                            new KeyValue(
+                                    wrapper.opacityProperty(),
+                                    1,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    wrapper.scaleXProperty(),
+                                    1,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    wrapper.scaleYProperty(),
+                                    1,
+                                    Interpolator.EASE_BOTH
+                            )
+                    )
+            );
+            onStageShow.setCycleCount(1);
+            onStageShow.setAutoReverse(false);
+
+            onStageExit = new Timeline(
+                    new KeyFrame(
+                            Duration.millis(100),
+                            new KeyValue(
+                                    wrapper.opacityProperty(),
+                                    1,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    wrapper.scaleXProperty(),
+                                    1,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    wrapper.scaleYProperty(),
+                                    1,
+                                    Interpolator.EASE_BOTH
+                            )
+                    ),
+                    new KeyFrame(
+                            Duration.seconds(1),
+                            new KeyValue(
+                                    wrapper.opacityProperty(),
+                                    0,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    wrapper.scaleXProperty(),
+                                    0.8,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    wrapper.scaleYProperty(),
+                                    0.8,
+                                    Interpolator.EASE_BOTH
+                            )
+                    )
+            );
+            onStageExit.setCycleCount(1);
+            onStageExit.setAutoReverse(false);
+
             stage.show();
+            onStageShow.setOnFinished(event -> {
+                onStageShow.getKeyFrames().clear();
+                onStageShow.getKeyFrames().addAll(
+                        new KeyFrame(
+                                Duration.millis(100),
+                                new KeyValue(
+                                        wrapper.opacityProperty(),
+                                        0,
+                                        Interpolator.EASE_BOTH
+                                ),
+                                new KeyValue(
+                                        wrapper.scaleXProperty(),
+                                        0.8,
+                                        Interpolator.EASE_BOTH
+                                ),
+                                new KeyValue(
+                                        wrapper.scaleYProperty(),
+                                        0.8,
+                                        Interpolator.EASE_BOTH
+                                )
+                        ),
+                        new KeyFrame(
+                                Duration.seconds(1),
+                                new KeyValue(
+                                        wrapper.opacityProperty(),
+                                        1,
+                                        Interpolator.EASE_BOTH
+                                ),
+                                new KeyValue(
+                                        wrapper.scaleXProperty(),
+                                        1,
+                                        Interpolator.EASE_BOTH
+                                ),
+                                new KeyValue(
+                                        wrapper.scaleYProperty(),
+                                        1,
+                                        Interpolator.EASE_BOTH
+                                )
+                        ));
+                onStageShow.setOnFinished(event1 -> {});
+            });
+            onStageShow.playFromStart();
+
             StableMain.splashScreen.setVisible(false);
         }
-        else{
+        else {
             SimpleDialog dialog = new SimpleDialog(
                     StableMain.manager.get("ui.system.check.title"),
                     StableMain.manager.get("ui.system.check.content"),
@@ -190,7 +328,7 @@ public class Launcher {
         if (caller.getCanMovePage()) {
             configReader.write();
             last.onExitPage();
-            Runnable r = () -> {
+            last.out.setOnFinished(event -> {
                 last = n;
                 setPageCore();
                 last.in.play();
@@ -199,8 +337,7 @@ public class Launcher {
                 last.refreshType();
 
                 refresh();
-            };
-            last.out.setOnFinished(event -> r.run());
+            });
             last.out.play();
         }
     }
@@ -224,11 +361,13 @@ public class Launcher {
         close.setGraphic(getSVGManager().close(ThemeManager.createPaintBinding(), t_size / 3 * 2, t_size / 3 * 2));
         close.setButtonType(JFXButton.ButtonType.RAISED);
         close.setOnAction(event -> {
-            last.out.setOnFinished(event1 -> {
+            onStageShow.stop();
+            onStageExit.setOnFinished(event1 -> {
                 stage.close();
+                Platform.exit();
                 System.exit(0);
             });
-            last.out.play();
+            onStageExit.playFromStart();
         });
         Rectangle rect = new Rectangle(t_size / 2.5, t_size / 15, Color.BLACK);
         rect.fillProperty().bind(ThemeManager.createPaintBinding());
@@ -238,7 +377,17 @@ public class Launcher {
         min.setPrefHeight(t_size / 2.5);
         min.setGraphic(rect);
         min.setButtonType(JFXButton.ButtonType.RAISED);
-        min.setOnAction(event -> Launcher.stage.setIconified(true));
+        min.setOnAction(event -> {
+            onStageShow.stop();
+            onStageExit.setOnFinished(event12 -> Launcher.stage.setIconified(true));
+            onStageExit.playFromStart();
+        });
+
+        Launcher.stage.iconifiedProperty().addListener((observable, oldValue, newValue) -> {
+            (newValue ? onStageShow : onStageExit).stop();
+            wrapper.setOpacity(oldValue ? 0 : 1);
+            (newValue ? onStageExit : onStageShow).playFromStart();
+        });
 
         back.setPrefWidth(t_size / 2.5);
         back.setPrefHeight(t_size / 2.5);
@@ -248,7 +397,7 @@ public class Launcher {
         ln = new Label();
         ln.setFont(Fonts.s_f);
         if (lpa == null) back.setDisable(true);
-        else{
+        else {
             back.setOnAction(event -> {
                 configReader.write();
                 setPage(lpa, lpa);

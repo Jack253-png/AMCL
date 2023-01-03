@@ -181,7 +181,9 @@ public class FileUtils {
         return null;
     }
     private static Vector<File> getJavaExecutableInPath() {
-        String[] arg = System.getenv("Path").split(File.pathSeparator);
+        String path_env = System.getenv("Path");
+        if (path_env == null) return new Vector<>();
+        String[] arg = path_env.split(File.pathSeparator);
         Vector<Thread> threads = new Vector<>();
         CountDownLatch latch = new CountDownLatch(arg.length);
         Vector<File> paths = new Vector<>();

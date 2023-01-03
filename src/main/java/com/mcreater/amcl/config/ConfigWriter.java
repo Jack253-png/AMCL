@@ -77,7 +77,6 @@ public class ConfigWriter {
             Vector<File> files = FileUtils.getJavaTotal();
             Vector<String> stringPaths = new Vector<>();
             files.forEach(file -> stringPaths.add(file.getAbsolutePath()));
-            System.out.println(stringPaths);
             configModel.selected_java.addAll(stringPaths);
         }
 
