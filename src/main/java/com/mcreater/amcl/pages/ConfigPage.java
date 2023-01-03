@@ -22,8 +22,6 @@ import com.mcreater.amcl.util.java.JavaInfoGetter;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -37,7 +35,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -141,18 +138,23 @@ public class ConfigPage extends AbstractMenuBarPage {
         java_find.setFont(Fonts.t_f);
         java_find.setOnAction(event -> {
             java_find.setDisable(true);
-            try {
-                Vector<File> f = FileUtils.getJavaTotal();
-                Vector<String> fina = new Vector<>();
-                f.forEach(file -> {
-                    if (!Launcher.configReader.configModel.selected_java.contains(file.getAbsolutePath())) {
-                        fina.add(file.getAbsolutePath());
-                    }
-                });
-                Launcher.configReader.configModel.selected_java.addAll(fina);
-            }
-            catch (Exception ignored) {}
-            java_find.setDisable(false);
+            new Thread(() -> {
+                try {
+                    Vector<File> f = FileUtils.getJavaTotal();
+                    Vector<String> fina = new Vector<>();
+                    f.forEach(file -> {
+                        if (!Launcher.configReader.configModel.selected_java.contains(file.getAbsolutePath())) {
+                            fina.add(file.getAbsolutePath());
+                        }
+                    });
+                    Launcher.configReader.configModel.selected_java.addAll(fina);
+                    FXUtils.Platform.runLater(this::load_java_list);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                java_find.setDisable(false);
+            }).start();
         });
 
         item4 = new MuiltButtonListItem<>("", this.width / 4 * 3 - 10);
@@ -262,7 +264,7 @@ public class ConfigPage extends AbstractMenuBarPage {
 
         p.getChildren().addAll(bar1, bar2);
 
-        FXUtils.ControlSize.setAll(width / 5 * 3, 3, p, bar1, bar2);
+        FXUtils.ControlSize.setAll((double) width / 5 * 3, 3, p, bar1, bar2);
 
         configs_box = new VBox(item, item2, item4, item5, item6, vo);
         configs_box.setSpacing(10);
@@ -316,9 +318,8 @@ public class ConfigPage extends AbstractMenuBarPage {
             item4.cont.getSelectionModel().select(Launcher.configReader.configModel.selected_java.indexOf(Launcher.configReader.configModel.selected_java_index));
         }
         else {
-            item4.cont.getSelectionModel().clearSelection();
+            item4.cont.getSelectionModel().selectFirst();
         }
-        System.out.println(item4.cont.getItems());
     }
     public void refresh(){
         p1.set(this.opacityProperty());
@@ -344,7 +345,7 @@ public class ConfigPage extends AbstractMenuBarPage {
     public void refreshType(){
         java_add.setGraphic(Launcher.getSVGManager().plus(ThemeManager.createPaintBinding(), 15, 15));
         java_get.setGraphic(Launcher.getSVGManager().dotsHorizontal(ThemeManager.createPaintBinding(), 15, 15));
-        java_find.setGraphic(Launcher.getSVGManager().export(ThemeManager.createPaintBinding(), 15, 15));
+        java_find.setGraphic(Launcher.getSVGManager().back(ThemeManager.createPaintBinding(), 15, 15));
     }
 
     public void onExitPage() {

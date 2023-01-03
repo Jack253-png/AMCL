@@ -19,11 +19,9 @@ import com.mcreater.amcl.model.ArgItemModel;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.nativeInterface.EnumWindow;
-import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
-import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.taskmanager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
@@ -171,7 +169,6 @@ public class LaunchCore {
                         }
                     }
                     File st = new File(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)));
-                    System.out.printf("Lib %s: %s\n", st, st.exists());
                     if (st.exists()) {
                         if (!libs.contains(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)))) {
                             if (l.name.contains("org.apache.logging.log4j:log4j-api:2.8.1") || l.name.contains("org.apache.logging.log4j:log4j-core:2.8.1")) {

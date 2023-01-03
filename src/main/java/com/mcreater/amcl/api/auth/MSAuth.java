@@ -260,7 +260,6 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             client.openConnection();
             client.conn.setRequestProperty("Authorization", String.format("Bearer %s", mcAccessToken));
             String json = client.read();
-            System.out.println(json);
             return GSON_PARSER.fromJson(json, McProfileModel.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
