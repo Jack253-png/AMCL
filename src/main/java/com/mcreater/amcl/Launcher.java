@@ -92,7 +92,6 @@ public class Launcher {
     public static JFXButton close;
     public static JFXButton min;
     public static JFXButton back;
-    public static AboutDialog aboutDialog;
     public static Pane wrapper = new Pane();
     public static final SimpleDoubleProperty radius = new SimpleDoubleProperty(30);
     public static VBox top = new VBox();
@@ -167,7 +166,6 @@ public class Launcher {
                     VersionChecker.check((s, aBoolean) -> FXUtils.Platform.runLater(() -> PopupMessage.createMessage(s, aBoolean ? PopupMessage.MessageTypes.HYPERLINK : PopupMessage.MessageTypes.LABEL, aBoolean ? event -> new UpgradePage().open() : null)));
                 }
             }.start();
-            aboutDialog = new AboutDialog();
 
             Rectangle rect = FXUtils.generateRect(width, height, 0);
             rect.arcWidthProperty().bind(Launcher.radius);
@@ -261,7 +259,7 @@ public class Launcher {
         about.setPrefHeight(t_size / 2.5);
         about.setGraphic(getSVGManager().dotsVertical(ThemeManager.createPaintBinding(), barSize / 3 * 2, barSize / 3 * 2));
         about.setButtonType(JFXButton.ButtonType.RAISED);
-        about.setOnAction(event -> aboutDialog.Create());
+        about.setOnAction(event -> new AboutDialog().Create());
 
         setTitle();
         FXUtils.ControlSize.setAll(t_size / 6 * 5, t_size / 6 * 5, about, back, min, close);

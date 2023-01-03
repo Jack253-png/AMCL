@@ -45,8 +45,8 @@ public class AdvancedScrollPane extends ScrollPane implements SettingsAnimationP
         }
         this.width = width;
         this.height = height;
-        this.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
-        this.setHbarPolicy(ScrollBarPolicy.NEVER);
+        this.setVbarPolicy(neededHeight ? ScrollBarPolicy.NEVER : ScrollBarPolicy.AS_NEEDED);
+        this.setHbarPolicy(neededWidth ? ScrollBarPolicy.NEVER : ScrollBarPolicy.AS_NEEDED);
         this.content = content;
         init();
         JFXSmoothScroll.smoothScrolling(this, 0.8);

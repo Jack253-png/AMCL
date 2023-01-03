@@ -29,7 +29,8 @@ ui.configpage.mem_label.name=内存(MB)
 ui.configpage.java_label.name=选择 Java
 ui.configpage.java_add.name=添加
 ui.configpage.java_choose.title=选择 Java 可执行文件
-ui.configpage.java_choose.filename.description=Java 可执行文件
+ui.configpage.java_choose.filename.description=Windows 可执行文件
+ui.configpage.java_choose.filename.description2=UNIX 可执行文件
 ui.configpage.java_get.name=获取
 ui.configpage.java_info.title=Java 信息
 ui.configpage.java_info.Headercontent=版本 = %s\n位数 = %s
@@ -238,3 +239,4 @@ ui.versioninfopage.mod.load.fail=Mod 加载失败
 ui.mslogin.token=在打开的浏览器中输入设备代码 %s, 然后登录您的微软账号.如果默认浏览器没有打开，你能自己打开浏览器并输入网址 %s.
 ui.configpage.menu._02=外观设置
 ui.configpage.item7.name=启用模糊效果
+ui.userselectpage.msaccount.skin.upload=上传皮肤

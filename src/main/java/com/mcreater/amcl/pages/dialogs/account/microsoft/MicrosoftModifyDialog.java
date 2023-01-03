@@ -3,17 +3,24 @@ package com.mcreater.amcl.pages.dialogs.account.microsoft;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
+import com.mcreater.amcl.controls.items.radio.RadioButtonGroupH;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 
 import static com.mcreater.amcl.Launcher.stage;
 
 public class MicrosoftModifyDialog extends AbstractDialog {
     JFXButton finish;
+    JFXButton upload;
+    RadioButtonGroupH base_model;
+    VBox content;
+    AdvancedScrollPane pane;
     public void setFinish(EventHandler<ActionEvent> handler) {
         finish.setOnAction(handler);
     }
@@ -28,9 +35,20 @@ public class MicrosoftModifyDialog extends AbstractDialog {
         finish = new JFXButton(Launcher.languageManager.get("ui.dialogs.information.ok.name"));
         finish.setFont(Fonts.t_f);
 
+        upload = new JFXButton(Launcher.languageManager.get("ui.userselectpage.msaccount.skin.upload"));
+        upload.setFont(Fonts.t_f);
+
+        base_model = new RadioButtonGroupH("Steve", "Alex");
+
+        content = new VBox(upload, base_model);
+        content.setSpacing(10);
+
+        pane = new AdvancedScrollPane(400, 300, content, false);
+
         ThemeManager.loadNodeAnimations(label, finish);
 
         layout.setHeading(label);
+        layout.setBody(pane);
         layout.setActions(finish);
         setContent(layout);
     }

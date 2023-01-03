@@ -104,7 +104,7 @@ public class ConfigPage extends AbstractMenuBarPage {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle(Launcher.languageManager.get("ui.configpage.java_choose.title"));
             fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter(Launcher.languageManager.get("ui.configpage.java_choose.filename.description"), "java.exe"),
-                    new FileChooser.ExtensionFilter("UNIX Executable", "java"));
+                    new FileChooser.ExtensionFilter(Launcher.languageManager.get("ui.configpage.java_choose.filename.description2"), "java"));
             File choosed_path = fileChooser.showOpenDialog(Launcher.stage);
             if (choosed_path != null) {
                 if (!Launcher.configReader.configModel.selected_java.contains(choosed_path.getPath())) {
