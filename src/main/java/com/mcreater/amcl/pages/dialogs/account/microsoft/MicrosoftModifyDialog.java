@@ -8,10 +8,12 @@ import com.mcreater.amcl.controls.items.radio.RadioButtonGroupH;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
+import com.sun.jna.platform.win32.User32;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import oshi.jna.platform.mac.CoreGraphics;
 
 import static com.mcreater.amcl.Launcher.stage;
 

@@ -485,10 +485,9 @@ public class LaunchCore {
                 throw new ProcessException(e);
             }
             new Thread(() -> {
-                while (true) {
-                    if (!p.isAlive()) break;
-                    if (EnumWindow.getTaskPID().contains(J8Utils.getProcessPid(p))) {
-                        MainPage.logger.info("Window Showed");
+                while (EnumWindow.enumWindowEnabled() && p.isAlive()) {
+                    if (EnumWindow.getTaskPidContains(J8Utils.getProcessPid(p))) {
+                        logger.info("Window Showed");
                         failedRunnable.run();
                         break;
                     }
@@ -516,13 +515,13 @@ public class LaunchCore {
             throw new ProcessException(e);
         }
     }
-    public void readProcessOutput(final Process process) {
+    private void readProcessOutput(final Process process) {
         if (process != null) {
             new Thread(() -> read(process.getInputStream(), System.out)).start();
             new Thread(() -> read(process.getErrorStream(), System.err)).start();
         }
     }
-    public void read(InputStream inputStream, PrintStream out) {
+    private void read(InputStream inputStream, PrintStream out) {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("GBK")));
             String line;
@@ -533,7 +532,7 @@ public class LaunchCore {
                 line.contains("LWJGL Version") ||
                 line.contains("Turning of ImageIO disk-caching") ||
                 line.contains("Loading current icons for window from:")){
-                    if (ClassPathInjector.version <= 8 || OSInfo.isLinux()) failedRunnable.run();
+                    if (!EnumWindow.enumWindowEnabled()) failedRunnable.run();
                 }
             }
         } catch (IOException e) {

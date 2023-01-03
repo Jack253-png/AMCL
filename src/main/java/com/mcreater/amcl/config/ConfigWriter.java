@@ -80,12 +80,15 @@ public class ConfigWriter {
             configModel.selected_java.addAll(stringPaths);
         }
 
+        boolean contained = false;
         for (String s : configModel.selected_java) {
             if (s.equals(configModel.selected_java_index)) {
-                configModel.selected_java_index = "";
+                contained = true;
                 break;
             }
         }
+
+        if (!contained) configModel.selected_java_index = "";
 
         write();
     }
