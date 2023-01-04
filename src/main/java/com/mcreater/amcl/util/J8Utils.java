@@ -76,14 +76,7 @@ public class J8Utils {
             return (long) m.invoke(process);
         }
         catch (Exception e){
-            try {
-                Field f = process.getClass().getDeclaredField("pid");
-                f.setAccessible(true);
-                return f.getLong(process);
-            }
-            catch (Exception e2){
-                return -1;
-            }
+            return -1;
         }
     }
     public static String repeat(String s, int r){

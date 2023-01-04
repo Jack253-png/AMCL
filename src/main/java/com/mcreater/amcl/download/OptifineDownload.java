@@ -98,7 +98,9 @@ public class OptifineDownload {
                     new Object[]{id, ofEd, new File(LinkPath.link(minecraft_dir, "libraries"))},
                     String.class, String.class, File.class);
         }
-        catch (Exception ignored){}
+        catch (Exception ignored){
+
+        }
 
         // extract optifine json
         jar.invokeMethod(
@@ -109,12 +111,6 @@ public class OptifineDownload {
 
         // merge json
         JSONObject f = new JSONObject(GSON_PARSER.fromJson(FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)), Map.class));
-        Vector<Map<String, String>> oflibs = new Vector<>();
-        for (Object o : f.getJSONArray("libraries")){
-            oflibs.add((Map<String, String>) o);
-        }
-        f.getJSONArray("libraries").clear();
-        f.getJSONArray("libraries").addAll(oflibs);
         for (Object o : ob.getJSONArray("libraries")){
             f.getJSONArray("libraries").add(o);
         }

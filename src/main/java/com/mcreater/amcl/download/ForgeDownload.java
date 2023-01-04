@@ -108,7 +108,7 @@ public class ForgeDownload {
             if (model.minecraftArguments != null){
                 ao.put("minecraftArguments", model.minecraftArguments);
             }
-            else{
+            else {
                 for (Object o : model.arguments.game){
                     ao.getJSONObject("arguments").getJSONArray("game").put(o.toString());
                 }
@@ -125,7 +125,9 @@ public class ForgeDownload {
             ForgeInjectModel model1 = GSON_PARSER.fromJson(FileUtils.FileStringReader.read(FileUtils.LinkPath.link(temp_path, "install_profile.json")), ForgeInjectModel.class);
             for (LibModel m1 : model1.libraries){
                 createDirectory(FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")));
-                tasks.add(new LibDownloadTask(FasterUrls.fast(m1.downloads.artifact.get("url"), server), FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")), chunkSize).setHash(m1.downloads.artifact.get("sha1")));
+                if (!Objects.equals(m1.downloads.artifact.get("url"), "")) {
+                    tasks.add(new LibDownloadTask(FasterUrls.fast(m1.downloads.artifact.get("url"), server), FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")), chunkSize).setHash(m1.downloads.artifact.get("sha1")));
+                }
             }
             TaskManager.addTasks(tasks);
             TaskManager.execute("<forge>");

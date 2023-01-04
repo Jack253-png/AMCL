@@ -9,6 +9,7 @@ import com.mcreater.amcl.model.original.VersionModel;
 import com.mcreater.amcl.model.original.VersionsModel;
 import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.tasks.AssetsDownloadTask;
+import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.LibDownloadTask;
 import com.mcreater.amcl.tasks.NativeDownloadTask;
 import com.mcreater.amcl.tasks.Task;
@@ -96,9 +97,11 @@ public class OriginalDownload {
         createDirectoryDirect(assets_objects);
         String result = HttpConnectionUtil.doGet(FasterUrls.fast(model.assetIndex.get("url"), server));
         String assets_index_path = LinkPath.link(assets_indexes, model.assetIndex.get("id") + ".json");
-        BufferedWriter bw = new BufferedWriter(new FileWriter(assets_index_path));
-        bw.write(result);
-        bw.close();
+        if (!FileUtils.HashHelper.validateSHA1(new File(assets_index_path), model.assetIndex.get("sha1"))) {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(assets_index_path));
+            bw.write(result);
+            bw.close();
+        }
 
         AssetsModel m = GSON_PARSER.fromJson(result, AssetsModel.class);
         for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()){

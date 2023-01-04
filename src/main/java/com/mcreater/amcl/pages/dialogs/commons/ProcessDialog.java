@@ -28,7 +28,6 @@ public class ProcessDialog extends AbstractDialog {
         b.setSpacing(10);
         for (int i = 0;i < process_num;i++){
             com.jfoenix.controls.JFXProgressBar bar = JFXProgressBar.createProgressBar(0);
-            bar.setId("game-memory");
             progresses.add(bar);
             b.getChildren().add(bar);
             ThemeManager.loadNodeAnimations(bar);

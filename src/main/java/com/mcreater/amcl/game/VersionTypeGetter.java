@@ -50,7 +50,10 @@ public class VersionTypeGetter {
     }
 
     public static boolean modded(String dir, String version){
-        return get(dir, version) == VersionType.FABRIC || get(dir, version) == VersionType.FORGE || get(dir, version) == VersionType.OPTIFINE || get(dir, version) == VersionType.QUILT;
+        VersionType type = get(dir, version);
+        return type == VersionType.FABRIC ||
+                type == VersionType.FORGE ||
+                type == VersionType.QUILT;
     }
     public static VersionType get(String dir, String version){
         VersionJsonModel v = getVersionModel(dir, version);

@@ -30,6 +30,7 @@ import com.mcreater.amcl.util.FileUtils.ZipUtil;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.JsonUtils;
 import com.mcreater.amcl.util.LogLineDetecter;
+import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.java.JVMArgs;
 import com.mcreater.amcl.util.net.FasterUrls;
@@ -65,6 +66,7 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.download.OriginalDownload.checkAllowState;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
@@ -130,6 +132,8 @@ public class LaunchCore {
         String json_result = FileUtils.FileStringReader.read(json_file.getPath());
         VersionJsonModel r = GSON_PARSER.fromJson(json_result, VersionJsonModel.class);
 
+        System.out.println(r.javaVersion);
+
         File libf = new File(LinkPath.link(dir, "libraries"));
         if (!libf.exists()) {
             throw new BadLibDirException();
@@ -169,6 +173,7 @@ public class LaunchCore {
                         }
                     }
                     File st = new File(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)));
+
                     if (st.exists()) {
                         if (!libs.contains(LinkPath.link(libf.getPath(), MavenPathConverter.get(l.name)))) {
                             if (l.name.contains("org.apache.logging.log4j:log4j-api:2.8.1") || l.name.contains("org.apache.logging.log4j:log4j-core:2.8.1")) {
@@ -177,7 +182,7 @@ public class LaunchCore {
                                     createDirectory(local);
                                     String server = FasterUrls.fast(l.downloads.artifact.get("url"), dlserver).replace("2.8.1", "2.15.0");
                                     if (!FileUtils.HashHelper.validateSHA1(new File(local), l.downloads.artifact.get("sha1"))) {
-                                        new DownloadTask(server, local, 1024).setHash(l.downloads.artifact.get("sha1")).execute();
+                                        new DownloadTask(server, local, chunkSize).setHash(l.downloads.artifact.get("sha1")).execute();
                                     }
                                     libs.add(local);
                                 } else {
@@ -219,7 +224,7 @@ public class LaunchCore {
         classpath.append(jar_file);
 
         argList.add("-Xmn256m");
-        argList.add("-Xmx" + memory + "m");
+        argList.add(String.format("-Xmx%dm", memory));
         Vector<String> arguList = new Vector<>();
 
         if (r.minecraftArguments != null) {
@@ -258,7 +263,7 @@ public class LaunchCore {
                                         arguList.add((String) model.value);
                                     }
                                     else if (model.value instanceof List<?>) {
-                                        arguList.addAll((List<String>) model.value);
+                                        ((List<?>) model.value).forEach(o -> arguList.add(o.toString()));
                                     }
                                 }
                             }
@@ -268,12 +273,7 @@ public class LaunchCore {
             }
         }
 
-        File gamedir;
-        if (ie) {
-            gamedir = f;
-        } else {
-            gamedir = new File(dir);
-        }
+        File gamedir = ie ? f : new File(dir);
         String id = "pre-1.6";
         if (r.assetIndex != null) {
             if (r.assetIndex.get("id") != null) {
@@ -282,7 +282,6 @@ public class LaunchCore {
         }
 
         Map<String, String> content = new HashMap<>();
-//        String old_assets = LinkPath.link(dir, "assets/virtual/" + id);
         String old_assets = LinkPath.link(gamedir.getAbsolutePath(), "resources");
 
         if (Objects.equals(id, "pre-1.6")) {
@@ -341,17 +340,7 @@ public class LaunchCore {
 
         Vector<String> finalArguList = new Vector<>();
 
-        for (String s : arguList) {
-            boolean isRepd = false;
-            for (Map.Entry<String, String> entry : content.entrySet()) {
-                if (s.contains(entry.getKey())) {
-                    finalArguList.add(s.replace(entry.getKey(), entry.getValue()));
-                    isRepd = true;
-                    break;
-                }
-            }
-            if (!isRepd) finalArguList.add(s);
-        }
+        arguList.forEach(s -> finalArguList.add(StringUtils.ArgReplace.replace(s, content)));
 
         Vector<String> jvmArguList = new Vector<>();
 
@@ -385,7 +374,7 @@ public class LaunchCore {
                 if (o instanceof String) {
                     String te = (String) o;
                     te = te.replace("${version_name}", version_name)
-                            .replace("${library_directory}", libf.getAbsolutePath().endsWith("/") ? libf.getAbsolutePath().substring(0, libf.getAbsolutePath().length()) : libf.getAbsolutePath())
+                            .replace("${library_directory}", libf.getAbsolutePath())
                             .replace("${classpath_separator}", File.pathSeparator)
                             .replace("${natives_directory}", nativef.getAbsolutePath())
                             .replace("${launcher_brand}", VersionInfo.launcher_name).replace("${launcher_version}", VersionInfo.launcher_version)
@@ -554,8 +543,8 @@ public class LaunchCore {
             while ((line = reader.readLine()) != null) {
                 LogLineDetecter.printLog(line, out);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
+
         } finally {
             try {
                 stream.close();
@@ -572,8 +561,8 @@ public class LaunchCore {
             while ((line = reader.readLine()) != null) {
                 f.append(line).append("\n");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
+
         } finally {
             try {
                 inputStream.close();

@@ -61,16 +61,16 @@ public class MinecraftFixer {
         String assets_root = LinkPath.link(minecraft_dir, "assets");
         String assets_objects = LinkPath.link(assets_root, "objects");
         createDirectoryDirect(assets_objects);
-        if (!HashHelper.validateSHA1(new File(index), model.assetIndex.get("sha1"))){
+        if (!HashHelper.validateSHA1(new File(index), model.assetIndex.get("sha1"))) {
             new DownloadTask(FasterUrls.fast(model.assetIndex.get("url"), server), index, chunk).execute();
         }
         AssetsModel m = GSON_PARSER.fromJson(FileStringReader.read(index), AssetsModel.class);
-        for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()){
+        for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()) {
             String hash = entry.getValue().get("hash");
             String s = String.format("%s/%s/%s", assets_objects, hash.substring(0, 2), hash).replace("\\", "/");
             if (!HashHelper.validateSHA1(new File(s), hash)) {
                 boolean contained = false;
-                for (Task task : tasks){
+                for (Task task : tasks) {
                     if (task instanceof AbstractDownloadTask) {
                         if (Objects.equals(((AbstractDownloadTask) task).local, s)) {
                             contained = true;

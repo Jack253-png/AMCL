@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Vector;
 
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
+import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
 
 public class ForgeExtractTask extends AbstractExecutableTask {
     public Integer exit = null;
@@ -45,8 +46,8 @@ public class ForgeExtractTask extends AbstractExecutableTask {
     public int old_ex() throws IOException {
         copy();
         Process p = Runtime.getRuntime().exec(command.toArray(new String[0]));
-        while (true){
-            try{
+        while (true) {
+            try {
                 System.out.println(LaunchCore.ret(p.getInputStream()));
                 System.out.println(LaunchCore.ret(p.getErrorStream()));
                 copy();
@@ -58,11 +59,11 @@ public class ForgeExtractTask extends AbstractExecutableTask {
             }
         }
     }
-    public void copy(){
+    public void copy() {
         List<String> files = getAllFile("forgeTemp/maven/net/minecraftforge");
         files.forEach(s -> {
-            String loc = LinkPath.link(extractPath, getFileName(s));
-            createDirectory(loc);
+            String loc = LinkPath.link(extractPath, new File(s).getName());
+            createDirectoryDirect(extractPath);
             try {
                 FileChannel output = new FileOutputStream(loc).getChannel();
                 try (FileChannel input = new FileInputStream(s).getChannel()){
@@ -75,11 +76,8 @@ public class ForgeExtractTask extends AbstractExecutableTask {
             }
         });
     }
-    public String getFileName(String p){
-        List<String> f = J8Utils.createList(p.split("\\\\"));
-        return f.get(f.size() - 1);
-    }
-    public List<String> getAllFile(String p){
+
+    public List<String> getAllFile(String p) {
         List<String> list = new ArrayList<>();
         File baseFile = new File(p);
         File[] files = baseFile.listFiles();

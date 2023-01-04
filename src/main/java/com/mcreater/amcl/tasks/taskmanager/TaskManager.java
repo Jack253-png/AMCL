@@ -84,7 +84,7 @@ public abstract class TaskManager {
                                 latch.countDown();
                                 break;
                             } catch (Throwable e1) {
-                                e1.printStackTrace();
+//                                e1.printStackTrace();
                             }
                         }
 

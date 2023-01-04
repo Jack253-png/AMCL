@@ -82,7 +82,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         modsMenu.setFont(Fonts.s_f);
         FXUtils.ControlSize.setWidth(modsMenu, this.width / 4);
         modsMenu.setOnAction(event -> {
-            if (!ModHelper.isModded(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index)) {
+            if (!VersionTypeGetter.modded(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index)) {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.versioninfopage.unModded.title"), Launcher.languageManager.get("ui.versioninfopage.unModded.content"), "");
             }
             else {

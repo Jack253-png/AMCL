@@ -128,7 +128,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                     types.add(m.type);
                 }
             }
-            JFXSmoothScroll.smoothScrollBarToValue(bar, -1.0D);
+            Platform.runLater(() -> bar.setProgress(-1.0D));
             AtomicInteger loaded = new AtomicInteger();
             for (String t : types) {
                 TitledPane pane = new TitledPane();
@@ -226,5 +226,10 @@ public class DownloadMcPage extends AbstractAnimationPage {
 
     public void onExitPage() {
         service.stop();
+    }
+    public void clearNodes() {
+        mainBox.getChildren().clear();
+        mainBox.getChildren().add(bar);
+        inited = false;
     }
 }

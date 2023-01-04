@@ -46,7 +46,6 @@ public class ForgePatchTask extends AbstractExecutableTask {
                 )
         );
         command.addAll(Arrays.asList(args_array));
-        System.out.println(command);
 
         this.jar = mainjar;
         this.args_array = args_array;

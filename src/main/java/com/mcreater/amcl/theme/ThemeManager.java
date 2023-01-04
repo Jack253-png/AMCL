@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,8 +37,8 @@ import static com.mcreater.amcl.Launcher.pages;
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
 
 public class ThemeManager {
-    public static String themeName = "dark";
-    public static final SimpleObjectProperty<Color> themeIconDark = new SimpleObjectProperty<>(Color.BLACK);
+    public static String themeName = "default";
+    public static final SimpleObjectProperty<Color> themeIconDark = new SimpleObjectProperty<>(Color.WHITESMOKE);
     static Logger logger = LogManager.getLogger(ThemeManager.class);
     static Vector<JFXButton> buttons = new Vector<>();
     static Map<Parent, String> simpleParentsConstable = new ConcurrentHashMap<>();
@@ -165,20 +166,21 @@ public class ThemeManager {
         return "assets/themes/" + ThemeManager.themeName + "/%s.css";
     }
 
-    public static ArrayList<Node> GetAllNodes(Parent root){
-        ArrayList<Node> Descendents = new ArrayList<>();
+    public static List<Node> GetAllNodes(Parent root){
+        List<Node> nodes = new Vector<>();
         root.getChildrenUnmodifiable().forEach(n -> {
-            if (!Descendents.contains(n)){
-                Descendents.add(n);
+            if (!nodes.contains(n)){
+                nodes.add(n);
             }
             if (n instanceof Pane){
-                Descendents.addAll(GetAllNodes((Pane) n));
+                nodes.addAll(GetAllNodes((Pane) n));
             }
         });
-        return Descendents;
+        return nodes;
     }
 
     public static void freshTheme() throws IllegalAccessException {
+        pages.forEach(AbstractAnimationPage::clearNodes);
         ThemeManager.apply(pages);
         ThemeManager.applyTopBar(Launcher.top);
         Launcher.setPageCore();

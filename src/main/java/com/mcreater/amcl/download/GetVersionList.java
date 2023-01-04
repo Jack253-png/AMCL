@@ -198,6 +198,8 @@ public class GetVersionList {
             }
             jars.sort((o1, o2) -> {
                 try {
+                    if (o1.isPreview && !o2.isPreview) return -1;
+                    if (!o1.isPreview && o2.isPreview) return 1;
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss");
                     Date date1 = sdf.parse(o1.time);
                     Date date2 = sdf.parse(o2.time);

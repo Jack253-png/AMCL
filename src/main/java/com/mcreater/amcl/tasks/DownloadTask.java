@@ -90,7 +90,6 @@ public class DownloadTask extends AbstractDownloadTask {
                 d();
             }
             catch (Exception e) {
-                e.printStackTrace();
                 J8Utils.runSafe(() -> fos.close());
                 clean();
                 execute();

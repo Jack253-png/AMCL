@@ -206,7 +206,7 @@ public class Launcher {
                             )
                     ),
                     new KeyFrame(
-                            Duration.seconds(2),
+                            Duration.seconds(2.5),
                             new KeyValue(
                                     wrapper.opacityProperty(),
                                     1,
@@ -214,7 +214,7 @@ public class Launcher {
                             )
                     ),
                     new KeyFrame(
-                            Duration.seconds(2.5),
+                            Duration.seconds(2),
                             new KeyValue(
                                     wrapper.scaleXProperty(),
                                     1,
@@ -250,7 +250,7 @@ public class Launcher {
                             )
                     ),
                     new KeyFrame(
-                            Duration.seconds(0.5),
+                            Duration.seconds(1),
                             new KeyValue(
                                     wrapper.opacityProperty(),
                                     0,
@@ -258,7 +258,7 @@ public class Launcher {
                             )
                     ),
                     new KeyFrame(
-                            Duration.seconds(1),
+                            Duration.seconds(0.5),
                             new KeyValue(
                                     wrapper.scaleXProperty(),
                                     0.8,
@@ -274,6 +274,9 @@ public class Launcher {
             onStageExit.setCycleCount(1);
             onStageExit.setAutoReverse(false);
 
+            wrapper.setOpacity(0);
+            wrapper.setScaleX(0.8);
+            wrapper.setScaleY(0.8);
             stage.show();
             playStageAnimation(false, () -> {});
 

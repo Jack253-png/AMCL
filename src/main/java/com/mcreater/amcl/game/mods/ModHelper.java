@@ -44,9 +44,6 @@ public class ModHelper {
         }
         return result;
     }
-    public static boolean isModded(String dir, String version_name){
-        return VersionTypeGetter.modded(dir, version_name);
-    }
     public static Vector<CommonModInfoModel> getModInfo(String path) throws Exception {
         String version = "";
         String name = "";

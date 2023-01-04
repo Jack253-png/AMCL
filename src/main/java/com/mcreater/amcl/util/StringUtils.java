@@ -3,6 +3,7 @@ package com.mcreater.amcl.util;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 
@@ -51,15 +52,12 @@ public class StringUtils {
             }
         }
     }
-    public static class LinkCommands {
-        public static String link(String... coms){
-            StringBuilder res = new StringBuilder();
-            for (String s : coms){
-                if (!(Objects.equals(s, "") || s == null)){
-                    res.append(s).append(" ");
-                }
+    public static class ArgReplace {
+        public static String replace(String arg, Map<String, String> content){
+            for (Map.Entry<String, String> entry : content.entrySet()) {
+                if (arg.contains(entry.getKey())) return arg.replace(entry.getKey(), entry.getValue());
             }
-            return String.valueOf(res);
+            return arg;
         }
     }
 }
