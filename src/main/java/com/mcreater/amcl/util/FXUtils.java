@@ -256,6 +256,98 @@ public class FXUtils {
 
             return frames;
         }
+        public static Timeline generateNodeInAnimation(Node node) {
+            Timeline timeline = new Timeline(
+                    new KeyFrame(
+                            Duration.millis(100),
+                            new KeyValue(
+                                    node.opacityProperty(),
+                                    0,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    node.scaleXProperty(),
+                                    0.8,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    node.scaleYProperty(),
+                                    0.8,
+                                    Interpolator.EASE_BOTH
+                            )
+                    ),
+                    new KeyFrame(
+                            Duration.seconds(2),
+                            new KeyValue(
+                                    node.opacityProperty(),
+                                    1,
+                                    Interpolator.EASE_BOTH
+                            )
+                    ),
+                    new KeyFrame(
+                            Duration.seconds(2.5),
+                            new KeyValue(
+                                    node.scaleXProperty(),
+                                    1,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    node.scaleYProperty(),
+                                    1,
+                                    Interpolator.EASE_BOTH
+                            )
+                    )
+            );
+            timeline.setCycleCount(1);
+            timeline.setAutoReverse(false);
+            return timeline;
+        }
+        public static Timeline generateNodeOutAnimation(Node node) {
+            Timeline timeline = new Timeline(
+                    new KeyFrame(
+                            Duration.millis(50),
+                            new KeyValue(
+                                    node.opacityProperty(),
+                                    1,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    node.scaleXProperty(),
+                                    1,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    node.scaleYProperty(),
+                                    1,
+                                    Interpolator.EASE_BOTH
+                            )
+                    ),
+                    new KeyFrame(
+                            Duration.seconds(1),
+                            new KeyValue(
+                                    node.opacityProperty(),
+                                    0,
+                                    Interpolator.EASE_BOTH
+                            )
+                    ),
+                    new KeyFrame(
+                            Duration.seconds(0.5),
+                            new KeyValue(
+                                    node.scaleXProperty(),
+                                    0.8,
+                                    Interpolator.EASE_BOTH
+                            ),
+                            new KeyValue(
+                                    node.scaleYProperty(),
+                                    0.8,
+                                    Interpolator.EASE_BOTH
+                            )
+                    )
+            );
+            timeline.setCycleCount(1);
+            timeline.setAutoReverse(false);
+            return timeline;
+        }
     }
     public static class ColorUtil {
         public static Color transparent(Color src, double op) {

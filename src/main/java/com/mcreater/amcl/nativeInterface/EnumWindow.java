@@ -3,19 +3,12 @@ package com.mcreater.amcl.nativeInterface;
 import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation;
-import com.sun.jna.platform.win32.Advapi32;
-import com.sun.jna.platform.win32.Advapi32Util;
-import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.Shell32;
 import com.sun.jna.platform.win32.User32;
-import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.ptr.IntByReference;
 import oshi.jna.platform.mac.CoreGraphics;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.sun.jna.platform.win32.WinReg.HKEY_CURRENT_USER;
 
 public class EnumWindow {
     public static boolean getTaskPidContains(long pid) {

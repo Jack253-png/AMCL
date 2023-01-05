@@ -66,7 +66,6 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import static com.mcreater.amcl.download.OriginalDownload.checkAllowState;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
@@ -370,17 +369,20 @@ public class LaunchCore {
                     JVMArgs.STDOUT_ENCODING,
                     JVMArgs.STDERR_ENCODING
             ));
+            Map<String, String> jvmContent = J8Utils.createMap(
+                    String.class, String.class,
+                    "${version_name}", version_name,
+                    "${library_directory}", libf.getAbsolutePath(),
+                    "${classpath_separator}", File.pathSeparator,
+                    "${natives_directory}", nativef.getAbsolutePath(),
+                    "${launcher_brand}", VersionInfo.launcher_name,
+                    "${launcher_version}", VersionInfo.launcher_version,
+                    "${launcher_name}", VersionInfo.launcher_name,
+                    "${classpath}", classpath.toString()
+            );
             for (Object o : r.arguments.jvm) {
                 if (o instanceof String) {
-                    String te = (String) o;
-                    te = te.replace("${version_name}", version_name)
-                            .replace("${library_directory}", libf.getAbsolutePath())
-                            .replace("${classpath_separator}", File.pathSeparator)
-                            .replace("${natives_directory}", nativef.getAbsolutePath())
-                            .replace("${launcher_brand}", VersionInfo.launcher_name).replace("${launcher_version}", VersionInfo.launcher_version)
-                            .replace("${launcher_name}", VersionInfo.launcher_name)
-                            .replace("${classpath}", classpath.toString());
-                    jvmArguList.add(te);
+                    jvmArguList.add(StringUtils.ArgReplace.replace(o.toString(), jvmContent));
                 }
             }
         } else {

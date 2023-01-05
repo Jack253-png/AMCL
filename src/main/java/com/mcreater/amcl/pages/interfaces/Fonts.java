@@ -3,7 +3,6 @@ package com.mcreater.amcl.pages.interfaces;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import javafx.scene.text.Font;
 
-import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Field;
 

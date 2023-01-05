@@ -10,8 +10,6 @@ import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.util.Map;
 
-import static java.util.stream.Collectors.toList;
-
 public class PosixHandler implements POSIXHandler {
     private boolean verbose = false;
     @Override

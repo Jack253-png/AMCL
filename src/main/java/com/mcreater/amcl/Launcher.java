@@ -31,16 +31,10 @@ import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import com.mcreater.amcl.util.svg.Icons;
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -62,8 +56,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
-import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -186,93 +178,8 @@ public class Launcher {
             rect.arcHeightProperty().bind(Launcher.radius);
             wrapper.setClip(rect);
 
-            onStageShow = new Timeline(
-                    new KeyFrame(
-                            Duration.millis(100),
-                            new KeyValue(
-                                    wrapper.opacityProperty(),
-                                    0,
-                                    Interpolator.EASE_BOTH
-                            ),
-                            new KeyValue(
-                                    wrapper.scaleXProperty(),
-                                    0.8,
-                                    Interpolator.EASE_BOTH
-                            ),
-                            new KeyValue(
-                                    wrapper.scaleYProperty(),
-                                    0.8,
-                                    Interpolator.EASE_BOTH
-                            )
-                    ),
-                    new KeyFrame(
-                            Duration.seconds(2.5),
-                            new KeyValue(
-                                    wrapper.opacityProperty(),
-                                    1,
-                                    Interpolator.EASE_BOTH
-                            )
-                    ),
-                    new KeyFrame(
-                            Duration.seconds(2),
-                            new KeyValue(
-                                    wrapper.scaleXProperty(),
-                                    1,
-                                    Interpolator.EASE_BOTH
-                            ),
-                            new KeyValue(
-                                    wrapper.scaleYProperty(),
-                                    1,
-                                    Interpolator.EASE_BOTH
-                            )
-                    )
-            );
-            onStageShow.setCycleCount(1);
-            onStageShow.setAutoReverse(false);
-
-            onStageExit = new Timeline(
-                    new KeyFrame(
-                            Duration.millis(50),
-                            new KeyValue(
-                                    wrapper.opacityProperty(),
-                                    1,
-                                    Interpolator.EASE_BOTH
-                            ),
-                            new KeyValue(
-                                    wrapper.scaleXProperty(),
-                                    1,
-                                    Interpolator.EASE_BOTH
-                            ),
-                            new KeyValue(
-                                    wrapper.scaleYProperty(),
-                                    1,
-                                    Interpolator.EASE_BOTH
-                            )
-                    ),
-                    new KeyFrame(
-                            Duration.seconds(1),
-                            new KeyValue(
-                                    wrapper.opacityProperty(),
-                                    0,
-                                    Interpolator.EASE_BOTH
-                            )
-                    ),
-                    new KeyFrame(
-                            Duration.seconds(0.5),
-                            new KeyValue(
-                                    wrapper.scaleXProperty(),
-                                    0.8,
-                                    Interpolator.EASE_BOTH
-                            ),
-                            new KeyValue(
-                                    wrapper.scaleYProperty(),
-                                    0.8,
-                                    Interpolator.EASE_BOTH
-                            )
-                    )
-            );
-            onStageExit.setCycleCount(1);
-            onStageExit.setAutoReverse(false);
+            onStageShow = FXUtils.AnimationUtils.generateNodeInAnimation(wrapper);
+            onStageExit = FXUtils.AnimationUtils.generateNodeOutAnimation(wrapper);
 
             wrapper.setOpacity(0);
             wrapper.setScaleX(0.8);
