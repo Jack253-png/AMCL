@@ -7,7 +7,7 @@ import com.mcreater.amcl.api.modApi.curseforge.mod.CurseModCategorieModel;
 import com.mcreater.amcl.api.modApi.curseforge.mod.CurseModModel;
 import com.mcreater.amcl.api.modApi.modrinth.mod.ModrinthModModel;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.util.operatingSystem.SystemActions;
+import com.mcreater.amcl.util.os.SystemActions;
 import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;

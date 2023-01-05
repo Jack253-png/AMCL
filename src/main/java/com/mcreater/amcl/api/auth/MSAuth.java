@@ -2,11 +2,10 @@ package com.mcreater.amcl.api.auth;
 
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
-import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.net.HttpClient;
-import com.mcreater.amcl.util.operatingSystem.SystemActions;
+import com.mcreater.amcl.util.os.SystemActions;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -25,7 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 

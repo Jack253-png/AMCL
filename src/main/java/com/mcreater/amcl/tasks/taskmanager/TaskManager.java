@@ -76,7 +76,7 @@ public abstract class TaskManager {
 
             updater.accept(0, String.format(lang.get(key), 0, tasks.size()));
             for (Task t : tasks) {
-                new Thread(String.format("pool %s task %s", t.pool.getName(), t.toString())) {
+                new Thread(String.format("Task %s", t.toString())) {
                     public void run() {
                         while (true) {
                             try {

@@ -12,7 +12,7 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
-import com.mcreater.amcl.util.operatingSystem.SystemActions;
+import com.mcreater.amcl.util.os.SystemActions;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;

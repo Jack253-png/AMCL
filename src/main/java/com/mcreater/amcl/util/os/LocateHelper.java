@@ -1,4 +1,4 @@
-package com.mcreater.amcl.util.operatingSystem;
+package com.mcreater.amcl.util.os;
 
 import java.util.Locale;
 

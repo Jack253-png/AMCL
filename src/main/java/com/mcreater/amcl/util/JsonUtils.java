@@ -8,13 +8,12 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.AbstractUser;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.api.auth.users.OffLineUser;
 import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.util.net.FasterUrls;
-import com.mcreater.amcl.util.operatingSystem.LocateHelper;
+import com.mcreater.amcl.util.os.LocateHelper;
 
 import java.io.File;
 import java.io.IOException;

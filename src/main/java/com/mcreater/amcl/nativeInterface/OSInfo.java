@@ -25,7 +25,7 @@ public class OSInfo {
         return contain_L(System.getProperty("os.arch"), "arm64", "aarch64", "armv8", "armv9");
     }
     public static boolean isArm32() {
-        return contain_L(System.getProperty("os.arch"), "arm32", "aarch32");
+        return contain_L(System.getProperty("os.arch"), "arm32", "aarch32") || System.getProperty("os.arch").equals("arm");
     }
     public static boolean isLoongarch() {
         return System.getProperty("os.name").toLowerCase().contains("loong");

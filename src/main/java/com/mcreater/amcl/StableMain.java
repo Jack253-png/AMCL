@@ -14,7 +14,7 @@ import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.SwingUtils;
 import com.mcreater.amcl.util.SystemPropertyParser;
 import com.mcreater.amcl.util.Timer;
-import com.mcreater.amcl.util.operatingSystem.LocateHelper;
+import com.mcreater.amcl.util.os.LocateHelper;
 import com.mcreater.amcl.util.parsers.DepenciesJsonHandler;
 import com.mcreater.amcl.util.parsers.DepencyItem;
 import com.sun.javafx.tk.quantum.QuantumToolkit;
