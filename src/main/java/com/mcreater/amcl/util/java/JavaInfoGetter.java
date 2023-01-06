@@ -10,6 +10,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
+import static com.mcreater.amcl.util.LogLineDetecter.readStreamContent;
+
 public class JavaInfoGetter implements Callable<Vector<String>> {
     static File p;
     public static Vector<String> get(File f) throws ExecutionException, InterruptedException {
@@ -24,7 +26,7 @@ public class JavaInfoGetter implements Callable<Vector<String>> {
             String p = f.getPath();
             Process proc = new ProcessBuilder(p, "-version").start();
             String resu;
-            resu = LaunchCore.ret(proc.getErrorStream());
+            resu = readStreamContent(proc.getErrorStream());
             Vector<String> compled = fromArrayToVector(resu.split("\n"));
             Vector<String> version_info = fromArrayToVector(compled.get(0).split(" "));
             String version = "1.0.0";

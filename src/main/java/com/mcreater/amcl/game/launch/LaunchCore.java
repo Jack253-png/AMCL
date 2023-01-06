@@ -305,11 +305,10 @@ public class LaunchCore {
                         createDirectory(pathAsset);
 
                         if (!FileUtils.HashHelper.validateSHA1(target, hash2)) {
-                            FileChannel in = new FileInputStream(origin).getChannel();
-                            FileChannel out = new FileOutputStream(target).getChannel();
-                            out.transferFrom(in, 0, in.size());
-                            in.close();
-                            out.close();
+                            try (FileChannel in = new FileInputStream(origin).getChannel();
+                                 FileChannel out = new FileOutputStream(target).getChannel()) {
+                                out.transferFrom(in, 0, in.size());
+                            }
                         }
                     } catch (Exception e) {
 //                        logger.warn("Failed to copy assets", e);
@@ -538,43 +537,9 @@ public class LaunchCore {
             }
         }
     }
-    public static void loadOut(InputStream stream, PrintStream out){
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charset.forName("GBK")));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                LogLineDetecter.printLog(line, out);
-            }
-        } catch (IOException ignored) {
 
-        } finally {
-            try {
-                stream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    public static String ret(InputStream inputStream){
-        StringBuilder f = new StringBuilder();
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                f.append(line).append("\n");
-            }
-        } catch (IOException ignored) {
 
-        } finally {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return f.toString();
-    }
-    public void stop_process(){
+    public void stop_process() {
         if (p != null){
             p.destroy();
         }

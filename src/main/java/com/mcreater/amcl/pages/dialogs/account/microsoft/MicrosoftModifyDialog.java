@@ -5,7 +5,6 @@ import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.controls.items.RadioButtonGroupItem;
-import com.mcreater.amcl.controls.items.radio.RadioButtonGroupH;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
@@ -39,6 +38,9 @@ public class MicrosoftModifyDialog extends AbstractDialog {
 
         upload = new JFXButton(Launcher.languageManager.get("ui.userselectpage.msaccount.skin.upload"));
         upload.setFont(Fonts.t_f);
+        upload.setOnAction(event -> {
+
+        });
 
         base_model = new RadioButtonGroupItem(Launcher.languageManager.get("ui.userselectpage.custom.model"), 400, Orientation.HORIZONTAL, "Steve", "Alex");
 

@@ -1,7 +1,6 @@
 package com.mcreater.amcl.tasks;
 
 import com.mcreater.amcl.download.ForgeDownload;
-import com.mcreater.amcl.game.launch.LaunchCore;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
@@ -15,6 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
+
+import static com.mcreater.amcl.util.LogLineDetecter.printStreamToPrintStream;
 
 public class ForgePatchTask extends AbstractExecutableTask {
     Integer exit;
@@ -67,11 +68,11 @@ public class ForgePatchTask extends AbstractExecutableTask {
             try {
                 CountDownLatch latch = new CountDownLatch(2);
                 new Thread(() -> {
-                    LaunchCore.loadOut(p.getInputStream(), System.out);
+                    printStreamToPrintStream(p.getInputStream(), System.out);
                     latch.countDown();
                 }).start();
                 new Thread(() -> {
-                    LaunchCore.loadOut(p.getErrorStream(), System.err);
+                    printStreamToPrintStream(p.getErrorStream(), System.err);
                     latch.countDown();
                 }).start();
                 latch.await();

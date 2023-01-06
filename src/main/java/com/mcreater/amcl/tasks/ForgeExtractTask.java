@@ -15,8 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
-import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
+import static com.mcreater.amcl.util.LogLineDetecter.printStreamToPrintStream;
 
 public class ForgeExtractTask extends AbstractExecutableTask {
     public Integer exit = null;
@@ -48,8 +48,8 @@ public class ForgeExtractTask extends AbstractExecutableTask {
         Process p = Runtime.getRuntime().exec(command.toArray(new String[0]));
         while (true) {
             try {
-                System.out.println(LaunchCore.ret(p.getInputStream()));
-                System.out.println(LaunchCore.ret(p.getErrorStream()));
+                new Thread(() -> printStreamToPrintStream(p.getInputStream(), System.out)).start();
+                new Thread(() -> printStreamToPrintStream(p.getErrorStream(), System.err)).start();
                 copy();
                 exit = p.exitValue();
                 return exit;
