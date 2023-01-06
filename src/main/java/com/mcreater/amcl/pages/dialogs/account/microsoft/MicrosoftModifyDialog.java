@@ -4,12 +4,14 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
+import com.mcreater.amcl.controls.items.RadioButtonGroupItem;
 import com.mcreater.amcl.controls.items.radio.RadioButtonGroupH;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
@@ -18,7 +20,7 @@ import static com.mcreater.amcl.Launcher.stage;
 public class MicrosoftModifyDialog extends AbstractDialog {
     JFXButton finish;
     JFXButton upload;
-    RadioButtonGroupH base_model;
+    RadioButtonGroupItem base_model;
     VBox content;
     AdvancedScrollPane pane;
     public void setFinish(EventHandler<ActionEvent> handler) {
@@ -38,7 +40,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
         upload = new JFXButton(Launcher.languageManager.get("ui.userselectpage.msaccount.skin.upload"));
         upload.setFont(Fonts.t_f);
 
-        base_model = new RadioButtonGroupH("Steve", "Alex");
+        base_model = new RadioButtonGroupItem(Launcher.languageManager.get("ui.userselectpage.custom.model"), 400, Orientation.HORIZONTAL, "Steve", "Alex");
 
         content = new VBox(upload, base_model);
         content.setSpacing(10);

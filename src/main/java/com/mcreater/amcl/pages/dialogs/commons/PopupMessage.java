@@ -25,6 +25,7 @@ import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Vector;
 
+import static com.mcreater.amcl.Launcher.height;
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
 
 public class PopupMessage {
@@ -32,7 +33,7 @@ public class PopupMessage {
     static Vector<Control> mess = new Vector<>();
     static boolean hasMessages = false;
 
-    public static final int MESSAGE_BASE_HEIGHT = 450;
+    public static final int MESSAGE_BASE_HEIGHT = height - 30;
     public static final int MESSAGE_MAX_NUM = 18;
     public static final int MESSAGE_HEIGHT = 20;
     public enum MessageTypes{

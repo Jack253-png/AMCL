@@ -28,6 +28,7 @@ import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
+import com.mcreater.amcl.util.math.Fraction;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import com.mcreater.amcl.util.svg.Icons;
@@ -101,7 +102,6 @@ public class Launcher {
 
     private static Timeline onStageShow;
     private static Timeline onStageExit;
-    private static boolean iconified;
     public static void initConfig() {
         try {
             FileUtils.ChangeDir.saveNowDir();
@@ -288,13 +288,13 @@ public class Launcher {
         FXUtils.ControlSize.setAll(t_size / 6 * 5, t_size / 6 * 5, about, back, min, close);
         HBox b = new HBox(back, ln);
         b.setAlignment(Pos.CENTER_LEFT);
-        b.setMinSize(400, t_size);
-        b.setMaxSize(400, t_size);
+        b.setMinSize((double) width / 2, t_size);
+        b.setMaxSize((double) width / 2, t_size);
         title.add(b, 0, 0, 1, 1);
         HBox cl = new HBox(about, min, close);
         cl.setAlignment(Pos.CENTER_RIGHT);
-        cl.setMinSize(400, t_size);
-        cl.setMaxSize(400, t_size);
+        cl.setMinSize((double) width / 2, t_size);
+        cl.setMaxSize((double) width / 2, t_size);
         title.add(cl, 1, 0, 1, 1);
         top.getChildren().add(title);
 
@@ -365,8 +365,8 @@ public class Launcher {
                         (view, image) -> view.setEffect(new GaussianBlur(100)),
                         (view, image) -> {
                             Rectangle clip = new Rectangle(
-                                    view.getFitWidth() / 7 * 6,
-                                    view.getFitHeight() / 12 * 11
+                                    view.getFitWidth(),
+                                    view.getFitHeight()
                             );
                             clip.setArcWidth(0);
                             clip.setArcHeight(0);
@@ -394,7 +394,12 @@ public class Launcher {
                             nodes.add(new AnimationPage.NodeInfo(0, 0, width, barSize));
                             for (AnimationPage.NodeInfo node : nodes) {
                                 if (node != null) {
-                                    node.size = new BoundingBox(node.size.getMinX(), node.size.getMinY(), node.size.getWidth() * 0.8615384615384616, node.size.getHeight() * 0.9);
+                                    node.size = new BoundingBox(
+                                            node.size.getMinX(),
+                                            node.size.getMinY(),
+                                            node.size.getWidth() * new Fraction(6, 7).doubleValue(),
+                                            node.size.getHeight() * new Fraction(11, 12).doubleValue()
+                                    );
                                 }
                             }
 
