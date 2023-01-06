@@ -240,3 +240,6 @@ ui.mslogin.token=在打开的浏览器中输入设备代码 %s, 然后登录您�
 ui.configpage.menu._02=外观设置
 ui.configpage.item7.name=启用模糊效果
 ui.userselectpage.msaccount.skin.upload=上传皮肤
+ui.userselectpage.validate=验证中...
+ui.userselectpage.validate.fail.title=验证失败
+ui.userselectpage.validate.fail.content=验证失败, 如果您要修改用户，则需要刷新

@@ -51,5 +51,5 @@ public abstract class AbstractUser implements Serializable {
     }
 
     public abstract void refresh() throws IOException;
-    public abstract boolean vaildate();
+    public abstract boolean validate();
 }

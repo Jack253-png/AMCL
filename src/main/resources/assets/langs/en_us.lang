@@ -240,3 +240,6 @@ ui.mslogin.token=Input device code %s in the browser, then login your microsoft 
 ui.configpage.menu._02=Appearance
 ui.configpage.item7.name=Enable blur effect
 ui.userselectpage.msaccount.skin.upload=upload skin
+ui.userselectpage.validate=Validating...
+ui.userselectpage.validate.fail.title=Validate failed
+ui.userselectpage.validate.fail.content=Validate failed, you can't modify this user without refresh.

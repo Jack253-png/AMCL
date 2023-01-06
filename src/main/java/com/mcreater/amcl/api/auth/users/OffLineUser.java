@@ -51,7 +51,7 @@ public class OffLineUser extends AbstractUser {
         // Do Nothing
     }
 
-    public boolean vaildate() {
+    public boolean validate() {
         return true;
     }
 

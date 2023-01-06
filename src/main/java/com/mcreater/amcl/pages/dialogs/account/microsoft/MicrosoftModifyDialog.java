@@ -44,6 +44,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
         content.setSpacing(10);
 
         pane = new AdvancedScrollPane(400, 300, content, false);
+        pane.setId("opc");
 
         ThemeManager.loadNodeAnimations(label, finish);
 

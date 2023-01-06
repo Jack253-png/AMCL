@@ -149,7 +149,7 @@ public class MicrosoftUser extends AbstractUser {
         this.accessToken = newUser.accessToken;
     }
 
-    public boolean vaildate() {
+    public boolean validate() {
         try {
             MSAuth.AUTH_INSTANCE.checkMcStore(accessToken);
             return true;

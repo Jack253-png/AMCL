@@ -21,8 +21,6 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -241,93 +239,118 @@ public class UserSelectPage extends AbstractAnimationPage {
                     }).start();
                 });
                 item.setModify(event -> {
-                    switch (item.user.getUserType()) {
-                        case AbstractUser.OFFLINE:
-                            OfflineUserModifyDialog dialog = new OfflineUserModifyDialog(item.user.toOfflineUser(), Launcher.languageManager.get("ui.userselectpage.modify.title"));
-                            Runnable finalRunnable = () -> {
-                                item.user.username = dialog.getInputedUserName();
-                                dialog.close();
-                                reloadUser();
-                            };
-                            dialog.setCancel(event12 -> dialog.close());
-                            dialog.setAction(event13 -> {
-                                switch (dialog.getSelection()) {
-                                    case 0:
-                                        item.user.uuid = OffLineUser.SkinType.STEVE.uuid;
-                                        item.user.toOfflineUser().is_slim = OffLineUser.SkinType.STEVE.isSlim;
-                                        finalRunnable.run();
-                                        break;
-                                    case 1:
-                                        item.user.uuid = OffLineUser.SkinType.ALEX.uuid;
-                                        item.user.toOfflineUser().is_slim = OffLineUser.SkinType.ALEX.isSlim;
-                                        finalRunnable.run();
-                                        break;
-                                    case 2:
-                                        LoadingDialog dialog1 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.offline.id"));
-                                        InputDialog dialog2 = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
-                                        dialog2.setCancel(event14 -> dialog2.close());
-                                        dialog2.setEvent(event15 -> {
-                                            dialog1.show();
-                                            new Thread(() -> {
-                                                String uuid = OffLineUser.SkinType.STEVE.uuid;
-                                                boolean isSlim = OffLineUser.SkinType.STEVE.isSlim;
-                                                try {
-                                                    uuid = MSAuth.getUserUUID(dialog2.f.getText());
-                                                    isSlim = MSAuth.getUserSkin(uuid).skin.isSlim;
-                                                }
-                                                catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
-                                                item.user.uuid = uuid;
-                                                item.user.toOfflineUser().is_slim = isSlim;
-                                                FXUtils.Platform.runLater(() -> {
-                                                    dialog2.close();
-                                                    dialog1.close();
-                                                    finalRunnable.run();
-                                                });
-                                            }).start();
-                                        });
-                                        new Thread(() -> {
-                                            try {
-                                                String name = MSAuth.getUserSkin(item.user.uuid).name;
-                                                FXUtils.Platform.runLater(() -> dialog2.f.setText(name));
-                                            } catch (Exception ignored) {
-
-                                            } finally {
-                                                FXUtils.Platform.runLater(() -> {
-                                                    dialog1.close();
-                                                    dialog2.show();
-                                                });
-                                            }
-                                        }).start();
-                                        dialog1.show();
-                                        break;
-                                    case 3:
-                                        OfflineUserCustomSkinDialog dialog3 = new OfflineUserCustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.login.offlineskin"));
-                                        dialog3.setSkinPath(item.user.toOfflineUser().skin);
-                                        dialog3.setCapePath(item.user.toOfflineUser().cape);
-                                        dialog3.group.cont.select(item.user.toOfflineUser().is_slim ? 1 : 0);
-                                        dialog3.setCancel(event14 -> dialog3.close());
-                                        dialog3.setEvent(event15 -> {
-                                            item.user.toOfflineUser().is_slim = dialog3.getSelectedModelType() != 0;
-                                            item.user.toOfflineUser().skin = dialog3.getSkinPath();
-                                            item.user.toOfflineUser().cape = dialog3.getCapePath();
-                                            dialog3.close();
+                    Runnable modify = () -> {
+                        switch (item.user.getUserType()) {
+                            case AbstractUser.OFFLINE:
+                                OfflineUserModifyDialog dialog = new OfflineUserModifyDialog(item.user.toOfflineUser(), Launcher.languageManager.get("ui.userselectpage.modify.title"));
+                                Runnable finalRunnable = () -> {
+                                    item.user.username = dialog.getInputedUserName();
+                                    dialog.close();
+                                    reloadUser();
+                                };
+                                dialog.setCancel(event12 -> dialog.close());
+                                dialog.setAction(event13 -> {
+                                    switch (dialog.getSelection()) {
+                                        case 0:
+                                            item.user.uuid = OffLineUser.SkinType.STEVE.uuid;
+                                            item.user.toOfflineUser().is_slim = OffLineUser.SkinType.STEVE.isSlim;
                                             finalRunnable.run();
-                                        });
-                                        dialog3.Create();
-                                        break;
-                                }
-                            });
-                            dialog.showAndWait();
-                            return;
-                        case AbstractUser.MICROSOFT:
-                            MicrosoftModifyDialog dialog1 = new MicrosoftModifyDialog(Launcher.languageManager.get("ui.userselectpage.modify.title"));
-                            dialog1.setFinish(event16 -> dialog1.close());
-                            dialog1.showAndWait();
-                            return;
-                        default:
-                    }
+                                            break;
+                                        case 1:
+                                            item.user.uuid = OffLineUser.SkinType.ALEX.uuid;
+                                            item.user.toOfflineUser().is_slim = OffLineUser.SkinType.ALEX.isSlim;
+                                            finalRunnable.run();
+                                            break;
+                                        case 2:
+                                            LoadingDialog dialog1 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.offline.id"));
+                                            InputDialog dialog2 = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
+                                            dialog2.setCancel(event14 -> dialog2.close());
+                                            dialog2.setEvent(event15 -> {
+                                                dialog1.show();
+                                                new Thread(() -> {
+                                                    String uuid = OffLineUser.SkinType.STEVE.uuid;
+                                                    boolean isSlim = OffLineUser.SkinType.STEVE.isSlim;
+                                                    try {
+                                                        uuid = MSAuth.getUserUUID(dialog2.f.getText());
+                                                        isSlim = MSAuth.getUserSkin(uuid).skin.isSlim;
+                                                    }
+                                                    catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    item.user.uuid = uuid;
+                                                    item.user.toOfflineUser().is_slim = isSlim;
+                                                    FXUtils.Platform.runLater(() -> {
+                                                        dialog2.close();
+                                                        dialog1.close();
+                                                        finalRunnable.run();
+                                                    });
+                                                }).start();
+                                            });
+                                            new Thread(() -> {
+                                                try {
+                                                    String name = MSAuth.getUserSkin(item.user.uuid).name;
+                                                    FXUtils.Platform.runLater(() -> dialog2.f.setText(name));
+                                                } catch (Exception ignored) {
+
+                                                } finally {
+                                                    FXUtils.Platform.runLater(() -> {
+                                                        dialog1.close();
+                                                        dialog2.show();
+                                                    });
+                                                }
+                                            }).start();
+                                            dialog1.show();
+                                            break;
+                                        case 3:
+                                            OfflineUserCustomSkinDialog dialog3 = new OfflineUserCustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.login.offlineskin"));
+                                            dialog3.setSkinPath(item.user.toOfflineUser().skin);
+                                            dialog3.setCapePath(item.user.toOfflineUser().cape);
+                                            dialog3.group.cont.select(item.user.toOfflineUser().is_slim ? 1 : 0);
+                                            dialog3.setCancel(event14 -> dialog3.close());
+                                            dialog3.setEvent(event15 -> {
+                                                item.user.toOfflineUser().is_slim = dialog3.getSelectedModelType() != 0;
+                                                item.user.toOfflineUser().skin = dialog3.getSkinPath();
+                                                item.user.toOfflineUser().cape = dialog3.getCapePath();
+                                                dialog3.close();
+                                                finalRunnable.run();
+                                            });
+                                            dialog3.Create();
+                                            break;
+                                    }
+                                });
+                                dialog.showAndWait();
+                                return;
+                            case AbstractUser.MICROSOFT:
+                                MicrosoftModifyDialog dialog1 = new MicrosoftModifyDialog(Launcher.languageManager.get("ui.userselectpage.modify.title"));
+                                dialog1.setFinish(event16 -> dialog1.close());
+                                dialog1.showAndWait();
+                                return;
+                            default:
+                        }
+                    };
+
+                    LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.validate"));
+                    dialog.show();
+                    new Thread(() -> {
+                        if (!item.user.validate()) {
+                            SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.validate.fail.title"), Launcher.languageManager.get("ui.userselectpage.validate.fail.content"), "");
+                            FXUtils.Platform.runLater(dialog::close);
+                        }
+                        else {
+                            FXUtils.Platform.runLater(dialog::close);
+                            FXUtils.Platform.runLater(modify);
+                        }
+                    }).start();
+                });
+                item.setValidate(event -> {
+                    LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.validate"));
+                    dialog.show();
+                    new Thread(() -> {
+                        if (!item.user.validate()) {
+                            SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.validate.fail.title"), Launcher.languageManager.get("ui.userselectpage.validate.fail.content"), "");
+                        }
+                        FXUtils.Platform.runLater(dialog::close);
+                    }).start();
                 });
                 FXUtils.Platform.runLater(() -> userList.addItem(item));
             }

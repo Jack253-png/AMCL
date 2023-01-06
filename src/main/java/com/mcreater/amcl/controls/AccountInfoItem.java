@@ -34,7 +34,7 @@ public class AccountInfoItem extends VBox {
     JFXButton modify;
     JFXButton delete;
     JFXButton refresh;
-    JFXButton vaildate;
+    JFXButton validate;
     public JFXRadioButton selector;
     public final AbstractUser user;
     public void setModify(EventHandler<ActionEvent> handler) {
@@ -46,7 +46,10 @@ public class AccountInfoItem extends VBox {
     public void setRefresh(EventHandler<ActionEvent> handler) {
         refresh.setOnAction(handler);
     }
-    private static InputStream createInputstreamFromFile(File f) {
+    public void setValidate(EventHandler<ActionEvent> handler) {
+        validate.setOnAction(handler);
+    }
+    private static InputStream createInputStreamFromFile(File f) {
         try {
             return Files.newInputStream(f.toPath());
         }
@@ -59,8 +62,8 @@ public class AccountInfoItem extends VBox {
         if (user instanceof OffLineUser) {
             OffLineUser user1 = (OffLineUser) user;
             if (user1.skinUseable()) {
-                return new ImmutablePair<>(cutHeadImage(new Image(createInputstreamFromFile(new File(user1.skin))))
-                        , cutHeadCoverImage(new Image(createInputstreamFromFile(new File(user1.skin)))));
+                return new ImmutablePair<>(cutHeadImage(new Image(createInputStreamFromFile(new File(user1.skin))))
+                        , cutHeadCoverImage(new Image(createInputStreamFromFile(new File(user1.skin)))));
             }
 
         }
@@ -178,16 +181,16 @@ public class AccountInfoItem extends VBox {
         modify = new JFXButton();
         delete = new JFXButton();
         refresh = new JFXButton();
-        vaildate = new JFXButton();
+        validate = new JFXButton();
 
-        FXUtils.ControlSize.setAll(30, 30, modify, delete, refresh, vaildate);
+        FXUtils.ControlSize.setAll(30, 30, modify, delete, refresh, validate);
 
         setType();
 
         selector = new JFXRadioButton();
         selector.selectedProperty().addListener((observable, oldValue, newValue) -> user.active = newValue);
 
-        HBox box = new HBox(vaildate, refresh, modify, delete);
+        HBox box = new HBox(validate, refresh, modify, delete);
         box.setSpacing(0);
 
         HBox left = new HBox(new Pane(), selector, con, userName);
@@ -210,6 +213,6 @@ public class AccountInfoItem extends VBox {
         modify.setGraphic(Launcher.getSVGManager().accountEdit(ThemeManager.createPaintBinding(), 30, 30));
         delete.setGraphic(Launcher.getSVGManager().delete(ThemeManager.createPaintBinding(), 30, 30));
         refresh.setGraphic(Launcher.getSVGManager().refresh(ThemeManager.createPaintBinding(), 30, 30));
-        vaildate.setGraphic(Launcher.getSVGManager().check(ThemeManager.createPaintBinding(), 30, 30));
+        validate.setGraphic(Launcher.getSVGManager().check(ThemeManager.createPaintBinding(), 30, 30));
     }
 }
