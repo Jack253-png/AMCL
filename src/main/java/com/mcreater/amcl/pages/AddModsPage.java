@@ -98,7 +98,7 @@ public class AddModsPage extends AbstractAnimationPage {
         add(bar, 0, 4, 2, 1);
         ThemeManager.addLis((observable, oldValue, newValue) -> setBackground(new Background(
                 new BackgroundFill(
-                        transparent(newValue, 0.45),
+                        transparent(newValue, 0.5),
                         CornerRadii.EMPTY,
                         Insets.EMPTY
                 )

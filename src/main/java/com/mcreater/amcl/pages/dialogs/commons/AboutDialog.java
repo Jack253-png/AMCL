@@ -3,10 +3,10 @@ package com.mcreater.amcl.pages.dialogs.commons;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
+import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.controls.DepencyItem;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.pages.stages.UpgradePage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
@@ -16,14 +16,14 @@ import com.mcreater.amcl.util.os.SystemActions;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+
 import static com.mcreater.amcl.theme.ThemeManager.loadSingleNodeAnimate;
 
 public class AboutDialog extends AbstractDialog {
     JFXButton ok;
     JFXButton checkUpdate;
     public AboutDialog() {
-        super(Launcher.stage);
-        setTitle(Launcher.languageManager.get("ui.about.title"));
+        super();
         JFXDialogLayout layout = new JFXDialogLayout();
         Label title = new Label(Launcher.languageManager.get("ui.about.title"));
         title.setFont(Fonts.s_f);

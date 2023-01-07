@@ -20,8 +20,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
-import static com.mcreater.amcl.Launcher.stage;
-
 public class MicrosoftLoginDialog extends AbstractDialog {
     JFXButton cancel;
     JFXButton login;
@@ -37,8 +35,7 @@ public class MicrosoftLoginDialog extends AbstractDialog {
         this.processor = processor;
     }
     public MicrosoftLoginDialog(String title) {
-        super(stage);
-        setTitle(title);
+        super();
         JFXDialogLayout layout = new JFXDialogLayout();
         cancel = new JFXButton(Launcher.languageManager.get("ui.userselectpage.cancel"));
         cancel.setFont(Fonts.t_f);

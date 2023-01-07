@@ -27,8 +27,7 @@ public class InputDialog extends AbstractDialog {
         cancelButton.setOnAction(this.cancel);
     }
     public InputDialog(String title){
-        super(Launcher.stage);
-        setTitle(title);
+        super();
         JFXDialogLayout layout = new JFXDialogLayout();
 
         f = new JFXTextField();
@@ -48,8 +47,6 @@ public class InputDialog extends AbstractDialog {
         cancelButton.setOnAction(cancel);
         layout.setActions(cancelButton, addButton);
         ThemeManager.loadNodeAnimations(addButton, cancelButton);
-        this.setOnHidden(event -> {});
-        this.setOnHiding(event -> {});
         this.setContent(layout);
     }
 }

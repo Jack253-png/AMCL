@@ -24,8 +24,7 @@ public class SimpleDialogCreater {
         createImpl(Title, HeaderText, ContentText);
     }
     private static void createImpl(String titleString, String HeaderText, String ContentText){
-        AbstractDialog alert = new AbstractDialog(Launcher.stage) {};
-        alert.setTitle(titleString);
+        AbstractDialog alert = new AbstractDialog() {};
 
         JFXDialogLayout layout = new JFXDialogLayout();
         Label title = setFont(new Label(titleString), Fonts.s_f);
@@ -41,7 +40,7 @@ public class SimpleDialogCreater {
 
         alert.setContent(layout);
         ThemeManager.loadNodeAnimations(title, body, addButton);
-        alert.showAndWait();
+        alert.show();
     }
     public static void exception(Throwable cause, String subtitle) {
         FXUtils.Platform.runLater(() -> exceptionImpl(cause, subtitle));
@@ -51,7 +50,7 @@ public class SimpleDialogCreater {
     }
     private static void exceptionImpl(Throwable cause, String subtitle) {
         cause.printStackTrace();
-        AbstractDialog alert = new AbstractDialog(Launcher.stage) {};
+        AbstractDialog alert = new AbstractDialog() {};
 
         StringWriter writer = new StringWriter();
         PrintWriter printer = new PrintWriter(writer);
@@ -96,7 +95,7 @@ public class SimpleDialogCreater {
 
         alert.setContent(layout);
         ThemeManager.loadNodeAnimations(title, addButton);
-        alert.showAndWait();
+        alert.show();
     }
     private static Label setFont(Label l, Font font){
         l.setFont(font);

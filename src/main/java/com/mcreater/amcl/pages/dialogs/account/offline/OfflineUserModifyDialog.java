@@ -28,8 +28,7 @@ public class OfflineUserModifyDialog extends AbstractDialog {
         cancelButton.setOnAction(handler);
     }
     public OfflineUserModifyDialog(@NotNull OffLineUser user, String title) {
-        super(Launcher.stage);
-        setTitle(title);
+        super();
         this.user = user;
 
         JFXDialogLayout layout = new JFXDialogLayout();

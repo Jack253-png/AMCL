@@ -13,8 +13,7 @@ import javafx.scene.control.Label;
 public class RequiredModDialog extends AbstractDialog {
     public SmoothableListView<ServerMod> items;
     public RequiredModDialog(String title) {
-        super(Launcher.stage);
-        setTitle(title);
+        super();
         JFXDialogLayout layout = new JFXDialogLayout();
 
         Label head = setFont(new Label(title), Fonts.s_f);
@@ -28,8 +27,6 @@ public class RequiredModDialog extends AbstractDialog {
         button.setOnAction(event -> close());
 
         layout.setActions(button);
-        this.setOnHidden(event -> {});
-        this.setOnHiding(event -> {});
         setContent(layout);
         ThemeManager.loadNodeAnimations(head, button);
     }

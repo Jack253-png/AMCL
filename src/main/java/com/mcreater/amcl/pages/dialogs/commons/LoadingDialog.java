@@ -2,7 +2,6 @@ package com.mcreater.amcl.pages.dialogs.commons;
 
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.JFXSpinner;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
@@ -14,8 +13,7 @@ public class LoadingDialog extends AbstractDialog {
     public Label l;
     public JFXSpinner spinner;
     public LoadingDialog(String title){
-        super(Launcher.stage);
-        setTitle(title);
+        super();
         JFXDialogLayout layout = new JFXDialogLayout();
         l = new Label();
         l.setFont(Fonts.t_f);

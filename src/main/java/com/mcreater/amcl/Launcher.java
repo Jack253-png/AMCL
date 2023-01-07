@@ -13,6 +13,7 @@ import com.mcreater.amcl.pages.ModDownloadPage;
 import com.mcreater.amcl.pages.UserSelectPage;
 import com.mcreater.amcl.pages.VersionInfoPage;
 import com.mcreater.amcl.pages.VersionSelectPage;
+import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.dialogs.SimpleDialog;
 import com.mcreater.amcl.pages.dialogs.commons.AboutDialog;
 import com.mcreater.amcl.pages.dialogs.commons.PopupMessage;
@@ -37,6 +38,7 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.geometry.BoundingBox;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -45,13 +47,16 @@ import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -96,6 +101,7 @@ public class Launcher {
     public static JFXButton min;
     public static JFXButton back;
     public static Pane wrapper = new Pane();
+    public static StackPane topWrapper = new StackPane();
     public static final SimpleDoubleProperty radius = new SimpleDoubleProperty(30);
     public static VBox top = new VBox();
     public static final Vector<AbstractAnimationPage> pages = new Vector<>();
@@ -130,7 +136,7 @@ public class Launcher {
         Fonts.loadFont();
         Icons.initFXIcon();
         if (OSInfo.isWin() || OSInfo.isLinux()) {
-            stage = new Stage();
+            stage = primaryStage;
             setGeometry(stage, width, height);
             bs = new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true);
             logger.info("Launcher Version : " + VersionInfo.launcher_version);
@@ -176,14 +182,14 @@ public class Launcher {
             Rectangle rect = FXUtils.generateRect(width, height, 0);
             rect.arcWidthProperty().bind(Launcher.radius);
             rect.arcHeightProperty().bind(Launcher.radius);
-            wrapper.setClip(rect);
+            topWrapper.setClip(rect);
 
-            onStageShow = FXUtils.AnimationUtils.generateNodeInAnimation(wrapper);
-            onStageExit = FXUtils.AnimationUtils.generateNodeOutAnimation(wrapper);
+            onStageShow = FXUtils.AnimationUtils.generateNodeInAnimation(topWrapper);
+            onStageExit = FXUtils.AnimationUtils.generateNodeOutAnimation(topWrapper);
 
-            wrapper.setOpacity(0);
-            wrapper.setScaleX(0.8);
-            wrapper.setScaleY(0.8);
+            topWrapper.setOpacity(0);
+            topWrapper.setScaleX(0.8);
+            topWrapper.setScaleY(0.8);
             stage.show();
             playStageAnimation(false, () -> {});
 
@@ -306,10 +312,19 @@ public class Launcher {
         p.getChildren().removeIf(node -> node.getClass() == VBox.class);
         p.getChildren().add(0, v);
         wrapper.getChildren().clear();
-        wrapper.getChildren().add(p);
+        wrapper.getChildren().addAll(p);
+        topWrapper.getChildren().clear();
+        topWrapper.getChildren().addAll(wrapper, AbstractDialog.wrapper);
+        topWrapper.setBackground(new Background(
+                new BackgroundFill(
+                        Color.TRANSPARENT,
+                        CornerRadii.EMPTY,
+                        Insets.EMPTY
+                )
+        ));
 
         s.setFill(Color.TRANSPARENT);
-        s.setRoot(wrapper);
+        s.setRoot(topWrapper);
         stage.setScene(s);
         Timer timer = Timer.getInstance();
         refreshBackground();
@@ -362,7 +377,7 @@ public class Launcher {
 
                 FXUtils.ImagePreProcesser.process(
                         result,
-                        (view, image) -> view.setEffect(new GaussianBlur(100)),
+                        (view, image) -> view.setEffect(new GaussianBlur(Integer.MAX_VALUE)),
                         (view, image) -> {
                             Rectangle clip = new Rectangle(
                                     view.getFitWidth(),

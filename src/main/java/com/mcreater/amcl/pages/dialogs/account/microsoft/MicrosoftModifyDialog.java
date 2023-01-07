@@ -14,8 +14,6 @@ import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
-import static com.mcreater.amcl.Launcher.stage;
-
 public class MicrosoftModifyDialog extends AbstractDialog {
     JFXButton finish;
     JFXButton upload;
@@ -26,8 +24,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
         finish.setOnAction(handler);
     }
     public MicrosoftModifyDialog(String title) {
-        super(stage);
-        setTitle(title);
+        super();
         JFXDialogLayout layout = new JFXDialogLayout();
 
         Label label = new Label(title);
@@ -39,7 +36,8 @@ public class MicrosoftModifyDialog extends AbstractDialog {
         upload = new JFXButton(Launcher.languageManager.get("ui.userselectpage.msaccount.skin.upload"));
         upload.setFont(Fonts.t_f);
         upload.setOnAction(event -> {
-
+//            FileChooser chooser = new FileChooser();
+//            System.out.println(chooser.showOpenDialog(stage));
         });
 
         base_model = new RadioButtonGroupItem(Launcher.languageManager.get("ui.userselectpage.custom.model"), 400, Orientation.HORIZONTAL, "Steve", "Alex");

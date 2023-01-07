@@ -13,14 +13,17 @@ import java.util.Vector;
 
 public class ModrinthMultiFileDialog extends AbstractDialog {
     RadioButtonGroupV group;
+    boolean closed = false;
     public ModrinthMultiFileDialog(Vector<String> f, String title) {
-        super(Launcher.stage);
-        setTitle(title);
+        super();
         JFXDialogLayout layout = new JFXDialogLayout();
 
         JFXButton ok = new JFXButton(Launcher.languageManager.get("ui.dialogs.information.ok.name"));
         ok.setFont(Fonts.t_f);
-        ok.setOnAction(event -> close());
+        ok.setOnAction(event -> {
+            close();
+            closed = true;
+        });
 
         group = new RadioButtonGroupV(f.toArray(new String[0]));
         group.items.get(0).setSelected(true);
@@ -28,14 +31,10 @@ public class ModrinthMultiFileDialog extends AbstractDialog {
         layout.setActions(ok);
         layout.setHeading(setFont(new Label(title), Fonts.s_f));
         setContent(layout);
-
-        this.setOnHidden(event -> {});
-        this.setOnHiding(event -> {});
         ThemeManager.loadNodeAnimations(layout);
     }
 
     public int getIndex() {
-        showAndWait();
-        return group.getSelectedItem();
+        return closed ? group.getSelectedItem() : -1;
     }
 }

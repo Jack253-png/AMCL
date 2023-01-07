@@ -1,14 +1,10 @@
 package com.mcreater.amcl.pages.dialogs;
 
-import com.jfoenix.animation.alert.JFXAlertAnimation;
-import com.jfoenix.controls.JFXAlert;
-import com.jfoenix.controls.JFXDialogLayout;
-import com.jfoenix.transitions.CachedTransition;
+import com.jfoenix.controls.JFXDialog;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.concurrent.Sleeper;
-import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -19,44 +15,41 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.Labeled;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Region;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.lang.reflect.Field;
 
 import static com.mcreater.amcl.Launcher.height;
 import static com.mcreater.amcl.Launcher.width;
-import static com.mcreater.amcl.Launcher.wrapper;
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
 
-public abstract class AbstractDialog extends JFXAlert<String> {
+public abstract class AbstractDialog extends JFXDialog {
     public static final ObservableList<AbstractDialog> dialogs = FXCollections.observableArrayList();
     public static final SimpleDoubleProperty dialogRadius = new SimpleDoubleProperty(30);
-    public static final double blurRadius = 8;
+    public static final double blurRadius = 16;
     public static final SimpleDoubleProperty nowRadius = new SimpleDoubleProperty(0);
     public static final SimpleDoubleProperty exceptedRadius = new SimpleDoubleProperty(0);
-
+    public static final StackPane wrapper = new StackPane();
     public final SimpleDoubleProperty dialogNowRadius = new SimpleDoubleProperty(0);
-
     public final SimpleDoubleProperty dialogExceptedRadius = new SimpleDoubleProperty(0);
-
+    private Runnable onShow = () -> {};
+    private Runnable onClose = () -> {};
     static {
-        dialogs.addListener((ListChangeListener<AbstractDialog>) c -> exceptedRadius.set(c.getList().size() == 0 ? 0 : blurRadius));
-        nowRadius.addListener((observable, oldValue, newValue) -> wrapper.setEffect(new GaussianBlur(newValue.intValue())));
-
-        new Thread("Widget blur calc thread") {
+        FXUtils.ControlSize.set(wrapper, 0, 0);
+        dialogs.addListener((ListChangeListener<AbstractDialog>) c -> {
+            exceptedRadius.set(c.getList().isEmpty() ? 0 : blurRadius);
+            FXUtils.ControlSize.set(wrapper, c.getList().isEmpty() ? 0 : width, c.getList().isEmpty() ? 0 : height);
+        });
+        nowRadius.addListener((observable, oldValue, newValue) -> Launcher.wrapper.setEffect(new GaussianBlur(newValue.intValue())));
+        new Thread("Dialog blur calc thread") {
             public void run() {
                 while (true) {
                     if (nowRadius.getValue().intValue() != exceptedRadius.getValue().intValue()) {
@@ -79,84 +72,130 @@ public abstract class AbstractDialog extends JFXAlert<String> {
             }
         }.start();
     }
-    public AbstractDialog(Stage stage) {
-        super(stage);
-//        getDialogPane().setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-        this.setAnimation(new JFXAlertAnimation() {
-            public void initAnimation(Node contentContainer, Node overlay) {
-                overlay.setOpacity(0);
-                contentContainer.setScaleX(.80);
-                contentContainer.setScaleY(.80);
-            }
-            public Animation createShowingAnimation(Node contentContainer, Node overlay) {
-                contentContainer.setScaleX(1);
-                contentContainer.setScaleY(1);
-                return new CachedTransition(contentContainer, new Timeline(
-                        new KeyFrame(Duration.millis(1000),
-                                new KeyValue(overlay.opacityProperty(), 1, Interpolator.EASE_BOTH)
-                        ))) {
-                    {
-                        setCycleDuration(Duration.millis(400));
-                        setDelay(Duration.seconds(0));
-                    }
-                };
-            }
-            public Animation createHidingAnimation(Node contentContainer, Node overlay) {
-                return new CachedTransition(contentContainer, new Timeline(
-                        new KeyFrame(Duration.millis(1000),
-                                new KeyValue(overlay.opacityProperty(), 0, Interpolator.EASE_BOTH)
-                        ))) {
-                    {
-                        setCycleDuration(Duration.millis(400));
-                        setDelay(Duration.seconds(0));
-                    }
-                };
-            }
-        });
-        this.initModality(Modality.WINDOW_MODAL);
-        this.setOverlayClose(false);
-        Rectangle r = FXUtils.generateRect(width, height, 0);
-        r.arcWidthProperty().bind(Launcher.radius);
-        r.arcHeightProperty().bind(Launcher.radius);
-        getDialogPane().setClip(r);
-        setOnShowing(event -> dialogs.add(this));
-        setOnCloseRequest(event -> dialogs.remove(this));
-        setOnShown(event -> FXUtils.toNodeClass(getDialogPane().getContent(), Pane.class).getChildren().forEach(node -> {
-            updateBounds(node);
-            node.layoutBoundsProperty().addListener((observable, oldValue, newValue) -> updateBounds(node));
-        }));
-
-        dialogNowRadius.addListener((observable, oldValue, newValue) -> getDialogPane().setEffect(new GaussianBlur(newValue.intValue())));
-        dialogs.addListener((ListChangeListener<AbstractDialog>) c -> onDialogListChange());
-
-        setHideOnEscape(false);
+    public void show() {
+        onShow.run();
+        super.show();
+        runInAnimation(() -> {});
     }
-    private void updateBounds(Node item) {
-        Bounds bound = item.getLayoutBounds();
+    public void close() {
+        runOutAnimation(super::close);
+        onClose.run();
+    }
+    public AbstractDialog() {
+        onShow = () -> {
+            dialogs.add(this);
+            if (getContent() != null) {
+                getContent().layoutBoundsProperty().addListener((observable, oldValue, newValue) -> {
+                    try {
+                        updateBounds(this);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+                ThemeManager.addLis((observable, oldValue, newValue) -> {
+                    try {
+                        getWrapper(this).setBackground(new Background(
+                                new BackgroundFill(
+                                        Color.TRANSPARENT,
+                                        CornerRadii.EMPTY,
+                                        Insets.EMPTY
+                                )
+                        ));
+                        getContent().setBackground(new Background(
+                                new BackgroundFill(
+                                        transparent(newValue, 0.8),
+                                        CornerRadii.EMPTY,
+                                        Insets.EMPTY
+                                )
+                        ));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+                dialogNowRadius.addListener((observable, oldValue, newValue) -> getContent().setEffect(new GaussianBlur(newValue.intValue())));
+            }
+        };
+        onClose = () -> dialogs.remove(this);
+        setTransitionType(DialogTransition.NONE);
+        setDialogContainer(wrapper);
+        setOverlayClose(false);
+
+        dialogs.addListener((ListChangeListener<AbstractDialog>) c -> onDialogListChange());
+        setBackground(new Background(
+                new BackgroundFill(
+                        Color.TRANSPARENT,
+                        CornerRadii.EMPTY,
+                        Insets.EMPTY
+                )
+        ));
+    }
+    private void runInAnimation(Runnable runnable) {
+        Timeline timeline = new Timeline(
+                new KeyFrame(
+                        Duration.ZERO,
+                        new KeyValue(
+                                this.opacityProperty(),
+                                0,
+                                Interpolator.EASE_BOTH
+                        )
+                ),
+                new KeyFrame(
+                        Duration.millis(300),
+                        new KeyValue(
+                                this.opacityProperty(),
+                                1,
+                                Interpolator.EASE_BOTH
+                        )
+                )
+        );
+        timeline.setAutoReverse(false);
+        timeline.setCycleCount(1);
+        timeline.setOnFinished(event -> runnable.run());
+        timeline.playFromStart();
+    }
+    private void runOutAnimation(Runnable runnable) {
+        Timeline timeline = new Timeline(
+                new KeyFrame(
+                        Duration.ZERO,
+                        new KeyValue(
+                                this.opacityProperty(),
+                                1,
+                                Interpolator.EASE_BOTH
+                        )
+                ),
+                new KeyFrame(
+                        Duration.millis(300),
+                        new KeyValue(
+                                this.opacityProperty(),
+                                0,
+                                Interpolator.EASE_BOTH
+                        )
+                )
+        );
+        timeline.setAutoReverse(false);
+        timeline.setCycleCount(1);
+        timeline.setOnFinished(event -> runnable.run());
+        timeline.playFromStart();
+    }
+    private static StackPane getWrapper(JFXDialog content) throws Exception {
+        Field field = JFXDialog.class.getDeclaredField("contentHolder");
+        field.setAccessible(true);
+        return (StackPane) field.get(content);
+    }
+    private static void updateBounds(JFXDialog item) throws Exception {
+        Bounds bound = item.getContent().getLayoutBounds();
         if (bound.getWidth() > 0 && bound.getHeight() > 0) {
-            getDialogPane().getContent().setClip(FXUtils.generateRect(
+            getWrapper(item).setClip(FXUtils.generateRect(
+                    bound.getWidth(),
+                    bound.getHeight(),
+                    dialogRadius.get()
+            ));
+            item.getContent().setClip(FXUtils.generateRect(
                     bound.getWidth(),
                     bound.getHeight(),
                     dialogRadius.get()
             ));
         }
-    }
-    public void setContent(Node... content) {
-        ThemeManager.addLis((observable, oldValue, newValue) -> FXUtils.toNodeClass(
-                getDialogPane().getContent(), Pane.class
-        ).getChildren().forEach(node -> {
-            if (node instanceof Region) {
-                ((Region) node).setBackground(new Background(
-                        new BackgroundFill(
-                                transparent(newValue, 0.8),
-                                CornerRadii.EMPTY,
-                                Insets.EMPTY
-                        )
-                ));
-            }
-        }));
-
-        super.setContent(content);
     }
     private void onDialogListChange() {
         dialogExceptedRadius.set(dialogs.indexOf(this) + 1 == dialogs.size() ? 0 : blurRadius);

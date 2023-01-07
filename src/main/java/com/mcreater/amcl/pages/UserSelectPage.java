@@ -318,12 +318,12 @@ public class UserSelectPage extends AbstractAnimationPage {
                                             break;
                                     }
                                 });
-                                dialog.showAndWait();
+                                dialog.show();
                                 return;
                             case AbstractUser.MICROSOFT:
                                 MicrosoftModifyDialog dialog1 = new MicrosoftModifyDialog(Launcher.languageManager.get("ui.userselectpage.modify.title"));
                                 dialog1.setFinish(event16 -> dialog1.close());
-                                dialog1.showAndWait();
+                                dialog1.show();
                                 return;
                             default:
                         }

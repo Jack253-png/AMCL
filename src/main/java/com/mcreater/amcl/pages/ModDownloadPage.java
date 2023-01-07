@@ -45,7 +45,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -127,15 +126,24 @@ public class ModDownloadPage extends AbstractAnimationPage {
                             AtomicInteger index = new AtomicInteger(0);
                             AtomicBoolean selected = new AtomicBoolean(false);
 
-                            if (files.size() > 1) {
-                                Platform.runLater(() -> {
-                                    index.set(new ModrinthMultiFileDialog(f, Launcher.languageManager.get("ui.moddownloadpage.modrinth.multifile.title")).getIndex());
+                            ModrinthMultiFileDialog dialog1 = new ModrinthMultiFileDialog(f, Launcher.languageManager.get("ui.moddownloadpage.modrinth.multifile.title"));
+                            Platform.runLater(dialog1::show);
+
+                            new Thread(() -> {
+                                if (files.size() > 1) {
+                                    while (!selected.get()) {
+                                        int index2 = dialog1.getIndex();
+                                        if (index2 >= 0) {
+                                            index.set(index2);
+                                            selected.set(true);
+                                        }
+                                    }
+                                }
+                                else {
                                     selected.set(true);
-                                });
-                            }
-                            else {
-                                selected.set(true);
-                            }
+                                }
+                                Platform.runLater(dialog1::close);
+                            }).start();
 
                             do {} while (!selected.get());
 
@@ -171,65 +179,63 @@ public class ModDownloadPage extends AbstractAnimationPage {
                 });
                 t.start();
             }
-            else{
+            else {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
             }
         });
         getrc = new JFXButton(Launcher.languageManager.get("ui.moddownloadpage.getrequire.name"));
         getrc.setOnAction(event -> {
             LoadingDialog dialog2 = new LoadingDialog(Launcher.languageManager.get("ui.moddownloadpage.getrequire.process.name"));
-            dialog2.Create();
-            CountDownLatch latch = new CountDownLatch(1);
             RequiredModDialog dialog = new RequiredModDialog(Launcher.languageManager.get("ui.moddownloadpage.getrequire.dialog.title"));
             new Thread(() -> {
                 try {
-                    if (last != null) {
-                        if (last.model.isCurseFile()) {
-                            Vector<? extends AbstractModModel> models = last.model.isCurseFile() ? CurseAPI.getModFileRequiredMods(last.model.toCurseFile()) : ModrinthAPI.getModFileRequiredMods(last.model.toModrinthFile());
-
-                            for (AbstractModModel model : models) {
-                                Platform.runLater(() -> dialog.items.addItem(new ServerMod(model)));
-                            }
-
-                            DepencyModPage page = new DepencyModPage(width, height, MODDOWNLOADPAGE);
-
-                            dialog.items.setOnAction(() -> {
-                                dialog.close();
-                                page.setModContent(dialog.items.selectedItem.model);
-                                Launcher.setPage(page, this);
-                            });
-                        }
-                        else {
+                    if (coreSelected) {
+                        if (last != null) {
+                            dialog2.Create();
                             if (last.model.isCurseFile()) {
-                                for (CurseModModel model : CurseAPI.getModFileRequiredMods(last.model.toCurseFile())) {
-                                    Platform.runLater(() -> dialog.items.addItem(new ServerMod(model)));
-                                }
-                            }
-                            else {
-                                for (ModrinthModModel model : ModrinthAPI.getModFileRequiredMods(last.model.toModrinthFile())) {
-                                    Platform.runLater(() -> dialog.items.addItem(new ServerMod(model)));
-                                }
-                            }
-                            DepencyModPage page = new DepencyModPage(width, height, MODDOWNLOADPAGE);
+                                Vector<? extends AbstractModModel> models = last.model.isCurseFile() ? CurseAPI.getModFileRequiredMods(last.model.toCurseFile()) : ModrinthAPI.getModFileRequiredMods(last.model.toModrinthFile());
 
-                            dialog.items.setOnAction(() -> {
-                                dialog.close();
-                                page.setModContent(dialog.items.selectedItem.model);
-                                Launcher.setPage(page, this);
-                            });
+                                for (AbstractModModel model : models) {
+                                    Platform.runLater(() -> dialog.items.addItem(new ServerMod(model)));
+                                }
+
+                                DepencyModPage page = new DepencyModPage(width, height, MODDOWNLOADPAGE);
+
+                                dialog.items.setOnAction(() -> {
+                                    dialog.close();
+                                    page.setModContent(dialog.items.selectedItem.model);
+                                    Launcher.setPage(page, this);
+                                });
+                            } else {
+                                if (last.model.isCurseFile()) {
+                                    for (CurseModModel model : CurseAPI.getModFileRequiredMods(last.model.toCurseFile())) {
+                                        Platform.runLater(() -> dialog.items.addItem(new ServerMod(model)));
+                                    }
+                                } else {
+                                    for (ModrinthModModel model : ModrinthAPI.getModFileRequiredMods(last.model.toModrinthFile())) {
+                                        Platform.runLater(() -> dialog.items.addItem(new ServerMod(model)));
+                                    }
+                                }
+                                DepencyModPage page = new DepencyModPage(width, height, MODDOWNLOADPAGE);
+
+                                dialog.items.setOnAction(() -> {
+                                    dialog.close();
+                                    page.setModContent(dialog.items.selectedItem.model);
+                                    Launcher.setPage(page, this);
+                                });
+                            }
+                            Platform.runLater(dialog2::close);
+                            dialog.Create();
+                        } else {
+                            SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
                         }
-                        dialog.Create();
                     }
                     else {
                         SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
                     }
                 }
-                catch (Exception e){
+                catch (Exception e) {
                     SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.mod.load"));
-                }
-                finally {
-                    latch.countDown();
-                    Platform.runLater(dialog2::close);
                 }
             }).start();
         });

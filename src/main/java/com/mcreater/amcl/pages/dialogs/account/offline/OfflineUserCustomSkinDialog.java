@@ -54,8 +54,7 @@ public class OfflineUserCustomSkinDialog extends AbstractDialog {
         event.setOnAction(handler);
     }
     public OfflineUserCustomSkinDialog(String title) {
-        super(Launcher.stage);
-        setTitle(title);
+        super();
         JFXDialogLayout layout = new JFXDialogLayout();
 
         skinItem = new StringButtonItem(Launcher.languageManager.get("ui.userselectpage.skin.select"), 300);

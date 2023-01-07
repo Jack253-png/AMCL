@@ -3,7 +3,6 @@ package com.mcreater.amcl.pages.dialogs.commons;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.controls.JFXProgressBar;
-import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
@@ -18,8 +17,7 @@ public class ProcessDialog extends AbstractDialog {
     public Label l;
     public JFXDialogLayout layout;
     public ProcessDialog(int process_num, String title){
-        super(Launcher.stage);
-        setTitle(title);
+        super();
         layout = new JFXDialogLayout();
         progresses = new Vector<>();
         l = new Label();
@@ -37,8 +35,6 @@ public class ProcessDialog extends AbstractDialog {
         b.getChildren().add(l);
         layout.setHeading(head);
         layout.setBody(b);
-        this.setOnHidden(event -> {});
-        this.setOnHiding(event -> {});
         this.setContent(layout);
     }
     public void setAll(int progress){
