@@ -70,6 +70,7 @@ public class SwingUtils {
             setIconImage(Icons.swingIcon);
             setAlwaysOnTop(true);
             setVisible(false);
+
             setTitle("AMCL");
         }
         public void setVisible(boolean visible) {
