@@ -1,7 +1,6 @@
 package com.mcreater.amcl.api.auth.users;
 
 import com.mcreater.amcl.api.auth.MSAuth;
-import com.mcreater.amcl.api.githubApi.GithubReleases;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.HttpClient;
 import org.apache.commons.lang3.tuple.ImmutablePair;

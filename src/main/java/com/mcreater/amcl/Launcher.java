@@ -331,7 +331,7 @@ public class Launcher {
         logger.info("background generate/set used " + timer.getTimeString());
         s.setOnKeyPressed(event -> System.out.println(event.getCode()));
     }
-    public static void setTitle(){
+    public static void setTitle() {
         AbstractAnimationPage lpa = last.l;
         if (lpa != null){
             ln.setText(lpa.name);

@@ -99,7 +99,7 @@
                 {"name": "org.nanohttpd:nanohttpd:2.3.1"},
                 {"name": "org.fusesource.jansi:jansi:2.4.0"},
                 {"name": "org.apache.maven.wagon:wagon-webdav-jackrabbit:1.0-beta-7"},
-                {"name": "org.apache.httpcomponents:httpmime:4.4.1"},
+                {"name": "org.apache.httpcomponents:httpmime:4.5.13"},
                 {"name": "org.apache.httpcomponents:httpcore:4.4.1"},
                 {"name": "org.apache.httpcomponents:httpclient:4.4.1"},
                 {"name": "commons-codec:commons-codec:1.9"},

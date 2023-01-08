@@ -34,7 +34,7 @@ import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
 public abstract class AbstractDialog extends JFXDialog {
     public static final ObservableList<AbstractDialog> dialogs = FXCollections.observableArrayList();
     public static final SimpleDoubleProperty dialogRadius = new SimpleDoubleProperty(30);
-    public static final double blurRadius = 16;
+    public static final double blurRadius = 8;
     public static final SimpleDoubleProperty nowRadius = new SimpleDoubleProperty(0);
     public static final SimpleDoubleProperty exceptedRadius = new SimpleDoubleProperty(0);
     public static final StackPane wrapper = new StackPane();
@@ -46,7 +46,11 @@ public abstract class AbstractDialog extends JFXDialog {
         FXUtils.ControlSize.set(wrapper, 0, 0);
         dialogs.addListener((ListChangeListener<AbstractDialog>) c -> {
             exceptedRadius.set(c.getList().isEmpty() ? 0 : blurRadius);
-            FXUtils.ControlSize.set(wrapper, c.getList().isEmpty() ? 0 : width, c.getList().isEmpty() ? 0 : height);
+            FXUtils.ControlSize.set(
+                    wrapper,
+                    c.getList().isEmpty() ? 0 : width,
+                    c.getList().isEmpty() ? 0 : height
+            );
         });
         nowRadius.addListener((observable, oldValue, newValue) -> Launcher.wrapper.setEffect(new GaussianBlur(newValue.intValue())));
         new Thread("Dialog blur calc thread") {
@@ -78,8 +82,11 @@ public abstract class AbstractDialog extends JFXDialog {
         runInAnimation(() -> {});
     }
     public void close() {
-        runOutAnimation(super::close);
-        onClose.run();
+        if (dialogs.size() <= 1) exceptedRadius.set(0);
+        runOutAnimation(() -> {
+            super.close();
+            onClose.run();
+        });
     }
     public AbstractDialog() {
         onShow = () -> {
