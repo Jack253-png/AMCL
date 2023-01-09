@@ -33,11 +33,11 @@ import com.mcreater.amcl.util.math.Fraction;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import com.mcreater.amcl.util.svg.Icons;
-import com.sun.prism.impl.PrismSettings;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -47,6 +47,7 @@ import javafx.scene.control.Label;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BackgroundImage;
@@ -323,6 +324,7 @@ public class Launcher {
                         Insets.EMPTY
                 )
         ));
+        FXUtils.disableNodeKeyboard(topWrapper);
 
         s.setFill(Color.TRANSPARENT);
         s.setRoot(topWrapper);

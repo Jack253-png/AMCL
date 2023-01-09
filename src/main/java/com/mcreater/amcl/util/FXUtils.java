@@ -3,6 +3,7 @@ package com.mcreater.amcl.util;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.skins.JFXTextFieldSkin;
 import com.mcreater.amcl.pages.interfaces.AnimationPage;
+import com.mcreater.amcl.theme.ThemeManager;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -10,20 +11,24 @@ import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.value.WritableValue;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.SplitPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.BorderStrokeStyle;
 import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -367,5 +372,21 @@ public class FXUtils {
                     src.getOpacity()
             );
         }
+    }
+    public static void disableNodeKeyboard(ButtonBase buttonBase) {
+        buttonBase.addEventHandler(KeyEvent.KEY_PRESSED, javafx.event.Event::consume);
+        buttonBase.addEventHandler(KeyEvent.KEY_RELEASED, javafx.event.Event::consume);
+        buttonBase.addEventHandler(KeyEvent.KEY_TYPED, javafx.event.Event::consume);
+
+        buttonBase.addEventFilter(KeyEvent.KEY_PRESSED, javafx.event.Event::consume);
+        buttonBase.addEventFilter(KeyEvent.KEY_RELEASED, javafx.event.Event::consume);
+        buttonBase.addEventFilter(KeyEvent.KEY_TYPED, Event::consume);
+    }
+    public static void disableNodeKeyboard(Pane pane) {
+        ThemeManager.GetAllNodes(pane).forEach(
+                node -> {
+                    if (node instanceof ButtonBase) disableNodeKeyboard((ButtonBase) node);
+                }
+        );
     }
 }

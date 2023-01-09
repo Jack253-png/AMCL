@@ -135,6 +135,7 @@ public abstract class AbstractDialog extends JFXDialog {
                         Insets.EMPTY
                 )
         ));
+        FXUtils.disableNodeKeyboard(this);
     }
     private void runInAnimation(Runnable runnable) {
         Timeline timeline = new Timeline(
