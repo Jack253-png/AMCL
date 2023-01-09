@@ -28,7 +28,7 @@ import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.LambdaTask;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.tasks.Task;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.manager.TaskManager;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;

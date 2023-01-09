@@ -7,9 +7,8 @@ import com.mcreater.amcl.model.fabric.FabricVersionModel;
 import com.mcreater.amcl.model.fabric.OldFabricVersionModel;
 import com.mcreater.amcl.tasks.LibDownloadTask;
 import com.mcreater.amcl.tasks.Task;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.manager.TaskManager;
 import com.mcreater.amcl.util.J8Utils;
-import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import org.apache.logging.log4j.LogManager;
@@ -17,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;

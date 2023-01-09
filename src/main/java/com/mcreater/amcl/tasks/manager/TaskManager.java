@@ -1,4 +1,4 @@
-package com.mcreater.amcl.tasks.taskmanager;
+package com.mcreater.amcl.tasks.manager;
 
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.StableMain;

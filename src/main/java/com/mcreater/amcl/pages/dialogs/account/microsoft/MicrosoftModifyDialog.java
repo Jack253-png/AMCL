@@ -74,7 +74,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
         ThemeManager.loadNodeAnimations(label, finish);
 
         layout.setHeading(label);
-        layout.setBody(pane);
+        layout.setBody(content);
         layout.setActions(finish);
         setContent(layout);
     }

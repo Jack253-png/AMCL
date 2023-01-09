@@ -23,7 +23,7 @@ import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.tasks.DownloadTask;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.manager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FileUtils.ZipUtil;

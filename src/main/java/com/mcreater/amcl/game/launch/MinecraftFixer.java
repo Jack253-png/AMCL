@@ -12,7 +12,7 @@ import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.LibDownloadTask;
 import com.mcreater.amcl.tasks.NativeDownloadTask;
 import com.mcreater.amcl.tasks.Task;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.manager.TaskManager;
 import com.mcreater.amcl.util.FileUtils.FileStringReader;
 import com.mcreater.amcl.util.FileUtils.HashHelper;
 import com.mcreater.amcl.util.FileUtils.LinkPath;

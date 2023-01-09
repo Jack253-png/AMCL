@@ -2,7 +2,7 @@ package com.mcreater.amcl.patcher;
 
 import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.tasks.Task;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.manager.TaskManager;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.svg.Icons;
 

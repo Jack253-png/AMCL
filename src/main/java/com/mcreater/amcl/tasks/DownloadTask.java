@@ -1,9 +1,8 @@
 package com.mcreater.amcl.tasks;
 
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.manager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.J8Utils;
-import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.net.FasterUrls;
 
 import javax.net.ssl.*;
@@ -11,7 +10,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.cert.X509Certificate;
-import java.util.Objects;
 
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.deleteFile;

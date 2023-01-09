@@ -12,7 +12,7 @@ import com.mcreater.amcl.tasks.AssetsDownloadTask;
 import com.mcreater.amcl.tasks.LibDownloadTask;
 import com.mcreater.amcl.tasks.NativeDownloadTask;
 import com.mcreater.amcl.tasks.Task;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.manager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.net.FasterUrls;

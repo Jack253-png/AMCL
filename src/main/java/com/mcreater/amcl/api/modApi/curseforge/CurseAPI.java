@@ -1,15 +1,13 @@
 package com.mcreater.amcl.api.modApi.curseforge;
 
-import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.api.modApi.curseforge.mod.CurseModModel;
 import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModFileModel;
 import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModRequireModel;
 import com.mcreater.amcl.controls.ModFile;
-import com.mcreater.amcl.controls.ServerMod;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.tasks.LambdaTask;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.manager.TaskManager;
 import com.mcreater.amcl.util.net.FasterUrls;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +21,6 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;

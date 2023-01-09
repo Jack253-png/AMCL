@@ -2,13 +2,12 @@ package com.mcreater.amcl.api.modApi.modrinth;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.Gson;
 import com.mcreater.amcl.api.modApi.curseforge.CurseAPI;
 import com.mcreater.amcl.api.modApi.modrinth.mod.ModrinthModModel;
 import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileDepencymModel;
 import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileModel;
 import com.mcreater.amcl.tasks.LambdaTask;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.manager.TaskManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

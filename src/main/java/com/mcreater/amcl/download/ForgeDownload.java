@@ -16,7 +16,7 @@ import com.mcreater.amcl.tasks.ForgeInstallerDownloadTask;
 import com.mcreater.amcl.tasks.ForgePatchTask;
 import com.mcreater.amcl.tasks.LibDownloadTask;
 import com.mcreater.amcl.tasks.Task;
-import com.mcreater.amcl.tasks.taskmanager.TaskManager;
+import com.mcreater.amcl.tasks.manager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.net.FasterUrls;

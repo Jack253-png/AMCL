@@ -9,7 +9,7 @@ public class MessageCenter {
         SystemTray tray = SystemTray.getSystemTray();
         TrayIcon trayIcon = new TrayIcon(Icons.swingIcon, "Abstract Minecraft Launcher");
         trayIcon.setImageAutoSize(true);
-        trayIcon.setToolTip("Minecraft Launcher");
+        trayIcon.setToolTip("Abstract Minecraft Launcher");
         tray.add(trayIcon);
         trayIcon.displayMessage(title, text, type);
     }
