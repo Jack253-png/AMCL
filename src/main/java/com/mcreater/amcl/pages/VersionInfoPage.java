@@ -31,7 +31,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
 import java.util.Vector;
-import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -42,7 +41,6 @@ import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
 import static com.mcreater.amcl.pages.DownloadAddonSelectPage.isValidFileName;
-import static com.mcreater.amcl.util.J8Utils.runSafe;
 
 public class VersionInfoPage extends AbstractMenuBarPage {
     public JFXButton mainInfoButton;
@@ -68,6 +66,8 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     public JFXButton delVer;
     public JFXButton changeName;
     public StringItem item;
+    public boolean modLoaded = false;
+    private Thread modLoadThread;
     public VersionInfoPage(double width, double height){
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -150,8 +150,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
         b2 = new VBox();
         mods = new GridPane();
-        modList = new SmoothableListView<>(this.width / 4 * 3, this.height - t_size * 2 - 10);
-//        FXUtils.ControlSize.set(modList.page, this.width / 4 * 3 - 15, this.height - t_size * 2 - 10);
+        modList = new SmoothableListView<>(this.width / 4 * 3, this.height - t_size * 2);
 
         addMod = new JFXButton();
         FXUtils.ControlSize.set(addMod, t_size, t_size);
@@ -159,7 +158,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
         refresh = new JFXButton();
         FXUtils.ControlSize.set(refresh, t_size, t_size);
-        refresh.setOnAction(actionEvent -> new Thread(this::loadMods).start());
+        refresh.setOnAction(action -> startLoadingMods(() -> {}));
 
         delete = new JFXButton();
         FXUtils.ControlSize.set(delete, t_size, t_size);
@@ -231,11 +230,19 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     }
 
     public void setType(boolean b){
+//        addMod.setDisable(b);
         modList.setDisable(b);
-        addMod.setDisable(b);
         refresh.setDisable(b);
     }
-    public void loadMods(){
+    public void startLoadingMods(Runnable finish) {
+        if (modLoadThread != null) modLoadThread.stop();
+        modLoadThread = new Thread(() -> {
+            loadMods();
+            finish.run();
+        });
+        modLoadThread.start();
+    }
+    public void loadMods() {
         delete.setDisable(true);
         try {
             JFXSmoothScroll.smoothScrollBarToValue(bar, -1.0);
@@ -281,7 +288,9 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         p1.set(this.opacityProperty());
         p2.set(this.opacityProperty());
         setType(setted);
-        loadMods();
+        if (!modLoaded) {
+            startLoadingMods(() -> modLoaded = true);
+        }
     }
 
     public void refreshLanguage() {
@@ -302,6 +311,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     
     public void onExitPage() {
         super.setP1(0);
+        modLoadThread.stop();
     }
 }
 

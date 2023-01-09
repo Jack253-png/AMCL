@@ -56,7 +56,7 @@ public class StableMain {
         LoggerPrintStream.setStdStream();
 
         boolean enable_jansi = SystemPropertyParser.getBoolean("amcl.enableJansi");
-        SystemPropertyParser.set("log4j.skipJansi", Boolean.toString(!enable_jansi));
+        SystemPropertyParser.set("log4j.skipJansi", !enable_jansi);
         LoggerPrintStream.enableJansi = enable_jansi;
 
         GithubReleases.trustAllHosts();
@@ -90,6 +90,8 @@ public class StableMain {
                 protected long _start(Runnable runnable) {return 0;}
                 protected long _start(Runnable runnable, int period) {return 0;}
                 protected void _stop(long timer) {}
+                protected void _pause(long timer) {}
+                protected void _resume(long timer) {}
             });
         }
         catch (Throwable e){

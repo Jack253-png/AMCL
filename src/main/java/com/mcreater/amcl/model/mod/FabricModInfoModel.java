@@ -6,5 +6,6 @@ public class FabricModInfoModel extends AbstractFabricModInfoModel{
     public String version;
     public String name;
     public String description;
-    public Vector<String> authors;
+    public String icon;
+    public Vector<Object> authors;
 }

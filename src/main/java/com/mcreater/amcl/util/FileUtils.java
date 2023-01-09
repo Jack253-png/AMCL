@@ -9,6 +9,8 @@ import jnr.posix.POSIXFactory;
 import java.awt.image.BufferedImage;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -502,24 +504,37 @@ public class FileUtils {
             String content = "";
             while (zipEntry != null) {
                 if (!zipEntry.isDirectory() && zipEntry.getName().equals(internalFileName)) {
-                    Vector<Byte> b = new Vector<>();
-                    byte[] bytes = new byte[1];
-                    while (zipInputStream.read(bytes) != -1) {
-                        b.addAll(J8Utils.createList(bytes[0]));
-                    }
-                    Byte[] array = b.toArray(new Byte[0]);
-                    byte[] finalData = new byte[array.length];
-                    for (int index = 0;index < array.length;index++){
-                        finalData[index] = array[index];
+                    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                    byte[] bytes = new byte[64];
+                    int length;
+                    while ((length = zipInputStream.read(bytes)) != -1) {
+                        outStream.write(bytes, 0, length);
                     }
 
-                    content = new String(finalData);
+                    content = outStream.toString();
                     zipInputStream.closeEntry();
                     return content;
                 }
                 zipEntry = zipInputStream.getNextEntry();
             }
             return null;
+        }
+        public static InputStream readBinaryFileInZip(String zipFile, String internalFileName) throws IOException {
+            ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(zipFile)));
+            ZipEntry zipEntry = zipInputStream.getNextEntry();
+            while (zipEntry != null) {
+                if (!zipEntry.isDirectory() && zipEntry.getName().equals(internalFileName)) {
+                    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                    byte[] bytes = new byte[64];
+                    int length;
+                    while ((length = zipInputStream.read(bytes)) != -1) {
+                        outStream.write(bytes, 0, length);
+                    }
+                    return new ByteArrayInputStream(outStream.toByteArray());
+                }
+                zipEntry = zipInputStream.getNextEntry();
+            }
+            return new ByteArrayInputStream(new byte[0]);
         }
     }
 }

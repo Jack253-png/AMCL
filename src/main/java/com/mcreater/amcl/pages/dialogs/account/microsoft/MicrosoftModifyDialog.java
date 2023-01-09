@@ -7,14 +7,15 @@ import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.controls.items.RadioButtonGroupItem;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
+import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
+import com.mcreater.amcl.util.FXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
-import javafx.scene.control.Skin;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
@@ -50,11 +51,16 @@ public class MicrosoftModifyDialog extends AbstractDialog {
                     "*.png"
             ));
             File f = chooser.showOpenDialog(stage);
-            try {
-                user.upload(base_model.cont.getSelectedItem() == 0 ? MicrosoftUser.SkinType.STEVE : MicrosoftUser.SkinType.ALEX, f);
-            } catch (Exception e) {
-                SimpleDialogCreater.exception(e);
-            }
+            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.skin.upload"));
+            dialog.Create();
+            new Thread(() -> {
+                try {
+                    user.upload(base_model.cont.getSelectedItem() == 0 ? MicrosoftUser.SkinType.STEVE : MicrosoftUser.SkinType.ALEX, f);
+                } catch (Exception e) {
+                    SimpleDialogCreater.exception(e);
+                }
+                FXUtils.Platform.runLater(dialog::close);
+            }).start();
         });
 
         base_model = new RadioButtonGroupItem(Launcher.languageManager.get("ui.userselectpage.custom.model"), 400, Orientation.HORIZONTAL, "Steve", "Alex");

@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.model.mod.FabricModInfoModel;
 import com.mcreater.amcl.model.mod.ForgeModInfoModel;
@@ -14,9 +13,13 @@ import com.mcreater.amcl.model.mod.SimpleModInfoModel;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FileUtils.ZipUtil;
 import com.mcreater.amcl.util.J8Utils;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Vector;
 
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
@@ -49,6 +52,7 @@ public class ModHelper {
         String name = "";
         String description = "";
         Vector<String> authorList = new Vector<>();
+        Image icon = new WritableImage(1, 1);
 
         String mcmodinfoFile = ZipUtil.readTextFileInZip(path, "mcmod.info");
         String packMcMetaFile = ZipUtil.readTextFileInZip(path, "pack.mcmeta");
@@ -74,6 +78,14 @@ public class ModHelper {
                     m2.version = mi.version;
                     m2.authorList = mi.authorList;
                     m2.description = mi.description;
+                    Image iconTemp = new WritableImage(1, 1);
+                    try {
+                        iconTemp = new Image(ZipUtil.readBinaryFileInZip(path, (mi.modid == null ? "" : mi.modid) + "-logo.png"));
+                    }
+                    catch (IOException ignored) {
+
+                    }
+                    m2.icon = iconTemp;
                     vec.add(m2);
                 });
 
@@ -89,6 +101,14 @@ public class ModHelper {
                     m2.version = mu.version;
                     m2.authorList = mu.authorList;
                     m2.description = mu.description;
+                    Image iconTemp = new WritableImage(1, 1);
+                    try {
+                        iconTemp = new Image(ZipUtil.readBinaryFileInZip(path, (mu.modid == null ? "" : mu.modid) + "-logo.png"));
+                    }
+                    catch (IOException ignored) {
+
+                    }
+                    m2.icon = iconTemp;
                     vec.add(m2);
                 });
                 return vec;
@@ -106,6 +126,7 @@ public class ModHelper {
             SimpleModInfoModel model = GSON_PARSER.fromJson(packMcMetaFile, SimpleModInfoModel.class);
             name = model.pack.get("description");
             description = model.pack.get("description");
+            icon = new Image(ZipUtil.readBinaryFileInZip(path, "logo.png"));
         }
         if (fabricModJsonFile != null) {
             FabricModInfoModel model;
@@ -123,9 +144,21 @@ public class ModHelper {
             version = model.version;
             name = model.name;
             description = model.description;
-            authorList = model.authors;
+            Vector<String> ve = new Vector<>();
+            if (model.authors != null) {
+                for (Object o : model.authors) {
+                    if (o instanceof String) ve.add((String) o);
+                    else if (o instanceof Map) {
+                        Map map = (Map) o;
+                        Object name2 = map.get("name");
+                        if (name2 != null) ve.add((String) name2);
+                    }
+                }
+            }
+            authorList = ve;
+            icon = new Image(ZipUtil.readBinaryFileInZip(path, model.icon));
         }
-        if (quiltModJsonFile != null) {
+        else if (quiltModJsonFile != null) {
             JSONObject ob = JSON.parseObject(quiltModJsonFile);
             version = ob.getJSONObject("quilt_loader").getString("version");
             name = ob.getJSONObject("quilt_loader").getJSONObject("metadata").getString("name");
@@ -140,14 +173,16 @@ public class ModHelper {
                 }
             });
             authorList = temp;
+            icon = new Image(ZipUtil.readBinaryFileInZip(path, name = ob.getJSONObject("quilt_loader").getJSONObject("metadata").getString("icon")));
         }
 
         CommonModInfoModel m1 = new CommonModInfoModel();
         m1.version = version;
         m1.name = name;
         m1.description = description;
-        m1.authorList = authorList.size() == 0 ? null : authorList;
+        m1.authorList = authorList != null && !authorList.isEmpty() ? authorList : null;
         m1.path = path;
+        m1.icon = icon;
         return new Vector<>(J8Utils.createList(m1));
     }
 }
