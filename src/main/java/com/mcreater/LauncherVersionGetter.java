@@ -1,7 +1,5 @@
 package com.mcreater;
 
-import com.mcreater.amcl.util.J8Utils;
-
 import java.util.Calendar;
 
 public class LauncherVersionGetter {
