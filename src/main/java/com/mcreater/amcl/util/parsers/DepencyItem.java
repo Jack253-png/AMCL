@@ -4,6 +4,8 @@ import com.mcreater.amcl.patcher.DepenciesLoader;
 
 import java.net.MalformedURLException;
 
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
+
 public class DepencyItem {
     public String name;
     String maven;
@@ -12,7 +14,7 @@ public class DepencyItem {
         this.maven = maven;
     }
     public String getLocal(){
-        return "AMCL/depencies/" + DepenciesLoader.convertName(this.name);
+        return String.format(buildPath("AMCL", "depencies", "%s"), DepenciesLoader.convertName(this.name));
     }
 
     public String getURL() throws MalformedURLException {

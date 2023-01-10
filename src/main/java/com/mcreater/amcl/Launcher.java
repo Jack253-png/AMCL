@@ -70,6 +70,7 @@ import java.util.List;
 import java.util.Vector;
 
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.transparent;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 
 public class Launcher {
     static Logger logger = LogManager.getLogger(Launcher.class);
@@ -119,7 +120,7 @@ public class Launcher {
             if (!b){
                 throw new IllegalStateException("Failed to read config");
             }
-            configReader = new ConfigWriter(new File(FileUtils.ChangeDir.dirs, "AMCL/config.json"));
+            configReader = new ConfigWriter(new File(FileUtils.ChangeDir.dirs, buildPath("AMCL", "config.json")));
             configReader.check_and_write();
         } catch (Exception e) {
             logger.error("failed to read config", e);

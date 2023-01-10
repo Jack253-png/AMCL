@@ -51,6 +51,7 @@ import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
 import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 
 public class DownloadAddonSelectPage extends AbstractAnimationPage {
     static OriginalVersionModel model;
@@ -208,7 +209,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             dialog.setV(2, 0);
             CountDownLatch latch = new CountDownLatch(1);
             String rl = versionfinalName.cont.getText();
-            String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s", rl));
+            String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format(buildPath("versions", "%s"), rl));
             if (new File(versionDir).exists()){
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.1"), "");
                 install.setDisable(false);
@@ -221,7 +222,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             }
             String modDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "mods");
             if (Launcher.configReader.configModel.change_game_dir){
-                modDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/mods", rl));
+                modDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format(buildPath("versions", "%s", "mods"), rl));
             }
 
             if (!(forge || optifine || fabric || fabricapi || optifabric || quilt)){

@@ -7,10 +7,12 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.*;
 import java.util.Arrays;
 
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
+
 public class Main {
     static String[] args;
     static {
-        FileUtils.OperateUtil.deleteFile("AMCL/logs/log.log");
+        FileUtils.OperateUtil.deleteFile(buildPath("AMCL/logs/log.log"));
     }
     public static Logger logger = LogManager.getLogger(Main.class);
     public static void start() {

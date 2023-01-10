@@ -56,6 +56,7 @@ import static com.mcreater.amcl.Launcher.MODDOWNLOADPAGE;
 import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 
 public class ModDownloadPage extends AbstractAnimationPage {
     public Vector<CurseModModel> reqMods;
@@ -104,7 +105,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         Vector<DownloadTask> tasks = new Vector<>();
                         String modPath;
                         if (Launcher.configReader.configModel.change_game_dir){
-                            modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "versions/" + Launcher.configReader.configModel.selected_version_index + "/mods");
+                            modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format(buildPath("versions", "%s", "mods"), Launcher.configReader.configModel.selected_version_index));
                         }
                         else {
                             modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "mods");

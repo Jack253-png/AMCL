@@ -21,6 +21,7 @@ import java.util.Vector;
 import static com.mcreater.amcl.util.FileUtils.FileStringReader;
 import static com.mcreater.amcl.util.FileUtils.LinkPath;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.deleteFile;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class OptifineDownload {
@@ -74,8 +75,8 @@ public class OptifineDownload {
         }
 
         String fileSrc = new File("opti.jar").getAbsolutePath();
-        String fileBase = FileUtils.LinkPath.link(minecraft_dir, String.format("versions/%s/%s.jar", version_name, version_name));
-        String fileDest = FileUtils.LinkPath.link(minecraft_dir, String.format("libraries/optifine/OptiFine/%s_%s/OptiFine-%s_%s.jar", id, ofEd, id, ofEd));
+        String fileBase = FileUtils.LinkPath.link(minecraft_dir, String.format(buildPath( "versions", "%s", "%s.jar"), version_name, version_name));
+        String fileDest = FileUtils.LinkPath.link(minecraft_dir, String.format(buildPath("libraries", "optifine", "OptiFine", "%s_%s", "OptiFine-%s_%s.jar"), id, ofEd, id, ofEd));
         new File(fileDest).getParentFile().mkdirs();
 
         jar.invokeStaticMethod(
@@ -110,7 +111,7 @@ public class OptifineDownload {
                 File.class, String.class, File.class, String.class, String.class);
 
         // merge json
-        JSONObject f = new JSONObject(GSON_PARSER.fromJson(FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)), Map.class));
+        JSONObject f = new JSONObject(GSON_PARSER.fromJson(FileStringReader.read(String.format(buildPath("%s", "versions", "%s", "%s.json"), minecraft_dir, version_name, version_name)), Map.class));
         for (Object o : ob.getJSONArray("libraries")){
             f.getJSONArray("libraries").add(o);
         }
@@ -122,7 +123,7 @@ public class OptifineDownload {
             JSONArray array = new JSONArray(finalArgs);
             f.getJSONObject("arguments").put("game", array);
         }
-        BufferedWriter writer = new BufferedWriter(new FileWriter(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(String.format(buildPath("%s", "versions", "%s", "%s.json"), minecraft_dir, version_name, version_name)));
         writer.write(GSON_PARSER.toJson(f));
         writer.close();
 

@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class OriginalDownload {
@@ -57,7 +58,8 @@ public class OriginalDownload {
         if (version_url == null){
             throw new IOException();
         }
-        String version_dir = LinkPath.link(minecraft_dir, "versions/" + version_name);
+
+        String version_dir = LinkPath.link(minecraft_dir, String.format(buildPath("versions", "%s"), version_name));
         createDirectoryDirect(version_dir);
 
         String version_json = HttpConnectionUtil.doGet(FasterUrls.fast(version_url, server));

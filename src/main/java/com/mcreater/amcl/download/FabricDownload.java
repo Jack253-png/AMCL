@@ -24,6 +24,7 @@ import java.util.Vector;
 import static com.mcreater.amcl.util.FileUtils.FileStringReader;
 import static com.mcreater.amcl.util.FileUtils.LinkPath;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class FabricDownload {
@@ -45,7 +46,7 @@ public class FabricDownload {
         try {
             FabricVersionModel model = GSON_PARSER.fromJson(r, FabricVersionModel.class);
             String lib_base = LinkPath.link(minecraft_dir, "libraries");
-            String versionJson = String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name);
+            String versionJson = String.format(buildPath("%s", "versions", "%s", "%s.json"), minecraft_dir, version_name, version_name);
             JSONObject ao = new JSONObject(FileStringReader.read(versionJson));
             ao.put("mainClass", model.launcherMeta.mainClass.client);
             for (FabricLibModel lib : model.launcherMeta.libraries.common) {
@@ -94,7 +95,7 @@ public class FabricDownload {
         catch (JsonSyntaxException e){
             OldFabricVersionModel model = GSON_PARSER.fromJson(r, OldFabricVersionModel.class);
             String lib_base = LinkPath.link(minecraft_dir, "libraries");
-            String versionJson = String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name);
+            String versionJson = String.format(buildPath("%s", "versions", "%s", "%s.json"), minecraft_dir, version_name, version_name);
             JSONObject ao = new JSONObject(FileStringReader.read(versionJson));
             ao.put("mainClass", model.launcherMeta.mainClass);
             for (String a : model.launcherMeta.arguments.common){

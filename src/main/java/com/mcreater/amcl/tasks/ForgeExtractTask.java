@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Vector;
 
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.LogLineDetecter.printStreamToPrintStream;
 
 public class ForgeExtractTask extends AbstractExecutableTask {
@@ -60,7 +61,7 @@ public class ForgeExtractTask extends AbstractExecutableTask {
         }
     }
     public void copy() {
-        List<String> files = getAllFile("forgeTemp/maven/net/minecraftforge");
+        List<String> files = getAllFile(buildPath("forgeTemp", "maven", "net", "minecraftforge"));
         files.forEach(s -> {
             String loc = LinkPath.link(extractPath, new File(s).getName());
             createDirectoryDirect(extractPath);

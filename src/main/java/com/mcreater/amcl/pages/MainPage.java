@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.mcreater.amcl.Launcher.MAINPAGE;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 
 public class MainPage extends AbstractAnimationPage {
     public static Label title;
@@ -325,9 +326,9 @@ public class MainPage extends AbstractAnimationPage {
                 if (Launcher.configReader.configModel.selected_minecraft_dir.contains(Launcher.configReader.configModel.selected_minecraft_dir_index)) {
                     if (Launcher.configReader.configModel.selected_version_index != null) {
                         if (Objects.requireNonNull(GetMinecraftVersion.get(Launcher.configReader.configModel.selected_minecraft_dir_index)).contains(Launcher.configReader.configModel.selected_version_index)) {
-                            if (new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/%s.json", Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)).exists()) {
+                            if (new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format(buildPath("versions", "%s", "%s.json"), Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)).exists()) {
                                 if (!Launcher.configReader.configModel.selected_version_index.equals("")) {
-                                    if (JsonUtils.isVaildJson(new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s/%s.json", Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)))) {
+                                    if (JsonUtils.isVaildJson(new File(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format(buildPath("versions", "%s", "%s.json"), Launcher.configReader.configModel.selected_version_index, Launcher.configReader.configModel.selected_version_index)))) {
                                         Platform.runLater(() -> {
                                             version_settings.setText(" _" + Launcher.configReader.configModel.selected_version_index);
                                             launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.hasVersion"));

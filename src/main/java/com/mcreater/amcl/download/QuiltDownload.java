@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class QuiltDownload {
@@ -40,7 +41,7 @@ public class QuiltDownload {
         String r = HttpConnectionUtil.doGet(fab);
         FabricVersionModel model = GSON_PARSER.fromJson(r, FabricVersionModel.class);
         String lib_base = FileUtils.LinkPath.link(minecraft_dir, "libraries");
-        String versionJson = String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name);
+        String versionJson = String.format(buildPath("%s", "versions", "%s", "%s.json"), minecraft_dir, version_name, version_name);
         JSONObject ao = new JSONObject(FileUtils.FileStringReader.read(versionJson));
         ao.put("mainClass", model.launcherMeta.mainClass.client);
         for (FabricLibModel lib : model.launcherMeta.libraries.common) {

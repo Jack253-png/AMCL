@@ -38,6 +38,7 @@ import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.deleteDirectory;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.deleteFile;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 import static com.mcreater.amcl.util.StringUtils.ForgeMapplings.checkIsForgePath;
 import static com.mcreater.amcl.util.StringUtils.ForgeMapplings.checkIsMapKey;
@@ -59,7 +60,7 @@ public class ForgeDownload {
         OriginalDownload.download(id, minecraft_dir, version_name, chunkSize, server);
         r.run();
         String versionPath = FileUtils.LinkPath.link(temp_path, "version.json");
-        versiondir = String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name);
+        versiondir = String.format(buildPath("%s", "versions", "%s", "%s.json"), minecraft_dir, version_name, version_name);
         VersionJsonModel model225 = GSON_PARSER.fromJson(FileUtils.FileStringReader.read(versiondir), VersionJsonModel.class);
         try {
             u = FasterUrls.fast(model225.downloads.get("client_mappings").url, server);
@@ -89,20 +90,20 @@ public class ForgeDownload {
         if (new File(versionPath).exists()){
             String t = FileUtils.FileStringReader.read(versionPath);
             ForgeVersionModel model = GSON_PARSER.fromJson(t, ForgeVersionModel.class);
-            JSONObject ao = new JSONObject(FileUtils.FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
+            JSONObject ao = new JSONObject(FileUtils.FileStringReader.read(String.format(buildPath("%s", "versions", "%s", "%s.json"), minecraft_dir, version_name, version_name)));
             ao = ao.put("mainClass", model.mainClass);
             for (LibModel m : model.libraries) {
                 ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(m, LibModel.class), Map.class));
                 if (Objects.equals(m.downloads.artifact.get("url"), "")){
                     String extract = StringUtils.GetFileBaseDir.get(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path")));
-                    int returnCode = new ForgeExtractTask(extract, installer_path.replace("\\", "/"), new String[]{"--extract", extract}).execute();
+                    int returnCode = new ForgeExtractTask(extract, installer_path, new String[]{"--extract", extract}).execute();
                     if (returnCode != 0){
                         throw new IOException("Install Failed");
                     }
                 }
                 else {
                     createDirectory(FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path")));
-                    tasks.add(new LibDownloadTask(FasterUrls.fast(m.downloads.artifact.get("url"), server), FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path").replace("\\", "/")), chunkSize).setHash(m.downloads.artifact.get("sha1")));
+                    tasks.add(new LibDownloadTask(FasterUrls.fast(m.downloads.artifact.get("url"), server), FileUtils.LinkPath.link(lib_base, m.downloads.artifact.get("path")), chunkSize).setHash(m.downloads.artifact.get("sha1")));
                 }
             }
             if (model.minecraftArguments != null){
@@ -118,7 +119,7 @@ public class ForgeDownload {
                     }
                 }
             }
-            BufferedWriter w = new BufferedWriter(new FileWriter(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
+            BufferedWriter w = new BufferedWriter(new FileWriter(String.format(buildPath("%s", "versions", "%s", "%s.json"), minecraft_dir, version_name, version_name)));
             w.write(ao.toString());
             w.close();
 
@@ -136,15 +137,15 @@ public class ForgeDownload {
                 for (String key : model1.data.keySet()){
                     if (checkIsForgePath(model1.data.get(key).get("client"))){
                         try {
-                            mapplings.put(String.format("{%s}", key), FileUtils.LinkPath.link(lib_base, getLong(model1.data.get(key).get("client"))).replace("\\", "/"));
+                            mapplings.put(String.format("{%s}", key), FileUtils.LinkPath.link(lib_base, getLong(model1.data.get(key).get("client"))));
                         }
                         catch (Exception ignored){}
                     }
                 }
             }
             mapplings.put("{SIDE}", "client");
-            mapplings.put("{MINECRAFT_JAR}", String.format("%s/versions/%s/%s.jar", minecraft_dir.replace("\\", "/"), version_name, version_name));
-            mapplings.put("{BINPATCH}", "forgeTemp/data/client.lzma");
+            mapplings.put("{MINECRAFT_JAR}", String.format(buildPath("%s", "versions", "%s", "%s.jar"), minecraft_dir, version_name, version_name));
+            mapplings.put("{BINPATCH}", buildPath("forgeTemp", "data", "client.lzma"));
             r2.run();
             Vector<Task> tasks2 = new Vector<>();
             for (ForgeProcessorModel model2 : model1.processors){
@@ -152,7 +153,7 @@ public class ForgeDownload {
                     Vector<String> args = new Vector<>();
                     for (String a : model2.args) {
                         if (checkIsForgePath(a)){
-                            args.add(FileUtils.LinkPath.link(lib_base, get(a)).replace("\\", "/"));
+                            args.add(FileUtils.LinkPath.link(lib_base, get(a)));
                         }
                         else if (checkIsMapKey(a)){
                             args.add(mapplings.get(a));
@@ -171,7 +172,7 @@ public class ForgeDownload {
             String rr = FileUtils.LinkPath.link(temp_path, "install_profile.json");
             String rw = FileUtils.FileStringReader.read(rr);
             OldForgeVersionModel model = GSON_PARSER.fromJson(rw, OldForgeVersionModel.class);
-            JSONObject ao = new JSONObject(FileUtils.FileStringReader.read(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
+            JSONObject ao = new JSONObject(FileUtils.FileStringReader.read(String.format(buildPath("%s", "versions", "%s", "%s.json"), minecraft_dir, version_name, version_name)));
             ao = ao.put("mainClass", model.versionInfo.mainClass);
             ao = ao.put("minecraftArguments", model.versionInfo.minecraftArguments);
 
@@ -181,7 +182,7 @@ public class ForgeDownload {
                 if (model1.clientreq == null && model1.serverreq == null){
                     if (model1.name.contains("net.minecraftforge:minecraftforge") || model1.name.contains("net.minecraftforge:forge")) {
                         FileUtils.ChangeDir.saveNowDir();
-                        String i = FileUtils.LinkPath.link(FileUtils.ChangeDir.dirs, installer_path).replace("\\", "/");
+                        String i = FileUtils.LinkPath.link(FileUtils.ChangeDir.dirs, installer_path);
                         FileUtils.ChangeDir.changeTo(p);
                         if (new ForgeExtractTask(p, i, new String[]{"--extract"}).execute() != 0) {
                             throw new IOException("Forge Extract Failed");
@@ -192,11 +193,9 @@ public class ForgeDownload {
                             if (f.isFile()) {
                                 if (f.getPath().endsWith(".jar")) {
                                     String excepted = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model1.name))
-                                            .replace(".jar", "")
-                                            .replace("\\", "/");
+                                            .replace(".jar", "");
                                     String orig = f.getPath()
-                                            .replace(".jar", "")
-                                            .replace("\\", "/");
+                                            .replace(".jar", "");
 
                                     if (orig.contains(excepted)) {
                                         try {
@@ -263,7 +262,7 @@ public class ForgeDownload {
                     tasks.add(te);
                 }
             }
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(String.format("%s/versions/%s/%s.json", minecraft_dir, version_name, version_name)));
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(String.format(buildPath("%s", "versions", "%s", "%s.json"), minecraft_dir, version_name, version_name)));
             bufferedWriter.write(ao.toString());
             bufferedWriter.close();
             TaskManager.addTasks(tasks);

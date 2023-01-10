@@ -28,18 +28,19 @@ import java.util.Vector;
 import static com.mcreater.amcl.download.OriginalDownload.checkAllowState;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class MinecraftFixer {
     static Vector<Task> tasks = new Vector<>();
     public static void fix(int chunkSize, String dir, String versionName, FasterUrls.Servers server) throws IOException, InterruptedException {
         tasks.clear();
-        String versionDir = LinkPath.link(dir, String.format("versions/%s", versionName));
-        String assetsDir = String.format("%s/assets/indexes/", dir).replace("\\", "/");
+        String versionDir = LinkPath.link(dir, String.format(buildPath("versions", "%s"), versionName));
+        String assetsDir = String.format(buildPath("%s", "assets", "indexes"), dir);
         if (!new File(versionDir).exists()){
             throw new IOException("version dir does not exists");
         }
-        String versionJson = String.format("%s/%s.json", versionDir, versionName).replace("\\", "/");
+        String versionJson = String.format(buildPath("%s", "%s.json"), versionDir, versionName);
         if (!new File(versionJson).exists()){
             throw new IOException("version json does not exists");
         }
@@ -67,7 +68,7 @@ public class MinecraftFixer {
         AssetsModel m = GSON_PARSER.fromJson(FileStringReader.read(index), AssetsModel.class);
         for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()) {
             String hash = entry.getValue().get("hash");
-            String s = String.format("%s/%s/%s", assets_objects, hash.substring(0, 2), hash).replace("\\", "/");
+            String s = String.format(buildPath("%s", "%s", "%s"), assets_objects, hash.substring(0, 2), hash);
             if (!HashHelper.validateSHA1(new File(s), hash)) {
                 boolean contained = false;
                 for (Task task : tasks) {

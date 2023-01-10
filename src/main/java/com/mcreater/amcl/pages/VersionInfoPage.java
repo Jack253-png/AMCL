@@ -41,6 +41,7 @@ import static com.mcreater.amcl.Launcher.USERSELECTPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONINFOPAGE;
 import static com.mcreater.amcl.Launcher.VERSIONSELECTPAGE;
 import static com.mcreater.amcl.pages.DownloadAddonSelectPage.isValidFileName;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 
 public class VersionInfoPage extends AbstractMenuBarPage {
     public JFXButton mainInfoButton;
@@ -114,7 +115,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         delVer = new JFXButton();
         FXUtils.ControlSize.set(delVer, t_size, t_size);
         delVer.setOnAction(event -> {
-            RemoveFileToTrash.remove(LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s", Launcher.configReader.configModel.selected_version_index)));
+            RemoveFileToTrash.remove(LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format(buildPath("versions", "%s"), Launcher.configReader.configModel.selected_version_index)));
             Launcher.setPage(Launcher.MAINPAGE, this);
         });
         item = new StringItem("", this.width / 4 * 3);
@@ -122,18 +123,19 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         FXUtils.ControlSize.set(changeName, t_size, t_size);
         changeName.setOnAction(event -> {
             if (isValidFileName(item.cont.getText())) {
-                String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s", item.cont.getText()));
+                String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format(buildPath("versions", "%s"), item.cont.getText()));
                 if (new File(versionDir).exists()) {
                     SimpleDialogCreater.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.1"), "");
                 } else {
                     String temp = Launcher.configReader.configModel.selected_version_index;
                     Launcher.configReader.configModel.selected_version_index = item.cont.getText();
-                    String dir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s", temp));
-                    String newDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format("versions/%s", item.cont.getText()));
-                    String jar = newDir + String.format("/%s.jar", temp);
-                    String json = newDir + String.format("/%s.json", temp);
-                    String newJar = newDir + String.format("/%s.jar", item.cont.getText());
-                    String newJson = newDir + String.format("/%s.json", item.cont.getText());
+                    String dir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format(buildPath("versions", "%s"), temp));
+                    String newDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format(buildPath("versions", "%s"), item.cont.getText()));
+
+                    String jar = String.format(buildPath("%s", "%s.jar"), newDir, temp);
+                    String json = String.format(buildPath("%s", "%s.json"), newDir, temp);
+                    String newJar = String.format(buildPath("%s", "%s.jar"), newDir, item.cont.getText());
+                    String newJson = String.format(buildPath("%s", "%s.json"), newDir, item.cont.getText());
 
                     new File(dir).renameTo(new File(newDir));
                     new File(jar).renameTo(new File(newJar));

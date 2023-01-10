@@ -30,6 +30,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +43,14 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 public class FileUtils {
+    public static class PathUtil {
+        public static String toPlatformPath(String path) {
+            return path.replace("/", File.separator).replace("\\", File.separator);
+        }
+        public static String buildPath(String... args) {
+            return String.join(File.separator, Arrays.asList(args));
+        }
+    }
     public static class OperateUtil {
         public static void deleteFile(String path) {
             try {
@@ -85,7 +94,8 @@ public class FileUtils {
             f.delete();
         }
         public static void createDirectory(String path) {
-            new File(StringUtils.GetFileBaseDir.get(path)).mkdirs();
+            File f = new File(path).getParentFile();
+            if (f != null) f.mkdirs();
         }
         public static void createDirectoryDirect(String path) {
             new File(path).mkdirs();
@@ -117,7 +127,7 @@ public class FileUtils {
     }
     private static Vector<File> getJavaInSystemPath() {
         Vector<File> basePaths = new Vector<>();
-        if (OSInfo.isWin()) basePaths.add(new File("C:/Program Files/Java"));
+        if (OSInfo.isWin()) basePaths.add(new File("C:\\Program Files\\Java"));
         if (OSInfo.isMac()) basePaths.addAll(J8Utils.createList(
                 new File("/Library/Java/JavaVirtualMachines"),
                 new File("/System/Library/Java/JavaVirtualMachines")
@@ -170,7 +180,7 @@ public class FileUtils {
             home = LinkPath.link(home, "bin/java");
         }
         else {
-            home = LinkPath.link(home, "bin/java.exe");
+            home = LinkPath.link(home, "bin\\java.exe");
         }
         try {
             if (ClassPathInjector.getJavaVersion(new File(home)) >= 8) {
@@ -242,14 +252,13 @@ public class FileUtils {
     }
     public static class FileStringReader {
         public static String read(String p){
-            File file = new File(p.replace("\\", "/"));
+            File file = new File(PathUtil.toPlatformPath(p));
             BufferedReader reader = null;
             StringBuilder r = new StringBuilder();
             try {
                 reader = new BufferedReader(new FileReader(file));
                 String tempString = null;
                 while ((tempString = reader.readLine()) != null) {
-                    // 显示行号
                     r.append(tempString).append("\n");
                 }
                 reader.close();
@@ -371,10 +380,7 @@ public class FileUtils {
     }
     public static class LinkPath {
         public static String link(String p1,String p2){
-            return rep(new File(p1, p2).getPath());
-        }
-        public static String rep(String p){
-            return p.replace("\\", "/");
+            return new File(p1, p2).getPath();
         }
     }
     public static class RemoveFileToTrash {
@@ -432,7 +438,7 @@ public class FileUtils {
                     ZipEntry entry = entries.nextElement();
                     String zipEntryName = entry.getName();
                     InputStream in = zp.getInputStream(entry);
-                    String outpath = (LinkPath.link(o, zipEntryName)).replace("/",File.separator);
+                    String outpath = PathUtil.toPlatformPath(LinkPath.link(o, zipEntryName));
                     File file = new File(outpath.substring(0,outpath.lastIndexOf(File.separator)));
                     if (!file.exists()) {
                         file.mkdirs();

@@ -70,6 +70,7 @@ import java.util.function.BiConsumer;
 import static com.mcreater.amcl.download.OriginalDownload.checkAllowState;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class LaunchCore {
@@ -286,8 +287,7 @@ public class LaunchCore {
         if (Objects.equals(id, "pre-1.6")) {
             try {
                 createDirectoryDirect(old_assets);
-
-                String path = LinkPath.link(dir, String.format("assets/indexes/%s.json", id));
+                String path = LinkPath.link(dir, String.format(buildPath("assets", "indexes", "%s.json"), id));
 
                 String json = FileUtils.FileStringReader.read(path);
                 JSONObject object = new JSONObject(json);
@@ -297,7 +297,7 @@ public class LaunchCore {
                     try {
                         String hash2 = objects.getJSONObject(s).getString("hash");
                         String pathAsset = LinkPath.link(old_assets, s);
-                        String hashedAsset = LinkPath.link(dir, String.format("assets/objects/%s/%s", hash2.substring(0, 2), hash2));
+                        String hashedAsset = LinkPath.link(dir, String.format(buildPath("assets", "objects", "%s", "%s"), hash2.substring(0, 2), hash2));
 
                         File target = new File(pathAsset);
                         File origin = new File(hashedAsset);

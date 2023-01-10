@@ -14,22 +14,24 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
+import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
+
 public class DepenciesLoader {
     public static DepencyLoadingFrame frame;
     public static String convertName(String name){
         List<String> names = J8Utils.createList(name.split(":"));
         if (names.size() == 3){
-            return String.format("%s/%s/%s/%s-%s.jar", names.get(0).replace(".", File.separator), names.get(1), names.get(2), names.get(1), names.get(2)).replace("\\", File.separator);
+            return String.format(buildPath("%s", "%s", "%s", "%s-%s.jar"), names.get(0).replace(".", File.separator), names.get(1), names.get(2), names.get(1), names.get(2));
         }
         else if (names.size() == 4){
-            return String.format("%s/%s/%s/%s-%s-%s.jar", names.get(0).replace(".", File.separator), names.get(1), names.get(3), names.get(1), names.get(3), names.get(2)).replace("\\", File.separator);
+            return String.format(buildPath("%s", "%s", "%s", "%s-%s-%s.jar"), names.get(0).replace(".", File.separator), names.get(1), names.get(3), names.get(1), names.get(3), names.get(2));
         }
         else {
             return name;
         }
     }
     public static String convertNameToUrl(String name){
-        return convertName(name).replace(File.separator, "/");
+        return convertName(name);
     }
     public static void checkAndDownload(Task... items) throws Exception {
         Vector<Task> tasks = new Vector<>(J8Utils.createList(items));

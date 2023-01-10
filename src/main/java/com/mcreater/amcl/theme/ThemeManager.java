@@ -6,6 +6,7 @@ import com.jfoenix.controls.JFXSlider;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
+import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.util.FXUtils;
@@ -18,6 +19,7 @@ import javafx.beans.value.WritableValue;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -173,6 +175,12 @@ public class ThemeManager {
             }
             if (n instanceof Pane){
                 nodes.addAll(GetAllNodes((Pane) n));
+            }
+            if (n instanceof AdvancedScrollPane) {
+                nodes.addAll(GetAllNodes(((AdvancedScrollPane) n).content));
+            }
+            if (n instanceof SmoothableListView) {
+                nodes.addAll(GetAllNodes(((SmoothableListView<?>) n).page));
             }
         });
         return nodes;
