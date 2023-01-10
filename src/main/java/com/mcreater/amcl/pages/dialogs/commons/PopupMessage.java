@@ -29,13 +29,12 @@ import static com.mcreater.amcl.Launcher.height;
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
 
 public class PopupMessage {
-    static int contentHeight = 450;
-    static Vector<Control> mess = new Vector<>();
-    static boolean hasMessages = false;
-
     public static final int MESSAGE_BASE_HEIGHT = height - 30;
     public static final int MESSAGE_MAX_NUM = 18;
     public static final int MESSAGE_HEIGHT = 20;
+    static int contentHeight = MESSAGE_BASE_HEIGHT;
+    static Vector<Control> mess = new Vector<>();
+    static boolean hasMessages = false;
     public enum MessageTypes{
         LABEL,
         HYPERLINK,

@@ -78,4 +78,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
         layout.setActions(finish);
         setContent(layout);
     }
+    public void show() {
+        super.show();
+    }
 }

@@ -1,8 +1,13 @@
 package com.mcreater.amcl.controls;
 
+import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.util.os.SystemActions;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -18,6 +23,10 @@ public class RemoteMod extends HBox {
     public String path;
     public Label filePath;
     public ImageView icon;
+
+    public Hyperlink mcmodLink;
+    public Hyperlink modrinthLink;
+    public Hyperlink curseforgeLink;
     public RemoteMod(CommonModInfoModel model){
         this.path = model.path;
         name = new Label(Objects.equals(model.name, "") ? "null" : model.name);
@@ -39,8 +48,39 @@ public class RemoteMod extends HBox {
         icon = new ImageView(model.icon);
         icon.setFitWidth(50);
         icon.setFitHeight(50);
+
+        mcmodLink = new Hyperlink(Launcher.languageManager.get("ui.versioninfopage.mod.open.mcmod"));
+        mcmodLink.setFont(Fonts.t_f);
+        mcmodLink.setOnAction(event -> {
+            try {
+                SystemActions.openBrowser(model.toMCModLink());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        modrinthLink = new Hyperlink(Launcher.languageManager.get("ui.versioninfopage.mod.open.modrinth"));
+        modrinthLink.setFont(Fonts.t_f);
+        modrinthLink.setOnAction(event -> {
+            try {
+                SystemActions.openBrowser(model.toModrinthLink());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        curseforgeLink = new Hyperlink(Launcher.languageManager.get("ui.versioninfopage.mod.open.curseforge"));
+        curseforgeLink.setFont(Fonts.t_f);
+        curseforgeLink.setOnAction(event -> {
+            try {
+                SystemActions.openBrowser(model.toCurseforgeLink());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
         setAlignment(Pos.TOP_LEFT);
         setSpacing(15);
-        this.getChildren().addAll(icon, new VBox(name, filePath, version, desc, authors));
+        this.getChildren().addAll(icon, new VBox(name, filePath, version, desc, authors, mcmodLink, modrinthLink, curseforgeLink));
     }
 }

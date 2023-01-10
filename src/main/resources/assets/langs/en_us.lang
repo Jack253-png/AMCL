@@ -243,3 +243,6 @@ ui.userselectpage.msaccount.skin.upload=upload skin
 ui.userselectpage.validate=Validating...
 ui.userselectpage.validate.fail.title=Validate failed
 ui.userselectpage.validate.fail.content=Validate failed, you can't modify this user without refresh.
+ui.versioninfopage.mod.open.mcmod=Open this mod on McMod
+ui.versioninfopage.mod.open.modrinth=Open this mod on Modrinth
+ui.versioninfopage.mod.open.curseforge=Open this mod on Curseforge

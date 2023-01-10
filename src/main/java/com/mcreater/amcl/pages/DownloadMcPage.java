@@ -139,7 +139,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 pane.setText(Launcher.languageManager.get("ui.downloadmcpage.types." + t));
                 pane.setFont(Fonts.s_f);
                 FXUtils.ControlSize.setWidth(pane, width / 4 * 3);
-                SmoothableListView<VanilaVersionContent> listv = new SmoothableListView<>(width / 4 * 3, 300);
+                SmoothableListView<VanilaVersionContent> listv = new SmoothableListView<>(width / 4 * 3, height - 180);
                 listv.setStyle("-fx-background-color: transparent");
                 Platform.runLater(() -> pane.setContent(listv.page));
                 vs.forEach(model -> {
