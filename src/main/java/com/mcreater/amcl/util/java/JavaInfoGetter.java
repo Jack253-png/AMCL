@@ -1,6 +1,5 @@
 package com.mcreater.amcl.util.java;
 
-import com.mcreater.amcl.game.launch.LaunchCore;
 import com.mcreater.amcl.util.J8Utils;
 
 import java.io.File;
@@ -10,7 +9,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
-import static com.mcreater.amcl.util.LogLineDetecter.readStreamContent;
+import static com.mcreater.amcl.util.ConsoleOutputHelper.readStreamContent;
 
 public class JavaInfoGetter implements Callable<Vector<String>> {
     static File p;

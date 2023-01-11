@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 
-import static com.mcreater.amcl.util.LogLineDetecter.printStreamToPrintStream;
+import static com.mcreater.amcl.util.ConsoleOutputHelper.printStreamToPrintStream;
 
 public class ForgePatchTask extends AbstractExecutableTask {
     Integer exit;

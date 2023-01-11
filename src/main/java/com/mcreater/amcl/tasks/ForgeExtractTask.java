@@ -1,6 +1,5 @@
 package com.mcreater.amcl.tasks;
 
-import com.mcreater.amcl.game.launch.LaunchCore;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
@@ -17,7 +16,7 @@ import java.util.Vector;
 
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect;
 import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
-import static com.mcreater.amcl.util.LogLineDetecter.printStreamToPrintStream;
+import static com.mcreater.amcl.util.ConsoleOutputHelper.printStreamToPrintStream;
 
 public class ForgeExtractTask extends AbstractExecutableTask {
     public Integer exit = null;

@@ -13,6 +13,7 @@ import com.mcreater.amcl.tasks.LibDownloadTask;
 import com.mcreater.amcl.tasks.NativeDownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.manager.TaskManager;
+import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.FileStringReader;
 import com.mcreater.amcl.util.FileUtils.HashHelper;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
@@ -58,7 +59,7 @@ public class MinecraftFixer {
         TaskManager.execute("<full files>");
     }
     public static void checkAssets(int chunk, String assets, VersionJsonModel model, String minecraft_dir, FasterUrls.Servers server) throws IOException {
-        String index = assets + model.assetIndex.get("id") + ".json";
+        String index = FileUtils.LinkPath.link(assets, model.assetIndex.get("id") + ".json");
         String assets_root = LinkPath.link(minecraft_dir, "assets");
         String assets_objects = LinkPath.link(assets_root, "objects");
         createDirectoryDirect(assets_objects);

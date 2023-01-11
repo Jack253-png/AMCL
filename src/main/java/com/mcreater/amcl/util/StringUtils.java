@@ -41,7 +41,7 @@ public class StringUtils {
     }
     public static class GetFileBaseDir {
         public static String get(String s){
-            return new File(s).getParent();
+            return new File(s).getAbsoluteFile().getParent();
         }
         public static String forgeGet(String s){
             List<String> st = J8Utils.createList(s.split(":"));

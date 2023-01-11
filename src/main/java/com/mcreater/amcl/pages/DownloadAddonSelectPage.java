@@ -485,7 +485,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 return fileName.matches("[^\\s\\\\/:\\*\\?\\\"<>\\|](\\x20|[^\\s\\\\/:\\*\\?\\\"<>\\|])*[^\\s\\\\/:\\*\\?\\\"<>\\|\\.]$");
             }
             else {
-                return true;
+                return fileName.contains("\\") ||
+                        fileName.contains("/");
             }
         }
     }

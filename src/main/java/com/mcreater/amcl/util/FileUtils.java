@@ -94,8 +94,7 @@ public class FileUtils {
             f.delete();
         }
         public static void createDirectory(String path) {
-            File f = new File(path).getParentFile();
-            if (f != null) f.mkdirs();
+            new File(path).getAbsoluteFile().getParentFile().mkdirs();
         }
         public static void createDirectoryDirect(String path) {
             new File(path).mkdirs();
@@ -468,21 +467,16 @@ public class FileUtils {
             if (!desDir.exists()) {
                 boolean mkdirSuccess = desDir.mkdir();
             }
-            // 读入流
             ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(iy)));
-            // 遍历每一个文件
             ZipEntry zipEntry = zipInputStream.getNextEntry();
             while (zipEntry != null) {
-                if (zipEntry.isDirectory()) { // 文件夹
+                if (zipEntry.isDirectory()) {
                     String unzipFilePath = o + File.separator + zipEntry.getName();
-                    // 直接创建
                     mkdir(new File(unzipFilePath));
-                } else { // 文件
+                } else {
                     String unzipFilePath = o + File.separator + zipEntry.getName();
                     File file = new File(unzipFilePath);
-                    // 创建父目录
                     mkdir(file.getParentFile());
-                    // 写出文件流
                     BufferedOutputStream bufferedOutputStream =
                             new BufferedOutputStream(Files.newOutputStream(Paths.get(unzipFilePath)));
                     byte[] bytes = new byte[1024];

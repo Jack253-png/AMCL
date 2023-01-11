@@ -24,19 +24,18 @@ import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.manager.TaskManager;
+import com.mcreater.amcl.util.ConsoleOutputHelper;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FileUtils.ZipUtil;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.JsonUtils;
-import com.mcreater.amcl.util.LogLineDetecter;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.java.JVMArgs;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.system.MemoryReader;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleObjectProperty;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,8 +51,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.BindException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -74,9 +71,9 @@ import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class LaunchCore {
-    public Process p;
+    public Process process;
     Logger logger = LogManager.getLogger(this.getClass());
-    SimpleObjectProperty<StringBuilder> logProperty = new SimpleObjectProperty<>(new StringBuilder());
+    Vector<ConsoleOutputHelper.LogLine> logProperty = new Vector<>();
 
     Vector<String> argList = new Vector<>();
     private BiConsumer<ImmutablePair<Integer, Integer>, String> updater = (integerIntegerImmutablePair, s) -> {};
@@ -467,13 +464,13 @@ public class LaunchCore {
 
             updater.accept(new ImmutablePair<>(0, 95), Launcher.languageManager.get("ui.launch._08"));
             try {
-                p = Runtime.getRuntime().exec(argList.toArray(new String[0]), null, new File(dir));
+                process = Runtime.getRuntime().exec(argList.toArray(new String[0]), null, new File(dir));
             } catch (IOException e) {
                 throw new ProcessException(e);
             }
             new Thread(() -> {
-                while (EnumWindow.enumWindowEnabled() && p.isAlive()) {
-                    if (EnumWindow.getTaskPidContains(J8Utils.getProcessPid(p))) {
+                while (EnumWindow.enumWindowEnabled() && process.isAlive()) {
+                    if (EnumWindow.getTaskPidContains(J8Utils.getProcessPid(process))) {
                         logger.info("Window Showed");
                         failedRunnable.run();
                         break;
@@ -484,8 +481,8 @@ public class LaunchCore {
             new Thread(() -> {
                 while (true) {
                     try {
-                        if (p != null) {
-                            exitCode = (long) p.exitValue();
+                        if (process != null) {
+                            exitCode = (long) process.exitValue();
                         } else {
                             exitCode = 1L;
                         }
@@ -497,7 +494,7 @@ public class LaunchCore {
                     }
                 }
             }).start();
-            readProcessOutput(p);
+            readProcessOutput(process);
         } catch (Exception e) {
             throw new ProcessException(e);
         }
@@ -513,22 +510,17 @@ public class LaunchCore {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("GBK")));
             String line;
             while ((line = reader.readLine()) != null) {
-                logProperty.get().append(line);
-                LogLineDetecter.printLog(line, out);
+                logProperty.add(ConsoleOutputHelper.toLogLine(line, out));
+                ConsoleOutputHelper.printLog(line, out);
                 if (line.contains("Backend library: LWJGL version") ||
-                line.contains("LWJGL Version") ||
-                line.contains("Turning of ImageIO disk-caching") ||
-                line.contains("Loading current icons for window from:")){
+                        line.contains("LWJGL Version") ||
+                        line.contains("Turning of ImageIO disk-caching") ||
+                        line.contains("Loading current icons for window from:")) {
                     if (!EnumWindow.enumWindowEnabled()) failedRunnable.run();
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
-            StringWriter writer = new StringWriter();
-            PrintWriter print = new PrintWriter(writer);
-            e.printStackTrace(print);
-            logProperty.get().append(writer);
-            print.close();
         } finally {
             try {
                 inputStream.close();
@@ -537,11 +529,9 @@ public class LaunchCore {
             }
         }
     }
-
-
     public void stop_process() {
-        if (p != null){
-            p.destroy();
+        if (process != null){
+            process.destroy();
         }
     }
 }
