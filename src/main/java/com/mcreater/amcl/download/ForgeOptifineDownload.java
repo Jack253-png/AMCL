@@ -4,14 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.api.reflect.ReflectedJar;
-import com.mcreater.amcl.download.model.NewForgeItemModel;
+import com.mcreater.amcl.model.download.NewForgeItemModel;
 import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
 import com.mcreater.amcl.tasks.OptiFineInstallerDownloadTask;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.FasterUrls;
-import org.json.JSONWriter;
 
 import java.io.BufferedWriter;
 import java.io.File;

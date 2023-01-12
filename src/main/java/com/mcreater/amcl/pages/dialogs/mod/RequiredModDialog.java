@@ -3,7 +3,7 @@ package com.mcreater.amcl.pages.dialogs.mod;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.controls.ServerMod;
+import com.mcreater.amcl.controls.RemoteMod;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
@@ -11,7 +11,7 @@ import com.mcreater.amcl.theme.ThemeManager;
 import javafx.scene.control.Label;
 
 public class RequiredModDialog extends AbstractDialog {
-    public SmoothableListView<ServerMod> items;
+    public SmoothableListView<RemoteMod> items;
     public RequiredModDialog(String title) {
         super();
         JFXDialogLayout layout = new JFXDialogLayout();

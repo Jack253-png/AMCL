@@ -8,4 +8,10 @@ public class FabricModInfoModel extends AbstractFabricModInfoModel{
     public String description;
     public String icon;
     public Vector<Object> authors;
+    public FabricModContactModel contact = new FabricModContactModel();
+    public static class FabricModContactModel {
+        public String homepage;
+        public String sources;
+        public String issues;
+    }
 }

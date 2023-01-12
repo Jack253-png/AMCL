@@ -1,11 +1,9 @@
 package com.mcreater.amcl.controls;
 
-import com.mcreater.amcl.download.model.OriginalVersionModel;
+import com.mcreater.amcl.model.download.OriginalVersionModel;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-
-import java.util.List;
 
 public class VanilaVersionContent extends VBox {
     public OriginalVersionModel model;

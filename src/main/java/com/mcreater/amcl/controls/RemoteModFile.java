@@ -19,11 +19,11 @@ import java.util.Vector;
 
 import static com.mcreater.amcl.pages.ModDownloadPage.getTimeTick;
 
-public class ModFile extends HBox implements Comparable<ModFile>{
+public class RemoteModFile extends HBox implements Comparable<RemoteModFile>{
     public JFXCheckBox checkBox;
     public AbstractModFileModel model;
     public String version;
-    public ModFile(AbstractModFileModel model, String version){
+    public RemoteModFile(AbstractModFileModel model, String version){
         this.model = model;
         this.version = version;
         checkBox = new JFXCheckBox();
@@ -83,7 +83,7 @@ public class ModFile extends HBox implements Comparable<ModFile>{
         }
         return loaders;
     }
-    public int compareTo(@NotNull ModFile aLong) {
+    public int compareTo(@NotNull RemoteModFile aLong) {
         Date time1, time2;
         try {
             if (model.isCurseFile()) {

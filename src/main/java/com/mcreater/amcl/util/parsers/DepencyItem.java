@@ -17,8 +17,8 @@ public class DepencyItem {
         return String.format(buildPath("AMCL", "depencies", "%s"), DepenciesLoader.convertName(this.name));
     }
 
-    public String getURL() throws MalformedURLException {
-        return this.maven + DepenciesLoader.convertNameToUrl(this.name);
+    public String getURL() {
+        return this.maven + DepenciesLoader.convertNameToUrl(this.name).replace("\\", "/");
     }
     public String toString(){
         return this.name;

@@ -1,4 +1,4 @@
-package com.mcreater.amcl.download.model;
+package com.mcreater.amcl.model.download;
 
 import java.util.Vector;
 

@@ -9,7 +9,7 @@ import com.mcreater.amcl.api.modApi.curseforge.CurseResourceType;
 import com.mcreater.amcl.api.modApi.curseforge.CurseSortType;
 import com.mcreater.amcl.api.modApi.modrinth.ModrinthAPI;
 import com.mcreater.amcl.controls.JFXProgressBar;
-import com.mcreater.amcl.controls.ServerMod;
+import com.mcreater.amcl.controls.RemoteMod;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.controls.items.StringItem;
@@ -46,7 +46,7 @@ public class AddModsPage extends AbstractAnimationPage {
     GridPane pane;
     public JFXButton submit;
     public ListItem<Label> server;
-    public SmoothableListView<ServerMod> modlist;
+    public SmoothableListView<RemoteMod> modlist;
     public com.jfoenix.controls.JFXProgressBar bar;
 
     StringItem item;
@@ -138,7 +138,7 @@ public class AddModsPage extends AbstractAnimationPage {
         double loaded = 0;
         for (AbstractModModel model : mods){
             loaded += 1;
-            ServerMod m = new ServerMod(model);
+            RemoteMod m = new RemoteMod(model);
             Platform.runLater(() -> modlist.addItem(m));
             double finalLoaded = loaded;
             JFXSmoothScroll.smoothScrollBarToValue(bar, finalLoaded / mods.size());
@@ -166,7 +166,7 @@ public class AddModsPage extends AbstractAnimationPage {
         server.name.setText(Launcher.languageManager.get("ui.moddownloadpage.modserver.name"));
         submit.setText(Launcher.languageManager.get("ui.addmodspage.search.name"));
         item.title.setText(Launcher.languageManager.get("ui.moddownloadpage.search.name"));
-        for (ServerMod m : modlist.vecs){
+        for (RemoteMod m : modlist.vecs){
             m.refreshLang();
         }
     }

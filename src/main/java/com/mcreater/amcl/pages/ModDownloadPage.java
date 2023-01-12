@@ -10,10 +10,10 @@ import com.mcreater.amcl.api.modApi.modrinth.ModrinthAPI;
 import com.mcreater.amcl.api.modApi.modrinth.mod.ModrinthModModel;
 import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileItemModel;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
-import com.mcreater.amcl.controls.ModFile;
-import com.mcreater.amcl.controls.ServerMod;
+import com.mcreater.amcl.controls.RemoteModFile;
+import com.mcreater.amcl.controls.RemoteMod;
 import com.mcreater.amcl.download.GetVersionList;
-import com.mcreater.amcl.download.model.OriginalVersionModel;
+import com.mcreater.amcl.model.download.OriginalVersionModel;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
@@ -61,10 +61,10 @@ import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 public class ModDownloadPage extends AbstractAnimationPage {
     public Vector<CurseModModel> reqMods;
     VBox v;
-    public Vector<ModFile> uis = new Vector<>();
+    public Vector<RemoteModFile> uis = new Vector<>();
     ChangeListener<Boolean> changeListener = (observable, oldValue, newValue) -> {};
     boolean coreSelected = false;
-    ModFile last;
+    RemoteModFile last;
     Thread loadThread;
     GridPane p;
     public JFXButton install;
@@ -197,7 +197,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                                 Vector<? extends AbstractModModel> models = last.model.isCurseFile() ? CurseAPI.getModFileRequiredMods(last.model.toCurseFile()) : ModrinthAPI.getModFileRequiredMods(last.model.toModrinthFile());
 
                                 for (AbstractModModel model : models) {
-                                    Platform.runLater(() -> dialog.items.addItem(new ServerMod(model)));
+                                    Platform.runLater(() -> dialog.items.addItem(new RemoteMod(model)));
                                 }
 
                                 DepencyModPage page = new DepencyModPage(width, height, MODDOWNLOADPAGE);
@@ -210,11 +210,11 @@ public class ModDownloadPage extends AbstractAnimationPage {
                             } else {
                                 if (last.model.isCurseFile()) {
                                     for (CurseModModel model : CurseAPI.getModFileRequiredMods(last.model.toCurseFile())) {
-                                        Platform.runLater(() -> dialog.items.addItem(new ServerMod(model)));
+                                        Platform.runLater(() -> dialog.items.addItem(new RemoteMod(model)));
                                     }
                                 } else {
                                     for (ModrinthModModel model : ModrinthAPI.getModFileRequiredMods(last.model.toModrinthFile())) {
-                                        Platform.runLater(() -> dialog.items.addItem(new ServerMod(model)));
+                                        Platform.runLater(() -> dialog.items.addItem(new RemoteMod(model)));
                                     }
                                 }
                                 DepencyModPage page = new DepencyModPage(width, height, MODDOWNLOADPAGE);
@@ -299,15 +299,15 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         FXUtils.ControlSize.setWidth(pane, 800);
                         VBox b = new VBox();
                         for (AbstractModFileModel u : files.get(s1)) {
-                            b.getChildren().add(new ModFile(u, s1));
+                            b.getChildren().add(new RemoteModFile(u, s1));
                         }
                         List<Node> list = new Vector<>(b.getChildren());
-                        list.sort(Comparator.comparing(node -> ((ModFile) node)));
+                        list.sort(Comparator.comparing(node -> ((RemoteModFile) node)));
                         b.getChildren().clear();
                         b.getChildren().addAll(list);
                         pane.setContent(b);
                         for (Node n : b.getChildren()) {
-                            ModFile file = (ModFile) n;
+                            RemoteModFile file = (RemoteModFile) n;
                             uis.add(file);
                             changeListener = (observable, oldValue, newValue) -> {
                                 if (last == file || last == null) {

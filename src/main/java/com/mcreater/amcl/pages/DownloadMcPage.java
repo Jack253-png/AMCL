@@ -8,7 +8,7 @@ import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.VanilaVersionContent;
 import com.mcreater.amcl.download.GetVersionList;
-import com.mcreater.amcl.download.model.OriginalVersionModel;
+import com.mcreater.amcl.model.download.OriginalVersionModel;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;

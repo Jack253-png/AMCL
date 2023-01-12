@@ -20,7 +20,7 @@ public class DownloadTask extends AbstractDownloadTask {
     HttpURLConnection conn;
     FileOutputStream fos = null;
     InputStream inputStream = null;
-    public long downloadBytes;
+
     public DownloadTask(String server, String local) {
         super(server, local);
         this.server = this.server.replace("http:", "https:");

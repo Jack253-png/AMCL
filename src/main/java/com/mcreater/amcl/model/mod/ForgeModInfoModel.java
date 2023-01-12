@@ -7,5 +7,6 @@ public class ForgeModInfoModel {
     public String version;
     public String name;
     public String description;
+    public String url;
     public Vector<String> authorList;
 }

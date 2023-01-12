@@ -4,7 +4,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.api.modApi.curseforge.mod.CurseModModel;
 import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModFileModel;
 import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModRequireModel;
-import com.mcreater.amcl.controls.ModFile;
+import com.mcreater.amcl.controls.RemoteModFile;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.tasks.LambdaTask;
 import com.mcreater.amcl.tasks.manager.TaskManager;
@@ -210,7 +210,7 @@ public final class CurseAPI {
         }
         Map<String, Vector<CurseModFileModel>> result = new HashMap<>();
         for (CurseModFileModel model : re) {
-            for (String ver : ModFile.getModLoaders(model.gameVersions, false)) {
+            for (String ver : RemoteModFile.getModLoaders(model.gameVersions, false)) {
                 if (result.get(ver) == null) result.put(ver, new Vector<>());
                 if (result.get(ver) != null) result.get(ver).add(model);
             }

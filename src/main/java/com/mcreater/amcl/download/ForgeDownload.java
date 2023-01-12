@@ -1,7 +1,7 @@
 package com.mcreater.amcl.download;
 
 import com.google.gson.internal.LinkedTreeMap;
-import com.mcreater.amcl.download.model.NewForgeItemModel;
+import com.mcreater.amcl.model.download.NewForgeItemModel;
 import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;

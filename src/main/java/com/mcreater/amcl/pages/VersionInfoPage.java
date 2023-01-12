@@ -5,7 +5,7 @@ import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.controls.JFXProgressBar;
-import com.mcreater.amcl.controls.RemoteMod;
+import com.mcreater.amcl.controls.LocalMod;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.game.VersionTypeGetter;
@@ -30,6 +30,7 @@ import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
+import java.util.List;
 import java.util.Vector;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
@@ -58,7 +59,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     public VBox b2;
     public JFXButton modsMenu;
     public GridPane mods;
-    public SmoothableListView<RemoteMod> modList;
+    public SmoothableListView<LocalMod> modList;
     public JFXButton addMod;
     public JFXButton setted;
     public com.jfoenix.controls.JFXProgressBar bar;
@@ -253,9 +254,9 @@ public class VersionInfoPage extends AbstractMenuBarPage {
             Vector<File> f = ModHelper.getMod(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
             for (File file : f) {
                 try {
-                    Vector<CommonModInfoModel> model = ModHelper.getModInfo(file.getPath());
+                    List<CommonModInfoModel> model = ModHelper.getModInfo(file.getPath());
                     model.forEach(commonModInfoModel -> {
-                        RemoteMod m = new RemoteMod(commonModInfoModel);
+                        LocalMod m = new LocalMod(commonModInfoModel);
                         Platform.runLater(() -> modList.addItem(m));
                     });
                 }
