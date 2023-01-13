@@ -12,14 +12,7 @@ public class ModHelper {
     public static Vector<File> getMod(String dir, String version_name){
         Vector<File> result = new Vector<>();
         boolean changed = Launcher.configReader.configModel.change_game_dir;
-        String modDir;
-        if (changed){
-            modDir = LinkPath.link(LinkPath.link(LinkPath.link(dir, "versions"), version_name), "mods");
-        }
-        else{
-            modDir = LinkPath.link(dir, "mods");
-        }
-        File d = new File(modDir);
+        File d = new File(changed ? LinkPath.link(LinkPath.link(LinkPath.link(dir, "versions"), version_name), "mods") : LinkPath.link(dir, "mods"));
         if (d.exists()) {
             for (File f : d.listFiles()) {
                 if (f.isFile()) {
@@ -31,43 +24,36 @@ public class ModHelper {
         }
         return result;
     }
-    public static List<CommonModInfoModel> getModInfo(String path) throws Exception {
-//        String modsTomlFile = ZipUtil.readTextFileInZip(path, "META-INF/mods.toml");
+    public static List<CommonModInfoModel> getModInfo(File file) {
+        try {
+            return ModProcessor.getForgeModTomlProcessor().process(file);
+        }
+        catch (Exception ignored) {}
 
         try {
-            return ModProcessor.getForgeModProcessor().process(new File(path));
+            return ModProcessor.getForgeModProcessor().process(file);
         }
-        catch (Exception ignored) {
-
-        }
+        catch (Exception ignored) {}
 
         try {
-            return ModProcessor.getFabricModProcessor().process(new File(path));
+            return ModProcessor.getFabricModProcessor().process(file);
         }
-        catch (Exception ignored) {
-
-        }
+        catch (Exception ignored) {}
 
         try {
-            return ModProcessor.getQuiltModProcessor().process(new File(path));
+            return ModProcessor.getQuiltModProcessor().process(file);
         }
-        catch (Exception ignored) {
-
-        }
+        catch (Exception ignored) {}
 
         try {
-            return ModProcessor.getLiteloaderModProcessor().process(new File(path));
+            return ModProcessor.getLiteloaderModProcessor().process(file);
         }
-        catch (Exception ignored) {
-
-        }
+        catch (Exception ignored) {}
 
         try {
-            return ModProcessor.getUniversalModProcessor().process(new File(path));
+            return ModProcessor.getUniversalModProcessor().process(file);
         }
-        catch (Exception ignored) {
-
-        }
+        catch (Exception ignored) {}
 
         return new Vector<>();
     }

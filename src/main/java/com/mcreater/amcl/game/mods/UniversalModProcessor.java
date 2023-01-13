@@ -20,7 +20,7 @@ public class UniversalModProcessor implements ModProcessor {
         String icon = "logo.png";
 
         return J8Utils.createList(
-                new CommonModInfoModel("", name, description, new Vector<>(), file.getAbsolutePath(), icon, "")
+                new CommonModInfoModel("", name, description, new Vector<>(), file.getAbsolutePath(), icon, "", "")
         );
     }
 }

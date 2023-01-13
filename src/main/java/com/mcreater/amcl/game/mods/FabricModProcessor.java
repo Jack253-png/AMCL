@@ -40,7 +40,8 @@ public class FabricModProcessor implements ModProcessor {
         Vector<String> authorList = ve;
         String icon = model.icon;
         String url = model.contact.homepage == null ? "" : model.contact.homepage;
+        String modid = model.id;
 
-        return J8Utils.createList(new CommonModInfoModel(version, name, description, authorList, file.getPath(), icon, url));
+        return J8Utils.createList(new CommonModInfoModel(version, name, description, authorList, file.getPath(), icon, url, modid));
     }
 }

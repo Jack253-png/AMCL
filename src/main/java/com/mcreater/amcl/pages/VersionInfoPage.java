@@ -10,7 +10,6 @@ import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.game.mods.ModHelper;
-import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
@@ -30,7 +29,6 @@ import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
-import java.util.List;
 import java.util.Vector;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
@@ -211,7 +209,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
                 VERSIONSELECTPAGE
         ));
     }
-    public void setByview(){
+    public void loadVersionType(){
         VersionTypeGetter.VersionType type;
         try {
             type = VersionTypeGetter.get(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
@@ -233,7 +231,6 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     }
 
     public void setType(boolean b){
-//        addMod.setDisable(b);
         modList.setDisable(b);
         refresh.setDisable(b);
     }
@@ -254,11 +251,10 @@ public class VersionInfoPage extends AbstractMenuBarPage {
             Vector<File> f = ModHelper.getMod(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
             for (File file : f) {
                 try {
-                    List<CommonModInfoModel> model = ModHelper.getModInfo(file.getPath());
-                    model.forEach(commonModInfoModel -> {
-                        LocalMod m = new LocalMod(commonModInfoModel);
-                        Platform.runLater(() -> modList.addItem(m));
-                    });
+                    ModHelper.getModInfo(file)
+                            .forEach(
+                                    item -> Platform.runLater(() -> modList.addItem(new LocalMod(item)))
+                            );
                 }
                 catch (Exception e){
                     SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.versioninfopage.mod.load.fail"));
@@ -287,7 +283,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         catch (InterruptedException ignored){}
     }
     public void refresh() {
-        Platform.runLater(this::setByview);
+        Platform.runLater(this::loadVersionType);
         p1.set(this.opacityProperty());
         p2.set(this.opacityProperty());
         setType(setted);

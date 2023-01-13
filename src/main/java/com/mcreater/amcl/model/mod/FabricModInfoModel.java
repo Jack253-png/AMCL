@@ -2,7 +2,8 @@ package com.mcreater.amcl.model.mod;
 
 import java.util.Vector;
 
-public class FabricModInfoModel extends AbstractFabricModInfoModel{
+public class FabricModInfoModel extends AbstractFabricModInfoModel {
+    public String id;
     public String version;
     public String name;
     public String description;

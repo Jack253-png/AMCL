@@ -22,4 +22,7 @@ public interface ModProcessor {
     static ModProcessor getUniversalModProcessor () {
         return new UniversalModProcessor();
     }
+    static ModProcessor getForgeModTomlProcessor () {
+        return new ForgeModTomlProcessor();
+    }
 }

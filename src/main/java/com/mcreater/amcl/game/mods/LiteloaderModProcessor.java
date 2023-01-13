@@ -21,7 +21,7 @@ public class LiteloaderModProcessor implements ModProcessor {
         String description = model.description;
         Vector<String> authorList = new Vector<>(J8Utils.createList(model.author));
         return J8Utils.createList(
-                new CommonModInfoModel(version, name, description, authorList, file.getAbsolutePath(), null, "")
+                new CommonModInfoModel(version, name, description, authorList, file.getAbsolutePath(), null, "", "")
         );
     }
 }

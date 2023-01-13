@@ -16,30 +16,32 @@ public class QuiltModProcessor implements ModProcessor {
         String content = FileUtils.ZipUtil.readTextFileInZip(file.getAbsolutePath(), "quilt.mod.json");
         QuiltModInfoModel modInfoModel = GSON_PARSER.fromJson(content, QuiltModInfoModel.class);
 
-        String version2 = modInfoModel.quilt_loader.version;
-        String name2 = modInfoModel.quilt_loader.metadata.name;
-        String description2 = modInfoModel.quilt_loader.metadata.description;
-        Vector<String> authorList2 = new Vector<>();
+        String version = modInfoModel.quilt_loader.version;
+        String name = modInfoModel.quilt_loader.metadata.name;
+        String description = modInfoModel.quilt_loader.metadata.description;
+        Vector<String> authorList = new Vector<>();
         modInfoModel.quilt_loader.metadata.contributors.keySet().forEach(o -> {
             try {
-                authorList2.add((String) o);
+                authorList.add((String) o);
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
         });
-        String icon2 = modInfoModel.quilt_loader.metadata.icon;
-        String url2 = modInfoModel.quilt_loader.metadata.contact == null ? "" : modInfoModel.quilt_loader.metadata.contact.get("homepage").toString();
+        String icon = modInfoModel.quilt_loader.metadata.icon;
+        String url = modInfoModel.quilt_loader.metadata.contact == null ? "" : modInfoModel.quilt_loader.metadata.contact.get("homepage").toString();
+        String modid = modInfoModel.quilt_loader.id;
 
         return J8Utils.createList(
                 new CommonModInfoModel(
-                        version2,
-                        name2,
-                        description2,
-                        authorList2,
+                        version,
+                        name,
+                        description,
+                        authorList,
                         file.getAbsolutePath(),
-                        icon2,
-                        url2
+                        icon,
+                        url,
+                        modid
                 )
         );
     }

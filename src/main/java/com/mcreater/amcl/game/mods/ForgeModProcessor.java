@@ -26,14 +26,14 @@ public class ForgeModProcessor implements ModProcessor {
 
             Vector<CommonModInfoModel> vec = new Vector<>();
 
-            cm.forEach(mi -> vec.add(new CommonModInfoModel(mi.version, mi.name, mi.description, mi.authorList, file.getAbsolutePath(), (mi.modid == null ? "" : mi.modid) + "-logo.png", mi.url)));
+            cm.forEach(mi -> vec.add(new CommonModInfoModel(mi.version, mi.name, mi.description, mi.authorList, file.getAbsolutePath(), (mi.modid == null ? "" : mi.modid) + "-logo.png", mi.url, mi.modid)));
 
             return vec;
         }
         else {
             OldForgeModInfoModel model = GSON_PARSER.fromJson(content, OldForgeModInfoModel.class);
             Vector<CommonModInfoModel> vec = new Vector<>();
-            model.modlist.forEach(mu -> vec.add(new CommonModInfoModel(mu.version, mu.name, mu.description, mu.authorList, file.getAbsolutePath(), (mu.modid == null ? "" : mu.modid) + "-logo.png", mu.url)));
+            model.modlist.forEach(mu -> vec.add(new CommonModInfoModel(mu.version, mu.name, mu.description, mu.authorList, file.getAbsolutePath(), (mu.modid == null ? "" : mu.modid) + "-logo.png", mu.url, mu.modid)));
             return vec;
         }
     }
