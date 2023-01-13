@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.fusesource.jansi.Ansi.ansi;
 
@@ -19,20 +21,48 @@ public class ConsoleOutputHelper {
     public static final Ansi.Color WARN = Ansi.Color.YELLOW;
     public static final Ansi.Color ERROR = Ansi.Color.RED;
     public static final Ansi.Color FATAL = Ansi.Color.RED;
+
+//    private static final Pattern LOG4J_STD = Pattern.compile("\\[(?<time>[\\s\\S]*)\\] \\[(?<thread>[\\s\\S]*)\\/(?<type>[\\s\\S]*)\\]\\: (?<message>[\\s\\S]*)");
+    private static final Pattern LOG4J_STD = Pattern.compile("\\[(?<time>.*)] \\[(?<thread>.*)/(?<type>.*)]: (?<message>.*)");
+    private static final Pattern EXC_STACK_START = Pattern.compile("(?<class>.*): (?<message>.*)");
+    private static final Pattern EXC_STACK_CONTENT = Pattern.compile("\\tat (?<method>.*)\\((?<source>.*)\\)");
+    private static final Pattern EXC_STACK_REDIRECT = Pattern.compile("Caused by: (?<class>.*): (?<message>.*)");
+    private static final Pattern EXC_STACK_END = Pattern.compile("\t\\.\\.\\. (?<class>[0-9]*) more");
+
     public enum LogType {
         TRACE,
         DEBUG,
         INFO,
         WARN,
         ERROR,
-        FATAL
+        FATAL;
+
+        public static LogType getType(String s) {
+            switch (s) {
+                case "TRACE":
+                    return TRACE;
+                case "DEBUG":
+                    return DEBUG;
+                default:
+                case "INFO":
+                    return INFO;
+                case "WARN":
+                    return WARN;
+                case "ERROR":
+                    return ERROR;
+                case "FATAL":
+                    return FATAL;
+            }
+        }
     }
     public static class LogLine {
         private final LogType type;
         private final String content;
-        public LogLine(LogType type, String content) {
+        private final PrintStream stream;
+        public LogLine(LogType type, String content, PrintStream stream) {
             this.type = type;
             this.content = content;
+            this.stream = stream;
         }
         public LogType getType() {
             return type;
@@ -40,54 +70,60 @@ public class ConsoleOutputHelper {
         public String getContent() {
             return content;
         }
+        public PrintStream getStream() {
+            return stream;
+        }
+        public void printToStream() {
+            AnsiConsole.systemInstall();
+            stream.println(ansi().fg(toLogColor(type)).a(content).reset());
+            AnsiConsole.systemUninstall();
+        }
+    }
+    private static Ansi.Color toLogColor(LogType type) {
+        switch (type) {
+            case FATAL:
+                return FATAL;
+            case ERROR:
+                return ERROR;
+            case WARN:
+                return WARN;
+            default:
+            case INFO:
+                return INFO;
+            case DEBUG:
+                return DEBUG;
+            case TRACE:
+                return TRACE;
+        }
     }
     private static LogType findLogType(String s, PrintStream stream) {
-        if (stream == System.err){
-            if (s.contains("/FATAL")) return LogType.FATAL;
-            else if (s.contains("/ERROR") ) return LogType.ERROR;
-            else if (s.startsWith("\tat")) return LogType.ERROR;
-            else if (s.matches("([\\s\\S]*): ([\\s\\S]*)")) return LogType.ERROR;
-            else if (s.startsWith("Caused by: ")) return LogType.ERROR;
-            else return LogType.WARN;
+        Matcher log4jstd = LOG4J_STD.matcher(s);
+        Matcher excstart = EXC_STACK_START.matcher(s);
+        Matcher exccontent = EXC_STACK_CONTENT.matcher(s);
+        Matcher excredirect = EXC_STACK_REDIRECT.matcher(s);
+        Matcher excend = EXC_STACK_END.matcher(s);
+
+        boolean excfind = excstart.find() || exccontent.find() || excredirect.find() || excend.find();
+        if (stream != System.err) {
+            if (log4jstd.find()) {
+                try {
+                    return LogType.getType(log4jstd.group("type"));
+                } catch (Exception e) {
+                    return LogType.INFO;
+                }
+            }
+            return excfind ? LogType.ERROR : LogType.INFO;
         }
         else {
-            if (s.contains("/TRACE")) return LogType.TRACE;
-            else if (s.contains("/DEBUG")) return LogType.DEBUG;
-            else if (s.contains("/INFO")) return LogType.INFO;
-            else if (s.contains("/WARN")) return LogType.WARN;
-            else if (s.contains("/ERROR")) return LogType.ERROR;
-            else if (s.contains("\tat")) return LogType.ERROR;
-            else if (s.matches("([\\s\\S]*): ([\\s\\S]*)")) return LogType.ERROR;
-            else if (s.startsWith("Caused by: ")) return LogType.ERROR;
-            else if (s.contains("/FATAL")) return LogType.FATAL;
-            else return LogType.INFO;
+            return excfind ? LogType.ERROR : LogType.WARN;
         }
     }
     public static LogLine toLogLine(String content, PrintStream stream) {
-        return new LogLine(findLogType(content, stream), content);
+        return new LogLine(findLogType(content, stream), content, stream);
     }
 
     public static void printLog(String s, PrintStream stream){
-        if (stream == System.err){
-            if (s.contains("/FATAL")) printLogInternal(s, FATAL, stream);
-            else if (s.contains("/ERROR") ) printLogInternal(s, ERROR, stream);
-            else if (s.startsWith("\tat")) printLogInternal(s, ERROR, stream);
-            else if (s.matches("([\\s\\S]*): ([\\s\\S]*)")) printLogInternal(s, ERROR, stream);
-            else if (s.startsWith("Caused by: ")) printLogInternal(s, ERROR, stream);
-            else printLogInternal(s, WARN, stream);
-        }
-        else {
-            if (s.contains("/TRACE")) printLogInternal(s, TRACE, stream);
-            else if (s.contains("/DEBUG")) printLogInternal(s, DEBUG, stream);
-            else if (s.contains("/INFO")) printLogInternal(s, INFO, stream);
-            else if (s.contains("/WARN")) printLogInternal(s, WARN, stream);
-            else if (s.contains("/ERROR")) printLogInternal(s, ERROR, stream);
-            else if (s.contains("\tat")) printLogInternal(s, ERROR, stream);
-            else if (s.matches("([\\s\\S]*): ([\\s\\S]*)")) printLogInternal(s, ERROR, stream);
-            else if (s.startsWith("Caused by: ")) printLogInternal(s, ERROR, stream);
-            else if (s.contains("/FATAL")) printLogInternal(s, FATAL, stream);
-            else printLogInternal(s, INFO, stream);
-        }
+        toLogLine(s, stream).printToStream();
     }
 
     private static void printLogInternal(String s, Ansi.Color color, PrintStream stream) {
