@@ -48,7 +48,7 @@ public class ForgeInstallerDownloadTask extends AbstractDownloadTask {
         try {
             conn = getConnection();
             if (conn.getResponseCode() == 404){
-                server = FasterUrls.ReturnToOriginServer(server);
+                server = FasterUrls.ReturnToOriginServer(server, TaskType.FORGE);
                 conn = getConnection();
                 if (!(conn.getResponseCode() == 404)) {
                     download();

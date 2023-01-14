@@ -15,9 +15,8 @@ public class Main {
         FileUtils.OperateUtil.deleteFile(buildPath("AMCL/logs/log.log"));
     }
     public static Logger logger = LogManager.getLogger(Main.class);
-    public static void start() {
+    public static void start(String[] args) {
         try {
-            args = new String[]{};
             logger.info("initialize");
             logger.info("launching core with arguments : " + Arrays.toString(args));
             JavaFXApplication.startApplication(args);

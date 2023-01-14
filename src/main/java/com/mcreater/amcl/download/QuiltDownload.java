@@ -3,14 +3,13 @@ package com.mcreater.amcl.download;
 import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.model.fabric.FabricLibModel;
 import com.mcreater.amcl.model.fabric.FabricVersionModel;
+import com.mcreater.amcl.tasks.AbstractDownloadTask;
 import com.mcreater.amcl.tasks.LibDownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.manager.TaskManager;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import java.io.BufferedWriter;
@@ -18,6 +17,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
@@ -26,7 +26,7 @@ import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 public class QuiltDownload {
     static int chunkSize;
     static Vector<Task> tasks = new Vector<>();
-    static Logger logger = LogManager.getLogger(FabricDownload.class);
+
     public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String quilt_version, Runnable ru, FasterUrls.Servers server) throws Exception {
         tasks.clear();
         FabricDownload.chunkSize = chunkSize;
@@ -91,6 +91,10 @@ public class QuiltDownload {
         model1.url = "https://maven.quiltmc.org/repository/release/";
         ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model1), Map.class));
         tasks.add(new LibDownloadTask(url, path, chunkSize));
+
+        tasks.forEach(task -> {
+            if (task instanceof AbstractDownloadTask) ((AbstractDownloadTask) task).setType(AbstractDownloadTask.TaskType.FABRIC);
+        });
 
         TaskManager.addTasks(tasks);
         TaskManager.execute("<quilt>");

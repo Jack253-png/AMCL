@@ -10,6 +10,7 @@ import com.mcreater.amcl.model.forge.ForgeProcessorModel;
 import com.mcreater.amcl.model.forge.ForgeVersionModel;
 import com.mcreater.amcl.model.forge.OldForgeLibModel;
 import com.mcreater.amcl.model.forge.OldForgeVersionModel;
+import com.mcreater.amcl.tasks.AbstractDownloadTask;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.ForgeExtractTask;
 import com.mcreater.amcl.tasks.ForgeInstallerDownloadTask;
@@ -130,6 +131,9 @@ public class ForgeDownload {
                     tasks.add(new LibDownloadTask(FasterUrls.fast(m1.downloads.artifact.get("url"), server), FileUtils.LinkPath.link(lib_base, m1.downloads.artifact.get("path")), chunkSize).setHash(m1.downloads.artifact.get("sha1")));
                 }
             }
+            tasks.forEach(task -> {
+                if (task instanceof AbstractDownloadTask) ((AbstractDownloadTask) task).setType(AbstractDownloadTask.TaskType.FORGE);
+            });
             TaskManager.addTasks(tasks);
             TaskManager.execute("<forge>");
             Map<String, String> mapplings = new LinkedTreeMap<>();
@@ -265,6 +269,9 @@ public class ForgeDownload {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(String.format(buildPath("%s", "versions", "%s", "%s.json"), minecraft_dir, version_name, version_name)));
             bufferedWriter.write(ao.toString());
             bufferedWriter.close();
+            tasks.forEach(task -> {
+                if (task instanceof AbstractDownloadTask) ((AbstractDownloadTask) task).setType(AbstractDownloadTask.TaskType.FORGE);
+            });
             TaskManager.addTasks(tasks);
             TaskManager.execute("<old forge>");
         }

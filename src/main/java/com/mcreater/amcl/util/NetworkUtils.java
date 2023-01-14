@@ -1,12 +1,30 @@
 package com.mcreater.amcl.util;
 
-import javafx.util.Pair;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
-import java.io.*;
-import java.net.*;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Scanner;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -242,4 +260,22 @@ public final class NetworkUtils {
         }
     }
     // ====
+
+    public static void trustAllHosts() {
+        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+            public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[]{};
+            }
+            public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+            public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+        }
+        };
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

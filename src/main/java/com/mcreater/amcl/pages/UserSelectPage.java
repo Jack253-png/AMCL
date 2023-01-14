@@ -235,6 +235,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                         }
                         finally {
                             FXUtils.Platform.runLater(dialog::close);
+                            Launcher.configReader.write();
                         }
                     }).start();
                 });
@@ -322,7 +323,10 @@ public class UserSelectPage extends AbstractAnimationPage {
                                 return;
                             case AbstractUser.MICROSOFT:
                                 MicrosoftModifyDialog dialog1 = new MicrosoftModifyDialog(Launcher.languageManager.get("ui.userselectpage.modify.title"), item.user.toMicrosoftUser());
-                                dialog1.setFinish(event16 -> dialog1.close());
+                                dialog1.setFinish(event16 -> {
+                                    dialog1.close();
+                                    reloadUser();
+                                });
                                 dialog1.show();
                                 return;
                             default:

@@ -70,7 +70,7 @@ public class DownloadTask extends AbstractDownloadTask {
         }
 
         if (conn.getResponseCode() == 404){
-            server = FasterUrls.ReturnToOriginServer(server);
+            server = FasterUrls.ReturnToOriginServer(server, type);
             conn = getConnection();
             if (!(conn.getResponseCode() == 404)) {
                 download();

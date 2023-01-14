@@ -5,6 +5,7 @@ import com.mcreater.amcl.game.MavenPathConverter;
 import com.mcreater.amcl.model.fabric.FabricLibModel;
 import com.mcreater.amcl.model.fabric.FabricVersionModel;
 import com.mcreater.amcl.model.fabric.OldFabricVersionModel;
+import com.mcreater.amcl.tasks.AbstractDownloadTask;
 import com.mcreater.amcl.tasks.LibDownloadTask;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.tasks.manager.TaskManager;
@@ -86,6 +87,11 @@ public class FabricDownload {
             model1.url = "https://maven.fabricmc.net/";
             ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model1), Map.class));
             tasks.add(new LibDownloadTask(url, path, chunkSize));
+
+            tasks.forEach(task -> {
+                if (task instanceof AbstractDownloadTask) ((AbstractDownloadTask) task).setType(AbstractDownloadTask.TaskType.FABRIC);
+            });
+
             TaskManager.addTasks(tasks);
             TaskManager.execute("<fabric>");
             BufferedWriter bw = new BufferedWriter(new FileWriter(versionJson));
@@ -135,6 +141,11 @@ public class FabricDownload {
             model1.name = model.intermediary.maven;
             ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model2), Map.class));
             tasks.add(new LibDownloadTask(url1, path1, chunkSize));
+
+            tasks.forEach(task -> {
+                if (task instanceof AbstractDownloadTask) ((AbstractDownloadTask) task).setType(AbstractDownloadTask.TaskType.FABRIC);
+            });
+
             TaskManager.addTasks(tasks);
             TaskManager.execute("<old fabric>");
             BufferedWriter w = new BufferedWriter(new FileWriter(versionJson));

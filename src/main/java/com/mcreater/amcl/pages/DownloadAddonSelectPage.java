@@ -389,11 +389,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                             SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.mcdownload"));
                             return;
                         }
-                        TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
-                        try {TaskManager.execute("");}
-                        catch (InterruptedException ignored) {}
-
-                        dialog.setV(0, 100);
+                        TaskManager.setUpdater((value, mess) -> dialog.setV(2, value, mess));
 
                         Vector<Task> tasks = new Vector<>();
                         if (quiltapi && quiltapiItem != null) {

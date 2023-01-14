@@ -77,7 +77,7 @@ public class VersionTypeGetter {
             return VersionType.FORGE;
         }
         if (getTweakClass(v).size() >= 1) {
-            if (getTweakClass(v).get(0).contains("net.minecraftforge.legacy.") && getTweakClass(v).get(0).contains(".LibraryFixerTweaker")) {
+            if (getTweakClass(v).get(0).matches("net\\.minecraftforge\\.legacy\\..*\\.LibraryFixerTweaker")) {
                 return VersionType.FORGE;
             }
         }
