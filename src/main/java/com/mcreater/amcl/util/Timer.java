@@ -36,6 +36,9 @@ public abstract class Timer {
         };
 
     }
+    public void reset() {
+        current = System.currentTimeMillis();
+    }
     public static double division(long time, int data){
         return ((double) time) / data;
     }

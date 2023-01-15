@@ -245,3 +245,4 @@ ui.userselectpage.validate.fail.title=验证失败
 ui.userselectpage.validate.fail.content=验证失败, 如果您要修改用户，则需要刷新
 ui.userselectpage.msaccount.cape.fetch=获取披风中...
 ui.userselectpage.msaccount.cape.select=选择披风
+ui.userselectpage.msaccount.cape.disable=无披风

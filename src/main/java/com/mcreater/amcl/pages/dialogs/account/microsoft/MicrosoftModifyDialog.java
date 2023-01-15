@@ -6,6 +6,7 @@ import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.auth.MSAuth;
 import com.mcreater.amcl.api.auth.users.MicrosoftUser;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
+import com.mcreater.amcl.controls.CapeSelectionLabel;
 import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.controls.items.RadioButtonGroupItem;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
@@ -34,7 +35,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
     AdvancedScrollPane pane;
     final MicrosoftUser user;
     Vector<MSAuth.McProfileModel.McCapeModel> capes;
-    ListItem<Label> capeSelect;
+    ListItem<CapeSelectionLabel> capeSelect;
     public void setFinish(EventHandler<ActionEvent> handler) {
         finish.setOnAction(handler);
     }
@@ -93,8 +94,20 @@ public class MicrosoftModifyDialog extends AbstractDialog {
         new Thread(() -> {
             try {
                 capes = user.getCapes();
-                FXUtils.Platform.runLater(capeSelect.cont.getItems()::clear);
-                capes.forEach(model -> FXUtils.Platform.runLater(() -> capeSelect.cont.getItems().add(setFont(new Label(model.alias), Fonts.t_f))));
+                FXUtils.Platform.runLater(() -> {
+                    capeSelect.cont.getItems().clear();
+                    MSAuth.McProfileModel.McCapeModel model = new MSAuth.McProfileModel.McCapeModel();
+                    model.alias = Launcher.languageManager.get("ui.userselectpage.msaccount.cape.disable");
+                    capeSelect.cont.getItems().add(setFont(new CapeSelectionLabel(model), Fonts.t_f, CapeSelectionLabel.class));
+
+                    capes.forEach(model2 -> capeSelect.cont.getItems().add(setFont(new CapeSelectionLabel(model2), Fonts.t_f, CapeSelectionLabel.class)));
+                    for (CapeSelectionLabel label : capeSelect.cont.getItems()) {
+                        if (label.getModel().state) {
+                            capeSelect.cont.getSelectionModel().select(label);
+                            break;
+                        }
+                    }
+                });
                 FXUtils.Platform.runLater(() -> {
                     dialog.close();
                     super.show();

@@ -215,4 +215,8 @@ public abstract class AbstractDialog extends JFXDialog {
         l.setFont(font);
         return l;
     }
+    public static <T extends Label> T setFont(Label l, Font font, Class<T> clazz){
+        l.setFont(font);
+        return (T) l;
+    }
 }

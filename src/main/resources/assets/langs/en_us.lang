@@ -245,3 +245,4 @@ ui.userselectpage.validate.fail.title=Validate failed
 ui.userselectpage.validate.fail.content=Validate failed, you can't modify this user without refresh.
 ui.userselectpage.msaccount.cape.fetch=Fetching capes...
 ui.userselectpage.msaccount.cape.select=Select capes
+ui.userselectpage.msaccount.cape.disable=No cape

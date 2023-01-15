@@ -37,7 +37,6 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
-import javafx.geometry.BoundingBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -328,9 +327,7 @@ public class Launcher {
         s.setFill(Color.TRANSPARENT);
         s.setRoot(topWrapper);
         stage.setScene(s);
-        Timer timer = Timer.getInstance();
         refreshBackground();
-        logger.info("background generate/set used " + timer.getTimeString());
         s.setOnKeyPressed(event -> System.out.println(event.getCode()));
     }
     public static void setTitle() {
@@ -352,7 +349,8 @@ public class Launcher {
         pages.forEach(page -> page.setBufferedBackground(null));
         refreshBackground();
     }
-    public static void refreshBackground(){
+    public static void refreshBackground() {
+        Timer timer = Timer.getInstance();
         String wallpaper = "assets/imgs/background.jpg";
         Image wap = new Image(wallpaper);
 
@@ -363,11 +361,9 @@ public class Launcher {
         AbstractAnimationPage ha = last;
 
         for (AbstractAnimationPage page : last.bindedPageproperty().get()) {
-            if (page != null) {
-                if (page.getBufferedBackground() != null) {
-                    hasBinded = true;
-                    ha = page;
-                }
+            if (page != null && page.getBufferedBackground() != null) {
+                hasBinded = true;
+                ha = page;
             }
         }
 
@@ -375,8 +371,7 @@ public class Launcher {
 
         if (configReader.configModel.enable_blur) {
             if (last.getBufferedBackground() == null && !hasBinded) {
-                WritableImage original = FXUtils.ImagePreProcesser.cutImage(result, 0, 0, (int) result.getWidth(), (int) result.getHeight());
-
+                WritableImage original = new WritableImage(result.getPixelReader(), (int) result.getWidth(), (int) result.getHeight());
                 FXUtils.ImagePreProcesser.process(
                         result,
                         (view, image) -> view.setEffect(new GaussianBlur(Integer.MAX_VALUE)),
@@ -390,50 +385,48 @@ public class Launcher {
                             view.setClip(clip);
                         }
                 );
-
                 FXUtils.ImagePreProcesser.process(
                         result,
                         (view, image) -> {
-                            List<AnimationPage.NodeInfo> nodes = new Vector<>();
+                            Fraction widthRec = new Fraction(6, 7);
+                            Fraction heightRec = new Fraction(11, 12);
+
+                            List<AnimationPage.NodeInfo> nodes = new Vector<>(J8Utils.createList(new AnimationPage.NodeInfo(0, 0, width * widthRec.doubleValue(), barSize * heightRec.doubleValue())));
                             for (AnimationPage.NodeInfo box : last.nodes) {
                                 if (box != null) {
                                     nodes.add(new AnimationPage.NodeInfo(
                                             box.size.getMinX(),
                                             box.size.getMinY(),
-                                            box.size.getWidth(),
-                                            box.size.getHeight()
+                                            box.size.getWidth() * widthRec.doubleValue(),
+                                            box.size.getHeight() * heightRec.doubleValue()
                                     ));
                                 } else {
                                     nodes.add(null);
                                 }
                             }
 
-                            nodes.add(new AnimationPage.NodeInfo(0, 0, width, barSize));
-                            for (AnimationPage.NodeInfo node : nodes) {
-                                if (node != null) {
-                                    node.size = new BoundingBox(
-                                            node.size.getMinX(),
-                                            node.size.getMinY(),
-                                            node.size.getWidth() * new Fraction(6, 7).doubleValue(),
-                                            node.size.getHeight() * new Fraction(11, 12).doubleValue()
-                                    );
-                                }
-                            }
-
                             for (double x = 0; x < image.getWidth(); x++) {
+                                int tempX = (int) x;
                                 for (double y = 0; y < image.getHeight(); y++) {
-                                    int recledX = (int) (x / widthRadius);
-                                    int recledY = (int) (y / heightRadius);
-                                    if (!last.nodes.contains(null) && !FXUtils.gemotryInned(new Point2D(recledX, recledY), nodes)) {
+                                    if (!last.nodes.contains(null) &&
+                                            !FXUtils.gemotryInned(
+                                                    new Point2D(
+                                                            x / widthRadius,
+                                                            y / heightRadius
+                                                    ), nodes)) {
                                         image.getPixelWriter().setColor(
-                                                (int) x, (int) y,
-                                                original.getPixelReader().getColor((int) x, (int) y)
+                                                tempX, (int) y,
+                                                original.getPixelReader().getColor(tempX, (int) y)
                                         );
-                                    } else {
-                                        image.getPixelWriter().setColor(
-                                                (int) x, (int) y,
-                                                transparent(image.getPixelReader().getColor((int) x, (int) y), 1.0)
-                                        );
+                                    }
+                                    else {
+                                        Color color = image.getPixelReader().getColor(tempX, (int) y);
+                                        if (color.getOpacity() < 1) {
+                                            image.getPixelWriter().setColor(
+                                                    tempX, (int) y,
+                                                    transparent(color, 1.0)
+                                            );
+                                        }
                                     }
                                 }
                             }
@@ -457,5 +450,6 @@ public class Launcher {
                 bs);
         bg = new Background(im);
         p.setBackground(bg);
+        logger.info("Background generate takes " + timer.getTimeString());
     }
 }
