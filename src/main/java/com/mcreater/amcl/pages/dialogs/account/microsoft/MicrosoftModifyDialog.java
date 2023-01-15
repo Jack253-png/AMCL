@@ -74,6 +74,29 @@ public class MicrosoftModifyDialog extends AbstractDialog {
         base_model = new RadioButtonGroupItem(Launcher.languageManager.get("ui.userselectpage.custom.model"), 400, Orientation.HORIZONTAL, "Steve", "Alex");
 
         capeSelect = new ListItem<>(Launcher.languageManager.get("ui.userselectpage.msaccount.cape.select"), 400 - 20);
+        capeSelect.cont.setOnAction(event -> {
+            CapeSelectionLabel label1 = capeSelect.cont.getSelectionModel().getSelectedItem();
+            MSAuth.McProfileModel.McCapeModel model = label1 == null ? null : label1.getModel();
+
+            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.msaccount.cape.update"));
+            dialog.show();
+
+            new Thread(() -> {
+                try {
+                    if (model == null || model.id == null) {
+                        user.hideCape();
+                    }
+                    else {
+                        user.showCape(model);
+                    }
+                    FXUtils.Platform.runLater(dialog::close);
+                }
+                catch (Exception e) {
+                    FXUtils.Platform.runLater(dialog::close);
+                    SimpleDialogCreater.exception(e);
+                }
+            }).start();
+        });
 
         content = new VBox(base_model, upload, capeSelect);
         content.setSpacing(10);
@@ -101,12 +124,15 @@ public class MicrosoftModifyDialog extends AbstractDialog {
                     capeSelect.cont.getItems().add(setFont(new CapeSelectionLabel(model), Fonts.t_f, CapeSelectionLabel.class));
 
                     capes.forEach(model2 -> capeSelect.cont.getItems().add(setFont(new CapeSelectionLabel(model2), Fonts.t_f, CapeSelectionLabel.class)));
+                    boolean hasCape = false;
                     for (CapeSelectionLabel label : capeSelect.cont.getItems()) {
                         if (label.getModel().state) {
+                            hasCape = true;
                             capeSelect.cont.getSelectionModel().select(label);
                             break;
                         }
                     }
+                    if (!hasCape) capeSelect.cont.getSelectionModel().selectFirst();
                 });
                 FXUtils.Platform.runLater(() -> {
                     dialog.close();

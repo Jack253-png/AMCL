@@ -324,8 +324,6 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                             return;
                         }
                         TaskManager.setUpdater((value, mess) -> dialog.setV(2, value, mess));
-                        try {TaskManager.execute("");}
-                        catch (InterruptedException ignored) {}
 
                         dialog.setV(0, 100);
                         Vector<Task> tasks = new Vector<>();

@@ -18,7 +18,7 @@ import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectoryDirect
 import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.ConsoleOutputHelper.printStreamToPrintStream;
 
-public class ForgeExtractTask extends AbstractExecutableTask {
+public class ForgeExtractTask extends AbstractCommandTask {
     public Integer exit = null;
     public String extractPath;
     public String jarpath;

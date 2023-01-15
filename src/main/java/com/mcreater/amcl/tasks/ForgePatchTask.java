@@ -17,8 +17,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static com.mcreater.amcl.util.ConsoleOutputHelper.printStreamToPrintStream;
 
-public class ForgePatchTask extends AbstractExecutableTask {
-    Integer exit;
+public class ForgePatchTask extends AbstractCommandTask {
     public String jar;
     public Vector<String> classpath = new Vector<>();
     public String[] args_array;
@@ -38,7 +37,7 @@ public class ForgePatchTask extends AbstractExecutableTask {
             b.append(s1).append(File.pathSeparator);
         }
         b.replace(b.length(), b.length(), "");
-        this.command.addAll(
+        command.addAll(
                 J8Utils.createList(
                         FileUtils.getJavaExecutable(),
                         "-cp",
