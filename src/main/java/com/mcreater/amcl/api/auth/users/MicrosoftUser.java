@@ -28,10 +28,10 @@ public class MicrosoftUser extends AbstractUser {
     }
     public Vector<MSAuth.McProfileModel.McCapeModel> getCapes() throws Exception {
         Vector<MSAuth.McProfileModel.McCapeModel> capes = new Vector<>();
-        HttpClient c = HttpClient.getInstance(MSAuth.MC_PROFILE_API_URL);
-        c.openConnection();
-        c.conn.setRequestProperty("Authorization", "Bearer " + accessToken);
-        JSONObject ob = c.readJSON();
+        JSONObject ob = HttpClient.getInstance(MSAuth.MC_PROFILE_API_URL)
+                .openConnection()
+                .header("Authorization", "Bearer " + accessToken)
+                .readJSON();
         for (Object o : ob.getJSONArray("capes")){
             if (o instanceof JSONObject) {
                 JSONObject t1 = (JSONObject) o;
@@ -46,11 +46,11 @@ public class MicrosoftUser extends AbstractUser {
         return capes;
         // https://wiki.vg/Mojang_API
     }
-    public Vector<MSAuth.McProfileModel.McSkinModel> getSkins() throws IOException {
-        HttpClient c = HttpClient.getInstance(MSAuth.MC_PROFILE_API_URL);
-        c.openConnection();
-        c.conn.setRequestProperty("Authorization", "Bearer " + accessToken);
-        JSONObject obj = c.readJSON();
+    public Vector<MSAuth.McProfileModel.McSkinModel> getSkins() throws Exception {
+        JSONObject obj = HttpClient.getInstance(MSAuth.MC_PROFILE_API_URL)
+                .openConnection()
+                .header("Authorization", "Bearer " + accessToken)
+                .readJSON();
         Vector<MSAuth.McProfileModel.McSkinModel> result = new Vector<>();
         for (Object ob : obj.getJSONArray("skins")) {
             if (ob instanceof JSONObject) {
@@ -74,8 +74,12 @@ public class MicrosoftUser extends AbstractUser {
             type = typeString;
         }
     }
+    public enum NameState {
+        DUPLICATE,
+        AVAILABLE,
+        NOT_ALLOWED
+    }
     public void upload(SkinType type, File path) throws Exception {
-        String url = "https://api.minecraftservices.com/minecraft/profile/skins";
         HttpPost httpPost = new HttpPost(MSAuth.MC_SKIN_MODIFY_URL);
         httpPost.addHeader("Authorization", "Bearer " + accessToken);
 
@@ -101,47 +105,60 @@ public class MicrosoftUser extends AbstractUser {
         }
     }
 
+    public void resetSkin() throws Exception {
+        HttpClient.getInstance(MSAuth.MC_SKIN_RESET_URL)
+                .openConnection()
+                .setRequestMethod(HttpClient.Method.DELETE)
+                .header("Authorization", "Bearer " + accessToken)
+                .read();
+    }
+
+    public NameState nameAvailable(String name) throws Exception {
+        JSONObject object = HttpClient.getInstance(String.format(MSAuth.MC_NAME_CHECK_URL, name))
+                .openConnection()
+                .setRequestMethod(HttpClient.Method.GET)
+                .header("Authorization", "Bearer " + accessToken)
+                .readJSON();
+        return object.getString("status") == null ? NameState.NOT_ALLOWED : NameState.valueOf(object.getString("status"));
+    }
+
+    public void changeName(String name) throws Exception {
+        HttpClient.getInstance(String.format(MSAuth.MC_NAME_CHANGE_URL, name))
+                .openConnection()
+                .setRequestMethod(HttpClient.Method.PUT)
+                .header("Authorization", "Bearer " + accessToken)
+                .read();
+        username = name;
+    }
+
     public void hideCape() throws Exception {
-        HttpClient client = HttpClient.getInstance(MSAuth.MC_CAPE_MODIFY_URL);
-        client.openConnection();
-        client.conn.setRequestMethod("DELETE");
-        client.conn.setRequestProperty("Authorization", "Bearer " + accessToken);
-        client.conn.connect();
-        client.read();
+        HttpClient.getInstance(MSAuth.MC_CAPE_MODIFY_URL)
+                .openConnection()
+                .setRequestMethod(HttpClient.Method.DELETE)
+                .header("Authorization", "Bearer " + accessToken)
+                .read();
     }
     public void showCape(MSAuth.McProfileModel.McCapeModel model) throws Exception {
-        Map<Object, Object> data = J8Utils.createMap("capeId", model.id);
-        HttpClient client = HttpClient.getInstance(MSAuth.MC_CAPE_MODIFY_URL);
-        client.openConnection();
-        client.conn.setDoOutput(true);
-        client.conn.setDoInput(true);
-        client.conn.setRequestMethod("PUT");
-        client.conn.setRequestProperty("Authorization", "Bearer " + accessToken);
-        client.conn.setRequestProperty("Content-Type", "application/json");
-        client.conn.connect();
-        BufferedWriter wrt2=new BufferedWriter(new OutputStreamWriter(client.conn.getOutputStream()));
-        wrt2.write(GSON_PARSER.toJson(data));
-        wrt2.flush();
-        wrt2.close();
-        client.read(false, false);
+        HttpClient.getInstance(MSAuth.MC_CAPE_MODIFY_URL)
+                .openConnection()
+                .setRequestMethod(HttpClient.Method.PUT)
+                .header("Authorization", "Bearer " + accessToken)
+                .header("Content-Type", "application/json")
+                .writeJson(J8Utils.createMap("capeId", model.id))
+                .read();
     }
 
-    public void refresh() throws IOException, RuntimeException {
-        Map<Object, Object> data = J8Utils.createMap(
-                "client_id", MSAuth.CLIENT_ID,
-                   "refresh_token", refreshToken,
-                   "grant_type", "refresh_token"
-        );
-
-        HttpClient client = HttpClient.getInstance(MSAuth.TOKEN_URL);
-        client.openConnection();
-        client.conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded");
-        client.conn.setRequestMethod("POST");
-        client.conn.setDoInput(true);
-        client.conn.setDoOutput(true);
-        client.write(data);
-
-        JSONObject ob = client.readJSON();
+    public void refresh() throws Exception {
+        JSONObject ob = HttpClient.getInstance(MSAuth.TOKEN_URL)
+                .openConnection()
+                .setRequestMethod(HttpClient.Method.POST)
+                .header("Content-Type","application/x-www-form-urlencoded")
+                .write(J8Utils.createMap(
+                        "client_id", MSAuth.CLIENT_ID,
+                        "refresh_token", refreshToken,
+                        "grant_type", "refresh_token"
+                ))
+                .readJSON();
         this.refreshToken = ob.getString("refresh_token");
         String at = ob.getString("access_token");
         MicrosoftUser newUser = MSAuth.AUTH_INSTANCE.getUserFromToken(new ImmutablePair<>("d=" + at, refreshToken));

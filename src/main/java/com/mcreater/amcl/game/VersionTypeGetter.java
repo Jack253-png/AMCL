@@ -131,62 +131,96 @@ public class VersionTypeGetter {
         }
         return tweakClasses;
     }
-    public static String getFabricVersion(String dir, String version){
-        VersionJsonModel v = getVersionModel(dir, version);
-        String fabricVersion = Launcher.languageManager.get("ui.versioninfopage.noFabric");
-        for (LibModel model : v.libraries) {
-            if (model.name.contains("net.fabricmc:fabric-loader:")){
-                fabricVersion = Launcher.languageManager.get("ui.versioninfopage.hasfabric", J8Utils.createList(model.name.split(":")).get(2));
+    public static String getFabricVersionSrc(String dir, String version){
+        try {
+            VersionJsonModel v = getVersionModel(dir, version);
+            String fabricVersion = null;
+            for (LibModel model : v.libraries) {
+                if (model.name.contains("net.fabricmc:fabric-loader:")){
+                    fabricVersion = model.name.split(":")[2];
+                }
             }
+            return fabricVersion;
         }
-        return fabricVersion;
-    }
-    public static String getForgeVersion(String dir, String version){
-        VersionJsonModel v = getVersionModel(dir, version);
-        String forge = Launcher.languageManager.get("ui.versioninfopage.noForge");
-        for (LibModel model : v.libraries){
-            if (model.name.contains("net.minecraftforge:forge:") || model.name.contains("net.minecraftforge:fmlloader:")){
-                String n = J8Utils.createList(J8Utils.createList(model.name.split(":")).get(2).split("-")).get(1);
-                forge = Launcher.languageManager.get("ui.versioninfopage.hasforge", n).replace(v.id+"-", "");
-            }
-            else if (model.name.contains("net.minecraftforge:minecraftforge:")){
-                String n = J8Utils.createList(J8Utils.createList(model.name.split(":")).get(2).split("-")).get(0);
-                forge = Launcher.languageManager.get("ui.versioninfopage.hasforge", n);
-            }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-        return forge;
     }
-    public static String getOptifineVersion(String dir, String version){
-        VersionJsonModel v = getVersionModel(dir, version);
-        String opti = Launcher.languageManager.get("ui.versioninfopage.noOptifine");
-        for (LibModel model : v.libraries){
-            if (model.name.contains("optifine:OptiFine:")) {
-                String f = J8Utils.createList(model.name.split(":")).get(2);
-                Vector<String> f2 = new Vector<>(J8Utils.createList(f.split("_")));
-                int idHD = f2.indexOf("HD");
-                if (idHD >= 0) {
-                    if (idHD > 0) {
-                        f2.subList(0, idHD).clear();
-                        opti = Launcher.languageManager.get("ui.versioninfopage.hasoptifine", String.join("_", f2));
-                    }
-                    else {
-                        opti = Launcher.languageManager.get("ui.versioninfopage.hasoptifine", f);
+    public static String getForgeVersionSrc(String dir, String version) {
+        try {
+            VersionJsonModel v = getVersionModel(dir, version);
+            String forge = null;
+            for (LibModel model : v.libraries) {
+                if (model.name.contains("net.minecraftforge:forge:") || model.name.contains("net.minecraftforge:fmlloader:")){
+                    forge = model.name.split(":")[2].split("-")[1].replace(v.id + "-", "").replace("-" + v.id, "");
+                }
+                else if (model.name.contains("net.minecraftforge:minecraftforge:")){
+                    forge = model.name.split(":")[2].split("-")[0];
+                }
+            }
+            return forge;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public static String getOptifineVersionSrc(String dir, String version) {
+        try {
+            VersionJsonModel v = getVersionModel(dir, version);
+            String opti = null;
+            for (LibModel model : v.libraries){
+                if (model.name.contains("optifine:OptiFine:")) {
+                    String f = model.name.split(":")[2];
+                    Vector<String> f2 = new Vector<>(J8Utils.createList(f.split("_")));
+                    int idHD = f2.indexOf("HD");
+                    if (idHD >= 0) {
+                        if (idHD > 0) f2.subList(0, idHD).clear();
+                        opti = idHD > 0 ? String.join("_", f2) : f;
                     }
                 }
             }
+            return opti;
         }
-        return opti;
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-    public static String getLiteLoaderVersion(String dir, String version){
-        VersionJsonModel v = getVersionModel(dir, version);
-        String lite = Launcher.languageManager.get("ui.versioninfopage.noLiteloader");
-        for (LibModel model : v.libraries) {
-            if (model.name.contains("com.mumfrey:liteloader:")) {
-                lite = Launcher.languageManager.get("ui.versioninfopage.hasliteloader", J8Utils.createList(model.name.split(":")).get(2));
+    public static String getLiteLoaderVersionSrc(String dir, String version) {
+        try {
+            VersionJsonModel v = getVersionModel(dir, version);
+            String lite = null;
+            for (LibModel model : v.libraries) {
+                if (model.name.contains("com.mumfrey:liteloader:")) {
+                    lite = model.name.split(":")[2];
+                }
             }
+            return lite;
         }
-        return lite;
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
+    public static String getQuiltVersionSrc(String dir, String version) {
+        try {
+            VersionJsonModel v = getVersionModel(dir, version);
+            String quiltVersion = null;
+            for (LibModel model : v.libraries) {
+                if (model.name.contains("org.quiltmc:quilt-loader:")) {
+                    quiltVersion = model.name.split(":")[2];
+                }
+            }
+            return quiltVersion;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static VersionJsonModel getVersionModel(String dir, String version){
         String version_json = LinkPath.link(LinkPath.link(LinkPath.link(dir, "versions"), version), version + ".json");
         String json_result = FileStringReader.read(version_json);

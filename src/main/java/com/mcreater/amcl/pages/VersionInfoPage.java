@@ -53,6 +53,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     public Label forgeversion;
     public Label optiversion;
     public Label liteversion;
+    public Label quiltversion;
     public AdvancedScrollPane p2;
     public VBox b2;
     public JFXButton modsMenu;
@@ -103,6 +104,8 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         optiversion.setFont(Fonts.t_f);
         liteversion = new Label();
         liteversion.setFont(Fonts.t_f);
+        quiltversion = new Label();
+        quiltversion.setFont(Fonts.t_f);
         info.setHgap(20);
         info.setVgap(20);
         info.add(view, 0, 0, 1, 1);
@@ -111,6 +114,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         info.add(forgeversion, 1, 2, 1, 1);
         info.add(liteversion, 1, 3, 1, 1);
         info.add(optiversion, 1, 4, 1, 1);
+        info.add(quiltversion, 1, 5, 1, 1);
         delVer = new JFXButton();
         FXUtils.ControlSize.set(delVer, t_size, t_size);
         delVer.setOnAction(event -> {
@@ -209,7 +213,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
                 VERSIONSELECTPAGE
         ));
     }
-    public void loadVersionType(){
+    public void loadVersionType() {
         VersionTypeGetter.VersionType type;
         try {
             type = VersionTypeGetter.get(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
@@ -224,10 +228,17 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         view.setFitHeight(40);
         view.setImage(VersionTypeGetter.VersionType.getImage(type));
 
-        fabricversion.setText(VersionTypeGetter.getFabricVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
-        forgeversion.setText(VersionTypeGetter.getForgeVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
-        optiversion.setText(VersionTypeGetter.getOptifineVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
-        liteversion.setText(VersionTypeGetter.getLiteLoaderVersion(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index));
+        String fabVer = VersionTypeGetter.getFabricVersionSrc(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
+        String forVer = VersionTypeGetter.getForgeVersionSrc(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
+        String optVer = VersionTypeGetter.getOptifineVersionSrc(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
+        String litVer = VersionTypeGetter.getLiteLoaderVersionSrc(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
+        String quiVer = VersionTypeGetter.getQuiltVersionSrc(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
+
+        fabricversion.setText(fabVer == null ? Launcher.languageManager.get("ui.versioninfopage.noFabric") : Launcher.languageManager.get("ui.versioninfopage.hasfabric", fabVer));
+        forgeversion.setText(forVer == null ? Launcher.languageManager.get("ui.versioninfopage.noForge") : Launcher.languageManager.get("ui.versioninfopage.hasforge", forVer));
+        optiversion.setText(optVer == null ? Launcher.languageManager.get("ui.versioninfopage.noOptifine") : Launcher.languageManager.get("ui.versioninfopage.hasoptifine", optVer));
+        liteversion.setText(litVer == null ? Launcher.languageManager.get("ui.versioninfopage.noLiteloader") : Launcher.languageManager.get("ui.versioninfopage.hasliteloader", litVer));
+        quiltversion.setText(quiVer == null ? Launcher.languageManager.get("ui.versioninfopage.noQuilt") : Launcher.languageManager.get("ui.versioninfopage.hasquilt", quiVer));
     }
 
     public void setType(boolean b){

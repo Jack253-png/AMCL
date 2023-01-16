@@ -23,8 +23,6 @@ public class IPApi {
         public String query;
     }
     public static LocateJsonModel getLocate() throws Exception {
-        HttpClient client = HttpClient.getInstance(url);
-        client.openConnection();
-        return GSON_PARSER.fromJson(client.read(), LocateJsonModel.class);
+        return HttpClient.getInstance(url).openConnection().toJson(LocateJsonModel.class);
     }
 }

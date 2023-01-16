@@ -50,6 +50,6 @@ public abstract class AbstractUser implements Serializable {
         this.uuid = uuid;
     }
 
-    public abstract void refresh() throws IOException;
+    public abstract void refresh() throws Exception;
     public abstract boolean validate();
 }

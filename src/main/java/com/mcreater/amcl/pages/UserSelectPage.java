@@ -230,7 +230,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                         try {
                             item.user.refresh();
                             item.cutSkinStart();
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"));
                         }
                         finally {

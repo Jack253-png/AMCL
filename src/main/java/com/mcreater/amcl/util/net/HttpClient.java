@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -26,13 +27,24 @@ public class HttpClient {
     public URL finalUrl;
     public HttpURLConnection conn;
     Logger logger = LogManager.getLogger(HttpClient.class);
+    boolean ignoreHttpCode = false;
+    public enum Method {
+        GET,
+        HEAD,
+        POST,
+        PUT,
+        DELETE,
+        CONNECT,
+        OPTIONS,
+        TRACE
+    }
     private HttpClient(String u, Map<Object, Object> args) throws MalformedURLException {
-        finalUrl = new URL(u + "?" + this.ofFormData1(args));
+        finalUrl = new URL(u + "?" + ofFormData1(args));
     }
     private HttpClient(String u) throws MalformedURLException {
         finalUrl = new URL(u);
     }
-    public String ofFormData1(Map<Object, Object> data){
+    public static String ofFormData1(Map<Object, Object> data){
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<Object, Object> entry : data.entrySet()) {
             if (builder.length() > 0) {
@@ -55,64 +67,108 @@ public class HttpClient {
     public static HttpClient getInstance(String u) throws MalformedURLException {
         return new HttpClient(u);
     }
-    public void openConnection() throws IOException {
+    public HttpClient openConnection() throws IOException {
         conn = (HttpURLConnection) finalUrl.openConnection();
+        return this;
     }
-    public void openConnection(Proxy proxy) throws IOException {
+    public HttpClient openConnection(Proxy proxy) throws IOException {
         conn = (HttpURLConnection) finalUrl.openConnection(proxy);
+        return this;
     }
-    public String read() throws IOException {
+    public String read() throws Exception {
         return read(true, false);
     }
-    public String readWithNoLog() throws IOException {
+    public String readWithNoLog() throws Exception {
         return read(true, true);
     }
-    public String read(boolean autoConnect, boolean NoLog) throws IOException {
+    public String read(boolean autoConnect, boolean NoLog) throws Exception {
         if (autoConnect) conn.connect();
-        if (conn.getResponseCode() > 399) throw new IOException(String.format("Server returned code %d", conn.getResponseCode()));
-        InputStream stream = conn.getInputStream();
-        StringBuilder builder = new StringBuilder();
-        if (stream != null){
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            String temp;
-            while ((temp = reader.readLine()) != null){
-                builder.append(temp).append("\n");
+        try {
+            InputStream stream = conn.getInputStream();
+            StringBuilder builder = new StringBuilder();
+            if (stream != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                String temp;
+                while ((temp = reader.readLine()) != null) {
+                    builder.append(temp).append("\n");
+                }
             }
+            if (!NoLog) logger.info(String.format("fetched message : %s", builder));
+            return builder.toString();
         }
-        if (!NoLog) logger.info(String.format("fetched message : %s", builder));
-        return builder.toString();
+        catch (Exception e) {
+            InputStream stream = conn.getErrorStream();
+            StringBuilder builder = new StringBuilder();
+            if (stream != null){
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+                String temp;
+                while ((temp = reader.readLine()) != null){
+                    builder.append(temp).append("\n");
+                }
+            }
+            if (!ignoreHttpCode) throw new IOException(String.format("Server returned code %d with content %s", conn.getResponseCode(), builder));
+            return builder.toString();
+        }
     }
-    public JSONObject readJSON() throws IOException {
+    public JSONObject readJSON() throws Exception {
         return readJSON(true);
     }
-    public JSONObject readJSON(boolean autoConnect) throws IOException {
+    public JSONObject readJSON(boolean autoConnect) throws Exception {
         return new JSONObject(read(autoConnect, false));
     }
-    public <T> T readJSONModel(Class<T> clazz) throws IOException {
-        return readJSONModel(true, clazz);
-    }
-    public <T> T readJSONModel(boolean autoConnect, Class<T> clazz) throws IOException {
-        return GSON_PARSER.fromJson(read(autoConnect, true), clazz);
-    }
-    public void write(byte[] data) throws IOException {
+    public HttpClient write(byte[] data) throws IOException {
+        if (!conn.getDoOutput()) conn.setDoOutput(true);
+        conn.connect();
         try (OutputStream os = conn.getOutputStream()) {
             os.write(data);
         }
+        return this;
     }
 
-    public void write(Map<Object, Object> data, Charset charset) throws IOException {
-        write(ofFormData1(data).getBytes(charset));
+    public HttpClient write(Map<Object, Object> data, Charset charset) throws IOException {
+        return write(ofFormData1(data).getBytes(charset));
     }
 
-    public void write(Map<Object, Object> data) throws IOException {
-        write(data, StandardCharsets.UTF_8);
+    public HttpClient write(Map<Object, Object> data) throws IOException {
+        return write(data, StandardCharsets.UTF_8);
     }
 
-    public void writeJson(Map<Object, Object> data) throws IOException {
-
-        BufferedWriter wrt2=new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
+    public HttpClient writeJson(Map<Object, Object> data) throws IOException {
+        if (!conn.getDoOutput()) conn.setDoOutput(true);
+        conn.connect();
+        BufferedWriter wrt2 = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
         wrt2.write(GSON_PARSER.toJson(data));
         wrt2.flush();
         wrt2.close();
+        return this;
+    }
+
+    public HttpClient ignoreHttpCode(boolean ignore) {
+        this.ignoreHttpCode = ignore;
+        return this;
+    }
+    public HttpClient header(String key, String value) {
+        if (conn != null) {
+            conn.setRequestProperty(key, value);
+        }
+        return this;
+    }
+    public HttpClient setRequestMethod(Method method) throws ProtocolException {
+        if (conn != null) {
+            conn.setRequestMethod(method.name());
+        }
+        return this;
+    }
+    public <T> T toJson(Class<T> clazz) throws Exception {
+        return toJson(clazz, true);
+    }
+    public <T> T toJson(Class<T> clazz, boolean autoConnect) throws Exception {
+        return GSON_PARSER.fromJson(read(autoConnect, false), clazz);
+    }
+    public HttpClient timeout(int time) {
+        if (conn != null) {
+            conn.setConnectTimeout(time);
+        }
+        return this;
     }
 }

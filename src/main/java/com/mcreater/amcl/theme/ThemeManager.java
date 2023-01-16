@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.pages;
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
@@ -181,6 +182,11 @@ public class ThemeManager {
             }
             if (n instanceof SmoothableListView) {
                 nodes.addAll(GetAllNodes(((SmoothableListView<?>) n).page));
+                ((SmoothableListView<?>) n).vecs.forEach((Consumer<Object>) o -> {
+                    if (o instanceof Parent) {
+                        nodes.addAll(GetAllNodes((Parent) o));
+                    }
+                });
             }
         });
         return nodes;

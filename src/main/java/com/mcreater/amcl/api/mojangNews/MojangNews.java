@@ -9,10 +9,7 @@ import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class MojangNews {
     public static final String url = "https://launchercontent.mojang.com/news.json";
-    public static NewsModel getNews() throws IOException {
-        HttpClient client = HttpClient.getInstance(url);
-        client.openConnection();
-
-        return GSON_PARSER.fromJson(client.read(), NewsModel.class);
+    public static NewsModel getNews() throws Exception {
+        return HttpClient.getInstance(url).openConnection().toJson(NewsModel.class);
     }
 }

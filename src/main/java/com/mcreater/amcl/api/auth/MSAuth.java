@@ -41,6 +41,10 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
     public static final String MC_CAPE_MODIFY_URL = "https://api.minecraftservices.com/minecraft/profile/capes/active";
     public static final String MC_PROFILE_API_URL = "https://api.minecraftservices.com/minecraft/profile";
     public static final String MC_SKIN_MODIFY_URL = "https://api.minecraftservices.com/minecraft/profile/skins";
+    public static final String MC_SKIN_RESET_URL = "https://api.minecraftservices.com/minecraft/profile/skins/active";
+
+    public static final String MC_NAME_CHECK_URL = "https://api.minecraftservices.com/minecraft/profile/name/%s/available";
+    public static final String MC_NAME_CHANGE_URL = "https://api.minecraftservices.com/minecraft/profile/name/%s";
 
     private static final String SCOPE = "XboxLive.signin offline_access";
     private static final String DEVICE_CODE_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode";
@@ -54,12 +58,12 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         public int interval;
     }
     public MicrosoftUser generateDeviceCode(BiConsumer<String, String> regIs) throws Exception {
-        HttpClient client = HttpClient.getInstance(DEVICE_CODE_URL, J8Utils.createMap(
+        DeviceCodeModel model = HttpClient.getInstance(DEVICE_CODE_URL, J8Utils.createMap(
                 "client_id", CLIENT_ID,
                 "scope", SCOPE
-        ));
-        client.openConnection();
-        DeviceCodeModel model = client.readJSONModel(DeviceCodeModel.class);
+        ))
+                .openConnection()
+                .toJson(DeviceCodeModel.class);
 
         regIs.accept(model.user_code, model.verification_uri);
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -78,21 +82,18 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             if (TimeUnit.SECONDS.convert(estimatedTime, TimeUnit.NANOSECONDS) >= Math.min(model.expires_in, 900)) {
                 throw new IOException("timed out");
             }
-            Map<Object, Object> data = J8Utils.createMap(
-                    "grant_type", "urn:ietf:params:oauth:grant-type:device_code",
-                    "client_id", CLIENT_ID,
-                    "code", model.device_code
-            );
-
-            HttpClient client1 = HttpClient.getInstance(TOKEN_URL);
-            client1.openConnection();
-            client1.conn.setRequestMethod("POST");
-            client1.conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            client1.conn.setDoOutput(true);
-            client1.write(data);
 
             try {
-                JSONObject object = client1.readJSON();
+                JSONObject object = HttpClient.getInstance(TOKEN_URL)
+                        .openConnection()
+                        .setRequestMethod(HttpClient.Method.POST)
+                        .header("Content-Type", "application/x-www-form-urlencoded")
+                        .write(J8Utils.createMap(
+                                "grant_type", "urn:ietf:params:oauth:grant-type:device_code",
+                                "client_id", CLIENT_ID,
+                                "code", model.device_code
+                        ))
+                        .readJSON();
                 try {
                     return getUserFromToken(new ImmutablePair<>("d=" + object.getString("access_token"), object.getString("refresh_token")));
                 }
@@ -100,8 +101,8 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
                     throw e;
                 }
             }
-            catch (Exception ignored) {
-
+            catch (Exception e) {
+                System.out.println(e);
             }
         }
     }
@@ -113,18 +114,18 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
 
     private MSAuth() {}
     public ImmutablePair<String, String> acquireAccessToken(String authcode) {
-        Map<Object, Object> data = new HashMap<>();
-        data.put("client_id", "00000000402b5328");
-        data.put("code", authcode);
-        data.put("grant_type", "authorization_code");
-        data.put("redirect_uri", "https://login.live.com/oauth20_desktop.srf");
-        data.put("scope", "service::user.auth.xboxlive.com::MBI_SSL");
         try {
-            HttpClient client = HttpClient.getInstance(AUTH_TOKEN_URL, data);
-            client.openConnection();
-            client.conn.setConnectTimeout(5000);
-            client.conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            JSONObject ob = client.readJSON();
+            JSONObject ob = HttpClient.getInstance(AUTH_TOKEN_URL, J8Utils.createMap(
+                            "client_id", "00000000402b5328",
+                            "code", authcode,
+                            "grant_type", "authorization_code",
+                            "redirect_uri", "https://login.live.com/oauth20_desktop.srf",
+                            "scope", "service::user.auth.xboxlive.com::MBI_SSL"
+                    ))
+                    .openConnection()
+                    .timeout(500)
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .readJSON();
             return new ImmutablePair<>(ob.getString("access_token"), ob.getString("refresh_token"));
         }
         catch (Exception e){
@@ -136,86 +137,68 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
     // second : uhs
     public ImmutablePair<String, String> acquireXBLToken(String accessToken) {
         try {
-            Map<Object, Object> data = J8Utils.createMap(
-                    "Properties", J8Utils.createMap(
-                            "AuthMethod", "RPS",
-                            "SiteName", "user.auth.xboxlive.com",
-                            "RpsTicket", accessToken
-                    ),
-                    "RelyingParty", "http://auth.xboxlive.com",
-                    "TokenType", "JWT"
-            );
-            HttpClient client = HttpClient.getInstance(XBL_AUTH_URL);
-            client.openConnection();
-            client.conn.setDoInput(true);
-            client.conn.setDoOutput(true);
-            client.conn.setRequestMethod("POST");
-            client.conn.setRequestProperty("Content-Type","application/json");
-            client.conn.connect();
-            client.writeJson(data);
-
-            JSONObject ob = client.readJSON(false);
+            JSONObject ob = HttpClient.getInstance(XBL_AUTH_URL)
+                    .openConnection()
+                    .setRequestMethod(HttpClient.Method.POST)
+                    .header("Content-Type","application/json")
+                    .writeJson(J8Utils.createMap(
+                            "Properties", J8Utils.createMap(
+                                    "AuthMethod", "RPS",
+                                    "SiteName", "user.auth.xboxlive.com",
+                                    "RpsTicket", accessToken
+                            ),
+                            "RelyingParty", "http://auth.xboxlive.com",
+                            "TokenType", "JWT"
+                    ))
+                    .readJSON();
             String token = ob.getString("Token");
             String uhs = "";
             for (Object o : ob.getJSONObject("DisplayClaims").getJSONArray("xui")){
                 uhs = ((JSONObject) o).getString("uhs");
             }
             return new ImmutablePair<>(token, uhs);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     public ImmutablePair<String, String> acquireXsts(String xblToken) {
         try {
-
-            Map<Object, Object> data = J8Utils.createMap(
-                    "Properties", J8Utils.createMap(
-                            "SandboxId", "RETAIL",
-                            "UserTokens", J8Utils.createList(xblToken)
-                    ),
-                    "RelyingParty", "rp://api.minecraftservices.com/",
-                    "TokenType", "JWT"
-            );
-
-            HttpClient client = HttpClient.getInstance(XSTS_AUTH_URL);
-            client.openConnection();
-            client.conn.setDoInput(true);
-            client.conn.setDoOutput(true);
-            client.conn.setRequestMethod("POST");
-            client.conn.setRequestProperty("Content-Type","application/json");
-            client.conn.setRequestProperty("Accept", "application/json");
-            client.conn.connect();
-            client.writeJson(data);
-            JSONObject ob = client.readJSON(false);
+            JSONObject ob = HttpClient.getInstance(XSTS_AUTH_URL)
+                    .openConnection()
+                    .setRequestMethod(HttpClient.Method.POST)
+                    .header("Content-Type","application/json")
+                    .header("Accept", "application/json")
+                    .writeJson(J8Utils.createMap(
+                            "Properties", J8Utils.createMap(
+                                    "SandboxId", "RETAIL",
+                                    "UserTokens", J8Utils.createList(xblToken)
+                            ),
+                            "RelyingParty", "rp://api.minecraftservices.com/",
+                            "TokenType", "JWT"
+                    ))
+                    .readJSON();
             String uhs = "";
             for (Object o : ob.getJSONObject("DisplayClaims").getJSONArray("xui")){
                 uhs = ((JSONObject) o).getString("uhs");
             }
             return new ImmutablePair<>(ob.getString("Token"), uhs);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     public ImmutablePair<String, ImmutablePair<String, String>> acquireMinecraftToken(String xblUhs, String xblXsts, BiConsumer<Integer, String> updater) {
         try {
-            Map<Object, Object> data = J8Utils.createMap(
-                    "identityToken", "XBL3.0 x=" + xblUhs + ";" + xblXsts
-            );
-            HttpClient client = HttpClient.getInstance(MC_LOGIN_URL);
-            client.openConnection();
-            client.conn.setDoInput(true);
-            client.conn.setDoOutput(true);
-            client.conn.setRequestMethod("POST");
-            client.conn.setRequestProperty("Content-Type","application/json");
-            client.conn.setRequestProperty("Accept", "application/json");
-            client.conn.connect();
-            BufferedWriter wrt2=new BufferedWriter(new OutputStreamWriter(client.conn.getOutputStream()));
-            wrt2.write(GSON_PARSER.toJson(data));
-            wrt2.flush();
-            wrt2.close();
-            JSONObject ob = client.readJSON(false);
+            JSONObject ob = HttpClient.getInstance(MC_LOGIN_URL)
+                    .openConnection()
+                    .setRequestMethod(HttpClient.Method.POST)
+                    .header("Content-Type","application/json")
+                    .header("Accept", "application/json")
+                    .writeJson(J8Utils.createMap(
+                            "identityToken", "XBL3.0 x=" + xblUhs + ";" + xblXsts
+                    ))
+                    .readJSON();
             String accessToken = ob.getString("access_token");
             McProfileModel contents = checkMcProfile(accessToken);
             updater.accept(85, Launcher.languageManager.get("ui.msauth._05_1"));
@@ -225,17 +208,17 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
             else {
                 throw new IOException("This user didn't had minecraft");
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     public boolean checkMcStore(String mcAccessToken) {
         try {
-            HttpClient client = HttpClient.getInstance(MC_STORE_URL);
-            client.openConnection();
-            client.conn.setRequestProperty("Authorization", String.format("Bearer %s", mcAccessToken));
-            JSONObject ob = client.readJSON();
+            JSONObject ob = HttpClient.getInstance(MC_STORE_URL)
+                    .openConnection()
+                    .header("Authorization", String.format("Bearer %s", mcAccessToken))
+                    .readJSON();
             boolean has_product = false;
             boolean has_game = false;
             for (Object o : ob.getJSONArray("items")){
@@ -247,19 +230,18 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
                 }
             }
             return has_game && has_product;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     public McProfileModel checkMcProfile(String mcAccessToken) {
         try {
-            HttpClient client = HttpClient.getInstance(MC_PROFILE_URL);
-            client.openConnection();
-            client.conn.setRequestProperty("Authorization", String.format("Bearer %s", mcAccessToken));
-            String json = client.read();
-            return GSON_PARSER.fromJson(json, McProfileModel.class);
-        } catch (IOException e) {
+            return HttpClient.getInstance(MC_PROFILE_URL)
+                    .openConnection()
+                    .header("Authorization", String.format("Bearer %s", mcAccessToken))
+                    .toJson(McProfileModel.class);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -305,27 +287,24 @@ public class MSAuth implements AbstractAuth<MicrosoftUser>{
         }
     }
     public static McProfileModel getUserSkinFromName(String name) throws Exception {
-        String url = String.format("https://api.mojang.com/users/profiles/minecraft/%s", name.toLowerCase());
-        HttpClient client = HttpClient.getInstance(url);
-        client.openConnection();
-        McProfileModel model = GSON_PARSER.fromJson(client.read(), McProfileModel.class);
-        return getUserSkin(model.id);
+        return getUserSkin(HttpClient.getInstance(String.format("https://api.mojang.com/users/profiles/minecraft/%s", name.toLowerCase()))
+                .openConnection()
+                .toJson(McProfileModel.class).id
+        );
     }
     public static String getUserUUID(String name) throws Exception {
-        String url = String.format("https://api.mojang.com/users/profiles/minecraft/%s", name.toLowerCase());
-        HttpClient client = HttpClient.getInstance(url);
-        client.openConnection();
-        McProfileModel model = GSON_PARSER.fromJson(client.read(), McProfileModel.class);
-        return model.id;
+        return HttpClient.getInstance(String.format("https://api.mojang.com/users/profiles/minecraft/%s", name.toLowerCase()))
+                .openConnection()
+                .toJson(McProfileModel.class).id;
     }
     public static McProfileModel getUserSkin(String uuid) throws Exception {
-        String skinUrl = String.format("https://sessionserver.mojang.com/session/minecraft/profile/%s", uuid);
-        HttpClient skin = HttpClient.getInstance(skinUrl);
-        skin.openConnection();
+
         String value = null;
         JSONObject objj;
         try {
-            objj = skin.readJSON();
+            objj = HttpClient.getInstance(String.format("https://sessionserver.mojang.com/session/minecraft/profile/%s", uuid))
+                    .openConnection()
+                    .readJSON();
         } catch (JSONException e) {
             throw new IOException(e);
         }

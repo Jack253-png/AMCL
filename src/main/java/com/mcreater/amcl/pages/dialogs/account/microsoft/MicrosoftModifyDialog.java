@@ -9,6 +9,7 @@ import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.controls.CapeSelectionLabel;
 import com.mcreater.amcl.controls.items.ListItem;
 import com.mcreater.amcl.controls.items.RadioButtonGroupItem;
+import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
@@ -19,6 +20,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
@@ -36,6 +38,10 @@ public class MicrosoftModifyDialog extends AbstractDialog {
     final MicrosoftUser user;
     Vector<MSAuth.McProfileModel.McCapeModel> capes;
     ListItem<CapeSelectionLabel> capeSelect;
+    JFXButton reset;
+    StringItem changeName;
+    JFXButton vaildateName;
+    JFXButton updateName;
     public void setFinish(EventHandler<ActionEvent> handler) {
         finish.setOnAction(handler);
     }
@@ -64,10 +70,29 @@ public class MicrosoftModifyDialog extends AbstractDialog {
             new Thread(() -> {
                 try {
                     user.upload(base_model.cont.getSelectedItem() == 0 ? MicrosoftUser.SkinType.STEVE : MicrosoftUser.SkinType.ALEX, f);
+                    FXUtils.Platform.runLater(dialog::close);
                 } catch (Exception e) {
-                    SimpleDialogCreater.exception(e);
+                    FXUtils.Platform.runLater(dialog::close);
+                    SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.skin.upload.fail"));
                 }
-                FXUtils.Platform.runLater(dialog::close);
+            }).start();
+        });
+
+        reset = new JFXButton(Launcher.languageManager.get("ui.userselectpage.msaccount.skin.reset"));
+        reset.setFont(Fonts.t_f);
+        reset.setOnAction(event -> {
+            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.msaccount.skin.resetting"));
+            dialog.show();
+
+            new Thread(() -> {
+                try {
+                    user.resetSkin();
+                    FXUtils.Platform.runLater(dialog::close);
+                }
+                catch (Exception e) {
+                    FXUtils.Platform.runLater(dialog::close);
+                    SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.skin.reset.fail"));
+                }
             }).start();
         });
 
@@ -93,12 +118,57 @@ public class MicrosoftModifyDialog extends AbstractDialog {
                 }
                 catch (Exception e) {
                     FXUtils.Platform.runLater(dialog::close);
-                    SimpleDialogCreater.exception(e);
+                    SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.skin.cape.fail"));
                 }
             }).start();
         });
 
-        content = new VBox(base_model, upload, capeSelect);
+        changeName = new StringItem(Launcher.languageManager.get("ui.userselectpage.nameItem"), 400 - 20);
+        changeName.cont.setText(user.username);
+
+        vaildateName = new JFXButton();
+        vaildateName.setGraphic(Launcher.getSVGManager().check(ThemeManager.createPaintBinding(), 15, 15));
+        vaildateName.setOnAction(event -> {
+            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.msaccount.name.vaildate"));
+            dialog.show();
+            new Thread(() -> {
+                try {
+                    MicrosoftUser.NameState state = user.nameAvailable(changeName.cont.getText());
+                    SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.skin.name.vaildate.state.title"), Launcher.languageManager.get("ui.userselectpage.skin.name.vaildate.state." + state.name()), "");
+                    FXUtils.Platform.runLater(dialog::close);
+                } catch (Exception e) {
+                    FXUtils.Platform.runLater(dialog::close);
+                    SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.skin.name.vaildate.fail"));
+                }
+            }).start();
+        });
+
+        updateName = new JFXButton();
+        updateName.setGraphic(Launcher.getSVGManager().update(ThemeManager.createPaintBinding(), 15, 15));
+        updateName.setOnAction(event -> {
+            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.msaccount.name.updating"));
+            dialog.show();
+
+            new Thread(() -> {
+                try {
+                    MicrosoftUser.NameState state = user.nameAvailable(changeName.cont.getText());
+                    if (state == MicrosoftUser.NameState.AVAILABLE) {
+                        user.changeName(changeName.cont.getText());
+                        Launcher.configReader.write();
+                        FXUtils.Platform.runLater(dialog::close);
+                    }
+                    else {
+                        SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.skin.name.vaildate.state.title"), Launcher.languageManager.get("ui.userselectpage.skin.name.vaildate.state." + state.name()), "");
+                        FXUtils.Platform.runLater(dialog::close);
+                    }
+                } catch (Exception e) {
+                    FXUtils.Platform.runLater(dialog::close);
+                    SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.msaccount.name.update.fail"));
+                }
+            }).start();
+        });
+
+        content = new VBox(changeName, new HBox(vaildateName, updateName), base_model, new HBox(upload, reset), capeSelect);
         content.setSpacing(10);
 
         pane = new AdvancedScrollPane(400, 300, content, false);
