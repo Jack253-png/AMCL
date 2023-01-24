@@ -6,7 +6,6 @@ import javafx.animation.Timeline;
 import javafx.beans.property.DoubleProperty;
 import javafx.geometry.BoundingBox;
 import javafx.util.Duration;
-import org.w3c.dom.Node;
 
 public interface AnimationPage {
     class NodeInfo {

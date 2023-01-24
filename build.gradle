@@ -35,8 +35,10 @@ application {
 }
 
 javafx {
-    version = '17.0.2'
-    modules = ['javafx.controls', 'javafx.fxml', 'javafx.media']
+    if (getJavaVersion() > 10) {
+        version = '17.0.2'
+        modules = ['javafx.controls', 'javafx.fxml', 'javafx.media']
+    }
 }
 
 dependencies {
@@ -61,7 +63,7 @@ dependencies {
     implementation('com.moandjiezana.toml:toml4j:0.7.2')
 }
 
-int getJavaVersion() {
+static int getJavaVersion() {
     int version = 0
     String[] ful = System.getProperty("java.runtime.version").split("\\.");
     if (Integer.parseInt(ful[0]) == 1){
