@@ -50,7 +50,9 @@ public class AddModsPage extends AbstractAnimationPage {
     public com.jfoenix.controls.JFXProgressBar bar;
 
     StringItem item;
-    Thread searchThread = new Thread(() -> {});
+    Thread searchThread = new Thread(() -> {
+    });
+
     public AddModsPage(double width, double height) {
         super(width, height);
         l = Launcher.VERSIONINFOPAGE;
@@ -115,28 +117,29 @@ public class AddModsPage extends AbstractAnimationPage {
                 VERSIONSELECTPAGE
         ));
     }
-    public void search(){
+
+    public void search() {
         searchThread.stop();
         searchThread = new Thread(() -> {
             submit.setDisable(true);
             try {
                 this.searchMods();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.addmodspage.loadmods.fail.title"));
-            }
-            finally {
+            } finally {
                 submit.setDisable(false);
             }
         });
         searchThread.start();
     }
-    public void searchMods() throws IOException {
+
+    public void searchMods() throws Exception {
         Platform.runLater(() -> modlist.setDisable(true));
         Platform.runLater(modlist::clear);
         JFXSmoothScroll.smoothScrollBarToValue(bar, -1);
         Vector<? extends AbstractModModel> mods = server.cont.getSelectionModel().getSelectedIndex() == 0 ? CurseAPI.search(item.cont.getText(), CurseResourceType.Types.MOD, CurseSortType.Types.DESCENDING, 20) : ModrinthAPI.search(item.cont.getText(), 20);
         double loaded = 0;
-        for (AbstractModModel model : mods){
+        for (AbstractModModel model : mods) {
             loaded += 1;
             RemoteMod m = new RemoteMod(model);
             Platform.runLater(() -> modlist.addItem(m));
@@ -147,6 +150,7 @@ public class AddModsPage extends AbstractAnimationPage {
         }
         Platform.runLater(() -> modlist.setDisable(false));
     }
+
     public void showDownloads(AbstractModModel model) throws InterruptedException {
         Launcher.MODDOWNLOADPAGE.setModContent(model);
         Launcher.setPage(Launcher.MODDOWNLOADPAGE, this);
@@ -158,18 +162,21 @@ public class AddModsPage extends AbstractAnimationPage {
             }
         }).start();
     }
+
     public void refresh() {
 
     }
+
     public void refreshLanguage() {
         this.name = Launcher.languageManager.get("ui.addmodspage.name");
         server.name.setText(Launcher.languageManager.get("ui.moddownloadpage.modserver.name"));
         submit.setText(Launcher.languageManager.get("ui.addmodspage.search.name"));
         item.title.setText(Launcher.languageManager.get("ui.moddownloadpage.search.name"));
-        for (RemoteMod m : modlist.vecs){
+        for (RemoteMod m : modlist.vecs) {
             m.refreshLang();
         }
     }
+
     public void refreshType() {
 
     }

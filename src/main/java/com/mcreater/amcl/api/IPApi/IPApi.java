@@ -2,10 +2,9 @@ package com.mcreater.amcl.api.IPApi;
 
 import com.mcreater.amcl.util.net.HttpClient;
 
-import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
-
 public class IPApi {
     public static final String url = "http://ip-api.com/json";
+
     public static class LocateJsonModel {
         public String status;
         public String country;
@@ -22,7 +21,8 @@ public class IPApi {
         public String as;
         public String query;
     }
+
     public static LocateJsonModel getLocate() throws Exception {
-        return HttpClient.getInstance(url).openConnection().toJson(LocateJsonModel.class);
+        return HttpClient.getInstance(url).open().toJson(LocateJsonModel.class);
     }
 }

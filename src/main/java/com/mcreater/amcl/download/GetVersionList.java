@@ -3,16 +3,16 @@ package com.mcreater.amcl.download;
 import com.google.gson.Gson;
 import com.mcreater.amcl.api.modApi.curseforge.CurseAPI;
 import com.mcreater.amcl.api.modApi.curseforge.modFile.CurseModFileModel;
+import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.download.NewForgeItemFileModel;
 import com.mcreater.amcl.model.download.NewForgeItemModel;
 import com.mcreater.amcl.model.download.OriginalVersionModel;
-import com.mcreater.amcl.model.VersionJsonModel;
-import com.mcreater.amcl.model.fabric.FabricListModel;
 import com.mcreater.amcl.model.fabric.FabricLoaderVersionModel;
 import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
 import com.mcreater.amcl.model.original.VersionsModel;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.JsonUtils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import com.mcreater.amcl.util.parsers.ForgeVersionXMLHandler;
@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
+
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class GetVersionList {
@@ -43,6 +44,7 @@ public class GetVersionList {
             "1.4.6",
             "1.4.7"
     ));
+
     public static Vector<OriginalVersionModel> getOriginalList(FasterUrls.Servers server) throws Exception {
         String url = FasterUrls.getVersionJsonv2WithFaster(server);
         VersionsModel model = GSON_PARSER.fromJson(HttpConnectionUtil.doGet(url), VersionsModel.class);
@@ -61,10 +63,9 @@ public class GetVersionList {
             } catch (ParseException e) {
                 return 0;
             }
-            if (d1.after(d2)){
+            if (d1.after(d2)) {
                 return 1;
-            }
-            else{
+            } else {
                 return -1;
             }
         });
@@ -101,6 +102,7 @@ public class GetVersionList {
         });
         return r2;
     }
+
     public static boolean isMirror(FasterUrls.Servers server) {
         return server != FasterUrls.Servers.MOJANG;
     }
@@ -108,8 +110,7 @@ public class GetVersionList {
     public static String getForgeInstallerDownloadURL(NewForgeItemModel model, String ori, FasterUrls.Servers server) {
         if (isMirror(server)) {
             return FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/download/" + model.build, server);
-        }
-        else {
+        } else {
             return String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%s-%s/forge-%s-%s-installer.jar", ori, model.version, ori, model.version);
         }
     }
@@ -123,78 +124,72 @@ public class GetVersionList {
         }
         if (vectorMap.get(version) != null) {
             return vectorMap.get(version);
-        }
-        else{
+        } else {
             return new Vector<>();
         }
     }
+
     public static Vector<String> getFabricVersionList(String version, FasterUrls.Servers server) throws Exception {
         String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/game", server);
         String loaderVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", server);
-        Vector<Map<String, String>> s = new Vector<>();
-        s = GSON_PARSER.fromJson(HttpConnectionUtil.doGet(fabricVersions), s.getClass());
         Vector<String> versions = new Vector<>();
-        for (Map<String, String> m : s){
-            versions.add(m.get("version"));
-        }
-        if (versions.contains(version)){
+        GSON_PARSER.fromJson(HttpConnectionUtil.doGet(fabricVersions), Vector.class).forEach(o -> {
+            if (o instanceof Map) versions.add(((Map<?, ? extends String>) o).get("version"));
+            else versions.add(o.toString());
+        });
+        if (versions.contains(version)) {
             Vector<String> result = new Vector<>();
-            String raw = String.format("{\"versions\" : %s}", HttpConnectionUtil.doGet(loaderVersions));
-            FabricListModel vs = GSON_PARSER.fromJson(raw, FabricListModel.class);
-            for (FabricLoaderVersionModel model : vs.versions){
+            for (FabricLoaderVersionModel model : JsonUtils.readArray(HttpConnectionUtil.doGet(loaderVersions), FabricLoaderVersionModel.class)) {
                 result.add(model.version);
             }
             return result;
-        }
-        else{
+        } else {
             return new Vector<>();
         }
     }
+
     public static Vector<String> getQuiltVersionList(String version, FasterUrls.Servers server) throws Exception {
         String quiltVersions = FasterUrls.fast("https://meta.quiltmc.org/v3/versions/game", server);
         String loaderVersions = FasterUrls.fast("https://meta.quiltmc.org/v3/versions/loader", server);
-
-        Vector<Map<String, String>> s = new Vector<>();
-        s = GSON_PARSER.fromJson(HttpConnectionUtil.doGet(quiltVersions), s.getClass());
         Vector<String> versions = new Vector<>();
-        for (Map<String, String> m : s){
-            versions.add(m.get("version"));
-        }
-        if (versions.contains(version)){
+        GSON_PARSER.fromJson(HttpConnectionUtil.doGet(quiltVersions), Vector.class).forEach(o -> {
+            if (o instanceof Map) versions.add(((Map<?, ? extends String>) o).get("version"));
+            else versions.add(o.toString());
+        });
+        if (versions.contains(version)) {
             Vector<String> result = new Vector<>();
-            String raw = String.format("{\"versions\" : %s}", HttpConnectionUtil.doGet(loaderVersions));
-            FabricListModel vs = GSON_PARSER.fromJson(raw, FabricListModel.class);
-            for (FabricLoaderVersionModel model : vs.versions){
+            for (FabricLoaderVersionModel model : JsonUtils.readArray(HttpConnectionUtil.doGet(loaderVersions), FabricLoaderVersionModel.class)) {
                 result.add(model.version);
             }
             return result;
-        }
-        else{
+        } else {
             return new Vector<>();
         }
     }
+
     public static OptifineAPIModel getOptifineVersionRaw() throws Exception {
         String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
         Gson g = GSON_PARSER;
         return g.fromJson(r, OptifineAPIModel.class);
     }
+
     public static Vector<OptifineJarModel> getOptifineVersionList(String version) throws Exception {
         String r = HttpConnectionUtil.doGet("https://optifine.cn/api");
         OptifineAPIModel model = GSON_PARSER.fromJson(r, OptifineAPIModel.class);
-        if (model.versions.contains(version)){
+        if (model.versions.contains(version)) {
             Vector<OptifineJarModel> jars = new Vector<>();
             model.files.forEach(optifineJarModel -> {
                 if (!Objects.equals(optifineJarModel.version, "beta")) {
                     if (!optifineJarModel.name.contains("legacy")) {
-                        if (Objects.equals(optifineJarModel.version, version)){
+                        if (Objects.equals(optifineJarModel.version, version)) {
                             jars.add(optifineJarModel);
                         }
                     }
                 }
             });
-            for (OptifineJarModel jar : jars){
+            for (OptifineJarModel jar : jars) {
                 jar.isPreview = jar.name.contains("preview");
-                jar.name = jar.name.replace("OptiFine_"+jar.version+"_", "").replace("preview_", "").replace(".jar", "");
+                jar.name = jar.name.replace("OptiFine_" + jar.version + "_", "").replace("preview_", "").replace(".jar", "");
             }
             jars.sort((o1, o2) -> {
                 try {
@@ -208,50 +203,49 @@ public class GetVersionList {
                     if (date2.after(date1)) return -1;
 
                     return 0;
-                }
-                catch (Exception e){
+                } catch (Exception e) {
                     return 0;
                 }
             });
             Collections.reverse(jars);
             return jars;
-        }
-        else{
+        } else {
             return new Vector<>();
         }
     }
+
     public static Vector<CurseModFileModel> getFabricAPIVersionList(String version, FasterUrls.Servers server) throws Exception {
         return CurseAPI.getModFiles(CurseAPI.getFromModId(306612), getSnap(version, server), server);
     }
+
     public static String getSnapShotName(String raw_name, FasterUrls.Servers server) throws Exception {
         OriginalVersionModel n = null;
-        for (OriginalVersionModel model : getOriginalList(server)){
-            if (Objects.equals(raw_name, model.id)){
+        for (OriginalVersionModel model : getOriginalList(server)) {
+            if (Objects.equals(raw_name, model.id)) {
                 n = model;
             }
         }
-        if (n == null){
+        if (n == null) {
             return null;
-        }
-        else{
+        } else {
             if (Objects.equals(n.type, "snapshot")) {
                 VersionJsonModel model = GSON_PARSER.fromJson(HttpConnectionUtil.doGet(n.url), VersionJsonModel.class);
-                return model.assetIndex.get("id")+"-Snapshot";
+                return model.assetIndex.get("id") + "-Snapshot";
             }
         }
         return raw_name;
     }
+
     public static String getSnap(String raw_name, FasterUrls.Servers server) throws Exception {
         OriginalVersionModel n = null;
-        for (OriginalVersionModel model : getOriginalList(server)){
-            if (Objects.equals(raw_name, model.id)){
+        for (OriginalVersionModel model : getOriginalList(server)) {
+            if (Objects.equals(raw_name, model.id)) {
                 n = model;
             }
         }
-        if (n == null){
+        if (n == null) {
             return null;
-        }
-        else{
+        } else {
             if (Objects.equals(n.type, "snapshot")) {
                 VersionJsonModel model = GSON_PARSER.fromJson(HttpConnectionUtil.doGet(n.url), VersionJsonModel.class);
                 return model.assetIndex.get("id");
@@ -259,6 +253,7 @@ public class GetVersionList {
         }
         return raw_name;
     }
+
     public static Vector<CurseModFileModel> getOptiFabricVersionList(String version, FasterUrls.Servers server) throws Exception {
         return CurseAPI.getModFiles(CurseAPI.getFromModId(322385), getSnap(version, server), server);
     }

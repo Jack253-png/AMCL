@@ -4,13 +4,9 @@ import com.mcreater.amcl.api.weatherAPI.models.WeatherAPIModel;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.net.HttpClient;
 
-import java.io.IOException;
-import java.util.Map;
-
-import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
-
 public class WeatherAPI {
     public static final String WEATHER_API_URL = "http://autodev.openspeech.cn/csp/api/v2.1/weather";
+
     public static WeatherAPIModel getWeather(String city, int pageNo, int pageSize, boolean moreData) throws Exception {
         return HttpClient.getInstance(WEATHER_API_URL, J8Utils.createMap(
                         "openId", "aiuicus",
@@ -21,7 +17,7 @@ public class WeatherAPI {
                         "pageNo", pageNo,
                         "pageSize", pageSize
                 ))
-                .openConnection()
+                .open()
                 .toJson(WeatherAPIModel.class);
     }
 }

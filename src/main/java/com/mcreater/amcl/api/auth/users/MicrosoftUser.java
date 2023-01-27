@@ -13,26 +13,21 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.Map;
 import java.util.Vector;
-
-import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class MicrosoftUser extends AbstractUser {
     public MicrosoftUser(String accessToken, String username, String uuid, String refreshToken) {
         super(accessToken, username, uuid, refreshToken);
     }
+
     public Vector<MSAuth.McProfileModel.McCapeModel> getCapes() throws Exception {
         Vector<MSAuth.McProfileModel.McCapeModel> capes = new Vector<>();
         JSONObject ob = HttpClient.getInstance(MSAuth.MC_PROFILE_API_URL)
-                .openConnection()
+                .open()
                 .header("Authorization", "Bearer " + accessToken)
                 .readJSON();
-        for (Object o : ob.getJSONArray("capes")){
+        for (Object o : ob.getJSONArray("capes")) {
             if (o instanceof JSONObject) {
                 JSONObject t1 = (JSONObject) o;
                 MSAuth.McProfileModel.McCapeModel model = new MSAuth.McProfileModel.McCapeModel();
@@ -46,9 +41,10 @@ public class MicrosoftUser extends AbstractUser {
         return capes;
         // https://wiki.vg/Mojang_API
     }
+
     public Vector<MSAuth.McProfileModel.McSkinModel> getSkins() throws Exception {
         JSONObject obj = HttpClient.getInstance(MSAuth.MC_PROFILE_API_URL)
-                .openConnection()
+                .open()
                 .header("Authorization", "Bearer " + accessToken)
                 .readJSON();
         Vector<MSAuth.McProfileModel.McSkinModel> result = new Vector<>();
@@ -66,19 +62,23 @@ public class MicrosoftUser extends AbstractUser {
         }
         return result;
     }
+
     public enum SkinType {
         STEVE("classic"),
         ALEX("slim");
         public final String type;
-        SkinType(String typeString){
+
+        SkinType(String typeString) {
             type = typeString;
         }
     }
+
     public enum NameState {
         DUPLICATE,
         AVAILABLE,
         NOT_ALLOWED
     }
+
     public void upload(SkinType type, File path) throws Exception {
         HttpPost httpPost = new HttpPost(MSAuth.MC_SKIN_MODIFY_URL);
         httpPost.addHeader("Authorization", "Bearer " + accessToken);
@@ -99,24 +99,23 @@ public class MicrosoftUser extends AbstractUser {
         if (resp.getStatusLine().getStatusCode() <= 399) {
             HttpEntity he = resp.getEntity();
             respContent = EntityUtils.toString(he, "UTF-8");
-        }
-        else {
+        } else {
             throw new Exception();
         }
     }
 
     public void resetSkin() throws Exception {
         HttpClient.getInstance(MSAuth.MC_SKIN_RESET_URL)
-                .openConnection()
-                .setRequestMethod(HttpClient.Method.DELETE)
+                .open()
+                .method(HttpClient.Method.DELETE)
                 .header("Authorization", "Bearer " + accessToken)
                 .read();
     }
 
     public NameState nameAvailable(String name) throws Exception {
         JSONObject object = HttpClient.getInstance(String.format(MSAuth.MC_NAME_CHECK_URL, name))
-                .openConnection()
-                .setRequestMethod(HttpClient.Method.GET)
+                .open()
+                .method(HttpClient.Method.GET)
                 .header("Authorization", "Bearer " + accessToken)
                 .readJSON();
         return object.getString("status") == null ? NameState.NOT_ALLOWED : NameState.valueOf(object.getString("status"));
@@ -124,8 +123,8 @@ public class MicrosoftUser extends AbstractUser {
 
     public void changeName(String name) throws Exception {
         HttpClient.getInstance(String.format(MSAuth.MC_NAME_CHANGE_URL, name))
-                .openConnection()
-                .setRequestMethod(HttpClient.Method.PUT)
+                .open()
+                .method(HttpClient.Method.PUT)
                 .header("Authorization", "Bearer " + accessToken)
                 .read();
         username = name;
@@ -133,15 +132,16 @@ public class MicrosoftUser extends AbstractUser {
 
     public void hideCape() throws Exception {
         HttpClient.getInstance(MSAuth.MC_CAPE_MODIFY_URL)
-                .openConnection()
-                .setRequestMethod(HttpClient.Method.DELETE)
+                .open()
+                .method(HttpClient.Method.DELETE)
                 .header("Authorization", "Bearer " + accessToken)
                 .read();
     }
+
     public void showCape(MSAuth.McProfileModel.McCapeModel model) throws Exception {
         HttpClient.getInstance(MSAuth.MC_CAPE_MODIFY_URL)
-                .openConnection()
-                .setRequestMethod(HttpClient.Method.PUT)
+                .open()
+                .method(HttpClient.Method.PUT)
                 .header("Authorization", "Bearer " + accessToken)
                 .header("Content-Type", "application/json")
                 .writeJson(J8Utils.createMap("capeId", model.id))
@@ -150,9 +150,9 @@ public class MicrosoftUser extends AbstractUser {
 
     public void refresh() throws Exception {
         JSONObject ob = HttpClient.getInstance(MSAuth.TOKEN_URL)
-                .openConnection()
-                .setRequestMethod(HttpClient.Method.POST)
-                .header("Content-Type","application/x-www-form-urlencoded")
+                .open()
+                .method(HttpClient.Method.POST)
+                .header("Content-Type", "application/x-www-form-urlencoded")
                 .write(J8Utils.createMap(
                         "client_id", MSAuth.CLIENT_ID,
                         "refresh_token", refreshToken,
@@ -169,8 +169,7 @@ public class MicrosoftUser extends AbstractUser {
         try {
             MSAuth.AUTH_INSTANCE.checkMcStore(accessToken);
             return true;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }

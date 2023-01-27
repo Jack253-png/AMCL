@@ -2,22 +2,13 @@ package com.mcreater.amcl.api.modApi.modrinth;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.mcreater.amcl.api.modApi.curseforge.CurseAPI;
 import com.mcreater.amcl.api.modApi.modrinth.mod.ModrinthModModel;
 import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileDepencymModel;
 import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileModel;
 import com.mcreater.amcl.tasks.LambdaTask;
 import com.mcreater.amcl.tasks.manager.TaskManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.mcreater.amcl.util.net.HttpClient;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,54 +18,18 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class ModrinthAPI {
-    private static final Logger logger = LogManager.getLogger(CurseAPI.class);
     private static final String host = "https://api.modrinth.com";
-    private static String response(String url) throws IOException {
-        int tried = 0;
-        while (true) {
-            try {
-                long startTime = System.currentTimeMillis();
-                URL u = new URL(host + url);
-                logger.info(String.format("requesting modrinthApi with url %s", u));
-                HttpURLConnection conn = (HttpURLConnection) u.openConnection();
-                conn.setRequestProperty("Accept", "application/json");
-                conn.setRequestProperty("User-Agent", "abstract minecraft launcher");
-                conn.setConnectTimeout(10000);
-                int respc = conn.getResponseCode();
-                StringBuilder f = new StringBuilder();
-                long endTime = System.currentTimeMillis();
-                logger.info(String.format("Url %s returned code %d in %d ms", u, respc, endTime - startTime));
-                if (respc <= 399) {
-                    InputStream is = conn.getInputStream();
-                    if (null != is) {
-                        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                        String temp;
-                        while (null != (temp = br.readLine())) {
-                            f.append(temp);
-                        }
-                    }
-                    else{
-                        throw new SocketTimeoutException();
-                    }
-                    is.close();
-                    return f.toString();
-                }
-                else{
-                    throw new SocketTimeoutException();
-                }
-            }
-            catch (SocketTimeoutException e){
-                tried += 1;
-                logger.error(String.format("failed to request target, tried num %d", tried), e);
-                if (tried >= 4){
-                    logger.error("tried num out!");
-                    throw new IOException();
-                }
-            }
-        }
+
+    private static String response(String url) throws Exception {
+        return HttpClient.getInstance(host + url)
+                .open()
+                .timeout(10000)
+                .header("Accept", "application/json")
+                .header("User-Agent", "Abstract minecraft launcher")
+                .readWithNoLog();
     }
 
-    public static Vector<ModrinthModModel> search(String name, int pageSize) throws IOException {
+    public static Vector<ModrinthModModel> search(String name, int pageSize) throws Exception {
         String url = String.format("/v2/search?query=%s&limit=%d&index=downloads&facets=", name, pageSize);
         String re = response(url + URLEncoder.encode("[[\"project_type:mod\"]]", "UTF-8"));
 
@@ -87,7 +42,8 @@ public class ModrinthAPI {
 
         return resu;
     }
-    public static Map<String, Vector<ModrinthModFileModel>> getModFiles(ModrinthModModel model) throws IOException {
+
+    public static Map<String, Vector<ModrinthModFileModel>> getModFiles(ModrinthModModel model) throws Exception {
         String url = String.format("/v2/project/%s/version", model.slug);
         String re = response(url);
 
@@ -103,21 +59,22 @@ public class ModrinthAPI {
         return result;
     }
 
-    public static ModrinthModModel getFromModId(String modid) throws IOException {
+    public static ModrinthModModel getFromModId(String modid) throws Exception {
         String url = "/v2/project/" + modid;
         return GSON_PARSER.fromJson(response(url), ModrinthModModel.class);
     }
 
     public static Vector<ModrinthModModel> getModFileRequiredMods(ModrinthModFileModel model) throws Exception {
         Vector<ModrinthModModel> result = new Vector<>();
-        TaskManager.setUpdater((integer, s) -> {});
+        TaskManager.setUpdater((integer, s) -> {
+        });
         AtomicReference<Exception> exception = new AtomicReference<>();
         for (ModrinthModFileDepencymModel m : model.dependencies) {
             if (m.dependency_type.equals("required")) {
                 TaskManager.addTasks(new LambdaTask(() -> {
                     try {
                         result.add(getFromModId(m.project_id));
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         exception.set(e);
                     }
                 }));
@@ -125,8 +82,7 @@ public class ModrinthAPI {
         }
         try {
             TaskManager.execute("<mod relation>");
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             exception.set(e);
         }
         if (exception.get() != null) throw exception.get();

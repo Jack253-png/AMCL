@@ -26,6 +26,7 @@ public class DownloadTask extends AbstractDownloadTask {
         this.server = this.server.replace("http:", "https:");
         this.server = this.server.replace("maven.modmuss50.me", "maven.fabricmc.net");
     }
+
     public DownloadTask(String server, String local, int chunkSize) {
         super(server, local);
         this.server = this.server.replace("http:", "https:");
@@ -37,6 +38,7 @@ public class DownloadTask extends AbstractDownloadTask {
         this.hash = hash;
         return this;
     }
+
     public HttpURLConnection getConnection() throws IOException {
         URL url = new URL(this.server);
         HttpURLConnection c = (HttpURLConnection) url.openConnection();
@@ -45,9 +47,11 @@ public class DownloadTask extends AbstractDownloadTask {
         ((HttpsURLConnection) c).setHostnameVerifier(DO_NOT_VERIFY);
         return c;
     }
+
     public void clean() throws IOException {
         deleteFile(local);
     }
+
     public void download() throws IOException {
         inputStream = conn.getInputStream();
 
@@ -62,6 +66,7 @@ public class DownloadTask extends AbstractDownloadTask {
         }
         conn.disconnect();
     }
+
     public void d() throws IOException {
         conn = getConnection();
         if (server.contains("optifine.cn")) {
@@ -69,25 +74,24 @@ public class DownloadTask extends AbstractDownloadTask {
             conn.setRequestProperty("Content-Type", "application/json");
         }
 
-        if (conn.getResponseCode() == 404){
+        if (conn.getResponseCode() >= 300) {
             server = FasterUrls.ReturnToOriginServer(server, type);
             conn = getConnection();
-            if (!(conn.getResponseCode() == 404)) {
+            if (!(conn.getResponseCode() >= 300)) {
                 download();
             }
-        }
-        else {
+        } else {
             download();
         }
     }
+
     public Integer execute() throws IOException {
         boolean failVail = FileUtils.HashHelper.validateSHA1(new File(local), hash);
         if (!failVail) {
             clean();
             try {
                 d();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 J8Utils.runSafe(() -> fos.close());
                 clean();
                 execute();
@@ -97,27 +101,32 @@ public class DownloadTask extends AbstractDownloadTask {
                         () -> inputStream.close()
                 );
             }
-        }
-        else if (hash == null) {
-            while (true){
+        } else if (hash == null) {
+            while (true) {
                 try {
                     clean();
                     d();
                     break;
+                } catch (IOException ignored) {
                 }
-                catch (IOException ignored){}
             }
         }
         return null;
     }
+
     private static final TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
         public java.security.cert.X509Certificate[] getAcceptedIssuers() {
             return new java.security.cert.X509Certificate[]{};
         }
-        public void checkClientTrusted(X509Certificate[] chain, String authType) {}
-        public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+
+        public void checkClientTrusted(X509Certificate[] chain, String authType) {
+        }
+
+        public void checkServerTrusted(X509Certificate[] chain, String authType) {
+        }
     }};
     private static final HostnameVerifier DO_NOT_VERIFY = (hostname, session) -> true;
+
     private static SSLSocketFactory trustAllHosts(HttpsURLConnection connection) {
         SSLSocketFactory oldFactory = connection.getSSLSocketFactory();
         try {

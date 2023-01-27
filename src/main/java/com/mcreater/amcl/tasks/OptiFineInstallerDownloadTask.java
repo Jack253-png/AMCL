@@ -9,9 +9,10 @@ public class OptiFineInstallerDownloadTask extends DownloadTask {
         super(String.format("https://optifine.cn/download/%s", name), local);
         try {
             new File(this.local).createNewFile();
+        } catch (Exception e) {
         }
-        catch (Exception e){}
     }
+
     public Integer execute() throws IOException {
         return super.execute();
     }

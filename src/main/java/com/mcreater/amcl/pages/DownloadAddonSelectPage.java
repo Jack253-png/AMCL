@@ -66,14 +66,17 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
     public BooleanListItem<CurseFileLabel> quiltapi;
     StringItem versionfinalName;
     public JFXButton install;
-    public void closeAll(TitledPane pane){
-        for (TitledPane t : J8Utils.createList(forge.cont.pane, optifine.cont.pane, fabric.cont.pane, optifabric.cont.pane, fabricapi.cont.pane)){
+
+    public void closeAll(TitledPane pane) {
+        for (TitledPane t : J8Utils.createList(forge.cont.pane, optifine.cont.pane, fabric.cont.pane, optifabric.cont.pane, fabricapi.cont.pane)) {
             if (t != pane) t.setExpanded(false);
         }
     }
-    public void bindSingle(TitledPane pane){
+
+    public void bindSingle(TitledPane pane) {
         pane.setOnMouseReleased(event -> closeAll(pane));
     }
+
     public DownloadAddonSelectPage(double width, double height) {
         super(width, height);
         l = Launcher.DOWNLOADMCPAGE;
@@ -85,7 +88,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         forge = new BooleanListItem<>("Forge", width / 5 * 4, VersionTypeGetter.VersionType.FORGE);
         optifine = new BooleanListItem<>("OptiFine", width / 5 * 4, VersionTypeGetter.VersionType.OPTIFINE);
         fabric = new BooleanListItem<>("Fabric", width / 5 * 4, VersionTypeGetter.VersionType.FABRIC);
-        optifabric = new BooleanListItem<>("OptiFabric", width / 5 * 4,  VersionTypeGetter.VersionType.FABRIC);
+        optifabric = new BooleanListItem<>("OptiFabric", width / 5 * 4, VersionTypeGetter.VersionType.FABRIC);
         fabricapi = new BooleanListItem<>("Fabric API", width / 5 * 4, VersionTypeGetter.VersionType.FABRIC);
         quilt = new BooleanListItem<>("Quilt", width / 5 * 4, VersionTypeGetter.VersionType.QUILT);
         quiltapi = new BooleanListItem<>("Quilt API", width / 5 * 4, VersionTypeGetter.VersionType.QUILT);
@@ -107,7 +110,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
 
         forge.button.selectedProperty().addListener(event -> {
             forge.cont.setDisable(!forge.button.isSelected());
-            if (forge.button.isSelected()){
+            if (forge.button.isSelected()) {
                 fabric.button.selectedProperty().set(false);
                 optifabric.button.selectedProperty().set(false);
                 fabricapi.button.selectedProperty().set(false);
@@ -121,42 +124,40 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 quilt.button.selectedProperty().set(false);
                 quiltapi.button.selectedProperty().set(false);
             }
-            if (fabric.button.isSelected()){
+            if (fabric.button.isSelected()) {
                 optifabric.button.selectedProperty().set(optifine.button.isSelected());
             }
         });
         fabric.button.selectedProperty().addListener(event -> {
             fabric.cont.setDisable(!fabric.button.isSelected());
-            if (fabric.button.isSelected()){
+            if (fabric.button.isSelected()) {
                 forge.button.selectedProperty().set(false);
                 quilt.button.selectedProperty().set(false);
                 quiltapi.button.selectedProperty().set(false);
-                if (optifine.button.isSelected()){
+                if (optifine.button.isSelected()) {
                     optifabric.button.selectedProperty().set(true);
                 }
-            }
-            else{
+            } else {
                 optifabric.button.selectedProperty().set(false);
                 fabricapi.button.selectedProperty().set(false);
             }
         });
         optifabric.button.selectedProperty().addListener(event -> {
             optifabric.cont.setDisable(!optifabric.button.isSelected());
-            if (optifabric.button.isSelected()){
-                if (!fabric.button.isSelected() || !optifine.button.isSelected()){
+            if (optifabric.button.isSelected()) {
+                if (!fabric.button.isSelected() || !optifine.button.isSelected()) {
                     optifabric.button.selectedProperty().set(false);
                 }
-            }
-            else {
-                if (fabric.button.isSelected()){
+            } else {
+                if (fabric.button.isSelected()) {
                     optifine.button.selectedProperty().set(false);
                 }
             }
         });
         fabricapi.button.selectedProperty().addListener(event -> {
             fabricapi.cont.setDisable(!fabricapi.button.isSelected());
-            if (fabricapi.button.isSelected()){
-                if (!fabric.button.isSelected()){
+            if (fabricapi.button.isSelected()) {
+                if (!fabric.button.isSelected()) {
                     fabricapi.button.selectedProperty().set(false);
                 }
             }
@@ -169,8 +170,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 fabric.button.selectedProperty().set(false);
                 optifabric.button.selectedProperty().set(false);
                 fabricapi.button.selectedProperty().set(false);
-            }
-            else {
+            } else {
                 if (quiltapi.button.isSelected()) {
                     quiltapi.button.selectedProperty().set(false);
                 }
@@ -210,22 +210,21 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             CountDownLatch latch = new CountDownLatch(1);
             String rl = versionfinalName.cont.getText();
             String versionDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format(buildPath("versions", "%s"), rl));
-            if (new File(versionDir).exists()){
+            if (new File(versionDir).exists()) {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.1"), "");
                 install.setDisable(false);
                 return;
-            }
-            else if (!isValidFileName(rl) || rl.equals("") || rl.endsWith(" ")){
+            } else if (!isValidFileName(rl) || rl.equals("") || rl.endsWith(" ")) {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.install.nameInvaild.title"), Launcher.languageManager.get("ui.install.nameInvaild.2"), "");
                 install.setDisable(false);
                 return;
             }
             String modDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "mods");
-            if (Launcher.configReader.configModel.change_game_dir){
+            if (Launcher.configReader.configModel.change_game_dir) {
                 modDir = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format(buildPath("versions", "%s", "mods"), rl));
             }
 
-            if (!(forge || optifine || fabric || fabricapi || optifabric || quilt)){
+            if (!(forge || optifine || fabric || fabricapi || optifabric || quilt)) {
                 TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                 new Thread(() -> {
                     Platform.runLater(dialog::Create);
@@ -236,7 +235,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 rl,
                                 Launcher.configReader.configModel.downloadChunkSize,
                                 Launcher.configReader.configModel.downloadServer
-                                );
+                        );
                     } catch (Exception e) {
                         dialog.setAll(100);
                         Platform.runLater(dialog::close);
@@ -247,9 +246,8 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     dialog.setAll(100);
                     Platform.runLater(dialog::close);
                 }).start();
-            }
-            else{
-                if (forge){
+            } else {
+                if (forge) {
                     TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
@@ -273,8 +271,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                                 return;
                             }
                             latch.countDown();
-                        }
-                        else {
+                        } else {
                             try {
                                 ForgeOptifineDownload.download(
                                         this.model.id,
@@ -301,8 +298,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         dialog.setAll(100);
                         Platform.runLater(dialog::close);
                     }).start();
-                }
-                else if (fabric){
+                } else if (fabric) {
                     TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                     String finalModDir1 = modDir;
                     new Thread(() -> {
@@ -327,12 +323,11 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
 
                         dialog.setV(0, 100);
                         Vector<Task> tasks = new Vector<>();
-                        if (optifine){
+                        if (optifine) {
                             OptifineAPIModel model;
                             try {
                                 model = GetVersionList.getOptifineVersionRaw();
-                            }
-                            catch (Exception e){
+                            } catch (Exception e) {
                                 dialog.close();
                                 SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"));
                                 return;
@@ -365,8 +360,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         dialog.setAll(100);
                         Platform.runLater(dialog::close);
                     }).start();
-                }
-                else if (quilt) {
+                } else if (quilt) {
                     TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                     String finalModDir2 = modDir;
                     new Thread(() -> {
@@ -405,8 +399,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         dialog.setAll(100);
                         Platform.runLater(dialog::close);
                     }).start();
-                }
-                else if (optifine){
+                } else if (optifine) {
                     TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                     new Thread(() -> {
                         Platform.runLater(dialog::Create);
@@ -469,22 +462,21 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
     public static boolean isValidFileName(String fileName) {
         if (fileName == null || fileName.length() > 255) {
             return false;
-        }
-        else {
+        } else {
             if (OSInfo.isWin()) {
                 Vector<String> invaildNames = new Vector<>(J8Utils.createList("con", "aux", "com1", "com2", "com3", "com4", "lpt1", "lpt2", "lpt3", "prn", "nul", ""));
                 if (invaildNames.contains(fileName.toLowerCase())) {
                     return false;
                 }
                 return fileName.matches("[^\\s\\\\/:\\*\\?\\\"<>\\|](\\x20|[^\\s\\\\/:\\*\\?\\\"<>\\|])*[^\\s\\\\/:\\*\\?\\\"<>\\|\\.]$");
-            }
-            else {
+            } else {
                 return fileName.contains("\\") ||
                         fileName.contains("/");
             }
         }
     }
-    public void setVersionId(OriginalVersionModel model){
+
+    public void setVersionId(OriginalVersionModel model) {
         DownloadAddonSelectPage.model = model;
         id.setText(model.id);
         LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.downloadaddonsselectpage.loading.title"));
@@ -492,8 +484,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         new Thread(() -> {
             try {
                 loadVers();
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 Platform.runLater(dialog::close);
                 SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.downloadaddonsselectpage.fail.title"));
                 Launcher.setPage(Launcher.DOWNLOADMCPAGE, this);
@@ -501,6 +492,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
             Platform.runLater(dialog::close);
         }).start();
     }
+
     public void loadVers() throws Exception {
         Platform.runLater(() -> {
             forge.cont.clear();
@@ -518,108 +510,101 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         Vector<Task> t = new Vector<>();
 
         t.addAll(J8Utils.createList(
-            new LambdaTask(() -> {
-                try {
-                    if (GetVersionList.isMirror(Launcher.configReader.configModel.downloadServer)) {
-                        for (NewForgeItemModel model1 : GetVersionList.getForgeInstallers(model.id, Launcher.configReader.configModel.downloadServer)) {
-                            ForgeLabel l = new ForgeLabel(model1);
-                            l.setFont(Fonts.t_f);
-                            Platform.runLater(() -> forge.cont.addItem(l));
+                new LambdaTask(() -> {
+                    try {
+                        if (GetVersionList.isMirror(Launcher.configReader.configModel.downloadServer)) {
+                            for (NewForgeItemModel model1 : GetVersionList.getForgeInstallers(model.id, Launcher.configReader.configModel.downloadServer)) {
+                                ForgeLabel l = new ForgeLabel(model1);
+                                l.setFont(Fonts.t_f);
+                                Platform.runLater(() -> forge.cont.addItem(l));
+                            }
+                        } else {
+                            for (String s : GetVersionList.getForgeVersionList(model.id, Launcher.configReader.configModel.downloadServer)) {
+                                NewForgeItemModel model2 = new NewForgeItemModel();
+                                model2.version = s;
+
+                                ForgeLabel l = new ForgeLabel(model2);
+                                l.setText(s.split("-")[0]);
+                                l.setFont(Fonts.t_f);
+                                Platform.runLater(() -> forge.cont.addItem(l));
+                            }
                         }
-                    }
-                    else {
-                        for (String s : GetVersionList.getForgeVersionList(model.id, Launcher.configReader.configModel.downloadServer)) {
-                            NewForgeItemModel model2 = new NewForgeItemModel();
-                            model2.version = s;
+                    } catch (Exception ignored) {
 
-                            ForgeLabel l = new ForgeLabel(model2);
-                            l.setText(s.split("-")[0]);
+                    }
+                }),
+                new LambdaTask(() -> {
+                    try {
+                        for (OptifineJarModel optiv : GetVersionList.getOptifineVersionList(model.id)) {
+                            Label l = new Label(optiv.name);
                             l.setFont(Fonts.t_f);
-                            Platform.runLater(() -> forge.cont.addItem(l));
+                            Platform.runLater(() -> optifine.cont.addItem(l));
                         }
-                    }
-                }
-                catch (Exception ignored){
+                    } catch (Exception ignored) {
 
-                }
-            }),
-            new LambdaTask(() -> {
-                try {
-                    for (OptifineJarModel optiv : GetVersionList.getOptifineVersionList(model.id)){
-                        Label l = new Label(optiv.name);
-                        l.setFont(Fonts.t_f);
-                        Platform.runLater(() -> optifine.cont.addItem(l));
                     }
-                }
-                catch (Exception ignored){
-
-                }
-            }),
-            new LambdaTask(() -> {
-                try {
-                    for (String fabv : GetVersionList.getFabricVersionList(model.id, Launcher.configReader.configModel.downloadServer)){
-                        Label l = new Label(fabv);
-                        l.setFont(Fonts.t_f);
-                        Platform.runLater(() -> fabric.cont.addItem(l));
+                }),
+                new LambdaTask(() -> {
+                    try {
+                        for (String fabv : GetVersionList.getFabricVersionList(model.id, Launcher.configReader.configModel.downloadServer)) {
+                            Label l = new Label(fabv);
+                            l.setFont(Fonts.t_f);
+                            Platform.runLater(() -> fabric.cont.addItem(l));
+                        }
+                    } catch (Exception ignored) {
+                        
                     }
-                }
-                catch (Exception ignored){
+                }),
+                new LambdaTask(() -> {
+                    try {
+                        for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(model.id, Launcher.configReader.configModel.downloadServer)) {
+                            CurseFileLabel l = new CurseFileLabel(fabapav.displayName);
+                            l.setFont(Fonts.t_f);
+                            l.model = fabapav;
+                            Platform.runLater(() -> fabricapi.cont.addItem(l));
+                        }
+                    } catch (Exception ignored) {
 
-                }
-            }),
-            new LambdaTask(() -> {
-                try {
-                    for (CurseModFileModel fabapav : GetVersionList.getFabricAPIVersionList(model.id, Launcher.configReader.configModel.downloadServer)){
-                        CurseFileLabel l = new CurseFileLabel(fabapav.displayName);
-                        l.setFont(Fonts.t_f);
-                        l.model = fabapav;
-                        Platform.runLater(() -> fabricapi.cont.addItem(l));
                     }
-                }
-                catch (Exception ignored){
+                }),
+                new LambdaTask(() -> {
+                    try {
+                        for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(model.id, Launcher.configReader.configModel.downloadServer)) {
+                            CurseFileLabel l = new CurseFileLabel(optfabv.displayName);
+                            l.setFont(Fonts.t_f);
+                            l.model = optfabv;
+                            Platform.runLater(() -> optifabric.cont.addItem(l));
+                        }
+                    } catch (Exception ignored) {
 
-                }
-            }),
-            new LambdaTask(() -> {
-                try {
-                    for (CurseModFileModel optfabv : GetVersionList.getOptiFabricVersionList(model.id, Launcher.configReader.configModel.downloadServer)){
-                        CurseFileLabel l = new CurseFileLabel(optfabv.displayName);
-                        l.setFont(Fonts.t_f);
-                        l.model = optfabv;
-                        Platform.runLater(() -> optifabric.cont.addItem(l));
                     }
-                }
-                catch (Exception ignored){
+                }),
+                new LambdaTask(() -> {
+                    try {
+                        for (String quiv : GetVersionList.getQuiltVersionList(model.id, Launcher.configReader.configModel.downloadServer)) {
+                            Label l = new Label(quiv);
+                            l.setFont(Fonts.t_f);
+                            Platform.runLater(() -> quilt.cont.addItem(l));
+                        }
+                    } catch (Exception ignored) {
 
-                }
-            }),
-            new LambdaTask(() -> {
-                try {
-                    for (String quiv : GetVersionList.getQuiltVersionList(model.id, Launcher.configReader.configModel.downloadServer)){
-                        Label l = new Label(quiv);
-                        l.setFont(Fonts.t_f);
-                        Platform.runLater(() -> quilt.cont.addItem(l));
                     }
-                }
-                catch (Exception ignored){
+                }),
+                new LambdaTask(() -> {
+                    try {
+                        for (CurseModFileModel quapv : GetVersionList.getQuiltAPIVersionList(model.id, Launcher.configReader.configModel.downloadServer)) {
+                            CurseFileLabel l = new CurseFileLabel(quapv.displayName);
+                            l.setFont(Fonts.t_f);
+                            l.model = quapv;
+                            Platform.runLater(() -> quiltapi.cont.addItem(l));
+                        }
+                    } catch (Exception ignored) {
 
-                }
-            }),
-            new LambdaTask(() -> {
-                try {
-                    for (CurseModFileModel quapv : GetVersionList.getQuiltAPIVersionList(model.id, Launcher.configReader.configModel.downloadServer)){
-                        CurseFileLabel l = new CurseFileLabel(quapv.displayName);
-                        l.setFont(Fonts.t_f);
-                        l.model = quapv;
-                        Platform.runLater(() -> quiltapi.cont.addItem(l));
                     }
-                }
-                catch (Exception ignored){
-
-                }
-            })
+                })
         ));
-        TaskManager.setUpdater((value, mess) -> {});
+        TaskManager.setUpdater((value, mess) -> {
+        });
         TaskManager.addTasks(t);
         TaskManager.execute("<load addons>");
 
@@ -631,30 +616,33 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         checkIsNull(quilt);
         checkIsNull(quiltapi);
     }
+
     public static class ForgeLabel extends Label {
         public final NewForgeItemModel model;
+
         public ForgeLabel(NewForgeItemModel model) {
             super(model.version);
             this.model = model;
         }
     }
-    public static class CurseFileLabel extends Label{
+
+    public static class CurseFileLabel extends Label {
         public CurseModFileModel model;
 
         public CurseFileLabel(String fileName) {
             super(fileName);
         }
     }
-    public void checkIsNull(BooleanListItem<?> item){
+
+    public void checkIsNull(BooleanListItem<?> item) {
         item.setDisable(item.cont.vecs.size() == 0);
         item.button.selectedProperty().set(false);
         item.button.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue){
-                if (item.isDisable()){
+            if (newValue) {
+                if (item.isDisable()) {
                     item.button.selectedProperty().set(false);
-                }
-                else{
-                    if (item.cont.vecs.size() > 0){
+                } else {
+                    if (item.cont.vecs.size() > 0) {
                         item.cont.select(0);
                     }
                 }

@@ -20,9 +20,12 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public final class JsonUtils {
     public static final Gson GSON_PARSER = new GsonBuilder()
@@ -38,9 +41,8 @@ public final class JsonUtils {
                                 .name("refresh_token").value(userM.refreshToken)
                                 .name("uuid").value(userM.uuid)
                                 .name("user_name").value(userM.username)
-                           .endObject();
-                    }
-                    else if (value instanceof OffLineUser) {
+                                .endObject();
+                    } else if (value instanceof OffLineUser) {
                         OffLineUser userO = (OffLineUser) value;
                         out.beginObject()
                                 .name("active").value(userO.active)
@@ -51,11 +53,11 @@ public final class JsonUtils {
                                 .name("user_name").value(userO.username)
                                 .name("custom_skin")
                                 .beginObject()
-                                    .name("skin").value(userO.skin)
-                                    .name("cape").value(userO.cape)
-                                    .name("is_slim").value(userO.is_slim)
+                                .name("skin").value(userO.skin)
+                                .name("cape").value(userO.cape)
+                                .name("is_slim").value(userO.is_slim)
                                 .endObject()
-                           .endObject();
+                                .endObject();
                     }
                 }
 
@@ -81,8 +83,7 @@ public final class JsonUtils {
                         MicrosoftUser user = new MicrosoftUser(access_token, user_name, uuid, refresh_token);
                         user.active = active;
                         return user;
-                    }
-                    else {
+                    } else {
                         OffLineUser user2 = new OffLineUser(user_name, uuid, custom_skin_is_slim, custom_skin_skin, custom_skin_cape);
                         user2.active = active;
                         return user2;
@@ -97,8 +98,7 @@ public final class JsonUtils {
                 public LanguageManager.LanguageType read(JsonReader in) {
                     try {
                         return LanguageManager.LanguageType.valueOf(in.nextString());
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         return LanguageManager.LanguageType.valueOf(LocateHelper.get());
                     }
                 }
@@ -111,13 +111,13 @@ public final class JsonUtils {
                 public FasterUrls.Servers read(JsonReader in) {
                     try {
                         return FasterUrls.Servers.valueOf(in.nextString());
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         return FasterUrls.Servers.MCBBS;
                     }
                 }
             })
             .create();
+
     public static class JsonProcessors {
         public static Object getValue(Map<String, ?> map, String... index) {
             Object tempObject = map;
@@ -133,16 +133,13 @@ public final class JsonUtils {
                     try {
                         int Arrindex = Integer.parseInt(key.replace("[", "").replace("]", ""));
                         tempObject = ((Vector<?>) tempObject).get(Arrindex);
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                         return null;
                     }
-                }
-                else if (isMap) {
+                } else if (isMap) {
                     tempObject = ((Map<?, ?>) tempObject).get(key);
-                }
-                else {
+                } else {
                     return null;
                 }
 
@@ -150,33 +147,39 @@ public final class JsonUtils {
             }
             return tempObject;
         }
+
         public static boolean parseBoolean(Object o) {
             return o != null && (Boolean) o;
         }
+
         public static long parseLong(Object o) {
             return o == null ? 0 : (Long) o;
         }
+
         public static String parseString(Object o) {
             return o == null ? "" : (o instanceof String ? (String) o : "");
         }
+
         public static abstract class JsonProcessor {
             JsonReader reader;
             Stack<Object> objectStack = new Stack<>();
             String name;
+
             public JsonProcessor(JsonReader reader) {
                 this.reader = reader;
             }
+
             void putValue(Object o) {
                 Object cont = objectStack.pop();
                 objectStack.push(cont);
                 if (cont instanceof Collection<?>) {
                     ((Collection<Object>) cont).add(o);
-                }
-                else if (cont instanceof Map<?, ?>) {
+                } else if (cont instanceof Map<?, ?>) {
                     ((Map<String, Object>) cont).put(name, o);
                 }
                 name = "null";
             }
+
             public void process() throws IOException {
                 JsonToken token = reader.peek();
                 switch (token) {
@@ -221,45 +224,52 @@ public final class JsonUtils {
                         break;
                 }
             }
+
             public boolean processable() {
                 return objectStack.size() > 0;
             }
+
             public abstract Object getProcessedContent();
         }
+
         public static class JsonToCollectionProcessor extends JsonProcessor {
             private final Collection<Object> content = new Vector<>();
+
             public JsonToCollectionProcessor(JsonReader reader) throws IOException {
                 super(reader);
                 if (reader.peek() == JsonToken.BEGIN_ARRAY) {
                     objectStack.push(content);
                     reader.beginArray();
-                }
-                else {
+                } else {
                     throw new IOException("Not a array");
                 }
             }
+
             public Collection<Object> getProcessedContent() {
                 return content;
             }
         }
+
         public static class JsonToMapProcessor extends JsonProcessor {
             private final Map<String, Object> content = new HashMap<>();
+
             public JsonToMapProcessor(JsonReader reader) throws IOException {
                 super(reader);
                 this.reader = reader;
                 if (reader.peek() == JsonToken.BEGIN_OBJECT) {
                     objectStack.push(content);
                     reader.beginObject();
-                }
-                else {
+                } else {
                     throw new IOException("Not a map");
                 }
             }
+
             public Map<String, Object> getProcessedContent() {
                 return content;
             }
         }
     }
+
     public static final Gson GSON = new GsonBuilder().enableComplexMapKeySerialization().create();
 
     private JsonUtils() {
@@ -294,13 +304,18 @@ public final class JsonUtils {
             return null;
         }
     }
-    public static boolean isVaildJson(File path){
+
+    public static boolean isVaildJson(File path) {
         try {
             GSON.fromJson(FileUtils.FileStringReader.read(path.getAbsolutePath()), Map.class);
             return true;
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
+    }
+
+    public static <T> List<T> readArray(String array, Class<T> clazz) {
+        Vector<?> raw = GSON.fromJson(array, Vector.class);
+        return raw.stream().map((Function<Object, T>) o -> GSON.fromJson(GSON.toJson(o), clazz)).collect(Collectors.toList());
     }
 }

@@ -16,22 +16,27 @@ public class ForgeInstallerDownloadTask extends AbstractDownloadTask {
     InputStream inputStream = null;
     HttpURLConnection conn;
     int chunkSize = 512;
+
     public ForgeInstallerDownloadTask(String server, String local) {
         super(server, local);
     }
+
     public ForgeInstallerDownloadTask(String server, String local, int chunkSize) {
         super(server, local);
         this.chunkSize = chunkSize;
     }
+
     public HttpURLConnection getConnection() throws IOException {
         URL url = new URL(this.server);
         HttpURLConnection c = (HttpURLConnection) url.openConnection();
         c.setConnectTimeout(15000);
         return c;
     }
+
     public void clean() {
         deleteFile(local);
     }
+
     public void download() throws IOException {
         inputStream = conn.getInputStream();
 
@@ -43,18 +48,18 @@ public class ForgeInstallerDownloadTask extends AbstractDownloadTask {
         }
         conn.disconnect();
     }
+
     public Integer execute() throws IOException {
         clean();
         try {
             conn = getConnection();
-            if (conn.getResponseCode() == 404){
+            if (conn.getResponseCode() >= 300) {
                 server = FasterUrls.ReturnToOriginServer(server, TaskType.FORGE);
                 conn = getConnection();
-                if (!(conn.getResponseCode() == 404)) {
+                if (!(conn.getResponseCode() >= 300)) {
                     download();
                 }
-            }
-            else {
+            } else {
                 download();
             }
         } catch (Exception e) {
@@ -65,8 +70,7 @@ public class ForgeInstallerDownloadTask extends AbstractDownloadTask {
             try {
                 fos.close();
                 inputStream.close();
-            }
-            catch (NullPointerException ignored){
+            } catch (NullPointerException ignored) {
             }
         }
         return null;
