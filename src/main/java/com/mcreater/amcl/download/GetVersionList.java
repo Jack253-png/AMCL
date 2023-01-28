@@ -27,6 +27,14 @@ import java.util.Objects;
 import java.util.Vector;
 
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
+import static com.mcreater.amcl.util.net.FasterUrls.FABRIC_LOADER_INDEX;
+import static com.mcreater.amcl.util.net.FasterUrls.FABRIC_VER_INDEX;
+import static com.mcreater.amcl.util.net.FasterUrls.FORGE_INDEX;
+import static com.mcreater.amcl.util.net.FasterUrls.FORGE_INSTALLER_FORMAT;
+import static com.mcreater.amcl.util.net.FasterUrls.MIRROR_FORGE_CORE;
+import static com.mcreater.amcl.util.net.FasterUrls.MIRROR_FORGE_INDEX;
+import static com.mcreater.amcl.util.net.FasterUrls.QUILT_LOADER_INDEX;
+import static com.mcreater.amcl.util.net.FasterUrls.QUILT_VER_INDEX;
 
 public class GetVersionList {
     private static final Vector<String> ignoreList = new Vector<>(Arrays.asList(
@@ -45,7 +53,7 @@ public class GetVersionList {
             "1.4.7"
     ));
 
-    public static Vector<OriginalVersionModel> getOriginalList(FasterUrls.Servers server) throws Exception {
+    public static Vector<OriginalVersionModel> getOriginalList(FasterUrls.Server server) throws Exception {
         String url = FasterUrls.getVersionJsonv2WithFaster(server);
         VersionsModel model = GSON_PARSER.fromJson(HttpConnectionUtil.doGet(url), VersionsModel.class);
         Vector<OriginalVersionModel> t = new Vector<>();
@@ -72,9 +80,9 @@ public class GetVersionList {
         return t;
     }
 
-    public static Vector<NewForgeItemModel> getForgeInstallers(String version, FasterUrls.Servers server) throws Exception {
+    public static Vector<NewForgeItemModel> getForgeInstallers(String version, FasterUrls.Server server) throws Exception {
         if (ignoreList.contains(version)) return new Vector<>();
-        String url = FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/minecraft/" + version, server);
+        String url = FasterUrls.fast(MIRROR_FORGE_INDEX + version, server);
         String r = HttpConnectionUtil.doGet(url);
         Vector<NewForgeItemModel> result = new Vector<>();
         result = GSON_PARSER.fromJson(r, result.getClass());
@@ -103,21 +111,21 @@ public class GetVersionList {
         return r2;
     }
 
-    public static boolean isMirror(FasterUrls.Servers server) {
-        return server != FasterUrls.Servers.MOJANG;
+    public static boolean isMirror(FasterUrls.Server server) {
+        return server != FasterUrls.Server.MOJANG;
     }
 
-    public static String getForgeInstallerDownloadURL(NewForgeItemModel model, String ori, FasterUrls.Servers server) {
+    public static String getForgeInstallerDownloadURL(NewForgeItemModel model, String ori, FasterUrls.Server server) {
         if (isMirror(server)) {
-            return FasterUrls.fast("https://bmclapi2.bangbang93.com/forge/download/" + model.build, server);
+            return FasterUrls.fast(MIRROR_FORGE_CORE + model.build, server);
         } else {
-            return String.format("https://files.minecraftforge.net/maven/net/minecraftforge/forge/%s-%s/forge-%s-%s-installer.jar", ori, model.version, ori, model.version);
+            return String.format(FORGE_INSTALLER_FORMAT, ori, model.version, ori, model.version);
         }
     }
 
 
-    public static Vector<String> getForgeVersionList(String version, FasterUrls.Servers server) throws Exception {
-        String url = FasterUrls.fast("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", server);
+    public static Vector<String> getForgeVersionList(String version, FasterUrls.Server server) throws Exception {
+        String url = FasterUrls.fast(FORGE_INDEX, server);
         Map<String, Vector<String>> vectorMap = ForgeVersionXMLHandler.load(HttpConnectionUtil.doGet(url));
         for (String ver : ignoreList) {
             vectorMap.remove(ver);
@@ -129,9 +137,9 @@ public class GetVersionList {
         }
     }
 
-    public static Vector<String> getFabricVersionList(String version, FasterUrls.Servers server) throws Exception {
-        String fabricVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/game", server);
-        String loaderVersions = FasterUrls.fast("https://meta.fabricmc.net/v2/versions/loader", server);
+    public static Vector<String> getFabricVersionList(String version, FasterUrls.Server server) throws Exception {
+        String fabricVersions = FasterUrls.fast(FABRIC_VER_INDEX, server);
+        String loaderVersions = FasterUrls.fast(FABRIC_LOADER_INDEX, server);
         Vector<String> versions = new Vector<>();
         GSON_PARSER.fromJson(HttpConnectionUtil.doGet(fabricVersions), Vector.class).forEach(o -> {
             if (o instanceof Map) versions.add(((Map<?, ? extends String>) o).get("version"));
@@ -148,9 +156,9 @@ public class GetVersionList {
         }
     }
 
-    public static Vector<String> getQuiltVersionList(String version, FasterUrls.Servers server) throws Exception {
-        String quiltVersions = FasterUrls.fast("https://meta.quiltmc.org/v3/versions/game", server);
-        String loaderVersions = FasterUrls.fast("https://meta.quiltmc.org/v3/versions/loader", server);
+    public static Vector<String> getQuiltVersionList(String version, FasterUrls.Server server) throws Exception {
+        String quiltVersions = FasterUrls.fast(QUILT_VER_INDEX, server);
+        String loaderVersions = FasterUrls.fast(QUILT_LOADER_INDEX, server);
         Vector<String> versions = new Vector<>();
         GSON_PARSER.fromJson(HttpConnectionUtil.doGet(quiltVersions), Vector.class).forEach(o -> {
             if (o instanceof Map) versions.add(((Map<?, ? extends String>) o).get("version"));
@@ -214,11 +222,11 @@ public class GetVersionList {
         }
     }
 
-    public static Vector<CurseModFileModel> getFabricAPIVersionList(String version, FasterUrls.Servers server) throws Exception {
+    public static Vector<CurseModFileModel> getFabricAPIVersionList(String version, FasterUrls.Server server) throws Exception {
         return CurseAPI.getModFiles(CurseAPI.getFromModId(306612), getSnap(version, server), server);
     }
 
-    public static String getSnapShotName(String raw_name, FasterUrls.Servers server) throws Exception {
+    public static String getSnapShotName(String raw_name, FasterUrls.Server server) throws Exception {
         OriginalVersionModel n = null;
         for (OriginalVersionModel model : getOriginalList(server)) {
             if (Objects.equals(raw_name, model.id)) {
@@ -236,7 +244,7 @@ public class GetVersionList {
         return raw_name;
     }
 
-    public static String getSnap(String raw_name, FasterUrls.Servers server) throws Exception {
+    public static String getSnap(String raw_name, FasterUrls.Server server) throws Exception {
         OriginalVersionModel n = null;
         for (OriginalVersionModel model : getOriginalList(server)) {
             if (Objects.equals(raw_name, model.id)) {
@@ -254,11 +262,11 @@ public class GetVersionList {
         return raw_name;
     }
 
-    public static Vector<CurseModFileModel> getOptiFabricVersionList(String version, FasterUrls.Servers server) throws Exception {
+    public static Vector<CurseModFileModel> getOptiFabricVersionList(String version, FasterUrls.Server server) throws Exception {
         return CurseAPI.getModFiles(CurseAPI.getFromModId(322385), getSnap(version, server), server);
     }
 
-    public static Vector<CurseModFileModel> getQuiltAPIVersionList(String version, FasterUrls.Servers server) throws Exception {
+    public static Vector<CurseModFileModel> getQuiltAPIVersionList(String version, FasterUrls.Server server) throws Exception {
         return CurseAPI.getModFiles(CurseAPI.getFromModId(634179), getSnap(version, server), server);
     }
 }

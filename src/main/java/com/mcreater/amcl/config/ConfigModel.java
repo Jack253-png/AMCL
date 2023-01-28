@@ -16,10 +16,11 @@ public class ConfigModel {
     public int max_memory = 1024;
     public LanguageManager.LanguageType language = LanguageManager.LanguageType.ENGLISH;
     public int downloadChunkSize = 2048;
-    public FasterUrls.Servers downloadServer = FasterUrls.Servers.MCBBS;
+    public FasterUrls.Server downloadServer = FasterUrls.Server.MCBBS;
     public Vector<AbstractUser> accounts = new Vector<>();
     public boolean enable_blur = false;
-    public static ConfigModel getDefault(){
+
+    public static ConfigModel getDefault() {
         return new ConfigModel();
     }
 }

@@ -89,7 +89,7 @@ public final class CurseAPI {
         return GSON_PARSER.fromJson(GSON_PARSER.toJson(a), CurseModModel.class);
     }
 
-    public static Vector<CurseModFileModel> getModFiles(CurseModModel mod, String version, FasterUrls.Servers server) throws IOException {
+    public static Vector<CurseModFileModel> getModFiles(CurseModModel mod, String version, FasterUrls.Server server) throws IOException {
         Vector<CurseModFileModel> files = new Vector<>();
         boolean cd = false;
         for (Map<String, String> m : mod.latestFilesIndexes) {

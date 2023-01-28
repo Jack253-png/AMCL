@@ -38,10 +38,11 @@ public class OriginalDownload {
     static int chunkSize;
     static String vj;
 
-    public static String getVJ(){
+    public static String getVJ() {
         return vj;
     }
-    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, FasterUrls.Servers server) throws Exception {
+
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, FasterUrls.Server server) throws Exception {
         tasks.clear();
         OriginalDownload.chunkSize = chunkSize;
         String url = FasterUrls.getVersionJsonv2WithFaster(server);
@@ -50,12 +51,12 @@ public class OriginalDownload {
 
         VersionsModel model = GSON_PARSER.fromJson(result, VersionsModel.class);
         String version_url = null;
-        for (VersionModel m : model.versions){
-            if (Objects.equals(id, m.id)){
+        for (VersionModel m : model.versions) {
+            if (Objects.equals(id, m.id)) {
                 version_url = m.url;
             }
         }
-        if (version_url == null){
+        if (version_url == null) {
             throw new IOException();
         }
 
@@ -70,7 +71,7 @@ public class OriginalDownload {
         bw.close();
 
         VersionJsonModel ver_j = GSON_PARSER.fromJson(version_json, VersionJsonModel.class);
-        if (!Objects.equals(id, ver_j.id)){
+        if (!Objects.equals(id, ver_j.id)) {
             throw new IOException();
         }
 
@@ -79,17 +80,20 @@ public class OriginalDownload {
         downloadAssets(ver_j, minecraft_dir, server, chunkSize);
         runTasks();
     }
-    private static void downloadCoreJar(VersionJsonModel model, String minecraft_dir, String version_dir, String version_name, FasterUrls.Servers server) throws FileNotFoundException {
+
+    private static void downloadCoreJar(VersionJsonModel model, String minecraft_dir, String version_dir, String version_name, FasterUrls.Server server) throws FileNotFoundException {
         String url = FasterUrls.fast(model.downloads.get("client").url, server);
         String path = LinkPath.link(version_dir, version_name + ".jar");
         String hash = model.downloads.get("client").sha1;
         tasks.add(new LibDownloadTask(url, path, chunkSize).setHash(hash));
     }
+
     public static void runTasks() throws InterruptedException {
         TaskManager.addTasks(tasks);
         TaskManager.execute("<vanilla>");
     }
-    private static void downloadAssets(VersionJsonModel model, String minecraft_dir, FasterUrls.Servers server, int chunk) throws Exception {
+
+    private static void downloadAssets(VersionJsonModel model, String minecraft_dir, FasterUrls.Server server, int chunk) throws Exception {
         String assets_root = LinkPath.link(minecraft_dir, "assets");
         String assets_indexes = LinkPath.link(assets_root, "indexes");
         String assets_objects = LinkPath.link(assets_root, "objects");
@@ -105,13 +109,13 @@ public class OriginalDownload {
         }
 
         AssetsModel m = GSON_PARSER.fromJson(result, AssetsModel.class);
-        for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()){
+        for (Map.Entry<String, Map<String, String>> entry : m.objects.entrySet()) {
             String hash = entry.getValue().get("hash");
             tasks.add(new AssetsDownloadTask(hash, assets_objects, chunk, server));
         }
     }
 
-    private static void downloadLibs(VersionJsonModel model, String minecraft_dir, String version_dir, String version_name, FasterUrls.Servers server, int chunk) throws FileNotFoundException {
+    private static void downloadLibs(VersionJsonModel model, String minecraft_dir, String version_dir, String version_name, FasterUrls.Server server, int chunk) throws FileNotFoundException {
         String lib_base_path = LinkPath.link(minecraft_dir, "libraries");
         String native_base_path = LinkPath.link(version_dir, version_name + "-natives");
         createDirectoryDirect(lib_base_path);
@@ -167,8 +171,7 @@ public class OriginalDownload {
         model.rules.forEach(rulesModel -> {
             if (rulesModel.os == null) {
                 if (!usaled.get()) allowed.set(toAllowState(rulesModel.action));
-            }
-            else {
+            } else {
                 if (specialEqual(rulesModel.os.name, OSInfo.getOSNameCore()) && specialEqual(rulesModel.os.arch, OSInfo.getOSArchCore())) {
                     allowed.set(toAllowState(rulesModel.action));
                     usaled.set(true);
@@ -177,9 +180,11 @@ public class OriginalDownload {
         });
         return allowed.get();
     }
+
     private static boolean toAllowState(String s) {
         return specialEqual(s, "allow");
     }
+
     private static boolean specialEqual(String a, String b) {
         if (a == null || b == null) return true;
         else return Objects.equals(a, b);

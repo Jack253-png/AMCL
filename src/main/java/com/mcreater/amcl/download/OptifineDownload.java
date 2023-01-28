@@ -2,7 +2,6 @@ package com.mcreater.amcl.download;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.GsonBuilder;
 import com.mcreater.amcl.api.reflect.ReflectHelper;
 import com.mcreater.amcl.api.reflect.ReflectedJar;
 import com.mcreater.amcl.model.optifine.OptifineAPIModel;
@@ -25,22 +24,22 @@ import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class OptifineDownload {
-    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version, Runnable r1, Runnable r2, FasterUrls.Servers server) throws Exception {
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String optifine_version, Runnable r1, Runnable r2, FasterUrls.Server server) throws Exception {
         OptifineAPIModel model = GetVersionList.getOptifineVersionRaw();
-        if (!model.versions.contains(id)){
+        if (!model.versions.contains(id)) {
             throw new IOException();
         }
         String opti = null;
-        for (OptifineJarModel m : model.files){
+        for (OptifineJarModel m : model.files) {
             if (m.name.contains(id.replace("beta ", "beta_")) && m.name.contains(optifine_version)) {
                 opti = m.name;
                 break;
             }
         }
-        if (opti == null){
+        if (opti == null) {
             throw new IOException();
         }
-        if (opti.contains("legacy")){
+        if (opti.contains("legacy")) {
             throw new IOException();
         }
         OriginalDownload.download(id, minecraft_dir, version_name, chunkSize, server);
@@ -69,13 +68,12 @@ public class OptifineDownload {
                     "getOptiFineEdition",
                     new Object[]{ofVers},
                     String[].class);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             ofEd = optifine_version;
         }
 
         String fileSrc = new File("opti.jar").getAbsolutePath();
-        String fileBase = FileUtils.LinkPath.link(minecraft_dir, String.format(buildPath( "versions", "%s", "%s.jar"), version_name, version_name));
+        String fileBase = FileUtils.LinkPath.link(minecraft_dir, String.format(buildPath("versions", "%s", "%s.jar"), version_name, version_name));
         String fileDest = FileUtils.LinkPath.link(minecraft_dir, String.format(buildPath("libraries", "optifine", "OptiFine", "%s_%s", "OptiFine-%s_%s.jar"), id, ofEd, id, ofEd));
         new File(fileDest).getParentFile().mkdirs();
 
@@ -98,8 +96,7 @@ public class OptifineDownload {
                     "installLaunchwrapperLibrary",
                     new Object[]{id, ofEd, new File(LinkPath.link(minecraft_dir, "libraries"))},
                     String.class, String.class, File.class);
-        }
-        catch (Exception ignored){
+        } catch (Exception ignored) {
 
         }
 
@@ -112,12 +109,12 @@ public class OptifineDownload {
 
         // merge json
         JSONObject f = new JSONObject(GSON_PARSER.fromJson(FileStringReader.read(String.format(buildPath("%s", "versions", "%s", "%s.json"), minecraft_dir, version_name, version_name)), Map.class));
-        for (Object o : ob.getJSONArray("libraries")){
+        for (Object o : ob.getJSONArray("libraries")) {
             f.getJSONArray("libraries").add(o);
         }
         f.put("assetIndex", ob.getJSONObject("assetIndex"));
         f.put("downloads", ob.getJSONObject("downloads"));
-        if (ob.getJSONObject("arguments") != null){
+        if (ob.getJSONObject("arguments") != null) {
             Vector<Object> finalArgs = new Vector<Object>(ob.getJSONObject("arguments").getJSONArray("game"));
             finalArgs.addAll(f.getJSONObject("arguments").getJSONArray("game"));
             JSONArray array = new JSONArray(finalArgs);

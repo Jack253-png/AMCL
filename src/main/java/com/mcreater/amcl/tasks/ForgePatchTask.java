@@ -21,19 +21,20 @@ public class ForgePatchTask extends AbstractCommandTask {
     public String jar;
     public Vector<String> classpath = new Vector<>();
     public String[] args_array;
-    FasterUrls.Servers server;
-    public ForgePatchTask(String lib_base, String jar, Vector<String> classpath, String[] args_array, FasterUrls.Servers server) throws IOException {
+    FasterUrls.Server server;
+
+    public ForgePatchTask(String lib_base, String jar, Vector<String> classpath, String[] args_array, FasterUrls.Server server) throws IOException {
         super(new Vector<>());
         Vector<String> jars = new Vector<>();
         String mainjar = LinkPath.link(lib_base, StringUtils.GetFileBaseDir.forgeGet(jar));
         String mainClass = GetJarMainClass.get(mainjar);
         jars.add(mainjar);
-        for (String s : classpath){
+        for (String s : classpath) {
             jars.add(LinkPath.link(lib_base, StringUtils.GetFileBaseDir.forgeGet(s)));
         }
         this.classpath.addAll(jars);
         StringBuilder b = new StringBuilder();
-        for (String s1 : jars){
+        for (String s1 : jars) {
             b.append(s1).append(File.pathSeparator);
         }
         b.replace(b.length(), b.length(), "");
@@ -51,16 +52,17 @@ public class ForgePatchTask extends AbstractCommandTask {
         this.args_array = args_array;
         this.server = server;
     }
+
     public Integer execute() throws IOException {
         List<String> argList = Arrays.asList(args_array);
         if (!argList.contains("DOWNLOAD_MOJMAPS")) {
             return old_pa();
-        }
-        else {
+        } else {
             ForgeDownload.download_mojmaps(argList.get(argList.size() - 1), server);
             return 0;
         }
     }
+
     public int old_pa() throws IOException {
         Process p = Runtime.getRuntime().exec(command.toArray(new String[0]));
         while (true) {

@@ -103,16 +103,16 @@ public final class JsonUtils {
                     }
                 }
             })
-            .registerTypeAdapter(FasterUrls.Servers.class, new TypeAdapter<FasterUrls.Servers>() {
-                public void write(JsonWriter out, FasterUrls.Servers value) throws IOException {
+            .registerTypeAdapter(FasterUrls.Server.class, new TypeAdapter<FasterUrls.Server>() {
+                public void write(JsonWriter out, FasterUrls.Server value) throws IOException {
                     out.value(value.toString());
                 }
 
-                public FasterUrls.Servers read(JsonReader in) {
+                public FasterUrls.Server read(JsonReader in) {
                     try {
-                        return FasterUrls.Servers.valueOf(in.nextString());
+                        return FasterUrls.Server.valueOf(in.nextString());
                     } catch (Exception e) {
-                        return FasterUrls.Servers.MCBBS;
+                        return FasterUrls.Server.MCBBS;
                     }
                 }
             })

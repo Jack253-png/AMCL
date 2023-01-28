@@ -34,19 +34,20 @@ import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class MinecraftFixer {
     static Vector<Task> tasks = new Vector<>();
-    public static void fix(int chunkSize, String dir, String versionName, FasterUrls.Servers server) throws IOException, InterruptedException {
+
+    public static void fix(int chunkSize, String dir, String versionName, FasterUrls.Server server) throws IOException, InterruptedException {
         tasks.clear();
         String versionDir = LinkPath.link(dir, String.format(buildPath("versions", "%s"), versionName));
         String assetsDir = String.format(buildPath("%s", "assets", "indexes"), dir);
-        if (!new File(versionDir).exists()){
+        if (!new File(versionDir).exists()) {
             throw new IOException("version dir does not exists");
         }
         String versionJson = String.format(buildPath("%s", "%s.json"), versionDir, versionName);
-        if (!new File(versionJson).exists()){
+        if (!new File(versionJson).exists()) {
             throw new IOException("version json does not exists");
         }
         VersionJsonModel model = GSON_PARSER.fromJson(FileStringReader.read(versionJson), VersionJsonModel.class);
-        if (model == null){
+        if (model == null) {
             throw new IOException("failed to read version json");
         }
         checkLibs(chunkSize, dir, model.libraries, versionDir, versionName, server);
@@ -54,11 +55,13 @@ public class MinecraftFixer {
         checkAssets(chunkSize, assetsDir, model, dir, server);
         runTasks();
     }
+
     public static void runTasks() throws InterruptedException {
         TaskManager.addTasks(tasks);
         TaskManager.execute("<full files>");
     }
-    public static void checkAssets(int chunk, String assets, VersionJsonModel model, String minecraft_dir, FasterUrls.Servers server) throws IOException {
+
+    public static void checkAssets(int chunk, String assets, VersionJsonModel model, String minecraft_dir, FasterUrls.Server server) throws IOException {
         String index = FileUtils.LinkPath.link(assets, model.assetIndex.get("id") + ".json");
         String assets_root = LinkPath.link(minecraft_dir, "assets");
         String assets_objects = LinkPath.link(assets_root, "objects");
@@ -86,15 +89,17 @@ public class MinecraftFixer {
             }
         }
     }
-    public static void checkCoreJar(int chunk, String versionDir, String versionName, JarModel model, FasterUrls.Servers server) throws FileNotFoundException {
+
+    public static void checkCoreJar(int chunk, String versionDir, String versionName, JarModel model, FasterUrls.Server server) throws FileNotFoundException {
         String path = LinkPath.link(versionDir, String.format("%s.jar", versionName));
         String url = model.url;
         String hash = model.sha1;
-        if (!HashHelper.validateSHA1(new File(path), hash)){
+        if (!HashHelper.validateSHA1(new File(path), hash)) {
             tasks.add(new LibDownloadTask(FasterUrls.fast(url, server), path, chunk).setHash(hash));
         }
     }
-    public static void checkLibs(int chunk, String dir, Vector<LibModel> libs, String version_dir, String version_name, FasterUrls.Servers server) throws FileNotFoundException {
+
+    public static void checkLibs(int chunk, String dir, Vector<LibModel> libs, String version_dir, String version_name, FasterUrls.Server server) throws FileNotFoundException {
         String lib_base_path = LinkPath.link(dir, "libraries");
         String native_base_path = LinkPath.link(version_dir, version_name + "-natives");
         createDirectoryDirect(lib_base_path);

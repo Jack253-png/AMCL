@@ -17,17 +17,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Vector;
-import java.util.function.Consumer;
 
 import static com.mcreater.amcl.util.FileUtils.OperateUtil.createDirectory;
 import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
+import static com.mcreater.amcl.util.net.FasterUrls.FABRIC_MAVEN_ROOT;
+import static com.mcreater.amcl.util.net.FasterUrls.QUILT_LOADER_FORMAT;
+import static com.mcreater.amcl.util.net.FasterUrls.QUILT_MAVEN_ROOT;
 
 public class QuiltDownload {
-    static int chunkSize;
     static Vector<Task> tasks = new Vector<>();
 
-    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String quilt_version, Runnable ru, FasterUrls.Servers server) throws Exception {
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, String quilt_version, Runnable ru, FasterUrls.Server server) throws Exception {
         tasks.clear();
         FabricDownload.chunkSize = chunkSize;
         Vector<String> vers = GetVersionList.getQuiltVersionList(id, server);
@@ -37,7 +38,7 @@ public class QuiltDownload {
         }
         OriginalDownload.download(id, minecraft_dir, version_name, chunkSize, server);
         ru.run();
-        String fab = FasterUrls.fast(String.format("https://meta.quiltmc.org/v3/versions/loader/%s/%s", id, quilt_version), server);
+        String fab = FasterUrls.fast(String.format(QUILT_LOADER_FORMAT, id, quilt_version), server);
         String r = HttpConnectionUtil.doGet(fab);
         FabricVersionModel model = GSON_PARSER.fromJson(r, FabricVersionModel.class);
         String lib_base = FileUtils.LinkPath.link(minecraft_dir, "libraries");
@@ -65,35 +66,36 @@ public class QuiltDownload {
             tasks.add(new LibDownloadTask(url, path, chunkSize));
         }
 
-        String url = FasterUrls.fast("https://maven.fabricmc.net/" + MavenPathConverter.get(model.intermediary.maven).replace("\\", "/"), server);
+        String url = FasterUrls.fast(FABRIC_MAVEN_ROOT + MavenPathConverter.get(model.intermediary.maven).replace("\\", "/"), server);
         String path = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model.intermediary.maven));
         createDirectory(path);
         FabricLibModel model1 = new FabricLibModel();
         model1.name = model.intermediary.maven;
-        model1.url = "https://maven.fabricmc.net/";
+        model1.url = FABRIC_MAVEN_ROOT;
         ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model1), Map.class));
         tasks.add(new LibDownloadTask(url, path, chunkSize));
 
-        url = FasterUrls.fast("https://maven.quiltmc.org/repository/release/" + MavenPathConverter.get(model.loader.maven).replace("\\", "/"), server);
+        url = FasterUrls.fast(QUILT_MAVEN_ROOT + MavenPathConverter.get(model.loader.maven).replace("\\", "/"), server);
         path = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model.loader.maven));
         createDirectory(path);
         model1 = new FabricLibModel();
         model1.name = model.loader.maven;
-        model1.url = "https://maven.quiltmc.org/repository/release/";
+        model1.url = QUILT_MAVEN_ROOT;
         tasks.add(new LibDownloadTask(url, path, chunkSize));
         ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model1), Map.class));
 
-        url = FasterUrls.fast("https://maven.quiltmc.org/repository/release/" + MavenPathConverter.get(model.hashed.maven).replace("\\", "/"), server);
+        url = FasterUrls.fast(QUILT_MAVEN_ROOT + MavenPathConverter.get(model.hashed.maven).replace("\\", "/"), server);
         path = FileUtils.LinkPath.link(lib_base, MavenPathConverter.get(model.hashed.maven));
         createDirectory(path);
         model1 = new FabricLibModel();
         model1.name = model.hashed.maven;
-        model1.url = "https://maven.quiltmc.org/repository/release/";
+        model1.url = QUILT_MAVEN_ROOT;
         ao.getJSONArray("libraries").put(GSON_PARSER.fromJson(GSON_PARSER.toJson(model1), Map.class));
         tasks.add(new LibDownloadTask(url, path, chunkSize));
 
         tasks.forEach(task -> {
-            if (task instanceof AbstractDownloadTask) ((AbstractDownloadTask) task).setType(AbstractDownloadTask.TaskType.FABRIC);
+            if (task instanceof AbstractDownloadTask)
+                ((AbstractDownloadTask) task).setType(AbstractDownloadTask.TaskType.FABRIC);
         });
 
         TaskManager.addTasks(tasks);

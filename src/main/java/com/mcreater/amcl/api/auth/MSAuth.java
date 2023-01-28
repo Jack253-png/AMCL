@@ -17,7 +17,9 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
@@ -55,6 +57,37 @@ public class MSAuth implements AbstractAuth<MicrosoftUser> {
         public int interval;
     }
 
+    public static class TokenResponse extends ErrorResponse {
+        public String token_type;
+        public int expires_in;
+        public int ext_expires_in;
+        public String scope;
+        public String access_token;
+        public String refresh_token;
+    }
+
+    public static class ErrorResponse {
+        public String error;
+        public String error_description;
+        public String correlation_id;
+    }
+
+    public static class UserProfileModel {
+        public String id;
+        public String name;
+        public Vector<UserContentModel> skins;
+        public Vector<UserContentModel> capes;
+        public Map<Object, Object> profileActions;
+
+        public static class UserContentModel {
+            public String id;
+            public String state;
+            public String url;
+            public String alias;
+            public String variant;
+        }
+    }
+
     public MicrosoftUser generateDeviceCode(BiConsumer<String, String> regIs) throws Exception {
         DeviceCodeModel model = HttpClient.getInstance(DEVICE_CODE_URL, J8Utils.createMap(
                         "client_id", CLIENT_ID,
@@ -76,30 +109,36 @@ public class MSAuth implements AbstractAuth<MicrosoftUser> {
         while (true) {
             Sleeper.sleep(Math.max(interval, 1));
 
-            // We stop waiting if user does not respond our authentication request in 15 minutes.
             long estimatedTime = System.nanoTime() - startTime;
             if (TimeUnit.SECONDS.convert(estimatedTime, TimeUnit.NANOSECONDS) >= Math.min(model.expires_in, 900)) {
                 throw new IOException("timed out");
             }
 
             try {
-                JSONObject object = HttpClient.getInstance(TOKEN_URL)
+                TokenResponse response = HttpClient.getInstance(TOKEN_URL)
                         .open()
                         .method(HttpClient.Method.POST)
                         .header("Content-Type", "application/x-www-form-urlencoded")
+                        .ignoreHttpCode(true)
                         .write(J8Utils.createMap(
                                 "grant_type", "urn:ietf:params:oauth:grant-type:device_code",
                                 "client_id", CLIENT_ID,
                                 "code", model.device_code
                         ))
-                        .readJSON();
+                        .toJson(TokenResponse.class);
+                if (response.error.equals("authorization_pending")) continue;
+                else if (response.error.equals("expired_token")) throw new IOException("Token expired");
+                else if (response.error.equals("slow_down")) {
+                    interval += 5;
+                    continue;
+                }
                 try {
-                    return getUserFromToken(new ImmutablePair<>("d=" + object.getString("access_token"), object.getString("refresh_token")));
+                    return getUserFromToken(new ImmutablePair<>("d=" + response.access_token, response.refresh_token));
                 } catch (Exception e) {
                     throw e;
                 }
-            } catch (Exception e) {
-                System.out.println(e);
+            } catch (Exception ignored) {
+
             }
         }
     }

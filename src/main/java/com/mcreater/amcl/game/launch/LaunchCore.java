@@ -76,16 +76,22 @@ public class LaunchCore {
     Vector<ConsoleOutputHelper.LogLine> logProperty = new Vector<>();
 
     Vector<String> argList = new Vector<>();
-    private BiConsumer<ImmutablePair<Integer, Integer>, String> updater = (integerIntegerImmutablePair, s) -> {};
-    private Runnable failedRunnable = () -> {};
+    private BiConsumer<ImmutablePair<Integer, Integer>, String> updater = (integerIntegerImmutablePair, s) -> {
+    };
+    private Runnable failedRunnable = () -> {
+    };
+
     public void setUpdater(@NotNull BiConsumer<ImmutablePair<Integer, Integer>, String> updater) {
         this.updater = updater;
     }
+
     public void setFailedRunnable(@NotNull Runnable r) {
         this.failedRunnable = r;
     }
+
     public Long exitCode;
-    public void launch(String java_path, String dir, String version_name, boolean ie, int memory, AbstractUser user, FasterUrls.Servers dlserver, int chunkSize) throws Exception {
+
+    public void launch(String java_path, String dir, String version_name, boolean ie, int memory, AbstractUser user, FasterUrls.Server dlserver, int chunkSize) throws Exception {
         argList.clear();
         if (MemoryReader.getFreeMemory() < (long) memory * 1024 * 1024) {
             memory = (int) (MemoryReader.getFreeMemory() / 1024 / 1204);
@@ -103,7 +109,8 @@ public class LaunchCore {
         TaskManager.setUpdater((integer, s) -> updater.accept(new ImmutablePair<>(1, integer), s));
         TaskManager.setFinishRunnable(() -> {
             updater.accept(new ImmutablePair<>(1, 100), "");
-            TaskManager.setFinishRunnable(() -> {});
+            TaskManager.setFinishRunnable(() -> {
+            });
         });
         try {
             MinecraftFixer.fix(chunkSize, dir, version_name, dlserver);
@@ -232,8 +239,7 @@ public class LaunchCore {
                         if (s != null) {
                             if (s instanceof String) {
                                 arguList.add((String) s);
-                            }
-                            else {
+                            } else {
                                 Map<String, Boolean> result = J8Utils.createMap(
                                         String.class, Boolean.class,
                                         "is_demo_user", false,
@@ -257,8 +263,7 @@ public class LaunchCore {
                                 if (!b.get()) {
                                     if (model.value instanceof String) {
                                         arguList.add((String) model.value);
-                                    }
-                                    else if (model.value instanceof List<?>) {
+                                    } else if (model.value instanceof List<?>) {
                                         ((List<?>) model.value).forEach(o -> arguList.add(o.toString()));
                                     }
                                 }
@@ -498,12 +503,14 @@ public class LaunchCore {
             throw new ProcessException(e);
         }
     }
+
     private void readProcessOutput(final Process process) {
         if (process != null) {
             new Thread(() -> read(process.getInputStream(), System.out)).start();
             new Thread(() -> read(process.getErrorStream(), System.err)).start();
         }
     }
+
     private void read(InputStream inputStream, PrintStream out) {
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("GBK")));
@@ -528,8 +535,9 @@ public class LaunchCore {
             }
         }
     }
+
     public void stop_process() {
-        if (process != null){
+        if (process != null) {
             process.destroy();
         }
     }

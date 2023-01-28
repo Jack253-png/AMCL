@@ -2,18 +2,29 @@ package com.mcreater.amcl.util.net;
 
 import com.google.gson.internal.LinkedTreeMap;
 import com.mcreater.amcl.tasks.AbstractDownloadTask;
-import com.mcreater.amcl.util.J8Utils;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Vector;
-import java.util.function.BiConsumer;
 
 public class FasterUrls {
-    public static Map<String, String> s = new LinkedTreeMap<>();
-    public static Map<String, String> rs = new LinkedTreeMap<>();
-    public static Map<String, AbstractDownloadTask.TaskType> urlTypes = new LinkedTreeMap<>();
+    private static Map<String, String> s = new LinkedTreeMap<>();
+    private static Map<String, String> rs = new LinkedTreeMap<>();
+    private static Map<String, AbstractDownloadTask.TaskType> urlTypes = new LinkedTreeMap<>();
+
+    public static final String ORIGINAL_VER_LIST = "http://launchermeta.mojang.com/mc/game/version_manifest_v2.json";
+    public static final String ORIGINAL_LIB_ROOT = "https://libraries.minecraft.net/";
+    public static final String ORIGINAL_ASSET_FORMAT = "http://resources.download.minecraft.net/%s/%s";
+    public static final String FABRIC_LOADER_FORMAT = "https://meta.fabricmc.net/v2/versions/loader/%s/%s";
+    public static final String FABRIC_MAVEN_ROOT = "https://maven.fabricmc.net/";
+    public static final String MIRROR_FORGE_INDEX = "https://bmclapi2.bangbang93.com/forge/minecraft/";
+    public static final String MIRROR_FORGE_CORE = "https://bmclapi2.bangbang93.com/forge/download/";
+    public static final String FORGE_INSTALLER_FORMAT = "https://files.minecraftforge.net/maven/net/minecraftforge/forge/%s-%s/forge-%s-%s-installer.jar";
+    public static final String FORGE_INDEX = "https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml";
+    public static final String FABRIC_VER_INDEX = "https://meta.fabricmc.net/v2/versions/game";
+    public static final String FABRIC_LOADER_INDEX = "https://meta.fabricmc.net/v2/versions/loader";
+    public static final String QUILT_VER_INDEX = "https://meta.quiltmc.org/v3/versions/game";
+    public static final String QUILT_LOADER_INDEX = "https://meta.quiltmc.org/v3/versions/loader";
+    public static final String QUILT_LOADER_FORMAT = "https://meta.quiltmc.org/v3/versions/loader/%s/%s";
+    public static final String QUILT_MAVEN_ROOT = "https://maven.quiltmc.org/repository/release/";
 
     static {
         s.put("http://launchermeta.mojang.com/mc/game/version_manifest.json", "https://bmclapi2.bangbang93.com/mc/game/version_manifest.json");
@@ -52,10 +63,11 @@ public class FasterUrls {
         urlTypes.put("https://maven.fabricmc.net", AbstractDownloadTask.TaskType.FABRIC);
     }
 
-    public static String getVersionJsonv2WithFaster(Servers t){
-        return fast("http://launchermeta.mojang.com/mc/game/version_manifest_v2.json", t);
+    public static String getVersionJsonv2WithFaster(Server t) {
+        return fast(ORIGINAL_VER_LIST, t);
     }
-    public static String fast(String raw, Servers server){
+
+    public static String fast(String raw, Server server) {
         switch (server) {
             default:
             case MOJANG:
@@ -66,7 +78,8 @@ public class FasterUrls {
                 return rawFast(raw).replace("https://bmclapi2.bangbang93.com/", "https://download.mcbbs.net/");
         }
     }
-    private static String rawFast(String raw){
+
+    private static String rawFast(String raw) {
         for (String sr : s.keySet()) {
             if (raw.contains(sr)) {
                 return raw.replace(sr, s.get(sr));
@@ -74,9 +87,11 @@ public class FasterUrls {
         }
         return raw;
     }
+
     public static String ReturnToOriginServer(String raw) {
         return ReturnToOriginServer(raw, AbstractDownloadTask.TaskType.ORIGINAL);
     }
+
     public static String ReturnToOriginServer(String raw, AbstractDownloadTask.TaskType type) {
         if (raw.contains("https://download.mcbbs.net/")) {
             raw = raw.replace("https://download.mcbbs.net/", "https://bmclapi2.bangbang93.com/");
@@ -87,7 +102,8 @@ public class FasterUrls {
         }
         return raw;
     }
-    public enum Servers {
+
+    public enum Server {
         BMCLAPI,
         MCBBS,
         MOJANG

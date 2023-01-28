@@ -69,6 +69,7 @@ public class ConfigPage extends AbstractMenuBarPage {
     Label ltitle;
     VBox looklike_config_box;
     public BooleanItem item7;
+
     public ConfigPage(int width, int height) {
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -127,8 +128,7 @@ public class ConfigPage extends AbstractMenuBarPage {
                     throw new RuntimeException(e);
                 }
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.java_info.title"), Launcher.languageManager.get("ui.configpage.java_info.Headercontent", v.get(0), v.get(1)), "");
-            }
-            else{
+            } else {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.select_java.title"), Launcher.languageManager.get("ui.configpage.select_java.Headercontent"), "");
             }
             java_get.setDisable(false);
@@ -149,8 +149,7 @@ public class ConfigPage extends AbstractMenuBarPage {
                     });
                     Launcher.configReader.configModel.selected_java.addAll(fina);
                     FXUtils.Platform.runLater(this::load_java_list);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 java_find.setDisable(false);
@@ -185,13 +184,13 @@ public class ConfigPage extends AbstractMenuBarPage {
         });
 
         item5 = new ListItem<>("", this.width / 4 * 3 - 10);
-        for (Map.Entry<String, String> entry : servers.entrySet()){
+        for (Map.Entry<String, String> entry : servers.entrySet()) {
             Label l = new Label(entry.getKey());
             l.setFont(Fonts.t_f);
             item5.cont.getItems().add(l);
         }
         item5.cont.getSelectionModel().select(getKey2(Launcher.configReader.configModel.downloadServer.toString()));
-        item5.cont.setOnAction(event -> Launcher.configReader.configModel.downloadServer = FasterUrls.Servers.valueOf(servers.get(item5.cont.getValue().getText())));
+        item5.cont.setOnAction(event -> Launcher.configReader.configModel.downloadServer = FasterUrls.Server.valueOf(servers.get(item5.cont.getValue().getText())));
 
         item6 = new IntItem("", this.width / 4 * 3 - 10);
         item6.cont.setMax(8192);
@@ -236,7 +235,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         vo.setSpacing(10);
 
         new Thread(() -> {
-            while (true){
+            while (true) {
                 double targetMCMem = item2.cont.getValue();
 
                 double targetMCMemPercent = Timer.division(MemoryReader.getUsedMemory() + Launcher.configReader.configModel.max_memory * 1024 * 1024L, MemoryReader.getTotalMemory());
@@ -246,10 +245,9 @@ public class ConfigPage extends AbstractMenuBarPage {
                 String usedS = Launcher.languageManager.get("ui.configpage.mem.bar.used.name", MemoryReader.convertMemToString(MemoryReader.getUsedMemory()));
 
                 String targetMcMemS;
-                if (MemoryReader.getUsedMemory() + targetMCMem * 1024 * 1024L < MemoryReader.getTotalMemory()){
+                if (MemoryReader.getUsedMemory() + targetMCMem * 1024 * 1024L < MemoryReader.getTotalMemory()) {
                     targetMcMemS = Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.name", MemoryReader.convertMemToString((long) (targetMCMem * 1024 * 1024L)));
-                }
-                else {
+                } else {
                     targetMcMemS = Launcher.languageManager.get("ui.configpage.mem.bar.jvmmem.out.name", MemoryReader.convertMemToString((long) (targetMCMem * 1024 * 1024L)), MemoryReader.convertMemToString(MemoryReader.getFreeMemory()));
                 }
                 Platform.runLater(() -> bar2.setProgress(sysMemPercent));
@@ -307,25 +305,26 @@ public class ConfigPage extends AbstractMenuBarPage {
         ));
     }
 
-    public void load_java_list(){
+    public void load_java_list() {
         item4.cont.getItems().clear();
         for (String s : Launcher.configReader.configModel.selected_java) {
             Label l = new Label(s);
             l.setFont(Fonts.t_f);
             item4.cont.getItems().add(l);
         }
-        if (Launcher.configReader.configModel.selected_java.contains(Launcher.configReader.configModel.selected_java_index)){
+        if (Launcher.configReader.configModel.selected_java.contains(Launcher.configReader.configModel.selected_java_index)) {
             item4.cont.getSelectionModel().select(Launcher.configReader.configModel.selected_java.indexOf(Launcher.configReader.configModel.selected_java_index));
-        }
-        else {
+        } else {
             item4.cont.getSelectionModel().selectFirst();
         }
     }
-    public void refresh(){
+
+    public void refresh() {
         p1.set(this.opacityProperty());
         setType(setted);
     }
-    public void refreshLanguage(){
+
+    public void refreshLanguage() {
         name = Launcher.languageManager.get("ui.configpage.name");
         title.setText(Launcher.languageManager.get("ui.configpage.title.name"));
 
@@ -342,7 +341,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         ltitle.setText(Launcher.languageManager.get("ui.configpage.mem.bar.title"));
     }
 
-    public void refreshType(){
+    public void refreshType() {
         java_add.setGraphic(Launcher.getSVGManager().plus(ThemeManager.createPaintBinding(), 15, 15));
         java_get.setGraphic(Launcher.getSVGManager().dotsHorizontal(ThemeManager.createPaintBinding(), 15, 15));
         java_find.setGraphic(Launcher.getSVGManager().back(ThemeManager.createPaintBinding(), 15, 15));
@@ -352,29 +351,30 @@ public class ConfigPage extends AbstractMenuBarPage {
 
     }
 
-    private int getKey(String value){
-        for (Label l : item3.cont.getItems()){
+    private int getKey(String value) {
+        for (Label l : item3.cont.getItems()) {
             String key = "";
-            for (Map.Entry<String, String> entry : langs.entrySet()){
-                if (Objects.equals(entry.getValue(), value)){
+            for (Map.Entry<String, String> entry : langs.entrySet()) {
+                if (Objects.equals(entry.getValue(), value)) {
                     key = entry.getKey();
                 }
             }
-            if (Objects.equals(l.getText(), key)){
+            if (Objects.equals(l.getText(), key)) {
                 return item3.cont.getItems().indexOf(l);
             }
         }
         return -1;
     }
-    private int getKey2(String value){
-        for (Label l : item5.cont.getItems()){
+
+    private int getKey2(String value) {
+        for (Label l : item5.cont.getItems()) {
             String key = "";
-            for (Map.Entry<String, String> entry : servers.entrySet()){
-                if (Objects.equals(entry.getValue(), value)){
+            for (Map.Entry<String, String> entry : servers.entrySet()) {
+                if (Objects.equals(entry.getValue(), value)) {
                     key = entry.getKey();
                 }
             }
-            if (Objects.equals(l.getText(), key)){
+            if (Objects.equals(l.getText(), key)) {
                 return item5.cont.getItems().indexOf(l);
             }
         }

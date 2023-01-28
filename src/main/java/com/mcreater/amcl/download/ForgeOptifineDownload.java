@@ -22,23 +22,23 @@ import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
 public class ForgeOptifineDownload {
-    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, NewForgeItemModel forge_version, Runnable r3, Runnable r, Runnable r2, String optifine_version, Runnable r4, Runnable r5, FasterUrls.Servers server) throws Exception {
+    public static void download(String id, String minecraft_dir, String version_name, int chunkSize, NewForgeItemModel forge_version, Runnable r3, Runnable r, Runnable r2, String optifine_version, Runnable r4, Runnable r5, FasterUrls.Server server) throws Exception {
         if (FileUtils.getJavaExecutable() == null) throw new IOException("Java executable not found.");
         OptifineAPIModel model = GetVersionList.getOptifineVersionRaw();
-        if (!model.versions.contains(id)){
+        if (!model.versions.contains(id)) {
             throw new IOException();
         }
         String opti = null;
-        for (OptifineJarModel m : model.files){
+        for (OptifineJarModel m : model.files) {
             if (m.name.contains(id.replace("beta ", "beta_")) && m.name.contains(optifine_version)) {
                 opti = m.name;
                 break;
             }
         }
-        if (opti == null){
+        if (opti == null) {
             throw new IOException();
         }
-        if (opti.contains("legacy")){
+        if (opti.contains("legacy")) {
             throw new IOException();
         }
         ForgeDownload.download(id, minecraft_dir, version_name, chunkSize, forge_version, r3, r, r2, server);
@@ -69,8 +69,7 @@ public class ForgeOptifineDownload {
                     "getOptiFineEdition",
                     new Object[]{ofVers},
                     String[].class);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             ofEd = optifine_version;
         }
 

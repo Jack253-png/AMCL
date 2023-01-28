@@ -25,6 +25,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.util.List;
 import java.util.Vector;
 
 import static com.mcreater.amcl.Launcher.stage;
@@ -36,15 +37,17 @@ public class MicrosoftModifyDialog extends AbstractDialog {
     VBox content;
     AdvancedScrollPane pane;
     final MicrosoftUser user;
-    Vector<MSAuth.McProfileModel.McCapeModel> capes;
+    List<MSAuth.McProfileModel.McCapeModel> capes;
     ListItem<CapeSelectionLabel> capeSelect;
     JFXButton reset;
     StringItem changeName;
     JFXButton vaildateName;
     JFXButton updateName;
+
     public void setFinish(EventHandler<ActionEvent> handler) {
         finish.setOnAction(handler);
     }
+
     public MicrosoftModifyDialog(String title, MicrosoftUser user) {
         super();
         this.user = user;
@@ -88,8 +91,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
                 try {
                     user.resetSkin();
                     FXUtils.Platform.runLater(dialog::close);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     FXUtils.Platform.runLater(dialog::close);
                     SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.skin.reset.fail"));
                 }
@@ -110,13 +112,11 @@ public class MicrosoftModifyDialog extends AbstractDialog {
                 try {
                     if (model == null || model.id == null) {
                         user.hideCape();
-                    }
-                    else {
+                    } else {
                         user.showCape(model);
                     }
                     FXUtils.Platform.runLater(dialog::close);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     FXUtils.Platform.runLater(dialog::close);
                     SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.skin.cape.fail"));
                 }
@@ -156,8 +156,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
                         user.changeName(changeName.cont.getText());
                         Launcher.configReader.write();
                         FXUtils.Platform.runLater(dialog::close);
-                    }
-                    else {
+                    } else {
                         SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.skin.name.vaildate.state.title"), Launcher.languageManager.get("ui.userselectpage.skin.name.vaildate.state." + state.name()), "");
                         FXUtils.Platform.runLater(dialog::close);
                     }
@@ -181,6 +180,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
         layout.setActions(finish);
         setContent(layout);
     }
+
     public void show() {
         LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.msaccount.cape.fetch"));
         dialog.Create();

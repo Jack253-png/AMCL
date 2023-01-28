@@ -145,7 +145,12 @@ public class LocalYggdrasilServer extends HTTPServer {
 
     private Response getProfiles(RouteImpl route) {
         List<String> playerNames = GSON.fromJson(StringUtils.readFromStream(route.getSession().getInputStream()), Vector.class);
-        return ok(players.stream().filter(player -> playerNames.contains(player.name)).map(Player::toProfile).collect(Collectors.toList()));
+        return ok(players
+                .stream()
+                .filter(player -> playerNames.contains(player.name))
+                .map(Player::toProfile)
+                .collect(Collectors.toList())
+        );
     }
 
     private Response onJoinServer(RouteImpl route) {
@@ -159,7 +164,10 @@ public class LocalYggdrasilServer extends HTTPServer {
 
         if (players.stream().noneMatch(player -> player.name.equals(map.get("username")))) return noContent();
         else {
-            Optional<Player> player = players.stream().filter(player2 -> player2.name.equals(map.get("username"))).findFirst();
+            Optional<Player> player = players
+                    .stream()
+                    .filter(player2 -> player2.name.equals(map.get("username")))
+                    .findFirst();
             if (player.isPresent()) return ok(player.get().toProfile(getRootURL()));
             else return noContent();
         }

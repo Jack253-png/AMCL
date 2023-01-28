@@ -14,53 +14,53 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.List;
 import java.util.Vector;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class MicrosoftUser extends AbstractUser {
     public MicrosoftUser(String accessToken, String username, String uuid, String refreshToken) {
         super(accessToken, username, uuid, refreshToken);
     }
 
-    public Vector<MSAuth.McProfileModel.McCapeModel> getCapes() throws Exception {
+    public List<MSAuth.McProfileModel.McCapeModel> getCapes() throws Exception {
         Vector<MSAuth.McProfileModel.McCapeModel> capes = new Vector<>();
-        JSONObject ob = HttpClient.getInstance(MSAuth.MC_PROFILE_API_URL)
+        MSAuth.UserProfileModel ob = HttpClient.getInstance(MSAuth.MC_PROFILE_API_URL)
                 .open()
                 .header("Authorization", "Bearer " + accessToken)
-                .readJSON();
-        for (Object o : ob.getJSONArray("capes")) {
-            if (o instanceof JSONObject) {
-                JSONObject t1 = (JSONObject) o;
-                MSAuth.McProfileModel.McCapeModel model = new MSAuth.McProfileModel.McCapeModel();
-                model.url = t1.getString("url");
-                model.id = t1.getString("id");
-                model.alias = t1.getString("alias");
-                model.state = t1.getString("state").equals("ACTIVE");
-                capes.add(model);
-            }
-        }
-        return capes;
+                .toJson(MSAuth.UserProfileModel.class);
+        return ob.capes
+                .stream()
+                .map(userContentModel -> {
+                    MSAuth.McProfileModel.McCapeModel model = new MSAuth.McProfileModel.McCapeModel();
+                    model.url = userContentModel.url;
+                    model.id = userContentModel.id;
+                    model.alias = userContentModel.alias;
+                    model.state = userContentModel.state.equals("ACTIVE");
+                    return model;
+                })
+                .collect(Collectors.toList());
         // https://wiki.vg/Mojang_API
     }
 
-    public Vector<MSAuth.McProfileModel.McSkinModel> getSkins() throws Exception {
-        JSONObject obj = HttpClient.getInstance(MSAuth.MC_PROFILE_API_URL)
+    public List<MSAuth.McProfileModel.McSkinModel> getSkins() throws Exception {
+        MSAuth.UserProfileModel obj = HttpClient.getInstance(MSAuth.MC_PROFILE_API_URL)
                 .open()
                 .header("Authorization", "Bearer " + accessToken)
-                .readJSON();
-        Vector<MSAuth.McProfileModel.McSkinModel> result = new Vector<>();
-        for (Object ob : obj.getJSONArray("skins")) {
-            if (ob instanceof JSONObject) {
-                JSONObject r = (JSONObject) ob;
-                MSAuth.McProfileModel.McSkinModel model = new MSAuth.McProfileModel.McSkinModel();
-                model.variant = r.getString("variant");
-                model.id = r.getString("id");
-                model.state = r.getString("state");
-                model.url = r.getString("url");
-                model.isSlim = r.getString("variant").equals("SLIM");
-                result.add(model);
-            }
-        }
-        return result;
+                .toJson(MSAuth.UserProfileModel.class);
+        return obj.skins
+                .stream()
+                .map(userContentModel -> {
+                    MSAuth.McProfileModel.McSkinModel model = new MSAuth.McProfileModel.McSkinModel();
+                    model.variant = userContentModel.variant;
+                    model.id = userContentModel.id;
+                    model.state = userContentModel.state;
+                    model.url = userContentModel.url;
+                    model.isSlim = userContentModel.variant.equals("SLIM");
+                    return model;
+                })
+                .collect(Collectors.toList());
     }
 
     public enum SkinType {

@@ -46,6 +46,7 @@ public class UserSelectPage extends AbstractAnimationPage {
     JFXButton menuButtonMicrosoft;
     JFXButton refreshList;
     public static final SimpleObjectProperty<AbstractUser> user = new SimpleObjectProperty<>();
+
     public UserSelectPage(double width, double height) {
         super(width, height);
         l = Launcher.MAINPAGE;
@@ -91,8 +92,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                                 try {
                                     uuid = MSAuth.getUserUUID(dialog1.f.getText());
                                     isSlim = MSAuth.getUserSkin(uuid).skin.isSlim;
-                                }
-                                catch (Exception e) {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 Launcher.configReader.configModel.accounts.add(new OffLineUser(dialog.getInputedName(), uuid, isSlim, null, null));
@@ -165,6 +165,7 @@ public class UserSelectPage extends AbstractAnimationPage {
         add(sideBar, 0, 0, 1, 1);
         add(page1, 1, 0, 1, 1);
     }
+
     public void checkActiveState() {
         AbstractUser userTarget = null;
         for (AbstractUser user : Launcher.configReader.configModel.accounts) {
@@ -184,6 +185,7 @@ public class UserSelectPage extends AbstractAnimationPage {
         user.set(userTarget);
         Launcher.configReader.write();
     }
+
     public void reloadUser() {
         Runnable runn = () -> new Thread(() -> {
             checkActiveState();
@@ -228,12 +230,11 @@ public class UserSelectPage extends AbstractAnimationPage {
                     dialog.show();
                     new Thread(() -> {
                         try {
-                            item.user.refresh();
+                            if (!item.user.validate()) item.user.refresh();
                             item.cutSkinStart();
                         } catch (Exception e) {
                             SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"));
-                        }
-                        finally {
+                        } finally {
                             FXUtils.Platform.runLater(dialog::close);
                             Launcher.configReader.write();
                         }
@@ -274,8 +275,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                                                     try {
                                                         uuid = MSAuth.getUserUUID(dialog2.f.getText());
                                                         isSlim = MSAuth.getUserSkin(uuid).skin.isSlim;
-                                                    }
-                                                    catch (Exception e) {
+                                                    } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
                                                     item.user.uuid = uuid;
@@ -339,8 +339,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                         if (!item.user.validate()) {
                             SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.validate.fail.title"), Launcher.languageManager.get("ui.userselectpage.validate.fail.content"), "");
                             FXUtils.Platform.runLater(dialog::close);
-                        }
-                        else {
+                        } else {
                             FXUtils.Platform.runLater(dialog::close);
                             FXUtils.Platform.runLater(modify);
                         }
@@ -367,7 +366,8 @@ public class UserSelectPage extends AbstractAnimationPage {
                 refreshList.setDisable(false);
             });
 
-            FXUtils.AnimationUtils.runSingleCycleAnimation(userList.page.opacityProperty(), 0, 1, 100, 300, event1 -> {});
+            FXUtils.AnimationUtils.runSingleCycleAnimation(userList.page.opacityProperty(), 0, 1, 100, 300, event1 -> {
+            });
         }).start();
 
         FXUtils.AnimationUtils.runSingleCycleAnimation(userList.page.opacityProperty(), 1, 0, 100, 300, event1 -> {
