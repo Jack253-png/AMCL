@@ -180,7 +180,7 @@ public class HttpClient {
     }
 
     public <T> T toJson(Class<T> clazz, boolean autoConnect) throws Exception {
-        return GSON_PARSER.fromJson(read(autoConnect, false), clazz);
+        return GSON_PARSER.fromJson(read(autoConnect, true), clazz);
     }
 
     public HttpClient timeout(int time) {

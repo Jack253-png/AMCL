@@ -16,7 +16,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.util.List;
 import java.util.Vector;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class MicrosoftUser extends AbstractUser {
@@ -113,20 +112,21 @@ public class MicrosoftUser extends AbstractUser {
     }
 
     public NameState nameAvailable(String name) throws Exception {
-        JSONObject object = HttpClient.getInstance(String.format(MSAuth.MC_NAME_CHECK_URL, name))
+        MSAuth.NameStateModel object = HttpClient.getInstance(String.format(MSAuth.MC_NAME_CHECK_URL, name))
                 .open()
                 .method(HttpClient.Method.GET)
                 .header("Authorization", "Bearer " + accessToken)
-                .readJSON();
-        return object.getString("status") == null ? NameState.NOT_ALLOWED : NameState.valueOf(object.getString("status"));
+                .toJson(MSAuth.NameStateModel.class);
+        return object.status == null ? NameState.NOT_ALLOWED : NameState.valueOf(object.status);
     }
 
     public void changeName(String name) throws Exception {
-        HttpClient.getInstance(String.format(MSAuth.MC_NAME_CHANGE_URL, name))
+        MSAuth.UserProfileModel model = HttpClient.getInstance(String.format(MSAuth.MC_NAME_CHANGE_URL, name))
                 .open()
                 .method(HttpClient.Method.PUT)
                 .header("Authorization", "Bearer " + accessToken)
-                .read();
+                .toJson(MSAuth.UserProfileModel.class);
+        
         username = name;
     }
 
@@ -139,17 +139,17 @@ public class MicrosoftUser extends AbstractUser {
     }
 
     public void showCape(MSAuth.McProfileModel.McCapeModel model) throws Exception {
-        HttpClient.getInstance(MSAuth.MC_CAPE_MODIFY_URL)
+        MSAuth.UserProfileModel model2 = HttpClient.getInstance(MSAuth.MC_CAPE_MODIFY_URL)
                 .open()
                 .method(HttpClient.Method.PUT)
                 .header("Authorization", "Bearer " + accessToken)
                 .header("Content-Type", "application/json")
                 .writeJson(J8Utils.createMap("capeId", model.id))
-                .read();
+                .toJson(MSAuth.UserProfileModel.class);
     }
 
     public void refresh() throws Exception {
-        JSONObject ob = HttpClient.getInstance(MSAuth.TOKEN_URL)
+        MSAuth.TokenResponse ob = HttpClient.getInstance(MSAuth.TOKEN_URL)
                 .open()
                 .method(HttpClient.Method.POST)
                 .header("Content-Type", "application/x-www-form-urlencoded")
@@ -158,10 +158,9 @@ public class MicrosoftUser extends AbstractUser {
                         "refresh_token", refreshToken,
                         "grant_type", "refresh_token"
                 ))
-                .readJSON();
-        this.refreshToken = ob.getString("refresh_token");
-        String at = ob.getString("access_token");
-        MicrosoftUser newUser = MSAuth.AUTH_INSTANCE.getUserFromToken(new ImmutablePair<>("d=" + at, refreshToken));
+                .toJson(MSAuth.TokenResponse.class);
+        MicrosoftUser newUser = MSAuth.AUTH_INSTANCE.getUserFromToken(new ImmutablePair<>("d=" + ob.access_token, refreshToken));
+        this.refreshToken = ob.refresh_token;
         this.accessToken = newUser.accessToken;
     }
 
