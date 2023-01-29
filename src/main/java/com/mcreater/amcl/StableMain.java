@@ -8,6 +8,7 @@ import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.patcher.DepenciesLoader;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
+import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.LoggerPrintStream;
 import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.SwingUtils;
@@ -127,7 +128,7 @@ public class StableMain {
     }
 
     public static void injectDepencies(Vector<DepencyItem> addonItems) throws Exception {
-        for (DepencyItem item : DepenciesJsonHandler.load()) {
+        for (DepencyItem item : addonItems) {
             if (item.name.contains("org.openjfx:")) {
                 if (!ClassPathInjector.javafx_useable) {
                     ClassPathInjector.addJarUrl(new File(item.getLocal()).toURI().toURL());
@@ -139,7 +140,7 @@ public class StableMain {
     }
 
     public static void injectDepenciesFromURL(Vector<DepencyItem> addonItems) throws Exception {
-        for (DepencyItem item : DepenciesJsonHandler.load()) {
+        for (DepencyItem item : addonItems) {
             if (item.name.contains("org.openjfx:")) {
                 if (!ClassPathInjector.javafx_useable) {
                     ClassPathInjector.addJarUrl(new URL(item.getURL()));

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
@@ -14,46 +15,48 @@ public class ConfigWriter {
     public ConfigModel configModel;
     File file;
     public String p;
+
     public ConfigWriter(File f) throws IOException {
         p = f.getPath();
         configModel = new ConfigReader(f).read();
         file = f;
     }
-    public void write(){
+
+    public void write() {
         try {
             FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(GSON_PARSER.toJson(configModel));
             fileWriter.close();
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public void check_and_write(){
-        if (configModel.selected_java == null){
+
+    public void check_and_write() {
+        if (configModel.selected_java == null) {
             configModel.selected_java = new Vector<>();
         }
-        if (configModel.selected_minecraft_dir == null){
+        if (configModel.selected_minecraft_dir == null) {
             configModel.selected_minecraft_dir = new Vector<>();
         }
-        if (configModel.selected_minecraft_dir_index == null){
+        if (configModel.selected_minecraft_dir_index == null) {
             configModel.selected_minecraft_dir_index = "";
         }
-        if (configModel.selected_java_index == null){
+        if (configModel.selected_java_index == null) {
             configModel.selected_java_index = "";
         }
-        if (configModel.selected_version_index == null){
+        if (configModel.selected_version_index == null) {
             configModel.selected_version_index = "";
         }
-        if (configModel.max_memory < 16 || configModel.max_memory > J8Utils.getMcMaxMemory()){
+        if (configModel.max_memory < 16 || configModel.max_memory > J8Utils.getMcMaxMemory()) {
             configModel.max_memory = 1024;
         }
-        if (configModel.downloadChunkSize < 512 || configModel.downloadChunkSize > 8192){
+        if (configModel.downloadChunkSize < 512 || configModel.downloadChunkSize > 8192) {
             configModel.downloadChunkSize = 2048;
         }
         Vector<String> dirs = new Vector<>();
         configModel.selected_minecraft_dir.forEach(s -> {
-            if (!new File(s).exists()){
+            if (!new File(s).exists()) {
                 dirs.add(s);
             }
         });
@@ -74,10 +77,11 @@ public class ConfigWriter {
         }
 
         if (configModel.selected_java.size() == 0) {
-            Vector<File> files = FileUtils.getJavaTotal();
-            Vector<String> stringPaths = new Vector<>();
-            files.forEach(file -> stringPaths.add(file.getAbsolutePath()));
-            configModel.selected_java.addAll(stringPaths);
+            configModel.selected_java.addAll(
+                    FileUtils.getJavaTotal().stream()
+                            .map(File::getAbsolutePath)
+                            .collect(Collectors.toList())
+            );
         }
 
         boolean contained = false;

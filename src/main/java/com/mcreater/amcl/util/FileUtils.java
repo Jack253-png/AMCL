@@ -33,11 +33,12 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -107,27 +108,19 @@ public class FileUtils {
     public static String getJavaExecutable() {
         String env = getJavaExecutableInEnv();
         if (env != null) return env;
-        Vector<File> path = getJavaTotal();
+        List<File> path = getJavaTotal();
         if (path.size() > 0) {
             return path.get(0).getAbsolutePath();
         }
         return getCurrentJavaExecutable();
     }
 
-    public static Vector<File> getJavaTotal() {
+    public static List<File> getJavaTotal() {
         Vector<File> java = getJavaExecutableInPath();
-        for (File f : getJavaInSystemPath()) {
-            AtomicBoolean b = new AtomicBoolean(false);
-            java.forEach(file -> {
-                if (file.getAbsolutePath().equals(f.getAbsolutePath())) {
-                    b.set(true);
-                }
-            });
-            if (!b.get()) {
-                java.add(f);
-            }
-        }
-        return java;
+        return getJavaInSystemPath().stream()
+                .filter(file2 -> java.stream()
+                        .noneMatch(file -> file.getAbsolutePath().equals(file2.getAbsolutePath())))
+                .collect(Collectors.toList());
     }
 
     private static Vector<File> getJavaInSystemPath() {
@@ -140,19 +133,17 @@ public class FileUtils {
         if (OSInfo.isLinux()) basePaths.add(new File("/usr/lib/jvm"));
 
         CountDownLatch latch = new CountDownLatch(basePaths.size());
-        Vector<Thread> threads = new Vector<>();
         Vector<File> paths = new Vector<>();
-        for (File p : basePaths) {
-            threads.add(new Thread(() -> {
-                try {
-                    paths.addAll(getJavaInSelPath(p));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                latch.countDown();
-            }));
-        }
-        threads.forEach(Thread::start);
+        basePaths.stream()
+                .map(file -> new Thread(() -> {
+                    try {
+                        paths.addAll(getJavaInSelPath(file));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    latch.countDown();
+                }))
+                .forEach(Thread::start);
         try {
             latch.await();
         } catch (Exception ignored) {
@@ -202,27 +193,25 @@ public class FileUtils {
         String path_env = System.getenv("Path");
         if (path_env == null) return new Vector<>();
         String[] arg = path_env.split(File.pathSeparator);
-        Vector<Thread> threads = new Vector<>();
         CountDownLatch latch = new CountDownLatch(arg.length);
         Vector<File> paths = new Vector<>();
-        for (String p : arg) {
-            threads.add(new Thread(() -> {
-                try {
-                    File[] files = new File(p).listFiles((dir, name) -> name.contains(OSInfo.isWin() ? "java.exe" : "java"));
-                    if (files != null) {
-                        for (File f : files) {
-                            if (ClassPathInjector.getJavaVersion(f) >= 8) {
-                                paths.add(f);
+        Arrays.stream(arg)
+                .map(s -> new Thread(() -> {
+                    try {
+                        File[] files = new File(s).listFiles((dir, name) -> name.contains(OSInfo.isWin() ? "java.exe" : "java"));
+                        if (files != null) {
+                            for (File f : files) {
+                                if (ClassPathInjector.getJavaVersion(f) >= 8) {
+                                    paths.add(f);
+                                }
                             }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                latch.countDown();
-            }));
-        }
-        threads.forEach(Thread::start);
+                    latch.countDown();
+                }))
+                .forEach(Thread::start);
         try {
             latch.await();
         } catch (Exception ignored) {
@@ -265,17 +254,13 @@ public class FileUtils {
         public static String read(String p) {
             File file = new File(PathUtil.toPlatformPath(p));
             BufferedReader reader = null;
-            StringBuilder r = new StringBuilder();
             try {
                 reader = new BufferedReader(new FileReader(file));
-                String tempString = null;
-                while ((tempString = reader.readLine()) != null) {
-                    r.append(tempString).append("\n");
-                }
+                String result = reader.lines().collect(Collectors.joining("\n"));
                 reader.close();
+                return result;
             } catch (IOException e) {
                 e.printStackTrace();
-                throw new IllegalStateException("Null to read file");
             } finally {
                 if (reader != null) {
                     try {
@@ -284,7 +269,7 @@ public class FileUtils {
                     }
                 }
             }
-            return r.toString();
+            return "";
         }
     }
 
