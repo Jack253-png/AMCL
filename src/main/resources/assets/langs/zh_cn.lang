@@ -262,3 +262,6 @@ ui.userselectpage.skin.name.vaildate.state.AVAILABLE=用户名可用
 ui.userselectpage.skin.name.vaildate.state.NOT_ALLOWED=用户名不允许, Minecraft 用户名只允许使用数字，字母和下划线
 ui.userselectpage.msaccount.name.updating=更新用户名中...
 ui.userselectpage.msaccount.name.update.fail=用户名更新失败
+ui.versioninfopage.info.version=版本: %s
+ui.versioninfopage.info.author=作者: %s
+ui.versioninfopage.info.author.null=作者未找到

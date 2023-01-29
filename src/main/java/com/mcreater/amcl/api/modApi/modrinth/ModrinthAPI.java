@@ -7,6 +7,7 @@ import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileDepencymMode
 import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileModel;
 import com.mcreater.amcl.tasks.LambdaTask;
 import com.mcreater.amcl.tasks.manager.TaskManager;
+import com.mcreater.amcl.util.VersionInfo;
 import com.mcreater.amcl.util.net.HttpClient;
 
 import java.net.URLEncoder;
@@ -25,7 +26,7 @@ public class ModrinthAPI {
                 .open()
                 .timeout(10000)
                 .header("Accept", "application/json")
-                .header("User-Agent", "Abstract minecraft launcher")
+                .header("User-Agent", "Jack253-png/" + VersionInfo.launcher_name + "/" + VersionInfo.launcher_version)
                 .readWithNoLog();
     }
 

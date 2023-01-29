@@ -262,3 +262,6 @@ ui.userselectpage.skin.name.vaildate.state.AVAILABLE=Name available
 ui.userselectpage.skin.name.vaildate.state.NOT_ALLOWED=Name not allowed, Minecraft account name only contains numbers, letters and underline
 ui.userselectpage.msaccount.name.updating=Updating name...
 ui.userselectpage.msaccount.name.update.fail=Name updating failure
+ui.versioninfopage.info.version=Version: %s
+ui.versioninfopage.info.author=Author: %s
+ui.versioninfopage.info.author.null=Author not found

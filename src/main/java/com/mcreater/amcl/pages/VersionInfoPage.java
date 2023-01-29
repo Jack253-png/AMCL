@@ -12,6 +12,7 @@ import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
+import com.mcreater.amcl.pages.dialogs.mod.LocalModInfoDialog;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
@@ -186,7 +187,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
         modList.setOnAction(() -> {
             delete.setDisable(modList.selectedItem == null);
-            
+            new LocalModInfoDialog(modList.selectedItem.model).show();
         });
 
         mods.add(addMod, 0, 1, 1, 1);
