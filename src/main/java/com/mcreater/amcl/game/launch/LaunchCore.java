@@ -19,6 +19,7 @@ import com.mcreater.amcl.model.ArgItemModel;
 import com.mcreater.amcl.model.LibModel;
 import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.nativeInterface.EnumWindow;
+import com.mcreater.amcl.nativeInterface.OSInfo;
 import com.mcreater.amcl.nativeInterface.ResourceGetter;
 import com.mcreater.amcl.pages.MainPage;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
@@ -513,7 +514,7 @@ public class LaunchCore {
 
     private void read(InputStream inputStream, PrintStream out) {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, Charset.forName("GBK")));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, OSInfo.NATIVE_CHARSET));
             String line;
             while ((line = reader.readLine()) != null) {
                 logProperty.add(ConsoleOutputHelper.toLogLine(line, out));

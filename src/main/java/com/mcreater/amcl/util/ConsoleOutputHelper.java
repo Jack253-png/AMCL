@@ -1,5 +1,6 @@
 package com.mcreater.amcl.util;
 
+import com.mcreater.amcl.nativeInterface.OSInfo;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 
@@ -22,7 +23,7 @@ public class ConsoleOutputHelper {
     public static final Ansi.Color ERROR = Ansi.Color.RED;
     public static final Ansi.Color FATAL = Ansi.Color.RED;
 
-//    private static final Pattern LOG4J_STD = Pattern.compile("\\[(?<time>[\\s\\S]*)\\] \\[(?<thread>[\\s\\S]*)\\/(?<type>[\\s\\S]*)\\]\\: (?<message>[\\s\\S]*)");
+    //    private static final Pattern LOG4J_STD = Pattern.compile("\\[(?<time>[\\s\\S]*)\\] \\[(?<thread>[\\s\\S]*)\\/(?<type>[\\s\\S]*)\\]\\: (?<message>[\\s\\S]*)");
     private static final Pattern LOG4J_STD = Pattern.compile("\\[(?<time>.*)] \\[(?<thread>.*)/(?<type>.*)]: (?<message>.*)");
     private static final Pattern EXC_STACK_START = Pattern.compile("(?<class>.*): (?<message>.*)");
     private static final Pattern EXC_STACK_CONTENT = Pattern.compile("\\tat (?<method>.*)\\((?<source>.*)\\)");
@@ -55,30 +56,37 @@ public class ConsoleOutputHelper {
             }
         }
     }
+
     public static class LogLine {
         private final LogType type;
         private final String content;
         private final PrintStream stream;
+
         public LogLine(LogType type, String content, PrintStream stream) {
             this.type = type;
             this.content = content;
             this.stream = stream;
         }
+
         public LogType getType() {
             return type;
         }
+
         public String getContent() {
             return content;
         }
+
         public PrintStream getStream() {
             return stream;
         }
+
         public void printToStream() {
             AnsiConsole.systemInstall();
             stream.println(ansi().fg(toLogColor(type)).a(content).reset());
             AnsiConsole.systemUninstall();
         }
     }
+
     private static Ansi.Color toLogColor(LogType type) {
         switch (type) {
             case FATAL:
@@ -96,6 +104,7 @@ public class ConsoleOutputHelper {
                 return TRACE;
         }
     }
+
     private static LogType findLogType(String s, PrintStream stream) {
         Matcher log4jstd = LOG4J_STD.matcher(s);
         Matcher excstart = EXC_STACK_START.matcher(s);
@@ -113,16 +122,16 @@ public class ConsoleOutputHelper {
                 }
             }
             return excfind ? LogType.ERROR : LogType.INFO;
-        }
-        else {
+        } else {
             return excfind ? LogType.ERROR : LogType.WARN;
         }
     }
+
     public static LogLine toLogLine(String content, PrintStream stream) {
         return new LogLine(findLogType(content, stream), content, stream);
     }
 
-    public static void printLog(String s, PrintStream stream){
+    public static void printLog(String s, PrintStream stream) {
         toLogLine(s, stream).printToStream();
     }
 
@@ -131,10 +140,11 @@ public class ConsoleOutputHelper {
         stream.println(ansi().fg(color).a(s).reset());
         AnsiConsole.systemUninstall();
     }
-    public static String readStreamContent(InputStream inputStream) {
+
+    public static String readStreamContent(InputStream inputStream, Charset charset) {
         StringBuilder f = new StringBuilder();
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charset));
             String line;
             while ((line = reader.readLine()) != null) {
                 f.append(line).append("\n");
@@ -150,9 +160,10 @@ public class ConsoleOutputHelper {
         }
         return f.toString();
     }
-    public static void printStreamToPrintStream(InputStream stream, PrintStream out){
+
+    public static void printStreamToPrintStream(InputStream stream, PrintStream out) {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, Charset.forName("GBK")));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(stream, OSInfo.NATIVE_CHARSET));
             String line;
             while ((line = reader.readLine()) != null) {
                 ConsoleOutputHelper.printLog(line, out);
