@@ -1,7 +1,7 @@
 package com.mcreater.amcl.util;
 
 import com.mcreater.amcl.StableMain;
-import com.mcreater.amcl.nativeInterface.ResourceGetter;
+import com.mcreater.amcl.natives.ResourceGetter;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.svg.Icons;
 
@@ -14,10 +14,10 @@ import java.io.IOException;
 import java.net.URL;
 
 public class SwingUtils {
-    public static void showMessage(String title, String content, Runnable r){
-        JDialog dialog = new JDialog(){
-            protected void processWindowEvent(WindowEvent event){
-                if (event.getID() == WindowEvent.WINDOW_CLOSING){
+    public static void showMessage(String title, String content, Runnable r) {
+        JDialog dialog = new JDialog() {
+            protected void processWindowEvent(WindowEvent event) {
+                if (event.getID() == WindowEvent.WINDOW_CLOSING) {
                     return;
                 }
                 super.processWindowEvent(event);
@@ -42,16 +42,19 @@ public class SwingUtils {
         dialog.setAlwaysOnTop(true);
         dialog.setResizable(false);
     }
+
     public static class SplashScreen extends JFrame {
         private boolean showSplash = true;
-        public void setShowSplash(boolean b){
+
+        public void setShowSplash(boolean b) {
             showSplash = b;
         }
-        public boolean getShowSplash(){
+
+        public boolean getShowSplash() {
             return showSplash;
         }
 
-        public SplashScreen(){
+        public SplashScreen() {
             setCursor(new Cursor(Cursor.WAIT_CURSOR));
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -73,23 +76,29 @@ public class SwingUtils {
 
             setTitle("AMCL");
         }
+
         public void setVisible(boolean visible) {
             super.setVisible(getShowSplash() && visible);
         }
+
         public void processWindowEvent(final WindowEvent e) {
 
         }
     }
+
     public static class ImageView extends JPanel {
         URL imageURL;
-        public ImageView(URL url){
+
+        public ImageView(URL url) {
             imageURL = url;
         }
-        public void setImageURL(URL url){
+
+        public void setImageURL(URL url) {
             imageURL = url;
             repaint();
         }
-        protected void paintComponent(Graphics g){
+
+        protected void paintComponent(Graphics g) {
             int width = getWidth();
             int height = getHeight();
 
@@ -97,8 +106,7 @@ public class SwingUtils {
             try {
                 BufferedImage image = ImageIO.read(imageURL);
                 g.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

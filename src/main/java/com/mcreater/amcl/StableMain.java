@@ -2,7 +2,7 @@ package com.mcreater.amcl;
 
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.mcreater.amcl.lang.PreLanguageManager;
-import com.mcreater.amcl.nativeInterface.OSInfo;
+import com.mcreater.amcl.natives.OSInfo;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.patcher.DepenciesLoader;
@@ -38,20 +38,18 @@ public class StableMain {
                 return "natives-windows-x86";
             }
             return "natives-windows";
-        }
-        else if (OSInfo.isLinux()) {
+        } else if (OSInfo.isLinux()) {
             return "natives-linux";
-        }
-        else if (OSInfo.isMac()) {
+        } else if (OSInfo.isMac()) {
             if (OSInfo.isArm64()) {
                 return "natives-macos-arm64";
             }
             return "natives-macos";
-        }
-        else {
+        } else {
             return "natives-windows";
         }
     };
+
     public static void main(String[] args) throws Exception {
         LoggerPrintStream.setStdStream();
 
@@ -68,8 +66,7 @@ public class StableMain {
         if (ClassPathInjector.version < 11 && !ClassPathInjector.javafx_useable) {
             splashScreen.setVisible(false);
             SwingUtils.showMessage(manager.get("ui.start.failed.title"), manager.get("ui.start.failed.content"), () -> System.exit(1));
-        }
-        else {
+        } else {
             splashScreen.setVisible(true);
             Vector<DepencyItem> addonItems = DepenciesJsonHandler.load();
             downloadDepenciesJars(addonItems);
@@ -82,28 +79,41 @@ public class StableMain {
             Main.start(args);
         }
     }
-    public static void fixPulseTimer(){
+
+    public static void fixPulseTimer() {
         try {
             Field pulseTimer = QuantumToolkit.class.getDeclaredField("pulseTimer");
             pulseTimer.setAccessible(true);
             pulseTimer.set(QuantumToolkit.getToolkit(), new com.sun.glass.ui.Timer(() -> System.err.println("JavaFX timer started.")) {
-                protected long _start(Runnable runnable) {return 0;}
-                protected long _start(Runnable runnable, int period) {return 0;}
-                protected void _stop(long timer) {}
-                protected void _pause(long timer) {}
-                protected void _resume(long timer) {}
+                protected long _start(Runnable runnable) {
+                    return 0;
+                }
+
+                protected long _start(Runnable runnable, int period) {
+                    return 0;
+                }
+
+                protected void _stop(long timer) {
+                }
+
+                protected void _pause(long timer) {
+                }
+
+                protected void _resume(long timer) {
+                }
             });
-        }
-        catch (Throwable e){
+        } catch (Throwable e) {
             if (ClassPathInjector.version < 11 || ClassPathInjector.version >= 17) e.printStackTrace();
         }
     }
-    public static void initPreLanguageManager(){
+
+    public static void initPreLanguageManager() {
         manager = new PreLanguageManager(PreLanguageManager.valueOf(LocateHelper.get()));
     }
+
     public static void downloadDepenciesJars(Vector<DepencyItem> addonItems) throws Exception {
         Vector<Task> tasks = new Vector<>();
-        for (DepencyItem item : addonItems){
+        for (DepencyItem item : addonItems) {
             String local = item.getLocal();
             if (!new File(local).exists()) {
                 createDirectory(local);
@@ -115,27 +125,26 @@ public class StableMain {
         DepenciesLoader.frame.setVisible(false);
         splashScreen.setVisible(true);
     }
+
     public static void injectDepencies(Vector<DepencyItem> addonItems) throws Exception {
-        for (DepencyItem item : DepenciesJsonHandler.load()){
-            if (item.name.contains("org.openjfx:")){
-                if (!ClassPathInjector.javafx_useable){
+        for (DepencyItem item : DepenciesJsonHandler.load()) {
+            if (item.name.contains("org.openjfx:")) {
+                if (!ClassPathInjector.javafx_useable) {
                     ClassPathInjector.addJarUrl(new File(item.getLocal()).toURI().toURL());
                 }
-            }
-            else {
+            } else {
                 ClassPathInjector.addJarUrl(new File(item.getLocal()).toURI().toURL());
             }
         }
     }
 
     public static void injectDepenciesFromURL(Vector<DepencyItem> addonItems) throws Exception {
-        for (DepencyItem item : DepenciesJsonHandler.load()){
-            if (item.name.contains("org.openjfx:")){
-                if (!ClassPathInjector.javafx_useable){
+        for (DepencyItem item : DepenciesJsonHandler.load()) {
+            if (item.name.contains("org.openjfx:")) {
+                if (!ClassPathInjector.javafx_useable) {
                     ClassPathInjector.addJarUrl(new URL(item.getURL()));
                 }
-            }
-            else {
+            } else {
                 ClassPathInjector.addJarUrl(new URL(item.getURL()));
             }
         }

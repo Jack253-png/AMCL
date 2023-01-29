@@ -1,10 +1,11 @@
 * {
     -fx-label-smoothing-type: lcd;
     -fx-text-fill: whitesmoke;
+    -fx-wrap-text: true;
 }
+
 .root {
     -fx-font-smoothing-type: -fx-label-smoothing-type;
     -fx-text-fill: whitesmoke;
-    word-break:break-all;
-    word-wrap:break-word;
+    -fx-wrap-text: true;
 }

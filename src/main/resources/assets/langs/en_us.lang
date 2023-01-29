@@ -33,7 +33,7 @@ ui.configpage.java_choose.filename.description=Windows Executable
 ui.configpage.java_choose.filename.description2=UNIX Executable
 ui.configpage.java_get.name=Get
 ui.configpage.java_info.title=Java Info
-ui.configpage.java_info.Headercontent=Version = %s\nBits = %s
+ui.configpage.java_info.Headercontent=Version = %s
 ui.configpage.select_java.title=Java Select
 ui.configpage.select_java.Headercontent=Please select a Java executable
 ui.configpage.lang_label.name=Language

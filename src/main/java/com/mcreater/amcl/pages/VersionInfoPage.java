@@ -1,15 +1,15 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
-import com.mcreater.amcl.controls.JFXProgressBar;
 import com.mcreater.amcl.controls.LocalMod;
 import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.game.mods.ModHelper;
+import com.mcreater.amcl.model.mod.CommonModInfoModel;
+import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
@@ -27,9 +27,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.util.Vector;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -43,6 +46,7 @@ import static com.mcreater.amcl.pages.DownloadAddonSelectPage.isValidFileName;
 import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 
 public class VersionInfoPage extends AbstractMenuBarPage {
+    public Logger logger = LogManager.getLogger(VersionInfoPage.class);
     public JFXButton mainInfoButton;
     public AdvancedScrollPane p1;
     public VBox b;
@@ -61,7 +65,6 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     public SmoothableListView<LocalMod> modList;
     public JFXButton addMod;
     public JFXButton setted;
-    public com.jfoenix.controls.JFXProgressBar bar;
     public JFXButton refresh;
     public JFXButton delete;
     public JFXButton delVer;
@@ -69,7 +72,8 @@ public class VersionInfoPage extends AbstractMenuBarPage {
     public StringItem item;
     public boolean modLoaded = false;
     private Thread modLoadThread;
-    public VersionInfoPage(double width, double height){
+
+    public VersionInfoPage(double width, double height) {
         super(width, height);
         l = Launcher.MAINPAGE;
 
@@ -85,8 +89,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         modsMenu.setOnAction(event -> {
             if (!VersionTypeGetter.modded(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index)) {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.versioninfopage.unModded.title"), Launcher.languageManager.get("ui.versioninfopage.unModded.content"), "");
-            }
-            else {
+            } else {
                 this.setP1(1);
             }
         });
@@ -163,7 +166,8 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
         refresh = new JFXButton();
         FXUtils.ControlSize.set(refresh, t_size, t_size);
-        refresh.setOnAction(action -> startLoadingMods(() -> {}));
+        refresh.setOnAction(action -> startLoadingMods(() -> {
+        }));
 
         delete = new JFXButton();
         FXUtils.ControlSize.set(delete, t_size, t_size);
@@ -180,14 +184,14 @@ public class VersionInfoPage extends AbstractMenuBarPage {
             }).start();
         });
 
-        modList.setOnAction(() -> delete.setDisable(modList.selectedItem == null));
+        modList.setOnAction(() -> {
+            delete.setDisable(modList.selectedItem == null);
+            
+        });
 
-        bar = JFXProgressBar.createProgressBar(-1.0D);
-        FXUtils.ControlSize.setWidth(bar, this.width / 4 * 3);
-        mods.add(addMod, 0, 0, 1, 1);
-        mods.add(refresh, 1, 0, 1, 1);
-        mods.add(delete, 2, 0, 1, 1);
-        mods.add(bar, 0, 1, 3, 1);
+        mods.add(addMod, 0, 1, 1, 1);
+        mods.add(refresh, 1, 1, 1, 1);
+        mods.add(delete, 2, 1, 1, 1);
         mods.add(modList.page, 0, 2, 3, 1);
         b2.getChildren().addAll(mods);
 
@@ -213,12 +217,12 @@ public class VersionInfoPage extends AbstractMenuBarPage {
                 VERSIONSELECTPAGE
         ));
     }
+
     public void loadVersionType() {
         VersionTypeGetter.VersionType type;
         try {
             type = VersionTypeGetter.get(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return;
         }
@@ -241,10 +245,11 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         quiltversion.setText(quiVer == null ? Launcher.languageManager.get("ui.versioninfopage.noQuilt") : Launcher.languageManager.get("ui.versioninfopage.hasquilt", quiVer));
     }
 
-    public void setType(boolean b){
+    public void setType(boolean b) {
         modList.setDisable(b);
         refresh.setDisable(b);
     }
+
     public void startLoadingMods(Runnable finish) {
         if (modLoadThread != null) modLoadThread.stop();
         modLoadThread = new Thread(() -> {
@@ -253,46 +258,42 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         });
         modLoadThread.start();
     }
+
     public void loadMods() {
         delete.setDisable(true);
         try {
-            JFXSmoothScroll.smoothScrollBarToValue(bar, -1.0);
             Platform.runLater(modList::clear);
             Platform.runLater(() -> setType(true));
-            Vector<File> f = ModHelper.getMod(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index);
-            for (File file : f) {
-                try {
-                    ModHelper.getModInfo(file)
-                            .forEach(
-                                    item -> Platform.runLater(() -> modList.addItem(new LocalMod(item)))
-                            );
-                }
-                catch (Exception e){
-                    SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.versioninfopage.mod.load.fail"));
-                }
-                double d = (double) modList.vecs.size() / (double) f.size();
-                double lat = bar.getProgress();
-                for (int i = 0; i < 100; i++) {
-                    JFXSmoothScroll.smoothScrollBarToValue(bar, lat + (d - lat) / 100 * i);
-                }
-                JFXSmoothScroll.smoothScrollBarToValue(bar, d);
-            }
-            JFXSmoothScroll.smoothScrollBarToValue(bar, 1.0D);
-            sleep(50);
+            ModHelper.getMod(Launcher.configReader.configModel.selected_minecraft_dir_index, Launcher.configReader.configModel.selected_version_index)
+                    .stream()
+                    .flatMap((Function<File, Stream<CommonModInfoModel>>) file -> {
+                        logger.info("processing mod " + file);
+                        return ModHelper.getModInfo(file).stream();
+                    })
+                    .forEach(commonModInfoModel -> {
+                        try {
+                            Platform.runLater(() -> modList.addItem(new LocalMod(commonModInfoModel)));
+                        } catch (Exception e) {
+                            SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.versioninfopage.mod.load.fail"));
+                        }
+                    });
+
             Platform.runLater(() -> setType(false));
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             setType(setted);
             delete.setDisable(true);
         }
     }
-    public void sleep(long l){
-        try {Thread.sleep(l);}
-        catch (InterruptedException ignored){}
+
+    public void sleep(long l) {
+        try {
+            Thread.sleep(l);
+        } catch (InterruptedException ignored) {
+        }
     }
+
     public void refresh() {
         Platform.runLater(this::loadVersionType);
         p1.set(this.opacityProperty());
@@ -318,7 +319,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         refresh.setGraphic(Launcher.getSVGManager().refresh(ThemeManager.createPaintBinding(), t_size, t_size));
         delete.setGraphic(Launcher.getSVGManager().delete(ThemeManager.createPaintBinding(), t_size, t_size));
     }
-    
+
     public void onExitPage() {
         super.setP1(0);
         modLoadThread.stop();

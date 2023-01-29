@@ -7,7 +7,7 @@ import com.mcreater.amcl.model.VersionJsonModel;
 import com.mcreater.amcl.model.original.AssetsModel;
 import com.mcreater.amcl.model.original.VersionModel;
 import com.mcreater.amcl.model.original.VersionsModel;
-import com.mcreater.amcl.nativeInterface.OSInfo;
+import com.mcreater.amcl.natives.OSInfo;
 import com.mcreater.amcl.tasks.AssetsDownloadTask;
 import com.mcreater.amcl.tasks.LibDownloadTask;
 import com.mcreater.amcl.tasks.NativeDownloadTask;

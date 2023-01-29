@@ -1,6 +1,11 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.validation.DoubleValidator;
+import com.jfoenix.validation.RequiredFieldValidator;
+import com.jfoenix.validation.StringLengthValidator;
+import com.jfoenix.validation.base.ValidatorBase;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
 import com.mcreater.amcl.controls.JFXProgressBar;
@@ -121,8 +126,9 @@ public class ConfigPage extends AbstractMenuBarPage {
         java_get.setOnAction(event -> new Thread(() -> {
             java_get.setDisable(true);
             if (Launcher.configReader.configModel.selected_java.contains(Launcher.configReader.configModel.selected_java_index) && new File(Launcher.configReader.configModel.selected_java_index).exists()) {
-                Vector<String> v = JavaInfoGetter.getCore(new File(Launcher.configReader.configModel.selected_java_index));
-                SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.java_info.title"), Launcher.languageManager.get("ui.configpage.java_info.Headercontent", v.get(0), v.get(1)), "");
+                JavaInfoGetter.JavaVersionInfo info = JavaInfoGetter.get(new File(Launcher.configReader.configModel.selected_java_index));
+                SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.java_info.title"),
+                        Launcher.languageManager.get("ui.configpage.java_info.Headercontent", info.javaVersion), "");
             } else {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.select_java.title"), Launcher.languageManager.get("ui.configpage.select_java.Headercontent"), "");
             }

@@ -1,7 +1,9 @@
 package com.mcreater.amcl.pages;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXChip;
 import com.jfoenix.utils.JFXSmoothScroll;
+import com.jfoenix.validation.base.ValidatorBase;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.api.modApi.common.AbstractModModel;
 import com.mcreater.amcl.api.modApi.curseforge.CurseAPI;

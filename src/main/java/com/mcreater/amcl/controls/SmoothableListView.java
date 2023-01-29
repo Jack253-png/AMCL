@@ -5,11 +5,16 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.geometry.Bounds;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.*;
 import java.util.Vector;
 
 public class SmoothableListView<T extends Region> extends VBox {
@@ -18,14 +23,18 @@ public class SmoothableListView<T extends Region> extends VBox {
     public AdvancedScrollPane page;
     public T selectedItem = null;
     public JFXButton selectedButton = null;
-    public ObjectProperty<Runnable> onActionProperty = new SimpleObjectProperty<>(() -> {});
-    public ObjectProperty<Runnable> onReleasedProperty = new SimpleObjectProperty<>(() -> {});
-    public void select(int index){
+    public ObjectProperty<Runnable> onActionProperty = new SimpleObjectProperty<>(() -> {
+    });
+    public ObjectProperty<Runnable> onReleasedProperty = new SimpleObjectProperty<>(() -> {
+    });
+
+    public void select(int index) {
         try {
             bs.get(index).getOnAction().handle(new ActionEvent());
+        } catch (Exception ignored) {
         }
-        catch (Exception ignored){}
     }
+
     public SmoothableListView(double width, double height) {
         page = new AdvancedScrollPane(width, height, this, false);
         this.setSpacing(5);
@@ -35,10 +44,12 @@ public class SmoothableListView<T extends Region> extends VBox {
         page.setStyle("-fx-background-color: transparent");
         FXUtils.ControlSize.setWidth(this, width - 15);
     }
-    public void setOnAction(@NotNull Runnable r){
+
+    public void setOnAction(@NotNull Runnable r) {
         onActionProperty.set(r);
     }
-    public void addItem(T item){
+
+    public void addItem(T item) {
         vecs.add(item);
         JFXButton button = new JFXButton();
         button.setGraphic(item);
@@ -60,8 +71,9 @@ public class SmoothableListView<T extends Region> extends VBox {
         FXUtils.ControlSize.setWidth(this, page.width - 15);
     }
 
-    public void clear(){
-        vecs.forEach(node -> node.setOnMouseReleased(event -> {}));
+    public void clear() {
+        vecs.forEach(node -> node.setOnMouseReleased(event -> {
+        }));
         vecs.clear();
         bs.clear();
         this.getChildren().clear();

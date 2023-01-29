@@ -1,4 +1,4 @@
-package com.mcreater.amcl.nativeInterface;
+package com.mcreater.amcl.natives;
 
 import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.sun.jna.Pointer;
@@ -24,8 +24,7 @@ public class EnumWindow {
                 return true;
             }, null);
             return set.contains(pid);
-        }
-        else if (OSInfo.isMac()){
+        } else if (OSInfo.isMac()) {
             CoreFoundation.CFArrayRef windowInfo = CoreGraphics.INSTANCE.CGWindowListCopyWindowInfo(0, 0);
             CoreFoundation.CFStringRef kCGWindowOwnerPID = CoreFoundation.CFStringRef.createCFString("kCGWindowOwnerPID");
             int numWindows = windowInfo.getCount();
@@ -40,8 +39,7 @@ public class EnumWindow {
             kCGWindowOwnerPID.release();
             windowInfo.release();
             return pids.contains(pid);
-        }
-        else {
+        } else {
             return false;
         }
     }

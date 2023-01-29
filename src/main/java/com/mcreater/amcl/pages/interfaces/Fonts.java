@@ -1,6 +1,6 @@
 package com.mcreater.amcl.pages.interfaces;
 
-import com.mcreater.amcl.nativeInterface.ResourceGetter;
+import com.mcreater.amcl.natives.ResourceGetter;
 import javafx.scene.text.Font;
 
 import java.io.*;
@@ -16,7 +16,8 @@ public class Fonts {
     public static java.awt.Font awt_t_f;
     public static java.awt.Font awt_ts_f;
     public static final String path = "assets/fonts/GNU Unifont.ttf";
-    public static void loadFont(){
+
+    public static void loadFont() {
         b_f = Font.loadFont(ResourceGetter.get(path), 28);
         s_f = Font.loadFont(ResourceGetter.get(path), 22);
         t_f = Font.loadFont(ResourceGetter.get(path), 16);
@@ -24,7 +25,8 @@ public class Fonts {
         loadSwingFont();
         patchJavaFXDefaultFont();
     }
-    public static void loadSwingFont(){
+
+    public static void loadSwingFont() {
         try {
             InputStream is = ResourceGetter.get(path);
             awt_b_f = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, is).deriveFont(28F);
@@ -41,18 +43,17 @@ public class Fonts {
             InputStream is4 = ResourceGetter.get(path);
             awt_ts_f = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, is4).deriveFont(12F);
             is4.close();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    public static void patchJavaFXDefaultFont(){
+
+    public static void patchJavaFXDefaultFont() {
         try {
             Field fi = Font.class.getDeclaredField("DEFAULT");
             fi.setAccessible(true);
             fi.set(null, Fonts.t_f);
-        }
-        catch (Exception ignored){
+        } catch (Exception ignored) {
             ignored.printStackTrace();
         }
     }

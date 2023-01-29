@@ -18,7 +18,7 @@ import com.mcreater.amcl.model.download.OriginalVersionModel;
 import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
-import com.mcreater.amcl.nativeInterface.OSInfo;
+import com.mcreater.amcl.natives.OSInfo;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
@@ -552,7 +552,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                             Platform.runLater(() -> fabric.cont.addItem(l));
                         }
                     } catch (Exception ignored) {
-                        
+
                     }
                 }),
                 new LambdaTask(() -> {

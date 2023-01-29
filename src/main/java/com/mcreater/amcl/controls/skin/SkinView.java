@@ -1,6 +1,6 @@
 package com.mcreater.amcl.controls.skin;
 
-import com.mcreater.amcl.nativeInterface.ResourceGetter;
+import com.mcreater.amcl.natives.ResourceGetter;
 import javafx.scene.AmbientLight;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -67,7 +67,7 @@ public class SkinView extends Group {
     public final SkinGroup larm = new SkinGroup(
             new Rotate(0, 0, -larmInside.getHeight() / 2, 0, Rotate.X_AXIS),
             new Rotate(0, Rotate.Y_AXIS),
-            new Rotate(0, larmInside.getWidth() / 2, - larmInside.getHeight() / 2, 0, Rotate.Z_AXIS),
+            new Rotate(0, larmInside.getWidth() / 2, -larmInside.getHeight() / 2, 0, Rotate.Z_AXIS),
             larmOuter, larmInside
     );
     public final SkinGroup rarm = new SkinGroup(
@@ -106,11 +106,12 @@ public class SkinView extends Group {
 
     protected SkinAnimationPlayer animationPlayer = new SkinAnimationPlayer();
 
-    public void reset(){
+    public void reset() {
         animationPlayer.stop();
         animationPlayer.reset();
         animationPlayer = new SkinAnimationPlayer();
     }
+
     public SkinAnimationPlayer getAnimationPlayer() {
         return animationPlayer;
     }
@@ -122,14 +123,17 @@ public class SkinView extends Group {
     public Image getSkin() {
         return skin;
     }
-    public void setRolateToOriginal(){
+
+    public void setRolateToOriginal() {
         xRotate.setAngle(0);
         yRotate.setAngle(180);
         zRotate.setAngle(0);
     }
+
     public void updateSkin(Image skin, boolean isSlim, final @Nullable Image cape) {
         updateSkin(skin, isSlim, cape, true);
     }
+
     public void updateSkin(Image skin, boolean isSlim, final @Nullable Image cape,
                            boolean fixOuter) {
         if (SkinHelper.isNoRequest(skin) && SkinHelper.isSkin(skin)) {

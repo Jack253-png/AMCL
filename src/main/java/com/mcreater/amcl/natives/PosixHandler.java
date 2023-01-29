@@ -1,4 +1,4 @@
-package com.mcreater.amcl.nativeInterface;
+package com.mcreater.amcl.natives;
 
 
 import jnr.constants.platform.Errno;
@@ -12,6 +12,7 @@ import java.util.Map;
 
 public class PosixHandler implements POSIXHandler {
     private boolean verbose = false;
+
     @Override
     public void error(Errno error, String extraData) {
         System.err.printf("%s %s\n", error, extraData);
@@ -36,7 +37,8 @@ public class PosixHandler implements POSIXHandler {
     public boolean isVerbose() {
         return verbose;
     }
-    public void setVerbose(boolean value){
+
+    public void setVerbose(boolean value) {
         verbose = value;
     }
 

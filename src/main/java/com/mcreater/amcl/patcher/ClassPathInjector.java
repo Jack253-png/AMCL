@@ -38,9 +38,11 @@ public class ClassPathInjector {
         checkJavaFXState();
     }
 
-    public static int getJavaVersion(File ori) throws ExecutionException, InterruptedException {
+    public static int getJavaVersion(File ori) {
         int version;
-        String[] ful = JavaInfoGetter.getCore(ori).get(0).split("\\.");
+        String fulVer = JavaInfoGetter.get(ori).javaSpecificationVersion;
+        if (fulVer == null) return 0;
+        String[] ful = fulVer.split("\\.");
         if (Integer.parseInt(ful[0]) == 1) {
             version = Integer.parseInt(ful[1]);
         } else {

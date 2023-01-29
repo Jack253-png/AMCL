@@ -20,15 +20,20 @@ public class SimpleDialogCreater {
     public static void create(String Title, String HeaderText, String ContentText) {
         FXUtils.Platform.runLater(() -> createImpl(Title, HeaderText, ContentText));
     }
+
     public static void createWithNoSync(String Title, String HeaderText, String ContentText) {
         createImpl(Title, HeaderText, ContentText);
     }
-    private static void createImpl(String titleString, String HeaderText, String ContentText){
-        AbstractDialog alert = new AbstractDialog() {};
+
+    private static void createImpl(String titleString, String HeaderText, String ContentText) {
+        AbstractDialog alert = new AbstractDialog() {
+        };
 
         JFXDialogLayout layout = new JFXDialogLayout();
         Label title = setFont(new Label(titleString), Fonts.s_f);
         Label body = setFont(new Label(HeaderText + "\n" + ContentText), Fonts.t_f);
+        title.setWrapText(true);
+        body.setWrapText(true);
         layout.setHeading(title);
         layout.setBody(body);
 
@@ -42,15 +47,19 @@ public class SimpleDialogCreater {
         ThemeManager.loadNodeAnimations(title, body, addButton);
         alert.show();
     }
+
     public static void exception(Throwable cause, String subtitle) {
         FXUtils.Platform.runLater(() -> exceptionImpl(cause, subtitle));
     }
+
     public static void exception(Throwable cause) {
         exception(cause, Launcher.languageManager.get("ui.dialogs.exception.sub"));
     }
+
     private static void exceptionImpl(Throwable cause, String subtitle) {
         cause.printStackTrace();
-        AbstractDialog alert = new AbstractDialog() {};
+        AbstractDialog alert = new AbstractDialog() {
+        };
 
         StringWriter writer = new StringWriter();
         PrintWriter printer = new PrintWriter(writer);
@@ -64,8 +73,8 @@ public class SimpleDialogCreater {
                 Object o = Class.forName("sun.font.FontDesignMetrics").getDeclaredMethod("getMetrics", java.awt.Font.class).invoke(null, Fonts.awt_t_f);
                 int t = ((FontMetrics) o).stringWidth(j);
                 if (t > width) width = t;
+            } catch (Exception ignored) {
             }
-            catch (Exception ignored){}
         }
         width += 20;
         for (String i : writer.getBuffer().toString().split("\n")) {
@@ -97,7 +106,8 @@ public class SimpleDialogCreater {
         ThemeManager.loadNodeAnimations(title, addButton);
         alert.show();
     }
-    private static Label setFont(Label l, Font font){
+
+    private static Label setFont(Label l, Font font) {
         l.setFont(font);
         return l;
     }

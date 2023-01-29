@@ -1,6 +1,6 @@
 package com.mcreater.amcl.util;
 
-import com.mcreater.amcl.nativeInterface.OSInfo;
+import com.mcreater.amcl.natives.OSInfo;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 

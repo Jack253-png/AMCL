@@ -3,7 +3,7 @@ package com.mcreater.amcl;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.config.ConfigWriter;
 import com.mcreater.amcl.lang.LanguageManager;
-import com.mcreater.amcl.nativeInterface.OSInfo;
+import com.mcreater.amcl.natives.OSInfo;
 import com.mcreater.amcl.pages.AddModsPage;
 import com.mcreater.amcl.pages.ConfigPage;
 import com.mcreater.amcl.pages.DownloadAddonSelectPage;
@@ -108,15 +108,16 @@ public class Launcher {
 
     private static Timeline onStageShow;
     private static Timeline onStageExit;
+
     public static void initConfig() {
         try {
             FileUtils.ChangeDir.saveNowDir();
             File f = new File(FileUtils.ChangeDir.dirs, "AMCL");
             boolean b = true;
-            if (!f.exists()){
+            if (!f.exists()) {
                 b = f.mkdirs();
             }
-            if (!b){
+            if (!b) {
                 throw new IllegalStateException("Failed to read config");
             }
             configReader = new ConfigWriter(new File(FileUtils.ChangeDir.dirs, buildPath("AMCL", "config.json")));
@@ -125,13 +126,16 @@ public class Launcher {
             logger.error("failed to read config", e);
         }
     }
+
     public static void initLanguageManager(LanguageManager.LanguageType type) {
         languageManager = new LanguageManager(type);
     }
+
     public static void basicInitialize() {
         initConfig();
         initLanguageManager(configReader.configModel.language);
     }
+
     public static void start(Stage primaryStage) throws Exception {
         Fonts.loadFont();
         Icons.initFXIcon();
@@ -157,10 +161,14 @@ public class Launcher {
 
             ThemeManager.apply(pages);
 
-            CONFIGPAGE.bar1.setOnMouseEntered(event -> {});
-            CONFIGPAGE.bar1.setOnMouseExited(event -> {});
-            CONFIGPAGE.bar2.setOnMouseEntered(event -> {});
-            CONFIGPAGE.bar2.setOnMouseExited(event -> {});
+            CONFIGPAGE.bar1.setOnMouseEntered(event -> {
+            });
+            CONFIGPAGE.bar1.setOnMouseExited(event -> {
+            });
+            CONFIGPAGE.bar2.setOnMouseEntered(event -> {
+            });
+            CONFIGPAGE.bar2.setOnMouseExited(event -> {
+            });
             CONFIGPAGE.bar1.setOpacity(1);
             CONFIGPAGE.bar2.setOpacity(0.5);
 
@@ -191,11 +199,11 @@ public class Launcher {
             topWrapper.setScaleX(0.8);
             topWrapper.setScaleY(0.8);
             stage.show();
-            playStageAnimation(false, () -> {});
+            playStageAnimation(false, () -> {
+            });
 
             StableMain.splashScreen.setVisible(false);
-        }
-        else {
+        } else {
             SimpleDialog dialog = new SimpleDialog(
                     StableMain.manager.get("ui.system.check.title"),
                     StableMain.manager.get("ui.system.check.content"),
@@ -206,18 +214,19 @@ public class Launcher {
             dialog.showAndWait();
         }
     }
+
     private static void playStageAnimation(boolean isExit, Runnable finisher) {
         if (isExit) {
             onStageShow.stop();
             onStageExit.setOnFinished(event -> finisher.run());
             onStageExit.playFromStart();
-        }
-        else {
+        } else {
             onStageExit.stop();
             onStageShow.setOnFinished(event -> finisher.run());
             onStageShow.playFromStart();
         }
     }
+
     public static void setPage(AbstractAnimationPage n, AbstractAnimationPage caller) {
         if (caller.getCanMovePage()) {
             configReader.write();
@@ -235,11 +244,12 @@ public class Launcher {
             last.out.play();
         }
     }
-    public static AbstractSVGIcons getSVGManager(){
+
+    public static AbstractSVGIcons getSVGManager() {
         return new DefaultSVGIcons();
     }
 
-    public static void setPageCore(){
+    public static void setPageCore() {
         double t_size = barSize;
         top = new VBox();
         top.setId("top-bar");
@@ -330,25 +340,30 @@ public class Launcher {
         refreshBackground();
         s.setOnKeyPressed(event -> System.out.println(event.getCode()));
     }
+
     public static void setTitle() {
         AbstractAnimationPage lpa = last.l;
-        if (lpa != null){
+        if (lpa != null) {
             ln.setText(lpa.name);
         }
     }
-    private static void setGeometry(Stage s, double width, double height){
+
+    private static void setGeometry(Stage s, double width, double height) {
         s.setWidth(width);
         s.setHeight(height);
         s.setResizable(false);
-        logger.info("setted size (" + width+", "+height+") for stage " + s);
+        logger.info("setted size (" + width + ", " + height + ") for stage " + s);
     }
-    public static void refresh(){
+
+    public static void refresh() {
         stage.setTitle(languageManager.get("ui.title", VersionInfo.launcher_name, VersionInfo.launcher_version));
     }
+
     public static void clearBgBuffer() {
         pages.forEach(page -> page.setBufferedBackground(null));
         refreshBackground();
     }
+
     public static void refreshBackground() {
         Timer timer = Timer.getInstance();
         String wallpaper = "assets/imgs/background.jpg";
@@ -418,8 +433,7 @@ public class Launcher {
                                                 tempX, (int) y,
                                                 original.getPixelReader().getColor(tempX, (int) y)
                                         );
-                                    }
-                                    else {
+                                    } else {
                                         Color color = image.getPixelReader().getColor(tempX, (int) y);
                                         if (color.getOpacity() < 1) {
                                             image.getPixelWriter().setColor(

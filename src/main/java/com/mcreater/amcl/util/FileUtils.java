@@ -1,7 +1,7 @@
 package com.mcreater.amcl.util;
 
-import com.mcreater.amcl.nativeInterface.OSInfo;
-import com.mcreater.amcl.nativeInterface.PosixHandler;
+import com.mcreater.amcl.natives.OSInfo;
+import com.mcreater.amcl.natives.PosixHandler;
 import com.mcreater.amcl.patcher.ClassPathInjector;
 import jnr.posix.POSIX;
 import jnr.posix.POSIXFactory;
@@ -47,30 +47,31 @@ public class FileUtils {
         public static String toPlatformPath(String path) {
             return path.replace("/", File.separator).replace("\\", File.separator);
         }
+
         public static String buildPath(String... args) {
             return String.join(File.separator, Arrays.asList(args));
         }
     }
+
     public static class OperateUtil {
         public static void deleteFile(String path) {
             try {
                 Path path2 = Paths.get(path);
                 Files.deleteIfExists(path2);
-            }
-            catch (Exception ignored) {
+            } catch (Exception ignored) {
 
             }
         }
-        public static void deleteDirectory(File f, String orgin){
-            if (!f.exists()){
+
+        public static void deleteDirectory(File f, String orgin) {
+            if (!f.exists()) {
                 return;
             }
-            if (f.isFile()){
+            if (f.isFile()) {
                 f.delete();
                 return;
-            }
-            else {
-                for (File f1 : f.listFiles()){
+            } else {
+                for (File f1 : f.listFiles()) {
                     deleteDirectory(f1, orgin);
                 }
             }
@@ -78,28 +79,31 @@ public class FileUtils {
                 f.delete();
             }
         }
-        public static void deleteDirectory(File f){
-            if (!f.exists()){
+
+        public static void deleteDirectory(File f) {
+            if (!f.exists()) {
                 return;
             }
-            if (f.isFile()){
+            if (f.isFile()) {
                 f.delete();
                 return;
-            }
-            else {
-                for (File f1 : f.listFiles()){
+            } else {
+                for (File f1 : f.listFiles()) {
                     deleteDirectory(f1);
                 }
             }
             f.delete();
         }
+
         public static void createDirectory(String path) {
             new File(path).getAbsoluteFile().getParentFile().mkdirs();
         }
+
         public static void createDirectoryDirect(String path) {
             new File(path).mkdirs();
         }
     }
+
     public static String getJavaExecutable() {
         String env = getJavaExecutableInEnv();
         if (env != null) return env;
@@ -109,6 +113,7 @@ public class FileUtils {
         }
         return getCurrentJavaExecutable();
     }
+
     public static Vector<File> getJavaTotal() {
         Vector<File> java = getJavaExecutableInPath();
         for (File f : getJavaInSystemPath()) {
@@ -124,6 +129,7 @@ public class FileUtils {
         }
         return java;
     }
+
     private static Vector<File> getJavaInSystemPath() {
         Vector<File> basePaths = new Vector<>();
         if (OSInfo.isWin()) basePaths.add(new File("C:\\Program Files\\Java"));
@@ -140,19 +146,21 @@ public class FileUtils {
             threads.add(new Thread(() -> {
                 try {
                     paths.addAll(getJavaInSelPath(p));
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 latch.countDown();
             }));
         }
         threads.forEach(Thread::start);
-        try {latch.await();}
-        catch (Exception ignored) {}
+        try {
+            latch.await();
+        } catch (Exception ignored) {
+        }
 
         return paths;
     }
+
     private static Vector<File> getJavaInSelPath(File f) throws IOException {
         Vector<File> files = new Vector<>();
         Files.walkFileTree(f.toPath(), new SimpleFileVisitor<Path>() {
@@ -170,27 +178,26 @@ public class FileUtils {
         });
         return files;
     }
+
     public static String getCurrentJavaExecutable() {
         String home = System.getProperty("java.home");
         if (OSInfo.isMac()) {
             home = LinkPath.link(home, "Contents/Home/bin/java");
-        }
-        else if (OSInfo.isLinux()) {
+        } else if (OSInfo.isLinux()) {
             home = LinkPath.link(home, "bin/java");
-        }
-        else {
+        } else {
             home = LinkPath.link(home, "bin\\java.exe");
         }
         try {
             if (ClassPathInjector.getJavaVersion(new File(home)) >= 8) {
                 return home;
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
     private static Vector<File> getJavaExecutableInPath() {
         String path_env = System.getenv("Path");
         if (path_env == null) return new Vector<>();
@@ -209,39 +216,43 @@ public class FileUtils {
                             }
                         }
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 latch.countDown();
             }));
         }
         threads.forEach(Thread::start);
-        try {latch.await();}
-        catch (Exception ignored) {}
+        try {
+            latch.await();
+        } catch (Exception ignored) {
+        }
 
         return paths;
     }
+
     private static String getJavaExecutableInEnv() {
         try {
             File envPath = new File(System.getenv("JAVA_HOME"), OSInfo.isWin() ? "java.exe" : "java");
             if (ClassPathInjector.getJavaVersion(envPath) >= 8) return envPath.getPath();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
+
     public static class ChangeDir {
         public static String dirs;
 
-        public static void saveNowDir(){
+        public static void saveNowDir() {
             dirs = System.getProperty("user.dir");
         }
-        public static void changeToDefault(){
+
+        public static void changeToDefault() {
             changeTo(dirs);
         }
-        public static void changeTo(String dir){
+
+        public static void changeTo(String dir) {
             System.setProperty("user.dir", dir);
             PosixHandler handler = new PosixHandler();
             handler.setVerbose(true);
@@ -249,8 +260,9 @@ public class FileUtils {
             posix.chdir(dir);
         }
     }
+
     public static class FileStringReader {
-        public static String read(String p){
+        public static String read(String p) {
             File file = new File(PathUtil.toPlatformPath(p));
             BufferedReader reader = null;
             StringBuilder r = new StringBuilder();
@@ -275,7 +287,8 @@ public class FileUtils {
             return r.toString();
         }
     }
-    public static void del(String p){
+
+    public static void del(String p) {
         Path path = Paths.get(p);
         try {
             Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
@@ -289,11 +302,11 @@ public class FileUtils {
                     return FileVisitResult.CONTINUE;
                 }
             });
-        }
-        catch (IOException ignored){
+        } catch (IOException ignored) {
 
         }
     }
+
     public static class HashHelper {
         private static void putInt(byte[] array, int offset, int x) {
             array[offset] = (byte) (x >> 24 & 0xff);
@@ -301,6 +314,7 @@ public class FileUtils {
             array[offset + 2] = (byte) (x >> 8 & 0xff);
             array[offset + 3] = (byte) (x & 0xff);
         }
+
         public static String computeTextureHash(BufferedImage img) {
             MessageDigest digest;
             try {
@@ -335,6 +349,7 @@ public class FileUtils {
             byte[] sha256 = digest.digest();
             return String.format("%0" + (sha256.length << 1) + "x", new BigInteger(1, sha256));
         }
+
         public static boolean validateSHA1(File file, String target) {
             if (!file.exists()) {
                 return false;
@@ -345,6 +360,7 @@ public class FileUtils {
             String fileSHA1 = getFileSHA1(file);
             return Objects.equals(fileSHA1, target);
         }
+
         private static String getFileSHA1(File file) {
             MessageDigest md;
             FileInputStream fis = null;
@@ -377,13 +393,15 @@ public class FileUtils {
 
         }
     }
+
     public static class LinkPath {
-        public static String link(String p1,String p2){
+        public static String link(String p1, String p2) {
             return new File(p1, p2).getPath();
         }
     }
+
     public static class RemoveFileToTrash {
-        public static void remove(String path){
+        public static void remove(String path) {
             File f = new File(path);
             if (f.exists()) {
                 com.sun.jna.platform.FileUtils fu = com.sun.jna.platform.FileUtils.getInstance();
@@ -399,6 +417,7 @@ public class FileUtils {
             }
         }
     }
+
     public static class ZipUtil {
         public static Map<String, String> getNativeHash(String iy) throws IOException {
             Map<String, String> haMap = new HashMap<>();
@@ -418,12 +437,13 @@ public class FileUtils {
             zp.close();
             return haMap;
         }
-        public static void unzip(String iy,String o) {
+
+        public static void unzip(String iy, String o) {
             Map<String, String> haMap = new HashMap<>();
             try {
                 haMap = getNativeHash(iy);
+            } catch (Exception e) {
             }
-            catch (Exception e) {}
 
             File pathFile = new File(o);
             if (!pathFile.exists()) {
@@ -438,7 +458,7 @@ public class FileUtils {
                     String zipEntryName = entry.getName();
                     InputStream in = zp.getInputStream(entry);
                     String outpath = PathUtil.toPlatformPath(LinkPath.link(o, zipEntryName));
-                    File file = new File(outpath.substring(0,outpath.lastIndexOf(File.separator)));
+                    File file = new File(outpath.substring(0, outpath.lastIndexOf(File.separator)));
                     if (!file.exists()) {
                         file.mkdirs();
                     }
@@ -457,11 +477,11 @@ public class FileUtils {
                     }
                 }
                 zp.close();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
         public static void unzipAll(String iy, String o) throws IOException {
             File desDir = new File(o);
             if (!desDir.exists()) {
@@ -491,6 +511,7 @@ public class FileUtils {
             }
             zipInputStream.close();
         }
+
         private static void mkdir(File file) {
             if (null == file || file.exists()) {
                 return;
@@ -498,6 +519,7 @@ public class FileUtils {
             mkdir(file.getParentFile());
             file.mkdir();
         }
+
         public static String readTextFileInZip(String zipFile, String internalFileName) throws IOException {
             ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(zipFile)));
             ZipEntry zipEntry = zipInputStream.getNextEntry();
@@ -519,6 +541,7 @@ public class FileUtils {
             }
             return null;
         }
+
         public static InputStream readBinaryFileInZip(String zipFile, String internalFileName) throws IOException {
             ZipInputStream zipInputStream = new ZipInputStream(Files.newInputStream(Paths.get(zipFile)));
             ZipEntry zipEntry = zipInputStream.getNextEntry();

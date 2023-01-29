@@ -1,8 +1,8 @@
 package com.mcreater.amcl.util.parsers;
 
 import com.google.gson.annotations.SerializedName;
-import com.mcreater.amcl.nativeInterface.OSInfo;
-import com.mcreater.amcl.nativeInterface.ResourceGetter;
+import com.mcreater.amcl.natives.OSInfo;
+import com.mcreater.amcl.natives.ResourceGetter;
 import com.mcreater.amcl.patcher.ClassPathInjector;
 
 import java.io.InputStream;
@@ -16,10 +16,11 @@ public class DepenciesJsonHandler {
     public static Vector<DepencyItem> load() throws Exception {
         return load(ResourceGetter.get("assets/depencies.json"));
     }
+
     public static Vector<DepencyItem> load(InputStream is) throws Exception {
         DepencyModel model = GSON_PARSER.fromJson(new InputStreamReader(is), DepencyModel.class);
         Vector<DepencyItem> items = new Vector<>();
-        for (DepencyModel.ItemModel item : model.depencies){
+        for (DepencyModel.ItemModel item : model.depencies) {
             if (item.isMultiPlatform) {
                 switch (OSInfo.getOSType()) {
                     default:
@@ -51,21 +52,21 @@ public class DepenciesJsonHandler {
                         items.add(new DepencyItem(item.linuxLoongarch, model.maven));
                         break;
                 }
-            }
-            else {
+            } else {
                 if (ClassPathInjector.version < 9 && item.old != null) {
                     items.add(new DepencyItem(item.old, model.maven));
-                }
-                else {
+                } else {
                     items.add(new DepencyItem(item.name, model.maven));
                 }
             }
         }
         return items;
     }
+
     public static class DepencyModel {
         public String maven;
         public List<ItemModel> depencies;
+
         public static class ItemModel {
             public boolean isMultiPlatform;
             public String name;

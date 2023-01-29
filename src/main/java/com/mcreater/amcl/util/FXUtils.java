@@ -42,8 +42,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.height;
 import static com.mcreater.amcl.Launcher.width;
@@ -54,10 +56,14 @@ public class FXUtils {
         double y1;
         double x_stage;
         double y_stage;
+
         public static WindowMovement getInstance() {
             return new WindowMovement();
         }
-        private WindowMovement() {}
+
+        private WindowMovement() {
+        }
+
         public <V extends Region, K extends Stage> void windowMove(V listenedObject, K stage) {
             Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
             listenedObject.setOnMouseDragged(event -> {
@@ -75,53 +81,60 @@ public class FXUtils {
             });
         }
     }
+
     public static class ImageConverter {
-        public static WritableImage convertToWritableImage(Image image){
+        public static WritableImage convertToWritableImage(Image image) {
             return new WritableImage(image.getPixelReader(), (int) image.getWidth(), (int) image.getHeight());
         }
     }
-    public static <C extends Node> C toNodeClass(Node obj, Class<C> cClass) {
-        return (C) obj;
-    }
+
     public static class ControlSize {
-        public static void set(Region n, double width, double height){
+        public static void set(Region n, double width, double height) {
             n.setMinSize(width, height);
             n.setMaxSize(width, height);
+            n.setPrefSize(width, height);
         }
-        public static void setAll(double width, double height, Region... n){
-            for (Region n1 : n){
-                n1.setMinSize(width, height);
-                n1.setMaxSize(width, height);
-            }
+
+        public static void setAll(double width, double height, Region... n) {
+            Arrays.stream(n).forEach(region -> set(region, width, height));
         }
-        public static void setWidth(Region n, double width){
+
+        public static void setWidth(Region n, double width) {
             n.setMaxWidth(width);
             n.setMinWidth(width);
+            n.setPrefWidth(width);
         }
-        public static void setHeight(Region n, double height){
+
+        public static void setHeight(Region n, double height) {
             n.setMaxHeight(height);
             n.setMinHeight(height);
+            n.setPrefHeight(height);
         }
-        public static SplitPane setSplit(SplitPane s, double width){
+
+        public static SplitPane setSplit(SplitPane s, double width) {
             s.setMaxWidth(width);
             s.setMinWidth(width);
+            s.setPrefWidth(width);
             return s;
         }
     }
-    public static Border generateBorder(Paint topStroke, Paint rightStroke, Paint bottomStroke, Paint leftStroke, BorderStrokeStyle topStyle, BorderStrokeStyle rightStyle, BorderStrokeStyle bottomStyle, BorderStrokeStyle leftStyle, CornerRadii radii, BorderWidths widths, Insets insets){
-        return new Border(new BorderStroke(topStroke,rightStroke, bottomStroke,leftStroke, topStyle,rightStyle, bottomStyle, leftStyle, radii, widths, insets));
+
+    public static Border generateBorder(Paint topStroke, Paint rightStroke, Paint bottomStroke, Paint leftStroke, BorderStrokeStyle topStyle, BorderStrokeStyle rightStyle, BorderStrokeStyle bottomStyle, BorderStrokeStyle leftStyle, CornerRadii radii, BorderWidths widths, Insets insets) {
+        return new Border(new BorderStroke(topStroke, rightStroke, bottomStroke, leftStroke, topStyle, rightStyle, bottomStyle, leftStyle, radii, widths, insets));
     }
-    public static Border generateBorder(Paint color, BorderStrokeStyle style, boolean top, boolean right, boolean bottom, boolean left, int width){
+
+    public static Border generateBorder(Paint color, BorderStrokeStyle style, boolean top, boolean right, boolean bottom, boolean left, int width) {
         return generateBorder(top ? color : null,
-                              right ? color : null,
-                              bottom ? color : null,
-                              left ? color : null,
-                              top ? style : null,
-                              right ? style : null,
-                              bottom ? style : null,
-                              left ? style : null,
-                              null, BorderWidths.DEFAULT, new Insets(width));
+                right ? color : null,
+                bottom ? color : null,
+                left ? color : null,
+                top ? style : null,
+                right ? style : null,
+                bottom ? style : null,
+                left ? style : null,
+                null, BorderWidths.DEFAULT, new Insets(width));
     }
+
     public static void fixJFXTextField(JFXTextField field) {
         try {
             JFXTextFieldSkin<?> sk = new JFXTextFieldSkin<>(field);
@@ -129,8 +142,8 @@ public class FXUtils {
             Field f = JFXTextFieldSkin.class.getDeclaredField("textNode");
             f.setAccessible(true);
             f.set(sk, new Text());
+        } catch (Exception ignored) {
         }
-        catch (Exception ignored){}
     }
 
     public static class Platform {
@@ -140,14 +153,16 @@ public class FXUtils {
                     try {
                         runnable.run();
                         break;
+                    } catch (Exception ignored) {
                     }
-                    catch (Exception ignored){}
                 }
             });
         }
     }
+
     public static class ImagePreProcesser {
         public static Logger logger = LogManager.getLogger(ImagePreProcesser.class);
+
         public static Color noTransparent(Color ori) {
             return new Color(
                     ori.getRed(),
@@ -166,6 +181,7 @@ public class FXUtils {
             }
             return result;
         }
+
         @SafeVarargs
         public static void process(WritableImage image, SimpleFunctions.Arg2FuncNoReturn<ImageView, WritableImage>... func) {
             ImageView imageView = new ImageView(image);
@@ -180,6 +196,7 @@ public class FXUtils {
             parameters.setFill(Color.TRANSPARENT);
             image = imageView.snapshot(parameters, image);
         }
+
         public static WritableImage cutImage(Image src, int x, int y, int w, int h) {
             WritableImage result = new WritableImage(w, h);
             if (src.getWidth() >= x + w || src.getHeight() >= y + h) {
@@ -188,14 +205,14 @@ public class FXUtils {
                         result.getPixelWriter().setColor(natX - x, natY - y, src.getPixelReader().getColor(natX, natY));
                     }
                 }
-            }
-            else {
+            } else {
                 return null;
             }
 
             return result;
         }
     }
+
     public static boolean gemotryInned(Point2D target, List<AnimationPage.NodeInfo> nodes) {
         for (AnimationPage.NodeInfo control : nodes) {
             if (control.size.contains(target)) {
@@ -204,6 +221,7 @@ public class FXUtils {
         }
         return false;
     }
+
     public static Rectangle generateRect(double width, double height, double radius) {
         Rectangle rect = new Rectangle();
         rect.setWidth(width);
@@ -222,6 +240,7 @@ public class FXUtils {
             out1.getKeyFrames().add(new KeyFrame(new Duration(runDur), new KeyValue(target, value2)));
             return out1;
         }
+
         public static <T> void runSingleCycleAnimation(WritableValue<T> target, T value1, T value2, double startupDur, double runDur, @NotNull EventHandler<ActionEvent> finishedHandler) {
             Timeline out1 = FXUtils.AnimationUtils.genSingleCycleAnimation(target, value1, value2, startupDur, runDur);
             out1.setOnFinished(finishedHandler);
@@ -242,9 +261,8 @@ public class FXUtils {
                 double num;
                 if (startValue < endValue) {
                     num = startValue + (endValue - startValue) * per;
-                }
-                else {
-                    num = endValue - (startValue - endValue ) * per;
+                } else {
+                    num = endValue - (startValue - endValue) * per;
                 }
                 frames.add(new KeyFrame(
                         new Duration(duration),
@@ -261,6 +279,7 @@ public class FXUtils {
 
             return frames;
         }
+
         public static Timeline generateNodeInAnimation(Node node) {
             Timeline timeline = new Timeline(
                     new KeyFrame(
@@ -307,6 +326,7 @@ public class FXUtils {
             timeline.setAutoReverse(false);
             return timeline;
         }
+
         public static Timeline generateNodeOutAnimation(Node node) {
             Timeline timeline = new Timeline(
                     new KeyFrame(
@@ -354,6 +374,7 @@ public class FXUtils {
             return timeline;
         }
     }
+
     public static class ColorUtil {
         public static Color transparent(Color src, double op) {
             return new Color(
@@ -373,6 +394,7 @@ public class FXUtils {
             );
         }
     }
+
     public static void disableNodeKeyboard(ButtonBase buttonBase) {
         buttonBase.addEventHandler(KeyEvent.KEY_PRESSED, javafx.event.Event::consume);
         buttonBase.addEventHandler(KeyEvent.KEY_RELEASED, javafx.event.Event::consume);
@@ -382,6 +404,7 @@ public class FXUtils {
         buttonBase.addEventFilter(KeyEvent.KEY_RELEASED, javafx.event.Event::consume);
         buttonBase.addEventFilter(KeyEvent.KEY_TYPED, Event::consume);
     }
+
     public static void disableNodeKeyboard(Pane pane) {
         ThemeManager.GetAllNodes(pane).forEach(
                 node -> {
