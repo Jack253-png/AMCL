@@ -25,10 +25,13 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
-import java.util.Vector;
 
 import static com.mcreater.amcl.Launcher.stage;
+import static com.mcreater.amcl.util.StringUtils.parseDate4;
+import static com.mcreater.amcl.util.StringUtils.toStringDate;
 
 public class MicrosoftModifyDialog extends AbstractDialog {
     JFXButton finish;
@@ -151,6 +154,17 @@ public class MicrosoftModifyDialog extends AbstractDialog {
 
             new Thread(() -> {
                 try {
+                    MicrosoftUser.NameChangeCheckModel model = user.checkName();
+                    if (!model.nameChangeAllowed) {
+                        Date dateChanged = parseDate4(model.changedAt);
+                        Date dateCreated = parseDate4(model.createdAt);
+                        Date changeDate = Date.from(dateChanged.toInstant().plus(30, ChronoUnit.DAYS));
+
+                        SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.msaccount.name.notAllow.title"), Launcher.languageManager.get("ui.userselectpage.msaccount.name.notAllow.content", toStringDate(dateCreated), toStringDate(dateChanged), toStringDate(changeDate)), "");
+                        FXUtils.Platform.runLater(dialog::close);
+
+                        return;
+                    }
                     MicrosoftUser.NameState state = user.nameAvailable(changeName.cont.getText());
                     if (state == MicrosoftUser.NameState.AVAILABLE) {
                         user.changeName(changeName.cont.getText());

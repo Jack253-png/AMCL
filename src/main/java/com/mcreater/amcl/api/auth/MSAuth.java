@@ -16,6 +16,9 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Objects;
@@ -44,6 +47,7 @@ public class MSAuth implements AbstractAuth<MicrosoftUser> {
 
     public static final String MC_NAME_CHECK_URL = "https://api.minecraftservices.com/minecraft/profile/name/%s/available";
     public static final String MC_NAME_CHANGE_URL = "https://api.minecraftservices.com/minecraft/profile/name/%s";
+    public static final String MC_NAME_CHANGE_CHECK_URL = "https://api.minecraftservices.com/minecraft/profile/namechange";
 
     private static final String SCOPE = "XboxLive.signin offline_access";
     private static final String DEVICE_CODE_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode";

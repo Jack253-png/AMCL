@@ -264,4 +264,6 @@ ui.userselectpage.msaccount.name.updating=更新用户名中...
 ui.userselectpage.msaccount.name.update.fail=用户名更新失败
 ui.versioninfopage.info.version=版本: %s
 ui.versioninfopage.info.author=作者: %s
-ui.versioninfopage.info.author.null=作者未找到
+ui.versioninfopage.info.author.null=作者未知
+ui.userselectpage.msaccount.name.notAllow.title=不允许修改用户名
+ui.userselectpage.msaccount.name.notAllow.content=账户创建时间: %s\n上次更改: %s\n请在 %s 后再试一次.\n

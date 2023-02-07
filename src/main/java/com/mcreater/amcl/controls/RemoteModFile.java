@@ -17,13 +17,14 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Vector;
 
-import static com.mcreater.amcl.pages.ModDownloadPage.getTimeTick;
+import static com.mcreater.amcl.util.StringUtils.parseDate;
 
-public class RemoteModFile extends HBox implements Comparable<RemoteModFile>{
+public class RemoteModFile extends HBox implements Comparable<RemoteModFile> {
     public JFXCheckBox checkBox;
     public AbstractModFileModel model;
     public String version;
-    public RemoteModFile(AbstractModFileModel model, String version){
+
+    public RemoteModFile(AbstractModFileModel model, String version) {
         this.model = model;
         this.version = version;
         checkBox = new JFXCheckBox();
@@ -38,8 +39,7 @@ public class RemoteModFile extends HBox implements Comparable<RemoteModFile>{
                 checkBox.setCheckedColor(Color.RED);
                 checkBox.setUnCheckedColor(Color.RED);
             }
-        }
-        else {
+        } else {
             if (model.toModrinthFile().version_type.equals("release")) {
                 checkBox.setCheckedColor(Color.LIGHTGREEN);
                 checkBox.setUnCheckedColor(Color.LIGHTGREEN);
@@ -67,15 +67,15 @@ public class RemoteModFile extends HBox implements Comparable<RemoteModFile>{
         this.getChildren().addAll(checkBox, v);
         this.setAlignment(Pos.TOP_LEFT);
     }
-    public static Vector<String> getModLoaders(Vector<String> a, boolean b){
+
+    public static Vector<String> getModLoaders(Vector<String> a, boolean b) {
         Vector<String> loaders = new Vector<>();
         for (String s : a) {
             if (b) {
                 if (!s.contains(".")) {
                     loaders.add(s);
                 }
-            }
-            else {
+            } else {
                 if (s.contains(".")) {
                     loaders.add(s);
                 }
@@ -83,25 +83,24 @@ public class RemoteModFile extends HBox implements Comparable<RemoteModFile>{
         }
         return loaders;
     }
+
     public int compareTo(@NotNull RemoteModFile aLong) {
         Date time1, time2;
         try {
             if (model.isCurseFile()) {
-                time1 = getTimeTick(this.model.toCurseFile().fileName);
-                time2 = getTimeTick(aLong.model.toCurseFile().fileDate);
-            }
-            else {
-                time1 = getTimeTick(this.model.toModrinthFile().date_published);
-                time2 = getTimeTick(aLong.model.toModrinthFile().date_published);
+                time1 = parseDate(this.model.toCurseFile().fileName);
+                time2 = parseDate(aLong.model.toCurseFile().fileDate);
+            } else {
+                time1 = parseDate(this.model.toModrinthFile().date_published);
+                time2 = parseDate(aLong.model.toModrinthFile().date_published);
             }
 
         } catch (ParseException e) {
             return 0;
         }
-        if (time1.after(time2)){
+        if (time1.after(time2)) {
             return -1;
-        }
-        else{
+        } else {
             return 1;
         }
     }

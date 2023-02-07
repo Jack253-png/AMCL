@@ -19,6 +19,7 @@ import javafx.beans.value.WritableValue;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Skin;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -180,6 +181,7 @@ public class ThemeManager {
     }
 
     public static List<Node> GetAllNodes(Parent root) {
+        if (root.getStyleClass().contains("viewport")) return new Vector<>();
         List<Node> nodes = new Vector<>();
         root.getChildrenUnmodifiable().forEach(n -> {
             if (!nodes.contains(n)) {

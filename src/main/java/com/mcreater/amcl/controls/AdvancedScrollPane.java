@@ -19,12 +19,15 @@ public class AdvancedScrollPane extends ScrollPane implements SettingsAnimationP
     public Pane content;
     private final Region shadow = new Region();
     public Thread lThread = null;
+
     public AdvancedScrollPane(double width, double height, Pane content) {
-        this (width, height, content, true, true);
+        this(width, height, content, true, true);
     }
+
     public AdvancedScrollPane(double width, double height, Pane content, boolean neededHeight) {
-        this (width, height, content, neededHeight, true);
+        this(width, height, content, neededHeight, true);
     }
+
     public AdvancedScrollPane(double width, double height, Pane content, boolean neededHeight, boolean neededWidth) {
         super(content);
         setShowShadow(!neededHeight);
@@ -33,7 +36,7 @@ public class AdvancedScrollPane extends ScrollPane implements SettingsAnimationP
             FXUtils.ControlSize.set(content, width - 30, height - 10);
         }
 
-        if (neededWidth)  {
+        if (neededWidth) {
             FXUtils.ControlSize.setWidth(content, width - 30);
             lThread = new Thread(() -> {
                 while (true) {
@@ -54,6 +57,7 @@ public class AdvancedScrollPane extends ScrollPane implements SettingsAnimationP
         ThemeManager.applyNode(this);
         getStyleClass().add("setting-page");
     }
+
     private void init() {
         skinProperty().addListener(it -> getChildren().addAll(shadow));
 
@@ -125,7 +129,8 @@ public class AdvancedScrollPane extends ScrollPane implements SettingsAnimationP
             n.setDisable(t);
         }
     }
-    public boolean CanMovePage(){
+
+    public boolean CanMovePage() {
 //        return this.getOpacity() == 1;
         return true;
     }

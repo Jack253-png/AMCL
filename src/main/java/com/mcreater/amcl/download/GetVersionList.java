@@ -11,14 +11,12 @@ import com.mcreater.amcl.model.fabric.FabricLoaderVersionModel;
 import com.mcreater.amcl.model.optifine.OptifineAPIModel;
 import com.mcreater.amcl.model.optifine.OptifineJarModel;
 import com.mcreater.amcl.model.original.VersionsModel;
-import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.JsonUtils;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.net.HttpConnectionUtil;
 import com.mcreater.amcl.util.parsers.ForgeVersionXMLHandler;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -27,6 +25,8 @@ import java.util.Objects;
 import java.util.Vector;
 
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
+import static com.mcreater.amcl.util.StringUtils.parseDate2;
+import static com.mcreater.amcl.util.StringUtils.parseDate3;
 import static com.mcreater.amcl.util.net.FasterUrls.FABRIC_LOADER_INDEX;
 import static com.mcreater.amcl.util.net.FasterUrls.FABRIC_VER_INDEX;
 import static com.mcreater.amcl.util.net.FasterUrls.FORGE_INDEX;
@@ -59,22 +59,18 @@ public class GetVersionList {
         Vector<OriginalVersionModel> t = new Vector<>();
         model.versions.forEach(s -> t.add(new OriginalVersionModel(s.id, s.type, s.releaseTime, s.url)));
         t.sort((originalVersionModel, t1) -> {
-            String a = originalVersionModel.time;
-            String b = t1.time;
-            a = J8Utils.createList(a.split("\\+")).get(0).replace("T", " ");
-            b = J8Utils.createList(b.split("\\+")).get(1).replace("T", " ");
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
             Date d1, d2;
             try {
-                d1 = dateFormat.parse(a);
-                d2 = dateFormat.parse(b);
+                d1 = parseDate2(originalVersionModel.time);
+                d2 = parseDate2(t1.time);
             } catch (ParseException e) {
+                e.printStackTrace();
                 return 0;
             }
             if (d1.after(d2)) {
-                return 1;
-            } else {
                 return -1;
+            } else {
+                return 1;
             }
         });
         return t;
@@ -203,15 +199,15 @@ public class GetVersionList {
                 try {
                     if (o1.isPreview && !o2.isPreview) return -1;
                     if (!o1.isPreview && o2.isPreview) return 1;
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss");
-                    Date date1 = sdf.parse(o1.time);
-                    Date date2 = sdf.parse(o2.time);
+                    Date date1 = parseDate3(o1.time);
+                    Date date2 = parseDate3(o2.time);
 
                     if (date1.after(date2)) return 1;
                     if (date2.after(date1)) return -1;
 
                     return 0;
                 } catch (Exception e) {
+                    e.printStackTrace();
                     return 0;
                 }
             });

@@ -8,14 +8,11 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.util.List;
-import java.util.Vector;
 import java.util.stream.Collectors;
 
 public class MicrosoftUser extends AbstractUser {
@@ -24,7 +21,6 @@ public class MicrosoftUser extends AbstractUser {
     }
 
     public List<MSAuth.McProfileModel.McCapeModel> getCapes() throws Exception {
-        Vector<MSAuth.McProfileModel.McCapeModel> capes = new Vector<>();
         MSAuth.UserProfileModel ob = HttpClient.getInstance(MSAuth.MC_PROFILE_API_URL)
                 .open()
                 .header("Authorization", "Bearer " + accessToken)
@@ -78,22 +74,26 @@ public class MicrosoftUser extends AbstractUser {
         NOT_ALLOWED
     }
 
+    public static class NameChangeCheckModel {
+        public String changedAt;
+        public String createdAt;
+        public boolean nameChangeAllowed;
+    }
+
     public void upload(SkinType type, File path) throws Exception {
         HttpPost httpPost = new HttpPost(MSAuth.MC_SKIN_MODIFY_URL);
         httpPost.addHeader("Authorization", "Bearer " + accessToken);
 
-        CloseableHttpClient client = HttpClients.createDefault();
         String respContent;
 
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addBinaryBody("file", path);
-        builder.addTextBody("variant", type.type);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create()
+                .addBinaryBody("file", path)
+                .addTextBody("variant", type.type);
 
         HttpEntity multipart = builder.build();
 
-        HttpResponse resp;
         httpPost.setEntity(multipart);
-        resp = client.execute(httpPost);
+        HttpResponse resp = HttpClients.createDefault().execute(httpPost);
 
         if (resp.getStatusLine().getStatusCode() <= 399) {
             HttpEntity he = resp.getEntity();
@@ -125,9 +125,17 @@ public class MicrosoftUser extends AbstractUser {
                 .open()
                 .method(HttpClient.Method.PUT)
                 .header("Authorization", "Bearer " + accessToken)
+                .header("Content-Length", String.valueOf(name.length()))
                 .toJson(MSAuth.UserProfileModel.class);
-        
+
         username = name;
+    }
+
+    public NameChangeCheckModel checkName() throws Exception {
+        return HttpClient.getInstance(MSAuth.MC_NAME_CHANGE_CHECK_URL)
+                .open()
+                .header("Authorization", "Bearer " + accessToken)
+                .toJson(NameChangeCheckModel.class);
     }
 
     public void hideCape() throws Exception {

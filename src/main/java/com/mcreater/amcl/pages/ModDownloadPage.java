@@ -62,7 +62,8 @@ public class ModDownloadPage extends AbstractAnimationPage {
     public Vector<CurseModModel> reqMods;
     VBox v;
     public Vector<RemoteModFile> uis = new Vector<>();
-    ChangeListener<Boolean> changeListener = (observable, oldValue, newValue) -> {};
+    ChangeListener<Boolean> changeListener = (observable, oldValue, newValue) -> {
+    };
     boolean coreSelected = false;
     RemoteModFile last;
     Thread loadThread;
@@ -73,6 +74,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
     AdvancedScrollPane page;
 
     boolean loadSuccess = false;
+
     public static class DepencyModPage extends ModDownloadPage {
         public DepencyModPage(double width, double height, AbstractAnimationPage last) {
             super(width, height);
@@ -80,6 +82,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
             ThemeManager.loadNodeAnimations(this);
         }
     }
+
     public ModDownloadPage(double width, double height) {
         super(width, height);
         reqMods = new Vector<>();
@@ -104,10 +107,9 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         dialog.setV(0, 10, Launcher.languageManager.get("ui.downloadmod._03"));
                         Vector<DownloadTask> tasks = new Vector<>();
                         String modPath;
-                        if (Launcher.configReader.configModel.change_game_dir){
+                        if (Launcher.configReader.configModel.change_game_dir) {
                             modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, String.format(buildPath("versions", "%s", "mods"), Launcher.configReader.configModel.selected_version_index));
-                        }
-                        else {
+                        } else {
                             modPath = LinkPath.link(Launcher.configReader.configModel.selected_minecraft_dir_index, "mods");
                         }
                         if (last.model.isCurseFile()) {
@@ -116,8 +118,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                                     tasks.add(new DownloadTask(last.model.toCurseFile().downloadUrl, LinkPath.link(modPath, last.model.toCurseFile().fileName), Launcher.configReader.configModel.downloadChunkSize));
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             ModrinthModFileItemModel model;
                             Vector<ModrinthModFileItemModel> files = new Vector<>(last.model.toModrinthFile().files);
 
@@ -139,14 +140,14 @@ public class ModDownloadPage extends AbstractAnimationPage {
                                             selected.set(true);
                                         }
                                     }
-                                }
-                                else {
+                                } else {
                                     selected.set(true);
                                 }
                                 Platform.runLater(dialog1::close);
                             }).start();
 
-                            do {} while (!selected.get());
+                            do {
+                            } while (!selected.get());
 
                             if (files.size() >= 1) {
                                 model = files.get(index.get());
@@ -154,24 +155,24 @@ public class ModDownloadPage extends AbstractAnimationPage {
                             }
                         }
                         AtomicInteger downloaded = new AtomicInteger();
-                        for (DownloadTask task : tasks){
+                        for (DownloadTask task : tasks) {
                             new Thread(() -> {
                                 while (true) {
                                     try {
                                         task.execute();
                                         downloaded.addAndGet(1);
                                         break;
-                                    } catch (IOException ignored) {}
+                                    } catch (IOException ignored) {
+                                    }
                                 }
                             }).start();
                         }
                         do {
                             Thread.sleep(500);
-                            double processTemp = (double) downloaded.get() / (double)  tasks.size();
+                            double processTemp = (double) downloaded.get() / (double) tasks.size();
                             dialog.setV(0, (int) (10 + 90 * processTemp), Launcher.languageManager.get("ui.downloadmod._04", downloaded.get(), tasks.size()));
                         } while (downloaded.get() != tasks.size());
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.moddownloadpage.loadversions.fail.title"));
                         e.printStackTrace();
                     } finally {
@@ -179,8 +180,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     }
                 });
                 t.start();
-            }
-            else {
+            } else {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
             }
         });
@@ -230,12 +230,10 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         } else {
                             SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
                         }
-                    }
-                    else {
+                    } else {
                         SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.mod.load"));
                 }
             }).start();
@@ -263,7 +261,8 @@ public class ModDownloadPage extends AbstractAnimationPage {
                 VERSIONSELECTPAGE
         ));
     }
-    public void setModContent(AbstractModModel model){
+
+    public void setModContent(AbstractModModel model) {
         if (this.content != model || !loadSuccess) {
             this.uis.clear();
             this.v.getChildren().clear();
@@ -275,7 +274,8 @@ public class ModDownloadPage extends AbstractAnimationPage {
             do {
                 try {
                     Thread.sleep(10);
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
             } while (this.v.getChildren().size() != 0);
 
             loadThread = new Thread(() -> {
@@ -283,8 +283,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     Map<String, ? extends Vector<? extends AbstractModFileModel>> files;
                     if (model.isCurseMod()) {
                         files = CurseAPI.getModFiles(model.toCurseMod());
-                    }
-                    else {
+                    } else {
                         files = ModrinthAPI.getModFiles(model.toModrinthMod());
                     }
 
@@ -351,16 +350,20 @@ public class ModDownloadPage extends AbstractAnimationPage {
             loadThread.start();
         }
     }
+
     public void refresh() {
 
     }
+
     public void refreshLanguage() {
         this.name = Launcher.languageManager.get("ui.moddownloadpage.name");
         install.setText(Launcher.languageManager.get("ui.moddownloadpage.install.name"));
     }
+
     public void refreshType() {
 
     }
+
     public void onExitPage() {
         if (!loadSuccess) {
             if (loadThread != null) {
@@ -370,15 +373,14 @@ public class ModDownloadPage extends AbstractAnimationPage {
             this.v.getChildren().clear();
         }
     }
-    public static Date getTimeTick(String time) throws ParseException {
-        SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return simpleDateFormat1.parse(J8Utils.createList(time.split("\\.")).get(0).replace("T", " "));
-    }
+
     public static class VersionComparsion implements Comparator<String> {
         Vector<OriginalVersionModel> vers;
+
         public VersionComparsion(Vector<OriginalVersionModel> vers) {
             this.vers = vers;
         }
+
         private int getIndex(String ver) {
             int l = -1;
             for (int g = 0; g < vers.size(); g++) {
@@ -389,6 +391,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
             }
             return l;
         }
+
         public int compare(String compareValue1, String compareValue2) {
             int id1 = getIndex(clearSnapShotVersion(compareValue1));
             int id2 = getIndex(clearSnapShotVersion(compareValue2));
@@ -396,7 +399,8 @@ public class ModDownloadPage extends AbstractAnimationPage {
             if (id1 == id2) return 0;
             return id1 > id2 ? -1 : 1;
         }
-        public String clearSnapShotVersion(String raw){
+
+        public String clearSnapShotVersion(String raw) {
             return raw.replace("-Snapshot", "-pre1");
         }
     }

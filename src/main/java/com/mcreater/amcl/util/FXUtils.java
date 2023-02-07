@@ -45,7 +45,6 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
-import java.util.function.Consumer;
 
 import static com.mcreater.amcl.Launcher.height;
 import static com.mcreater.amcl.Launcher.width;
@@ -396,12 +395,12 @@ public class FXUtils {
     }
 
     public static void disableNodeKeyboard(ButtonBase buttonBase) {
-        buttonBase.addEventHandler(KeyEvent.KEY_PRESSED, javafx.event.Event::consume);
-        buttonBase.addEventHandler(KeyEvent.KEY_RELEASED, javafx.event.Event::consume);
-        buttonBase.addEventHandler(KeyEvent.KEY_TYPED, javafx.event.Event::consume);
+        buttonBase.addEventHandler(KeyEvent.KEY_PRESSED, Event::consume);
+        buttonBase.addEventHandler(KeyEvent.KEY_RELEASED, Event::consume);
+        buttonBase.addEventHandler(KeyEvent.KEY_TYPED, Event::consume);
 
-        buttonBase.addEventFilter(KeyEvent.KEY_PRESSED, javafx.event.Event::consume);
-        buttonBase.addEventFilter(KeyEvent.KEY_RELEASED, javafx.event.Event::consume);
+        buttonBase.addEventFilter(KeyEvent.KEY_PRESSED, Event::consume);
+        buttonBase.addEventFilter(KeyEvent.KEY_RELEASED, Event::consume);
         buttonBase.addEventFilter(KeyEvent.KEY_TYPED, Event::consume);
     }
 

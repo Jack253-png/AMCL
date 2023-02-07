@@ -40,9 +40,13 @@ public abstract class AbstractDialog extends JFXDialog {
     public static final StackPane wrapper = new StackPane();
     public final SimpleDoubleProperty dialogNowRadius = new SimpleDoubleProperty(0);
     public final SimpleDoubleProperty dialogExceptedRadius = new SimpleDoubleProperty(0);
-    private Runnable onShow = () -> {};
-    private Runnable onClose = () -> {};
+    private Runnable onShow = () -> {
+    };
+    private Runnable onClose = () -> {
+    };
+
     static {
+        FXUtils.disableNodeKeyboard(wrapper);
         FXUtils.ControlSize.set(wrapper, 0, 0);
         dialogs.addListener((ListChangeListener<AbstractDialog>) c -> {
             exceptedRadius.set(c.getList().isEmpty() ? 0 : blurRadius);
@@ -67,8 +71,7 @@ public abstract class AbstractDialog extends JFXDialog {
                                 abstractDialog.dialogNowRadius.set(now2 < abstractDialog.dialogExceptedRadius.get() ? now2 + blurRadius / 40 : now2 - blurRadius / 40);
                             }
                         });
-                    }
-                    catch (Exception ignored) {
+                    } catch (Exception ignored) {
 
                     }
                     Sleeper.sleep(5);
@@ -76,11 +79,14 @@ public abstract class AbstractDialog extends JFXDialog {
             }
         }.start();
     }
+
     public void show() {
         onShow.run();
         super.show();
-        runInAnimation(() -> {});
+        runInAnimation(() -> {
+        });
     }
+
     public void close() {
         if (dialogs.size() <= 1) exceptedRadius.set(0);
         runOutAnimation(() -> {
@@ -88,6 +94,7 @@ public abstract class AbstractDialog extends JFXDialog {
             onClose.run();
         });
     }
+
     public AbstractDialog() {
         onShow = () -> {
             dialogs.add(this);
@@ -137,6 +144,7 @@ public abstract class AbstractDialog extends JFXDialog {
         ));
         FXUtils.disableNodeKeyboard(this);
     }
+
     private void runInAnimation(Runnable runnable) {
         Timeline timeline = new Timeline(
                 new KeyFrame(
@@ -161,6 +169,7 @@ public abstract class AbstractDialog extends JFXDialog {
         timeline.setOnFinished(event -> runnable.run());
         timeline.playFromStart();
     }
+
     private void runOutAnimation(Runnable runnable) {
         Timeline timeline = new Timeline(
                 new KeyFrame(
@@ -185,11 +194,13 @@ public abstract class AbstractDialog extends JFXDialog {
         timeline.setOnFinished(event -> runnable.run());
         timeline.playFromStart();
     }
+
     private static StackPane getWrapper(JFXDialog content) throws Exception {
         Field field = JFXDialog.class.getDeclaredField("contentHolder");
         field.setAccessible(true);
         return (StackPane) field.get(content);
     }
+
     private static void updateBounds(JFXDialog item) throws Exception {
         Bounds bound = item.getContent().getLayoutBounds();
         if (bound.getWidth() > 0 && bound.getHeight() > 0) {
@@ -205,17 +216,21 @@ public abstract class AbstractDialog extends JFXDialog {
             ));
         }
     }
+
     private void onDialogListChange() {
         dialogExceptedRadius.set(dialogs.indexOf(this) + 1 == dialogs.size() ? 0 : blurRadius);
     }
+
     public void Create() {
         FXUtils.Platform.runLater(this::show);
     }
-    public static Label setFont(Label l, Font font){
+
+    public static Label setFont(Label l, Font font) {
         l.setFont(font);
         return l;
     }
-    public static <T extends Label> T setFont(Label l, Font font, Class<T> clazz){
+
+    public static <T extends Label> T setFont(Label l, Font font, Class<T> clazz) {
         l.setFont(font);
         return (T) l;
     }

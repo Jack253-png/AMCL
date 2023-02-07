@@ -1,24 +1,30 @@
 package com.mcreater.amcl.util;
 
-import com.google.gson.internal.Streams;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Arrays;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
-import static com.mcreater.amcl.util.FileUtils.PathUtil.toPlatformPath;
 
 public class StringUtils {
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    private static final DateFormat DATE_FORMAT2 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    private static final DateFormat DATE_FORMAT3 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final DateFormat DATE_FORMAT4 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
     public static class ForgeMapplings {
         public static String get(String raw) {
             raw = raw.replace("[", "").replace("]", "");
@@ -86,5 +92,29 @@ public class StringUtils {
     public static Matcher returnCreatedMatcher(String s, Pattern pattern) {
         Matcher matcher = pattern.matcher(s);
         return matcher.find() ? matcher : null;
+    }
+
+    public static Date parseDate(String src) throws ParseException {
+        return toTimeZoneDate(DATE_FORMAT.parse(src));
+    }
+
+    public static Date parseDate2(String src) throws ParseException {
+        return toTimeZoneDate(DATE_FORMAT2.parse(src.split("\\+")[0]));
+    }
+
+    public static Date parseDate3(String src) throws ParseException {
+        return toTimeZoneDate(DATE_FORMAT3.parse(src));
+    }
+
+    public static Date parseDate4(String src) throws ParseException {
+        return toTimeZoneDate(DATE_FORMAT4.parse(src.split("\\.")[0]));
+    }
+
+    public static String toStringDate(Date date) {
+        return DATE_FORMAT3.format(date);
+    }
+
+    public static Date toTimeZoneDate(Date date) {
+        return Date.from(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().toInstant(ZoneOffset.UTC));
     }
 }
