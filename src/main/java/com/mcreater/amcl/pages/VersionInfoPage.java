@@ -9,7 +9,6 @@ import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.game.mods.ModHelper;
 import com.mcreater.amcl.model.mod.CommonModInfoModel;
-import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.dialogs.mod.LocalModInfoDialog;
@@ -187,7 +186,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
         modList.setOnAction(() -> {
             delete.setDisable(modList.selectedItem == null);
-            new LocalModInfoDialog(modList.selectedItem.model).show();
+            new LocalModInfoDialog(modList.selectedItem).show();
         });
 
         mods.add(addMod, 0, 1, 1, 1);
@@ -271,9 +270,9 @@ public class VersionInfoPage extends AbstractMenuBarPage {
                         logger.info("processing mod " + file);
                         return ModHelper.getModInfo(file).stream();
                     })
-                    .forEach(commonModInfoModel -> {
+                    .forEach(model -> {
                         try {
-                            Platform.runLater(() -> modList.addItem(new LocalMod(commonModInfoModel)));
+                            Platform.runLater(() -> modList.addItem(new LocalMod(model)));
                         } catch (Exception e) {
                             SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.versioninfopage.mod.load.fail"));
                         }

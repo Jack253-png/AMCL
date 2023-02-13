@@ -1,5 +1,8 @@
 package com.mcreater.amcl.util;
 
+import org.nlpcn.commons.lang.index.MemoryIndex;
+import org.nlpcn.commons.lang.pinyin.Pinyin;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
@@ -13,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -116,5 +120,9 @@ public class StringUtils {
 
     public static Date toTimeZoneDate(Date date) {
         return Date.from(date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().toInstant(ZoneOffset.UTC));
+    }
+
+    public static long findEn(String src, String target) {
+        return (src.length() - target.length()) + src.indexOf(target);
     }
 }

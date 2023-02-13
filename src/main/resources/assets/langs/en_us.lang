@@ -267,3 +267,5 @@ ui.versioninfopage.info.author=Author: %s
 ui.versioninfopage.info.author.null=Author not found
 ui.userselectpage.msaccount.name.notAllow.title=Change name not allowed.
 ui.userselectpage.msaccount.name.notAllow.content=Account created: %s\nLast changed: %s\nPlease try again after %s.\n
+ui.versioninfopage.openlink=Open link
+ui.versioninfopage.mod.offical=Official

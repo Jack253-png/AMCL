@@ -8,7 +8,6 @@ import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.patcher.DepenciesLoader;
 import com.mcreater.amcl.tasks.DownloadTask;
 import com.mcreater.amcl.tasks.Task;
-import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.LoggerPrintStream;
 import com.mcreater.amcl.util.SimpleFunctions;
 import com.mcreater.amcl.util.SwingUtils;
@@ -75,7 +74,7 @@ public class StableMain {
 //            injectDepenciesFromURL(addonItems);
             fixPulseTimer();
 
-            LogManager.getLogger(StableMain.class).info("Initlaze : " + timer.getTimeString());
+            LogManager.getLogger(StableMain.class).info("Initialize : " + timer.getTimeString());
             ClassPathInjector.checkJavaFXState();
             Main.start(args);
         }

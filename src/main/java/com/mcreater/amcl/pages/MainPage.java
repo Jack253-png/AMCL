@@ -63,22 +63,24 @@ public class MainPage extends AbstractAnimationPage {
     public static ImageView headCoverView;
     public static Pane container;
 
-    public static void tryToRemoveLaunch(LaunchCore launchCore){
+    public static void tryToRemoveLaunch(LaunchCore launchCore) {
         new Thread(() -> {
-            while (true){
-                if (!clearingThread.get()){
+            while (true) {
+                if (!clearingThread.get()) {
                     game.remove(launchCore);
                     break;
                 }
             }
         }).start();
     }
-    public void stopAllProcess(){
+
+    public void stopAllProcess() {
         clearingThread.set(true);
         game.forEach(LaunchCore::stop_process);
         clearingThread.set(false);
     }
-    public MainPage(double width,double height) {
+
+    public MainPage(double width, double height) {
         super(width, height);
         versionLoadDialog = null;
 
@@ -126,8 +128,7 @@ public class MainPage extends AbstractAnimationPage {
                                         Launcher.configReader.configModel.downloadChunkSize
                                 );
                                 logger.info("started launch thread");
-                            }
-                            else {
+                            } else {
                                 SimpleDialogCreater.create(Launcher.languageManager.get("exceptions.processexception.name"), Launcher.languageManager.get("exceptions.baduserexception.name"), "");
                             }
                         } else {
@@ -136,8 +137,7 @@ public class MainPage extends AbstractAnimationPage {
                             Launcher.configReader.write();
                             SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.launch.javaChecker.name"), Launcher.languageManager.get("ui.mainpage.launch.javaChecker.Headcontent"), "");
                         }
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         launchDialog.close();
                         logger.error("failed to launch", e);
                         SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"));
@@ -235,8 +235,7 @@ public class MainPage extends AbstractAnimationPage {
                         ThemeManager.themeName.equals("dark") ? Color.BLACK : Color.WHITE
                 );
                 ThemeManager.freshTheme();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         });
@@ -273,6 +272,8 @@ public class MainPage extends AbstractAnimationPage {
                 button
         );
 
+        title.setWrapText(true);
+
         nodes.add(new NodeInfo(0, 0, width / 4, height));
 
         Pane p = new Pane();
@@ -294,21 +295,24 @@ public class MainPage extends AbstractAnimationPage {
         }.start();
         bindedPageproperty().get().add(MAINPAGE);
     }
-    public static void check(LaunchCore launchCore){
+
+    public static void check(LaunchCore launchCore) {
         Platform.runLater(launchDialog::close);
-        if (launchCore.exitCode != null){
+        if (launchCore.exitCode != null) {
             logger.info("Minecraft exited with code " + launchCore.exitCode);
-            if (launchCore.exitCode != 0){
+            if (launchCore.exitCode != 0) {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.mainpage.minecraftExit.title"), Launcher.languageManager.get("ui.mainpage.minecraftExit.Headercontent", launchCore), Launcher.languageManager.get("ui.mainpage.minecraftExit.content", launchCore.exitCode));
             }
         }
     }
+
     public static class Spacer extends Label {
-        public Spacer(){
+        public Spacer() {
             super("");
         }
     }
-    public void clean_null_version(boolean isDirExts){
+
+    public void clean_null_version(boolean isDirExts) {
         Platform.runLater(() -> {
             version_settings.setText(Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"));
             launchButton.setText(Launcher.languageManager.get("ui.mainpage.launchButton.noVersion"));
@@ -319,7 +323,8 @@ public class MainPage extends AbstractAnimationPage {
             version_settings.setDisable(true);
         });
     }
-    public void flush(){
+
+    public void flush() {
         boolean minecraft_dir_exists = new File(Launcher.configReader.configModel.selected_minecraft_dir_index).exists();
         try {
             if (minecraft_dir_exists) {
@@ -363,16 +368,17 @@ public class MainPage extends AbstractAnimationPage {
                 clean_null_version(false);
                 downloadMc.setDisable(true);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             clean_null_version(true);
             downloadMc.setDisable(false);
         }
     }
-    public void refresh(){
+
+    public void refresh() {
         flush();
     }
-    public void refreshType(){
+
+    public void refreshType() {
         version_settings.setGraphic(Launcher.getSVGManager().gear(ThemeManager.createPaintBinding(), 25.0D, 25.0D));
         settings.setGraphic(Launcher.getSVGManager().gear(ThemeManager.createPaintBinding(), 25.0D, 25.0D));
         downloadMc.setGraphic(Launcher.getSVGManager().downloadOutline(ThemeManager.createPaintBinding(), 25.0D, 25.0D));
@@ -382,13 +388,13 @@ public class MainPage extends AbstractAnimationPage {
 
     }
 
-    public void refreshLanguage(){
+    public void refreshLanguage() {
         name = Launcher.languageManager.get("ui.mainpage.name");
         title.setText(Launcher.languageManager.get("ui.title", VersionInfo.launcher_name, VersionInfo.launcher_version));
         launch.setText(Launcher.languageManager.get("ui.mainpage.launchTitle.launch.name"));
         set.setText(Launcher.languageManager.get("ui.mainpage.settings.name"));
         choose_version.setText(Launcher.languageManager.get("ui.mainpage.choose_version.name"));
-        settings.setText(" "+ Launcher.languageManager.get("ui.mainpage.settings.name"));
+        settings.setText(" " + Launcher.languageManager.get("ui.mainpage.settings.name"));
         downloadTitle.setText(Launcher.languageManager.get("ui.mainpage.download.title"));
         downloadMc.setText(Launcher.languageManager.get("ui.mainpage.downloadMc.name"));
         users.setText(Launcher.languageManager.get("ui.mainpage.users.name"));

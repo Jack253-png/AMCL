@@ -61,15 +61,15 @@ dependencies {
     implementation('org.apache.httpcomponents:httpmime:4.4.1')
     implementation('com.formdev:flatlaf:2.4')
     implementation('com.moandjiezana.toml:toml4j:0.7.2')
+    implementation('org.ansj:ansj_seg:5.1.1')
 }
 
 static int getJavaVersion() {
     int version = 0
     String[] ful = System.getProperty("java.runtime.version").split("\\.");
-    if (Integer.parseInt(ful[0]) == 1){
+    if (Integer.parseInt(ful[0]) == 1) {
         version = Integer.parseInt(ful[1]);
-    }
-    else {
+    } else {
         version = Integer.parseInt(ful[0]);
     }
     return version

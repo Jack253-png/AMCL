@@ -24,7 +24,8 @@ public class RemoteMod extends GridPane {
     public HBox b;
     public HBox authors;
     public ImageView image;
-    public RemoteMod(AbstractModModel model){
+
+    public RemoteMod(AbstractModModel model) {
         this.model = model;
         if (model.isCurseMod()) {
             CurseModModel raw = model.toCurseMod();
@@ -33,9 +34,9 @@ public class RemoteMod extends GridPane {
             image.setFitWidth(40);
             image.setFitHeight(40);
             new Thread(() -> image.setImage(new Image(logo_url))).start();
-            name = new Label(raw.name);
+            name = new AdvancedLabel(raw.name);
             name.setFont(Fonts.s_f);
-            desc = new Label(raw.summary);
+            desc = new AdvancedLabel(raw.summary);
             desc.setFont(Fonts.t_f);
             desc.setMaxWidth(Launcher.width - 20 * 4 - 35);
             b = new HBox();
@@ -51,14 +52,14 @@ public class RemoteMod extends GridPane {
                 new Thread(() -> v.setImage(new Image(m.iconUrl))).start();
             }
             authors = new HBox();
-            base = new Label(Launcher.languageManager.get("ui.addmodspage.mod.authors.name"));
+            base = new AdvancedLabel(Launcher.languageManager.get("ui.addmodspage.mod.authors.name"));
             base.setFont(Fonts.t_f);
             authors.getChildren().add(base);
             for (CurseModAuthorModel m : raw.authors) {
                 Hyperlink link = new Hyperlink(m.name);
                 link.setOnAction(event -> SystemActions.openBrowser(m.url));
                 link.setFont(Fonts.t_f);
-                Label comma = new Label(",");
+                Label comma = new AdvancedLabel(",");
                 authors.getChildren().addAll(link, comma);
             }
             authors.getChildren().remove(authors.getChildren().size() - 1);
@@ -70,24 +71,23 @@ public class RemoteMod extends GridPane {
             this.add(desc, 1, 1, 1, 1);
             this.add(authors, 1, 2, 1, 1);
             this.add(b, 1, 3, 1, 1);
-        }
-        else {
+        } else {
             ModrinthModModel raw = model.toModrinthMod();
             String logo_url = raw.icon_url;
             image = new ImageView();
             image.setFitWidth(40);
             image.setFitHeight(40);
             new Thread(() -> image.setImage(new Image(logo_url))).start();
-            name = new Label(raw.title);
+            name = new AdvancedLabel(raw.title);
             name.setFont(Fonts.s_f);
-            desc = new Label(raw.description);
+            desc = new AdvancedLabel(raw.description);
             desc.setFont(Fonts.t_f);
             desc.setMaxWidth(Launcher.width - 20 * 4 - 35);
             authors = new HBox();
-            base = new Label(Launcher.languageManager.get("ui.addmodspage.mod.authors.name"));
+            base = new AdvancedLabel(Launcher.languageManager.get("ui.addmodspage.mod.authors.name"));
             base.setFont(Fonts.t_f);
             authors.getChildren().add(base);
-            Label aut = new Label(raw.author);
+            Label aut = new AdvancedLabel(raw.author);
             aut.setFont(Fonts.t_f);
             authors.getChildren().addAll(aut);
             authors.setAlignment(Pos.CENTER_LEFT);
@@ -99,7 +99,8 @@ public class RemoteMod extends GridPane {
             if (raw.author != null) this.add(authors, 1, 2, 1, 1);
         }
     }
-    public void refreshLang(){
+
+    public void refreshLang() {
         base.setText(Launcher.languageManager.get("ui.addmodspage.mod.authors.name"));
     }
 }

@@ -4,6 +4,10 @@
     -fx-wrap-text: true;
 }
 
+#noW {
+    -fx-wrap-text: false;
+}
+
 .root {
     -fx-font-smoothing-type: -fx-label-smoothing-type;
     -fx-text-fill: whitesmoke;

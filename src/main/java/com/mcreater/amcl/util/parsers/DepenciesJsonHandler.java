@@ -21,42 +21,43 @@ public class DepenciesJsonHandler {
         DepencyModel model = GSON_PARSER.fromJson(new InputStreamReader(is), DepencyModel.class);
         Vector<DepencyItem> items = new Vector<>();
         for (DepencyModel.ItemModel item : model.depencies) {
+            String mav = item.maven != null ? item.mac : model.maven;
             if (item.isMultiPlatform) {
                 switch (OSInfo.getOSType()) {
                     default:
                     case WINDOWS:
-                        items.add(new DepencyItem(item.name, model.maven));
+                        items.add(new DepencyItem(item.name, mav));
                         break;
                     case WINDOWS_X86:
-                        items.add(new DepencyItem(item.winX86, model.maven));
+                        items.add(new DepencyItem(item.winX86, mav));
                         break;
                     case MACOS:
-                        items.add(new DepencyItem(item.mac, model.maven));
+                        items.add(new DepencyItem(item.mac, mav));
                         break;
                     case MACOS_ARM64:
-                        items.add(new DepencyItem(item.macArm64, model.maven));
+                        items.add(new DepencyItem(item.macArm64, mav));
                         break;
                     case LINUX:
-                        items.add(new DepencyItem(item.linux, model.maven));
+                        items.add(new DepencyItem(item.linux, mav));
                         break;
                     case LINUX_ARM64:
-                        items.add(new DepencyItem(item.linuxArm64, model.maven));
+                        items.add(new DepencyItem(item.linuxArm64, mav));
                         break;
                     case WINDOWS_ARM:
-                        items.add(new DepencyItem(item.windowsArm, model.maven));
+                        items.add(new DepencyItem(item.windowsArm, mav));
                         break;
                     case LINUX_ARM32:
-                        items.add(new DepencyItem(item.linuxArm32, model.maven));
+                        items.add(new DepencyItem(item.linuxArm32, mav));
                         break;
                     case LINUX_LOONGARCH64_OW:
-                        items.add(new DepencyItem(item.linuxLoongarch, model.maven));
+                        items.add(new DepencyItem(item.linuxLoongarch, mav));
                         break;
                 }
             } else {
                 if (ClassPathInjector.version < 9 && item.old != null) {
-                    items.add(new DepencyItem(item.old, model.maven));
+                    items.add(new DepencyItem(item.old, mav));
                 } else {
-                    items.add(new DepencyItem(item.name, model.maven));
+                    items.add(new DepencyItem(item.name, mav));
                 }
             }
         }
@@ -73,6 +74,7 @@ public class DepenciesJsonHandler {
             public String old;
             public String mac;
             public String linux;
+            public String maven;
             @SerializedName("win-x86")
             public String winX86;
             @SerializedName("mac-arm64")
