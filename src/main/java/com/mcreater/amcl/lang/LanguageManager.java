@@ -13,6 +13,7 @@ public class LanguageManager extends AbstractLanguageManager {
     Properties prp;
     public static Vector<String> vaild_languages = new Vector<>();
     private Runnable listener = () -> {};
+    private LanguageType type;
     public void setListener(@NotNull Runnable listener) {
         this.listener = listener;
     }
@@ -41,9 +42,14 @@ public class LanguageManager extends AbstractLanguageManager {
         return String.format(get(id), args);
     }
     public void setLanguage(LanguageType type){
+        this.type = type;
         prp = getPrp(getPath(type));
         listener.run();
     }
+    public LanguageType getLanguage() {
+        return type;
+    }
+
     public InputStream getPath(LanguageType type){
         if (type == LanguageType.ENGLISH) {
             return this.getClass().getClassLoader().getResourceAsStream("assets/langs/en_us.lang");

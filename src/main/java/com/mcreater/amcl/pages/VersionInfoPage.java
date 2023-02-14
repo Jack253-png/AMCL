@@ -8,6 +8,7 @@ import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.controls.items.StringItem;
 import com.mcreater.amcl.game.VersionTypeGetter;
 import com.mcreater.amcl.game.mods.ModHelper;
+import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.pages.dialogs.commons.ProcessDialog;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
@@ -31,6 +32,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -186,7 +188,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
         modList.setOnAction(() -> {
             delete.setDisable(modList.selectedItem == null);
-            new LocalModInfoDialog(modList.selectedItem).show();
+            new LocalModInfoDialog(modList.selectedItem, Launcher.languageManager.getLanguage() == LanguageManager.LanguageType.CHINESE).show();
         });
 
         mods.add(addMod, 0, 1, 1, 1);
@@ -309,6 +311,7 @@ public class VersionInfoPage extends AbstractMenuBarPage {
         mainInfoButton.setText(Launcher.languageManager.get("ui.versioninfopage.menu._01"));
         modsMenu.setText(Launcher.languageManager.get("ui.versioninfopage.menu._02"));
         item.title.setText(Launcher.languageManager.get("ui.versioninfopage.item.name"));
+        modList.vecs.forEach(LocalMod::refreshLanguage);
     }
 
     public void refreshType() {

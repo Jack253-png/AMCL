@@ -28,6 +28,7 @@ import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.Timer;
 import com.mcreater.amcl.util.VersionChecker;
 import com.mcreater.amcl.util.VersionInfo;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.concurrent.FXConcurrentPool;
 import com.mcreater.amcl.util.math.Fraction;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
@@ -73,7 +74,7 @@ import static com.mcreater.amcl.util.FileUtils.PathUtil.buildPath;
 
 public class Launcher {
     static Logger logger = LogManager.getLogger(Launcher.class);
-    public static Scene s = new Scene(new Pane(), Color.TRANSPARENT);
+    public static Scene scene = new Scene(new Pane(), Color.TRANSPARENT);
     public static Stage stage;
     static AbstractAnimationPage last;
 
@@ -161,14 +162,10 @@ public class Launcher {
 
             ThemeManager.apply(pages);
 
-            CONFIGPAGE.bar1.setOnMouseEntered(event -> {
-            });
-            CONFIGPAGE.bar1.setOnMouseExited(event -> {
-            });
-            CONFIGPAGE.bar2.setOnMouseEntered(event -> {
-            });
-            CONFIGPAGE.bar2.setOnMouseExited(event -> {
-            });
+            CONFIGPAGE.bar1.setOnMouseEntered(null);
+            CONFIGPAGE.bar1.setOnMouseExited(null);
+            CONFIGPAGE.bar2.setOnMouseEntered(null);
+            CONFIGPAGE.bar2.setOnMouseExited(null);
             CONFIGPAGE.bar1.setOpacity(1);
             CONFIGPAGE.bar2.setOpacity(0.5);
 
@@ -178,14 +175,18 @@ public class Launcher {
 
             stage.initStyle(StageStyle.TRANSPARENT);
             refresh();
-            stage.setScene(s);
+            stage.setScene(scene);
             stage.getIcons().add(Icons.fxIcon.get());
 
-            new Thread("Version update checker") {
-                public void run() {
-                    VersionChecker.check((s, aBoolean) -> FXUtils.Platform.runLater(() -> PopupMessage.createMessage(s, aBoolean ? PopupMessage.MessageTypes.HYPERLINK : PopupMessage.MessageTypes.LABEL, aBoolean ? event -> new UpgradePage().open() : null)));
-                }
-            }.start();
+            ThreadBuilder.createBuilder()
+                    .runTarget(() -> VersionChecker.check(
+                            (s, aBoolean) ->
+                                    FXUtils.Platform.runLater(() ->
+                                            PopupMessage.createMessage(s, aBoolean ? PopupMessage.MessageTypes.HYPERLINK : PopupMessage.MessageTypes.LABEL, aBoolean ? event -> new UpgradePage().open() : null)
+                                    )
+                    ))
+                    .name("Version update checker thread")
+                    .buildAndRun();
 
             Rectangle rect = FXUtils.generateRect(width, height, 0);
             rect.arcWidthProperty().bind(Launcher.radius);
@@ -334,11 +335,11 @@ public class Launcher {
         ));
         FXUtils.disableNodeKeyboard(topWrapper);
 
-        s.setFill(Color.TRANSPARENT);
-        s.setRoot(topWrapper);
-        stage.setScene(s);
+        scene.setFill(Color.TRANSPARENT);
+        scene.setRoot(topWrapper);
+        stage.setScene(scene);
         refreshBackground();
-        s.setOnKeyPressed(event -> System.out.println(event.getCode()));
+        scene.setOnKeyPressed(event -> System.out.println(event.getCode()));
     }
 
     public static void setTitle() {

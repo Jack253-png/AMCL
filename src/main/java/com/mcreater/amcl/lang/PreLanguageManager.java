@@ -51,14 +51,14 @@ public class PreLanguageManager extends AbstractLanguageManager {
             return null;
         }
     }
-    public static LanguageManager.LanguageType valueOf(String s){
-        if (Objects.equals(s, "ENGLISH")){
+    public static LanguageManager.LanguageType valueOf(String s) {
+        if (Objects.equals(s, "ENGLISH")) {
             return LanguageManager.LanguageType.ENGLISH;
         }
-        else if (Objects.equals(s, "CHINESE")){
+        else if (Objects.equals(s, "CHINESE")) {
             return LanguageManager.LanguageType.CHINESE;
         }
-        else{
+        else {
             return null;
         }
     }
