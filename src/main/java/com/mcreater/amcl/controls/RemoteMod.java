@@ -7,6 +7,7 @@ import com.mcreater.amcl.api.modApi.curseforge.mod.CurseModCategorieModel;
 import com.mcreater.amcl.api.modApi.curseforge.mod.CurseModModel;
 import com.mcreater.amcl.api.modApi.modrinth.mod.ModrinthModModel;
 import com.mcreater.amcl.pages.interfaces.Fonts;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.os.SystemActions;
 import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
@@ -33,7 +34,10 @@ public class RemoteMod extends GridPane {
             image = new ImageView();
             image.setFitWidth(40);
             image.setFitHeight(40);
-            new Thread(() -> image.setImage(new Image(logo_url))).start();
+            ThreadBuilder.createBuilder()
+                    .runTarget(() -> image.setImage(new Image(logo_url)))
+                    .name("Icon load thread")
+                    .buildAndRun();
             name = new AdvancedLabel(raw.name);
             name.setFont(Fonts.s_f);
             desc = new AdvancedLabel(raw.summary);
@@ -49,7 +53,10 @@ public class RemoteMod extends GridPane {
             for (int i = 0; i < b.getChildren().size(); i++) {
                 ImageView v = (ImageView) b.getChildren().get(i);
                 CurseModCategorieModel m = raw.categories.get(i);
-                new Thread(() -> v.setImage(new Image(m.iconUrl))).start();
+                ThreadBuilder.createBuilder()
+                        .runTarget(() -> v.setImage(new Image(m.iconUrl)))
+                        .name("Icon process thread")
+                        .buildAndRun();
             }
             authors = new HBox();
             base = new AdvancedLabel(Launcher.languageManager.get("ui.addmodspage.mod.authors.name"));
@@ -77,7 +84,10 @@ public class RemoteMod extends GridPane {
             image = new ImageView();
             image.setFitWidth(40);
             image.setFitHeight(40);
-            new Thread(() -> image.setImage(new Image(logo_url))).start();
+            ThreadBuilder.createBuilder()
+                    .runTarget(() -> image.setImage(new Image(logo_url)))
+                    .name("Icon load thread")
+                    .buildAndRun();
             name = new AdvancedLabel(raw.title);
             name.setFont(Fonts.s_f);
             desc = new AdvancedLabel(raw.description);

@@ -5,6 +5,7 @@ import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.StringUtils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.java.GetJarMainClass;
 import com.mcreater.amcl.util.net.FasterUrls;
 
@@ -68,14 +69,14 @@ public class ForgePatchTask extends AbstractCommandTask {
         while (true) {
             try {
                 CountDownLatch latch = new CountDownLatch(2);
-                new Thread(() -> {
+                ThreadBuilder.createBuilder().runTarget(() -> {
                     printStreamToPrintStream(p.getInputStream(), System.out);
                     latch.countDown();
-                }).start();
-                new Thread(() -> {
+                }).buildAndRun();
+                ThreadBuilder.createBuilder().runTarget(() -> {
                     printStreamToPrintStream(p.getErrorStream(), System.err);
                     latch.countDown();
-                }).start();
+                }).buildAndRun();
                 latch.await();
                 return p.exitValue();
             } catch (Exception e) {

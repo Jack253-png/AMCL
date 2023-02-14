@@ -7,6 +7,7 @@ import com.mcreater.amcl.model.mod.CommonModInfoModel;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -34,16 +35,19 @@ public class LocalMod extends HBox {
         icon.setFitWidth(50);
         icon.setFitHeight(50);
 
-        new Thread(() -> {
-            if (model.icon != null) {
-                try {
-                    Image image = new Image(FileUtils.ZipUtil.readBinaryFileInZip(path, model.icon));
-                    FXUtils.Platform.runLater(() -> icon.setImage(image));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        ThreadBuilder.createBuilder()
+                .runTarget(() -> {
+                    if (model.icon != null) {
+                        try {
+                            Image image = new Image(FileUtils.ZipUtil.readBinaryFileInZip(path, model.icon));
+                            FXUtils.Platform.runLater(() -> icon.setImage(image));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                })
+                .name("Icon process thread")
+                .buildAndRun();
         refreshLanguage();
 
         setAlignment(Pos.TOP_LEFT);
@@ -52,15 +56,18 @@ public class LocalMod extends HBox {
     }
 
     public void refreshLanguage() {
-        new Thread(() -> {
-            if (Launcher.languageManager.getLanguage() == LanguageManager.LanguageType.CHINESE) {
-                try {
-                    String s = ModTransitions.MODS.translateString(model.modid, model.name);
-                    FXUtils.Platform.runLater(() -> translate.setText(s));
-                } catch (Exception ignored) {
+        ThreadBuilder.createBuilder()
+                .runTarget(() -> {
+                    if (Launcher.languageManager.getLanguage() == LanguageManager.LanguageType.CHINESE) {
+                        try {
+                            String s = ModTransitions.MODS.translateString(model.modid, model.name);
+                            FXUtils.Platform.runLater(() -> translate.setText(s));
+                        } catch (Exception ignored) {
 
-                }
-            }
-        }).start();
+                        }
+                    }
+                })
+                .name("Mod translation process thread")
+                .buildAndRun();
     }
 }

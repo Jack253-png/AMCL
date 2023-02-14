@@ -156,13 +156,6 @@ public class AddModsPage extends AbstractAnimationPage {
     public void showDownloads(AbstractModModel model) throws InterruptedException {
         Launcher.MODDOWNLOADPAGE.setModContent(model);
         Launcher.setPage(Launcher.MODDOWNLOADPAGE, this);
-        new Thread(() -> {
-            try {
-                Thread.sleep(25);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
     }
 
     public void refresh() {

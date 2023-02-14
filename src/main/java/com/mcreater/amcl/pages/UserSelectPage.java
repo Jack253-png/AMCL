@@ -20,12 +20,11 @@ import com.mcreater.amcl.pages.interfaces.AbstractAnimationPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-
-import java.io.IOException;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -86,7 +85,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                             dialog1.close();
                             LoadingDialog dialog2 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.offline.id"));
                             dialog2.Create();
-                            new Thread(() -> {
+                            ThreadBuilder.createBuilder().runTarget(() -> {
                                 String uuid = OffLineUser.SkinType.STEVE.uuid;
                                 boolean isSlim = OffLineUser.SkinType.STEVE.isSlim;
                                 try {
@@ -101,7 +100,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                                     dialog.close();
                                 });
                                 reloadUser();
-                            }).start();
+                            }).buildAndRun();
                         });
                         dialog1.Create();
                         break;
@@ -187,7 +186,7 @@ public class UserSelectPage extends AbstractAnimationPage {
     }
 
     public void reloadUser() {
-        Runnable runn = () -> new Thread(() -> {
+        Runnable runn = () -> ThreadBuilder.createBuilder().runTarget(() -> {
             checkActiveState();
             for (AbstractUser user : Launcher.configReader.configModel.accounts) {
                 AccountInfoItem item = new AccountInfoItem(user, width / 3 * 2);
@@ -228,7 +227,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                 item.setRefresh(event -> {
                     LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.refresh.title"));
                     dialog.show();
-                    new Thread(() -> {
+                    ThreadBuilder.createBuilder().runTarget(() -> {
                         try {
                             if (!item.user.validate()) item.user.refresh();
                             item.cutSkinStart();
@@ -238,7 +237,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                             FXUtils.Platform.runLater(dialog::close);
                             Launcher.configReader.write();
                         }
-                    }).start();
+                    }).buildAndRun();
                 });
                 item.setModify(event -> {
                     Runnable modify = () -> {
@@ -269,7 +268,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                                             dialog2.setCancel(event14 -> dialog2.close());
                                             dialog2.setEvent(event15 -> {
                                                 dialog1.show();
-                                                new Thread(() -> {
+                                                ThreadBuilder.createBuilder().runTarget(() -> {
                                                     String uuid = OffLineUser.SkinType.STEVE.uuid;
                                                     boolean isSlim = OffLineUser.SkinType.STEVE.isSlim;
                                                     try {
@@ -285,9 +284,9 @@ public class UserSelectPage extends AbstractAnimationPage {
                                                         dialog1.close();
                                                         finalRunnable.run();
                                                     });
-                                                }).start();
+                                                }).buildAndRun();
                                             });
-                                            new Thread(() -> {
+                                            ThreadBuilder.createBuilder().runTarget(() -> {
                                                 try {
                                                     String name = MSAuth.getUserSkin(item.user.uuid).name;
                                                     FXUtils.Platform.runLater(() -> dialog2.f.setText(name));
@@ -299,7 +298,7 @@ public class UserSelectPage extends AbstractAnimationPage {
                                                         dialog2.show();
                                                     });
                                                 }
-                                            }).start();
+                                            }).buildAndRun();
                                             dialog1.show();
                                             break;
                                         case 3:
@@ -335,7 +334,7 @@ public class UserSelectPage extends AbstractAnimationPage {
 
                     LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.validate"));
                     dialog.show();
-                    new Thread(() -> {
+                    ThreadBuilder.createBuilder().runTarget(() -> {
                         if (!item.user.validate()) {
                             SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.validate.fail.title"), Launcher.languageManager.get("ui.userselectpage.validate.fail.content"), "");
                             FXUtils.Platform.runLater(dialog::close);
@@ -343,17 +342,17 @@ public class UserSelectPage extends AbstractAnimationPage {
                             FXUtils.Platform.runLater(dialog::close);
                             FXUtils.Platform.runLater(modify);
                         }
-                    }).start();
+                    }).buildAndRun();
                 });
                 item.setValidate(event -> {
                     LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.validate"));
                     dialog.show();
-                    new Thread(() -> {
+                    ThreadBuilder.createBuilder().runTarget(() -> {
                         if (!item.user.validate()) {
                             SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.validate.fail.title"), Launcher.languageManager.get("ui.userselectpage.validate.fail.content"), "");
                         }
                         FXUtils.Platform.runLater(dialog::close);
-                    }).start();
+                    }).buildAndRun();
                 });
                 FXUtils.Platform.runLater(() -> userList.addItem(item));
             }
@@ -368,7 +367,7 @@ public class UserSelectPage extends AbstractAnimationPage {
 
             FXUtils.AnimationUtils.runSingleCycleAnimation(userList.page.opacityProperty(), 0, 1, 100, 300, event1 -> {
             });
-        }).start();
+        }).buildAndRun();
 
         FXUtils.AnimationUtils.runSingleCycleAnimation(userList.page.opacityProperty(), 1, 0, 100, 300, event1 -> {
             userList.page.setDisable(true);

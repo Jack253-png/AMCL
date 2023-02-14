@@ -10,6 +10,7 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.svg.Icons;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
@@ -27,7 +28,7 @@ public class UpgradePage extends AbstractStage {
         this.setTitle(Launcher.languageManager.get("ui.upgradepage.title"));
         this.getIcons().add(Icons.fxIcon.get());
         c = new VBox();
-        new Thread(this::loadVers).start();
+        ThreadBuilder.createBuilder().runTarget(this::loadVers).buildAndRun();
         content = new AdvancedScrollPane(800, 500 - barSize, c, false);
         content.setId("opaque");
 

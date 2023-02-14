@@ -15,6 +15,7 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -238,7 +239,7 @@ public class VersionSelectPage extends AbstractAnimationPage {
             MainPage.versionLoadDialog.setV(0, 100, "");
             Platform.runLater(MainPage.versionLoadDialog::close);
         };
-        new Thread(load).start();
+        ThreadBuilder.createBuilder().runTarget(load).buildAndRun();
     }
 
     public void update_version_name() {

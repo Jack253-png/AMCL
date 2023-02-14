@@ -3,6 +3,7 @@ package com.mcreater.amcl.util;
 import com.mcreater.amcl.natives.OSInfo;
 import com.mcreater.amcl.natives.PosixHandler;
 import com.mcreater.amcl.patcher.ClassPathInjector;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import jnr.posix.POSIX;
 import jnr.posix.POSIXFactory;
 
@@ -135,14 +136,14 @@ public class FileUtils {
         CountDownLatch latch = new CountDownLatch(basePaths.size());
         Vector<File> paths = new Vector<>();
         basePaths.stream()
-                .map(file -> new Thread(() -> {
+                .map(file -> ThreadBuilder.createBuilder().runTarget(() -> {
                     try {
                         paths.addAll(getJavaInSelPath(file));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                     latch.countDown();
-                }))
+                }).build())
                 .forEach(Thread::start);
         try {
             latch.await();
@@ -196,7 +197,7 @@ public class FileUtils {
         CountDownLatch latch = new CountDownLatch(arg.length);
         Vector<File> paths = new Vector<>();
         Arrays.stream(arg)
-                .map(s -> new Thread(() -> {
+                .map(s -> ThreadBuilder.createBuilder().runTarget(() -> {
                     try {
                         File[] files = new File(s).listFiles((dir, name) -> name.contains(OSInfo.isWin() ? "java.exe" : "java"));
                         if (files != null) {
@@ -210,7 +211,7 @@ public class FileUtils {
                         e.printStackTrace();
                     }
                     latch.countDown();
-                }))
+                }).build())
                 .forEach(Thread::start);
         try {
             latch.await();

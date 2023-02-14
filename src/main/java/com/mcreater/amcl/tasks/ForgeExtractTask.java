@@ -3,6 +3,7 @@ package com.mcreater.amcl.tasks;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,8 +49,8 @@ public class ForgeExtractTask extends AbstractCommandTask {
         Process p = Runtime.getRuntime().exec(command.toArray(new String[0]));
         while (true) {
             try {
-                new Thread(() -> printStreamToPrintStream(p.getInputStream(), System.out)).start();
-                new Thread(() -> printStreamToPrintStream(p.getErrorStream(), System.err)).start();
+                ThreadBuilder.createBuilder().runTarget(() -> printStreamToPrintStream(p.getInputStream(), System.out)).buildAndRun();
+                ThreadBuilder.createBuilder().runTarget(() -> printStreamToPrintStream(p.getErrorStream(), System.err)).buildAndRun();
                 copy();
                 exit = p.exitValue();
                 return exit;

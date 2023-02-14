@@ -8,6 +8,7 @@ import com.mcreater.amcl.controls.RemoteModFile;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.tasks.LambdaTask;
 import com.mcreater.amcl.tasks.manager.TaskManager;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.net.HttpClient;
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +23,8 @@ import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.mcreater.amcl.util.JsonUtils.GSON_PARSER;
 
@@ -138,30 +141,32 @@ public final class CurseAPI {
         CountDownLatch latch = new CountDownLatch(versions_list.size());
         Vector<CurseModFileModel> re = new Vector<>();
 
-        for (String v : versions_list) {
-            new Thread(() -> {
-                Thread.currentThread().setUncaughtExceptionHandler(new UncaughtExceptionsHandler());
-                String url = String.format("/v1/mods/%s/files?gameVersion=%s", mod.id, v);
-                Map<?, ?> m;
-                try {
-                    m = GSON_PARSER.fromJson(response(url), Map.class);
-                } catch (Exception e) {
-                    latch.countDown();
-                    throw new RuntimeException(e);
-                }
-                if (m != null) {
-                    ArrayList<?> a = (ArrayList<?>) m.get("data");
-                    for (Object o : a) {
-                        CurseModFileModel model = GSON_PARSER.fromJson(GSON_PARSER.toJson(o), CurseModFileModel.class);
-                        if (model.downloadUrl == null) {
-                            model.downloadUrl = String.format("https://edge.forgecdn.net/files/%d/%d/%s", model.id / 1000, model.id % 1000, model.fileName);
-                        }
-                        re.add(model);
+        versions_list.forEach(v -> ThreadBuilder.createBuilder()
+                .runTarget(() -> {
+                    String url = String.format("/v1/mods/%s/files?gameVersion=%s", mod.id, v);
+                    Map<?, ?> m;
+                    try {
+                        m = GSON_PARSER.fromJson(response(url), Map.class);
+                    } catch (Exception e) {
+                        latch.countDown();
+                        throw new RuntimeException(e);
                     }
-                }
-                latch.countDown();
-            }).start();
-        }
+                    if (m != null) {
+                        ArrayList<?> a = (ArrayList<?>) m.get("data");
+                        for (Object o : a) {
+                            CurseModFileModel model = GSON_PARSER.fromJson(GSON_PARSER.toJson(o), CurseModFileModel.class);
+                            if (model.downloadUrl == null) {
+                                model.downloadUrl = String.format("https://edge.forgecdn.net/files/%d/%d/%s", model.id / 1000, model.id % 1000, model.fileName);
+                            }
+                            re.add(model);
+                        }
+                    }
+                    latch.countDown();
+                })
+                .handler(new UncaughtExceptionsHandler())
+                .name("Curseforge mod file process thread")
+                .buildAndRun());
+
         try {
             latch.await();
         } catch (InterruptedException ignored) {
@@ -171,12 +176,10 @@ public final class CurseAPI {
             throw new IOException();
         }
         Map<String, Vector<CurseModFileModel>> result = new HashMap<>();
-        for (CurseModFileModel model : re) {
-            for (String ver : RemoteModFile.getModLoaders(model.gameVersions, false)) {
-                if (result.get(ver) == null) result.put(ver, new Vector<>());
-                else result.get(ver).add(model);
-            }
-        }
+        re.forEach(model -> RemoteModFile.getModLoaders(model.gameVersions, false).forEach(ver -> {
+            if (result.get(ver) == null) result.put(ver, new Vector<>());
+            else result.get(ver).add(model);
+        }));
         return result;
     }
 

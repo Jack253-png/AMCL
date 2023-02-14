@@ -16,6 +16,7 @@ import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -73,7 +74,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
             File f = chooser.showOpenDialog(stage);
             LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.skin.upload"));
             dialog.Create();
-            new Thread(() -> {
+            ThreadBuilder.createBuilder().runTarget(() -> {
                 try {
                     user.upload(base_model.cont.getSelectedItem() == 0 ? MicrosoftUser.SkinType.STEVE : MicrosoftUser.SkinType.ALEX, f);
                     FXUtils.Platform.runLater(dialog::close);
@@ -81,7 +82,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
                     FXUtils.Platform.runLater(dialog::close);
                     SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.skin.upload.fail"));
                 }
-            }).start();
+            }).buildAndRun();
         });
 
         reset = new JFXButton(Launcher.languageManager.get("ui.userselectpage.msaccount.skin.reset"));
@@ -90,7 +91,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
             LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.msaccount.skin.resetting"));
             dialog.show();
 
-            new Thread(() -> {
+            ThreadBuilder.createBuilder().runTarget(() -> {
                 try {
                     user.resetSkin();
                     FXUtils.Platform.runLater(dialog::close);
@@ -98,7 +99,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
                     FXUtils.Platform.runLater(dialog::close);
                     SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.skin.reset.fail"));
                 }
-            }).start();
+            }).buildAndRun();
         });
 
         base_model = new RadioButtonGroupItem(Launcher.languageManager.get("ui.userselectpage.custom.model"), 400, Orientation.HORIZONTAL, "Steve", "Alex");
@@ -111,7 +112,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
             LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.msaccount.cape.update"));
             dialog.show();
 
-            new Thread(() -> {
+            ThreadBuilder.createBuilder().runTarget(() -> {
                 try {
                     if (model == null || model.id == null) {
                         user.hideCape();
@@ -123,7 +124,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
                     FXUtils.Platform.runLater(dialog::close);
                     SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.skin.cape.fail"));
                 }
-            }).start();
+            }).buildAndRun();
         });
 
         changeName = new StringItem(Launcher.languageManager.get("ui.userselectpage.nameItem"), 400 - 20);
@@ -134,7 +135,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
         vaildateName.setOnAction(event -> {
             LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.msaccount.name.vaildate"));
             dialog.show();
-            new Thread(() -> {
+            ThreadBuilder.createBuilder().runTarget(() -> {
                 try {
                     MicrosoftUser.NameState state = user.nameAvailable(changeName.cont.getText());
                     SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.skin.name.vaildate.state.title"), Launcher.languageManager.get("ui.userselectpage.skin.name.vaildate.state." + state.name()), "");
@@ -143,7 +144,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
                     FXUtils.Platform.runLater(dialog::close);
                     SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.skin.name.vaildate.fail"));
                 }
-            }).start();
+            }).buildAndRun();
         });
 
         updateName = new JFXButton();
@@ -152,7 +153,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
             LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.msaccount.name.updating"));
             dialog.show();
 
-            new Thread(() -> {
+            ThreadBuilder.createBuilder().runTarget(() -> {
                 try {
                     MicrosoftUser.NameChangeCheckModel model = user.checkName();
                     if (!model.nameChangeAllowed) {
@@ -178,7 +179,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
                     FXUtils.Platform.runLater(dialog::close);
                     SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.msaccount.name.update.fail"));
                 }
-            }).start();
+            }).buildAndRun();
         });
 
         content = new VBox(changeName, new HBox(vaildateName, updateName), base_model, new HBox(upload, reset), capeSelect);
@@ -198,7 +199,7 @@ public class MicrosoftModifyDialog extends AbstractDialog {
     public void show() {
         LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.msaccount.cape.fetch"));
         dialog.Create();
-        new Thread(() -> {
+        ThreadBuilder.createBuilder().runTarget(() -> {
             try {
                 capes = user.getCapes();
                 FXUtils.Platform.runLater(() -> {
@@ -226,6 +227,6 @@ public class MicrosoftModifyDialog extends AbstractDialog {
                 FXUtils.Platform.runLater(dialog::close);
                 SimpleDialogCreater.exception(e);
             }
-        }).start();
+        }).buildAndRun();
     }
 }

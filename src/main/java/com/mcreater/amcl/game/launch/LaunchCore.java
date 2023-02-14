@@ -33,6 +33,7 @@ import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.JsonUtils;
 import com.mcreater.amcl.util.StringUtils;
 import com.mcreater.amcl.util.VersionInfo;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.java.JVMArgs;
 import com.mcreater.amcl.util.net.FasterUrls;
 import com.mcreater.amcl.util.system.MemoryReader;
@@ -472,32 +473,38 @@ public class LaunchCore {
             } catch (IOException e) {
                 throw new ProcessException(e);
             }
-            new Thread(() -> {
-                while (EnumWindow.enumWindowEnabled() && process.isAlive()) {
-                    if (EnumWindow.getTaskPidContains(J8Utils.getProcessPid(process))) {
-                        logger.info("Window Showed");
-                        failedRunnable.run();
-                        break;
-                    }
-                }
-            }).start();
-            LocalYggdrasilServer finalServer = server;
-            new Thread(() -> {
-                while (true) {
-                    try {
-                        if (process != null) {
-                            exitCode = (long) process.exitValue();
-                        } else {
-                            exitCode = 1L;
+            ThreadBuilder.createBuilder()
+                    .runTarget(() -> {
+                        while (EnumWindow.enumWindowEnabled() && process.isAlive()) {
+                            if (EnumWindow.getTaskPidContains(J8Utils.getProcessPid(process))) {
+                                logger.info("Window Showed");
+                                failedRunnable.run();
+                                break;
+                            }
                         }
-                        MainPage.tryToRemoveLaunch(this);
-                        if (finalServer != null) finalServer.stop();
-                        Platform.runLater(() -> MainPage.check(this));
-                        break;
-                    } catch (IllegalThreadStateException ignored) {
-                    }
-                }
-            }).start();
+                    })
+                    .name("Window detect thread")
+                    .buildAndRun();
+            LocalYggdrasilServer finalServer = server;
+            ThreadBuilder.createBuilder()
+                    .runTarget(() -> {
+                        while (true) {
+                            try {
+                                if (process != null) {
+                                    exitCode = (long) process.exitValue();
+                                } else {
+                                    exitCode = 1L;
+                                }
+                                MainPage.tryToRemoveLaunch(this);
+                                if (finalServer != null) finalServer.stop();
+                                Platform.runLater(() -> MainPage.check(this));
+                                break;
+                            } catch (IllegalThreadStateException ignored) {
+                            }
+                        }
+                    })
+                    .name("Process exit detect thread")
+                    .buildAndRun();
             readProcessOutput(process);
         } catch (Exception e) {
             throw new ProcessException(e);
@@ -506,8 +513,8 @@ public class LaunchCore {
 
     private void readProcessOutput(final Process process) {
         if (process != null) {
-            new Thread(() -> read(process.getInputStream(), System.out)).start();
-            new Thread(() -> read(process.getErrorStream(), System.err)).start();
+            ThreadBuilder.createBuilder().runTarget(() -> read(process.getInputStream(), System.out)).buildAndRun();
+            ThreadBuilder.createBuilder().runTarget(() -> read(process.getErrorStream(), System.err)).buildAndRun();
         }
     }
 

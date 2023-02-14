@@ -20,6 +20,7 @@ import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.FileUtils.RemoveFileToTrash;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
@@ -178,12 +179,12 @@ public class VersionInfoPage extends AbstractMenuBarPage {
             ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.versioninfopage.deletemod.deleteing.title", modList.selectedItem.name.getText()));
             dialog.Create();
             dialog.setV(0, 50, modList.selectedItem.name.getText());
-            new Thread(() -> {
+            ThreadBuilder.createBuilder().runTarget(() -> {
                 String path = modList.selectedItem.path;
                 RemoveFileToTrash.remove(path);
                 Platform.runLater(dialog::close);
                 Platform.runLater(() -> refresh.getOnAction().handle(new ActionEvent()));
-            }).start();
+            }).buildAndRun();
         });
 
         modList.setOnAction(() -> {

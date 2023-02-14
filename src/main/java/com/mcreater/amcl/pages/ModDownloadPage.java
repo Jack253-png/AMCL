@@ -10,8 +10,8 @@ import com.mcreater.amcl.api.modApi.modrinth.ModrinthAPI;
 import com.mcreater.amcl.api.modApi.modrinth.mod.ModrinthModModel;
 import com.mcreater.amcl.api.modApi.modrinth.modFile.ModrinthModFileItemModel;
 import com.mcreater.amcl.controls.AdvancedScrollPane;
-import com.mcreater.amcl.controls.RemoteModFile;
 import com.mcreater.amcl.controls.RemoteMod;
+import com.mcreater.amcl.controls.RemoteModFile;
 import com.mcreater.amcl.download.GetVersionList;
 import com.mcreater.amcl.model.download.OriginalVersionModel;
 import com.mcreater.amcl.pages.dialogs.commons.LoadingDialog;
@@ -27,6 +27,7 @@ import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FXUtils.Platform;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
@@ -38,10 +39,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -131,7 +129,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                             ModrinthMultiFileDialog dialog1 = new ModrinthMultiFileDialog(f, Launcher.languageManager.get("ui.moddownloadpage.modrinth.multifile.title"));
                             Platform.runLater(dialog1::show);
 
-                            new Thread(() -> {
+                            ThreadBuilder.createBuilder().runTarget(() -> {
                                 if (files.size() > 1) {
                                     while (!selected.get()) {
                                         int index2 = dialog1.getIndex();
@@ -144,7 +142,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                                     selected.set(true);
                                 }
                                 Platform.runLater(dialog1::close);
-                            }).start();
+                            }).buildAndRun();
 
                             do {
                             } while (!selected.get());
@@ -156,7 +154,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                         }
                         AtomicInteger downloaded = new AtomicInteger();
                         for (DownloadTask task : tasks) {
-                            new Thread(() -> {
+                            ThreadBuilder.createBuilder().runTarget(() -> {
                                 while (true) {
                                     try {
                                         task.execute();
@@ -165,7 +163,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                                     } catch (IOException ignored) {
                                     }
                                 }
-                            }).start();
+                            }).buildAndRun();
                         }
                         do {
                             Thread.sleep(500);
@@ -188,7 +186,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
         getrc.setOnAction(event -> {
             LoadingDialog dialog2 = new LoadingDialog(Launcher.languageManager.get("ui.moddownloadpage.getrequire.process.name"));
             RequiredModDialog dialog = new RequiredModDialog(Launcher.languageManager.get("ui.moddownloadpage.getrequire.dialog.title"));
-            new Thread(() -> {
+            ThreadBuilder.createBuilder().runTarget(() -> {
                 try {
                     if (coreSelected) {
                         if (last != null) {
@@ -236,7 +234,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                 } catch (Exception e) {
                     SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.exceptions.mod.load"));
                 }
-            }).start();
+            }).buildAndRun();
         });
 
         HBox box = new HBox(install, getrc);

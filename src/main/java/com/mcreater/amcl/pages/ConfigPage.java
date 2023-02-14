@@ -12,12 +12,12 @@ import com.mcreater.amcl.lang.LanguageManager;
 import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.AbstractMenuBarPage;
 import com.mcreater.amcl.pages.interfaces.Fonts;
-import com.mcreater.amcl.patcher.ClassPathInjector;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.J8Utils;
 import com.mcreater.amcl.util.Timer;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import com.mcreater.amcl.util.java.JavaInfoGetter;
 import com.mcreater.amcl.util.net.FasterUrls;
@@ -35,7 +35,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Vector;
+import java.util.stream.Collectors;
 
 import static com.mcreater.amcl.Launcher.ADDMODSPAGE;
 import static com.mcreater.amcl.Launcher.CONFIGPAGE;
@@ -119,7 +119,7 @@ public class ConfigPage extends AbstractMenuBarPage {
 
         java_get = new JFXButton();
         java_get.setFont(Fonts.t_f);
-        java_get.setOnAction(event -> new Thread(() -> {
+        java_get.setOnAction(event -> ThreadBuilder.createBuilder().runTarget(() -> {
             java_get.setDisable(true);
             if (Launcher.configReader.configModel.selected_java.contains(Launcher.configReader.configModel.selected_java_index) && new File(Launcher.configReader.configModel.selected_java_index).exists()) {
                 JavaInfoGetter.JavaVersionInfo info = JavaInfoGetter.get(new File(Launcher.configReader.configModel.selected_java_index));
@@ -129,28 +129,25 @@ public class ConfigPage extends AbstractMenuBarPage {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.configpage.select_java.title"), Launcher.languageManager.get("ui.configpage.select_java.Headercontent"), "");
             }
             java_get.setDisable(false);
-        }).start());
+        }).buildAndRun());
 
         java_find = new JFXButton();
         java_find.setFont(Fonts.t_f);
         java_find.setOnAction(event -> {
             java_find.setDisable(true);
-            new Thread(() -> {
+            ThreadBuilder.createBuilder().runTarget(() -> {
                 try {
-                    List<File> f = FileUtils.getJavaTotal();
-                    Vector<String> fina = new Vector<>();
-                    f.forEach(file -> {
-                        if (!Launcher.configReader.configModel.selected_java.contains(file.getAbsolutePath())) {
-                            fina.add(file.getAbsolutePath());
-                        }
-                    });
+                    List<String> fina = FileUtils.getJavaTotal().stream()
+                            .map(File::getAbsolutePath)
+                            .filter(absolutePath -> !Launcher.configReader.configModel.selected_java.contains(absolutePath))
+                            .collect(Collectors.toList());
                     Launcher.configReader.configModel.selected_java.addAll(fina);
                     FXUtils.Platform.runLater(this::load_java_list);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 java_find.setDisable(false);
-            }).start();
+            }).buildAndRun();
         });
 
         item4 = new MuiltButtonListItem<>("", this.width / 4 * 3 - 10);
@@ -231,7 +228,7 @@ public class ConfigPage extends AbstractMenuBarPage {
         VBox vo = new VBox(ltitle, p, total, used, jvmmem);
         vo.setSpacing(10);
 
-        new Thread(() -> {
+        ThreadBuilder.createBuilder().runTarget(() -> {
             while (true) {
                 double targetMCMem = item2.cont.getValue();
 
@@ -255,7 +252,7 @@ public class ConfigPage extends AbstractMenuBarPage {
                 Platform.runLater(() -> jvmmem.setText(targetMcMemS));
                 Sleeper.sleep(10);
             }
-        }).start();
+        }).buildAndRun();
 
         p.getChildren().addAll(bar1, bar2);
 

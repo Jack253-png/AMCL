@@ -15,6 +15,7 @@ import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.os.SystemActions;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -40,13 +41,13 @@ public class LocalModInfoDialog extends AbstractDialog {
     public LocalModInfoDialog(LocalMod c, boolean trans) {
         LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.downloadaddonsselectpage.loading.title"));
         dialog.show();
-        new Thread(() -> {
+        ThreadBuilder.createBuilder().runTarget(() -> {
             synchronized (lock) {
                 model = ModTransitions.MODS.translate(c.model.modid, c.model.name);
                 FXUtils.Platform.runLater(this::loadLinks);
                 FXUtils.Platform.runLater(dialog::close);
             }
-        }).start();
+        }).buildAndRun();
         this.enableTranslate = trans;
 
         JFXDialogLayout layout = new JFXDialogLayout();
@@ -74,7 +75,7 @@ public class LocalModInfoDialog extends AbstractDialog {
         icon.setFitWidth(50);
         icon.setFitHeight(50);
 
-        new Thread(() -> {
+        ThreadBuilder.createBuilder().runTarget(() -> {
             if (model.icon != null) {
                 try {
                     Image image = new Image(FileUtils.ZipUtil.readBinaryFileInZip(model.path, model.icon));
@@ -83,7 +84,7 @@ public class LocalModInfoDialog extends AbstractDialog {
                     e.printStackTrace();
                 }
             }
-        }).start();
+        }).buildAndRun();
 
         links = new ListButtonItem<>(Launcher.languageManager.get("ui.versioninfopage.openlink"), 300);
         links.title.setOnAction(event -> {

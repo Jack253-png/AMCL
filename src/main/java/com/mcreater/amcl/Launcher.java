@@ -200,10 +200,7 @@ public class Launcher {
             topWrapper.setScaleX(0.8);
             topWrapper.setScaleY(0.8);
             stage.show();
-            playStageAnimation(false, () -> {
-            });
-
-            StableMain.splashScreen.setVisible(false);
+            playStageAnimation(false, () -> {}, () -> StableMain.splashScreen.setVisible(false));
         } else {
             SimpleDialog dialog = new SimpleDialog(
                     StableMain.manager.get("ui.system.check.title"),
@@ -216,7 +213,8 @@ public class Launcher {
         }
     }
 
-    private static void playStageAnimation(boolean isExit, Runnable finisher) {
+    private static void playStageAnimation(boolean isExit, Runnable finisher, Runnable start) {
+        start.run();
         if (isExit) {
             onStageShow.stop();
             onStageExit.setOnFinished(event -> finisher.run());
@@ -269,7 +267,7 @@ public class Launcher {
             stage.close();
             Platform.exit();
             System.exit(0);
-        }));
+        }, () -> {}));
         Rectangle rect = new Rectangle(t_size / 2.5, t_size / 15, Color.BLACK);
         rect.fillProperty().bind(ThemeManager.createPaintBinding());
 

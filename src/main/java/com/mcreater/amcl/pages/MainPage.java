@@ -13,6 +13,7 @@ import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils;
 import com.mcreater.amcl.util.JsonUtils;
 import com.mcreater.amcl.util.VersionInfo;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -64,14 +65,14 @@ public class MainPage extends AbstractAnimationPage {
     public static Pane container;
 
     public static void tryToRemoveLaunch(LaunchCore launchCore) {
-        new Thread(() -> {
+        ThreadBuilder.createBuilder().runTarget(() -> {
             while (true) {
                 if (!clearingThread.get()) {
                     game.remove(launchCore);
                     break;
                 }
             }
-        }).start();
+        }).buildAndRun();
     }
 
     public void stopAllProcess() {

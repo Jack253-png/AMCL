@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import javafx.animation.PathTransition;
 import javafx.application.Platform;
 import javafx.event.Event;
@@ -114,7 +115,7 @@ public class PopupMessage {
                 contentHeight = MESSAGE_BASE_HEIGHT;
             }
         });
-        new Thread(() -> {
+        ThreadBuilder.createBuilder().runTarget(() -> {
             Point2D p;
             do{
                 p = circle.localToScene(0, 0);
@@ -123,7 +124,7 @@ public class PopupMessage {
             Platform.runLater(() -> {
                 circle.setText(text);
             });
-        }).start();
+        }).buildAndRun();
         return circle;
     }
 }

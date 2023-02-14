@@ -33,6 +33,7 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FileUtils.LinkPath;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -226,7 +227,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
 
             if (!(forge || optifine || fabric || fabricapi || optifabric || quilt)) {
                 TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
-                new Thread(() -> {
+                ThreadBuilder.createBuilder().runTarget(() -> {
                     Platform.runLater(dialog::Create);
                     try {
                         OriginalDownload.download(
@@ -245,11 +246,11 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                     Platform.runLater(() -> install.setDisable(false));
                     dialog.setAll(100);
                     Platform.runLater(dialog::close);
-                }).start();
+                }).buildAndRun();
             } else {
                 if (forge) {
                     TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
-                    new Thread(() -> {
+                    ThreadBuilder.createBuilder().runTarget(() -> {
                         Platform.runLater(dialog::Create);
                         if (!optifine) {
                             try {
@@ -297,11 +298,11 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         Platform.runLater(() -> install.setDisable(false));
                         dialog.setAll(100);
                         Platform.runLater(dialog::close);
-                    }).start();
+                    }).buildAndRun();
                 } else if (fabric) {
                     TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                     String finalModDir1 = modDir;
-                    new Thread(() -> {
+                    ThreadBuilder.createBuilder().runTarget(() -> {
                         Platform.runLater(dialog::Create);
                         try {
                             FabricDownload.download(
@@ -359,11 +360,11 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         Platform.runLater(() -> install.setDisable(false));
                         dialog.setAll(100);
                         Platform.runLater(dialog::close);
-                    }).start();
+                    }).buildAndRun();
                 } else if (quilt) {
                     TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
                     String finalModDir2 = modDir;
-                    new Thread(() -> {
+                    ThreadBuilder.createBuilder().runTarget(() -> {
                         Platform.runLater(dialog::Create);
                         try {
                             QuiltDownload.download(
@@ -398,10 +399,10 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         Platform.runLater(() -> install.setDisable(false));
                         dialog.setAll(100);
                         Platform.runLater(dialog::close);
-                    }).start();
+                    }).buildAndRun();
                 } else if (optifine) {
                     TaskManager.setUpdater((value, mess) -> dialog.setV(0, value, mess));
-                    new Thread(() -> {
+                    ThreadBuilder.createBuilder().runTarget(() -> {
                         Platform.runLater(dialog::Create);
                         try {
                             OptifineDownload.download(
@@ -424,7 +425,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                         Platform.runLater(() -> install.setDisable(false));
                         dialog.setAll(100);
                         Platform.runLater(dialog::close);
-                    }).start();
+                    }).buildAndRun();
                 }
                 install.setDisable(false);
             }
@@ -481,7 +482,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
         id.setText(model.id);
         LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.downloadaddonsselectpage.loading.title"));
         dialog.Create();
-        new Thread(() -> {
+        ThreadBuilder.createBuilder().runTarget(() -> {
             try {
                 loadVers();
             } catch (Exception e) {
@@ -490,7 +491,7 @@ public class DownloadAddonSelectPage extends AbstractAnimationPage {
                 Launcher.setPage(Launcher.DOWNLOADMCPAGE, this);
             }
             Platform.runLater(dialog::close);
-        }).start();
+        }).buildAndRun();
     }
 
     public void loadVers() throws Exception {
