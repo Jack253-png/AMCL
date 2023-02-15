@@ -4,6 +4,7 @@ import com.jfoenix.utils.JFXSmoothScroll;
 import com.mcreater.amcl.pages.interfaces.SettingsAnimationPage;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -38,13 +39,16 @@ public class AdvancedScrollPane extends ScrollPane implements SettingsAnimationP
 
         if (neededWidth) {
             FXUtils.ControlSize.setWidth(content, width - 30);
-            lThread = new Thread(() -> {
-                while (true) {
-                    setHvalue(0);
-                    Sleeper.sleep(30);
-                }
-            });
-            lThread.start();
+
+
+            lThread = ThreadBuilder.createBuilder()
+                    .runTarget(() -> {
+                        while (true) {
+                            setHvalue(0);
+                            Sleeper.sleep(30);
+                        }
+                    })
+                    .buildAndRun();
         }
         this.width = width;
         this.height = height;

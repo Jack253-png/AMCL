@@ -85,7 +85,7 @@ public class MainPage extends AbstractAnimationPage {
         super(width, height);
         versionLoadDialog = null;
 
-        Runtime.getRuntime().addShutdownHook(new Thread(this::stopAllProcess));
+        Runtime.getRuntime().addShutdownHook(ThreadBuilder.createBuilder().runTarget(this::stopAllProcess).build());
 
         game = FXCollections.observableArrayList();
 
@@ -104,7 +104,7 @@ public class MainPage extends AbstractAnimationPage {
 
                 launchDialog.layout.setActions(stopAction);
                 AtomicReference<LaunchCore> core = new AtomicReference<>(null);
-                Thread la = new Thread(() -> {
+                Thread la = ThreadBuilder.createBuilder().runTarget(() -> {
                     try {
                         if (new File(Launcher.configReader.configModel.selected_java_index).exists()) {
                             if (UserSelectPage.user.get() != null) {
@@ -143,7 +143,7 @@ public class MainPage extends AbstractAnimationPage {
                         logger.error("failed to launch", e);
                         SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.mainpage.launch.launchFailed.name"));
                     }
-                });
+                }).build();
                 stopAction.setOnAction(event1 -> {
                     la.stop();
                     if (core.get() != null) core.get().stop_process();
@@ -286,14 +286,15 @@ public class MainPage extends AbstractAnimationPage {
 
         this.setAlignment(Pos.TOP_LEFT);
 
-        new Thread("Version detect thread") {
-            public void run() {
-                while (true) {
-                    flush();
-                    Sleeper.sleep(100);
-                }
-            }
-        }.start();
+        ThreadBuilder.createBuilder()
+                .runTarget(() -> {
+                    while (true) {
+                        flush();
+                        Sleeper.sleep(100);
+                    }
+                })
+                .name("Version detect thread")
+                .buildAndRun();
         bindedPageproperty().get().add(MAINPAGE);
     }
 

@@ -5,6 +5,7 @@ import com.mcreater.amcl.StableMain;
 import com.mcreater.amcl.lang.AbstractLanguageManager;
 import com.mcreater.amcl.tasks.Task;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -76,20 +77,20 @@ public abstract class TaskManager {
 
             updater.accept(0, String.format(lang.get(key), 0, tasks.size()));
             for (Task t : tasks) {
-                new Thread(String.format("Task %s", t.toString())) {
-                    public void run() {
-                        while (true) {
-                            try {
-                                t.execute();
-                                latch.countDown();
-                                break;
-                            } catch (Throwable e1) {
-//                                e1.printStackTrace();
+                ThreadBuilder.createBuilder()
+                        .runTarget(() -> {
+                            while (true) {
+                                try {
+                                    t.execute();
+                                    latch.countDown();
+                                    break;
+                                } catch (Throwable e1) {
+                                    e1.printStackTrace();
+                                }
                             }
-                        }
-
-                    }
-                }.start();
+                        })
+                        .name(String.format("Task %s", t.toString()))
+                        .buildAndRun();
             }
             long downloaded;
             long all = tasks.size();

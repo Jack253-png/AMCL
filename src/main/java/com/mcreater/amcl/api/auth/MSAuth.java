@@ -153,32 +153,24 @@ public class MSAuth implements AbstractAuth<MicrosoftUser> {
                 throw new IOException("timed out");
             }
 
-            try {
-                TokenResponse response = HttpClient.getInstance(TOKEN_URL)
-                        .open()
-                        .method(HttpClient.Method.POST)
-                        .header("Content-Type", "application/x-www-form-urlencoded")
-                        .ignoreHttpCode(true)
-                        .write(J8Utils.createMap(
-                                "grant_type", "urn:ietf:params:oauth:grant-type:device_code",
-                                "client_id", CLIENT_ID,
-                                "code", model.device_code
-                        ))
-                        .toJson(TokenResponse.class);
-                if ("authorization_pending".equals(response.error)) continue;
-                else if ("expired_token".equals(response.error)) throw new IOException("Token expired");
-                else if ("slow_down".equals(response.error)) {
-                    interval += 5;
-                    continue;
-                }
-                try {
-                    return getUserFromToken(new ImmutablePair<>("d=" + response.access_token, response.refresh_token));
-                } catch (Exception e) {
-                    throw e;
-                }
-            } catch (Exception ignored) {
-
+            TokenResponse response = HttpClient.getInstance(TOKEN_URL)
+                    .open()
+                    .method(HttpClient.Method.POST)
+                    .header("Content-Type", "application/x-www-form-urlencoded")
+                    .ignoreHttpCode(true)
+                    .write(J8Utils.createMap(
+                            "grant_type", "urn:ietf:params:oauth:grant-type:device_code",
+                            "client_id", CLIENT_ID,
+                            "code", model.device_code
+                    ))
+                    .toJson(TokenResponse.class);
+            if ("authorization_pending".equals(response.error)) continue;
+            else if ("expired_token".equals(response.error)) throw new IOException("Token expired");
+            else if ("slow_down".equals(response.error)) {
+                interval += 5;
+                continue;
             }
+            return getUserFromToken(new ImmutablePair<>("d=" + response.access_token, response.refresh_token));
         }
     }
 
@@ -192,159 +184,135 @@ public class MSAuth implements AbstractAuth<MicrosoftUser> {
     private MSAuth() {
     }
 
-    public ImmutablePair<String, String> acquireAccessToken(String authcode) {
-        try {
-            DeviceCodeParsedModel ob = HttpClient.getInstance(AUTH_TOKEN_URL, J8Utils.createMap(
-                            "client_id", "00000000402b5328",
-                            "code", authcode,
-                            "grant_type", "authorization_code",
-                            "redirect_uri", "https://login.live.com/oauth20_desktop.srf",
-                            "scope", "service::user.auth.xboxlive.com::MBI_SSL"
-                    ))
-                    .open()
-                    .timeout(500)
-                    .header("Content-Type", "application/x-www-form-urlencoded")
-                    .toJson(DeviceCodeParsedModel.class);
-            return new ImmutablePair<>(ob.access_token, ob.refresh_token);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public ImmutablePair<String, String> acquireAccessToken(String authcode) throws Exception {
+        DeviceCodeParsedModel ob = HttpClient.getInstance(AUTH_TOKEN_URL, J8Utils.createMap(
+                        "client_id", "00000000402b5328",
+                        "code", authcode,
+                        "grant_type", "authorization_code",
+                        "redirect_uri", "https://login.live.com/oauth20_desktop.srf",
+                        "scope", "service::user.auth.xboxlive.com::MBI_SSL"
+                ))
+                .open()
+                .timeout(500)
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .toJson(DeviceCodeParsedModel.class);
+        return new ImmutablePair<>(ob.access_token, ob.refresh_token);
     }
 
     // first : Token
     // second : uhs
-    public ImmutablePair<String, String> acquireXBLToken(String accessToken) {
-        try {
-            XBLLoginModel ob = HttpClient.getInstance(XBL_AUTH_URL)
-                    .open()
-                    .method(HttpClient.Method.POST)
-                    .header("Content-Type", "application/json")
-                    .writeJson(J8Utils.createMap(
-                            "Properties", J8Utils.createMap(
-                                    "AuthMethod", "RPS",
-                                    "SiteName", "user.auth.xboxlive.com",
-                                    "RpsTicket", accessToken
-                            ),
-                            "RelyingParty", "http://auth.xboxlive.com",
-                            "TokenType", "JWT"
-                    ))
-                    .toJson(XBLLoginModel.class);
+    public ImmutablePair<String, String> acquireXBLToken(String accessToken) throws Exception {
+        XBLLoginModel ob = HttpClient.getInstance(XBL_AUTH_URL)
+                .open()
+                .method(HttpClient.Method.POST)
+                .header("Content-Type", "application/json")
+                .writeJson(J8Utils.createMap(
+                        "Properties", J8Utils.createMap(
+                                "AuthMethod", "RPS",
+                                "SiteName", "user.auth.xboxlive.com",
+                                "RpsTicket", accessToken
+                        ),
+                        "RelyingParty", "http://auth.xboxlive.com",
+                        "TokenType", "JWT"
+                ))
+                .toJson(XBLLoginModel.class);
 
-            if (ob.DisplayClaims.xui
-                    .stream()
-                    .map(userHashModel -> userHashModel.uhs)
-                    .filter(Objects::nonNull)
-                    .count() == 0) throw new IOException("User hash not found.");
+        if (ob.DisplayClaims.xui
+                .stream()
+                .map(userHashModel -> userHashModel.uhs)
+                .filter(Objects::nonNull)
+                .count() == 0) throw new IOException("User hash not found.");
 
-            Optional<String> ush = ob.DisplayClaims.xui
-                    .stream()
-                    .map(userHashModel -> userHashModel.uhs)
-                    .filter(Objects::nonNull)
-                    .findFirst();
+        Optional<String> ush = ob.DisplayClaims.xui
+                .stream()
+                .map(userHashModel -> userHashModel.uhs)
+                .filter(Objects::nonNull)
+                .findFirst();
 
-            if (ush.isPresent()) return new ImmutablePair<>(ob.Token, ush.get());
-            else throw new IOException("User hash null");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (ush.isPresent()) return new ImmutablePair<>(ob.Token, ush.get());
+        else throw new IOException("User hash null");
+    }
+
+    public ImmutablePair<String, String> acquireXsts(String xblToken) throws Exception {
+        XBLLoginModel ob = HttpClient.getInstance(XSTS_AUTH_URL)
+                .open()
+                .method(HttpClient.Method.POST)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .writeJson(J8Utils.createMap(
+                        "Properties", J8Utils.createMap(
+                                "SandboxId", "RETAIL",
+                                "UserTokens", J8Utils.createList(xblToken)
+                        ),
+                        "RelyingParty", "rp://api.minecraftservices.com/",
+                        "TokenType", "JWT"
+                ))
+                .toJson(XBLLoginModel.class);
+
+        if (ob.DisplayClaims.xui
+                .stream()
+                .map(userHashModel -> userHashModel.uhs)
+                .filter(Objects::nonNull)
+                .count() == 0) throw new IOException("User hash not found.");
+
+        Optional<String> ush = ob.DisplayClaims.xui
+                .stream()
+                .map(userHashModel -> userHashModel.uhs)
+                .filter(Objects::nonNull)
+                .findFirst();
+
+        if (ush.isPresent()) return new ImmutablePair<>(ob.Token, ush.get());
+        else throw new IOException("User hash null");
+    }
+
+    public ImmutablePair<String, ImmutablePair<String, String>> acquireMinecraftToken(String xblUhs, String xblXsts, BiConsumer<Integer, String> updater) throws Exception {
+        MinecraftLoginModel ob = HttpClient.getInstance(MC_LOGIN_URL)
+                .open()
+                .method(HttpClient.Method.POST)
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .writeJson(J8Utils.createMap(
+                        "identityToken", "XBL3.0 x=" + xblUhs + ";" + xblXsts
+                ))
+                .toJson(MinecraftLoginModel.class);
+
+        String accessToken = ob.access_token;
+        McProfileModel contents = checkMcProfile(accessToken);
+        updater.accept(85, Launcher.languageManager.get("ui.msauth._05_1"));
+        if (contents.checkProfile() && checkMcStore(accessToken)) {
+            return new ImmutablePair<>(accessToken, new ImmutablePair<>(contents.name, contents.id));
+        } else {
+            throw new IOException("This user didn't had minecraft");
         }
     }
 
-    public ImmutablePair<String, String> acquireXsts(String xblToken) {
-        try {
-            XBLLoginModel ob = HttpClient.getInstance(XSTS_AUTH_URL)
-                    .open()
-                    .method(HttpClient.Method.POST)
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .writeJson(J8Utils.createMap(
-                            "Properties", J8Utils.createMap(
-                                    "SandboxId", "RETAIL",
-                                    "UserTokens", J8Utils.createList(xblToken)
-                            ),
-                            "RelyingParty", "rp://api.minecraftservices.com/",
-                            "TokenType", "JWT"
-                    ))
-                    .toJson(XBLLoginModel.class);
+    public boolean checkMcStore(String mcAccessToken) throws Exception {
+        MinecraftStoreModel ob = HttpClient.getInstance(MC_STORE_URL)
+                .open()
+                .header("Authorization", String.format("Bearer %s", mcAccessToken))
+                .toJson(MinecraftStoreModel.class);
 
-            if (ob.DisplayClaims.xui
-                    .stream()
-                    .map(userHashModel -> userHashModel.uhs)
-                    .filter(Objects::nonNull)
-                    .count() == 0) throw new IOException("User hash not found.");
-
-            Optional<String> ush = ob.DisplayClaims.xui
-                    .stream()
-                    .map(userHashModel -> userHashModel.uhs)
-                    .filter(Objects::nonNull)
-                    .findFirst();
-
-            if (ush.isPresent()) return new ImmutablePair<>(ob.Token, ush.get());
-            else throw new IOException("User hash null");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return ob.items.stream()
+                .map(productItemModel -> productItemModel.name)
+                .filter(s -> "game_minecraft".equals(s) || "product_minecraft".equals(s))
+                .count() >= 2;
     }
 
-    public ImmutablePair<String, ImmutablePair<String, String>> acquireMinecraftToken(String xblUhs, String xblXsts, BiConsumer<Integer, String> updater) {
-        try {
-            MinecraftLoginModel ob = HttpClient.getInstance(MC_LOGIN_URL)
-                    .open()
-                    .method(HttpClient.Method.POST)
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .writeJson(J8Utils.createMap(
-                            "identityToken", "XBL3.0 x=" + xblUhs + ";" + xblXsts
-                    ))
-                    .toJson(MinecraftLoginModel.class);
-
-            String accessToken = ob.access_token;
-            McProfileModel contents = checkMcProfile(accessToken);
-            updater.accept(85, Launcher.languageManager.get("ui.msauth._05_1"));
-            if (contents.checkProfile() && checkMcStore(accessToken)) {
-                return new ImmutablePair<>(accessToken, new ImmutablePair<>(contents.name, contents.id));
-            } else {
-                throw new IOException("This user didn't had minecraft");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public boolean checkMcStore(String mcAccessToken) {
-        try {
-            MinecraftStoreModel ob = HttpClient.getInstance(MC_STORE_URL)
-                    .open()
-                    .header("Authorization", String.format("Bearer %s", mcAccessToken))
-                    .toJson(MinecraftStoreModel.class);
-
-            return ob.items.stream()
-                    .map(productItemModel -> productItemModel.name)
-                    .filter(s -> "game_minecraft".equals(s) || "product_minecraft".equals(s))
-                    .count() >= 2;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public McProfileModel checkMcProfile(String mcAccessToken) {
-        try {
-            return HttpClient.getInstance(MC_PROFILE_URL)
-                    .open()
-                    .header("Authorization", String.format("Bearer %s", mcAccessToken))
-                    .toJson(McProfileModel.class);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public McProfileModel checkMcProfile(String mcAccessToken) throws Exception {
+        return HttpClient.getInstance(MC_PROFILE_URL)
+                .open()
+                .header("Authorization", String.format("Bearer %s", mcAccessToken))
+                .toJson(McProfileModel.class);
     }
 
 
-    public MicrosoftUser getUser(String... args) throws RuntimeException {
+    public MicrosoftUser getUser(String... args) throws Exception {
         updater.accept(20, Launcher.languageManager.get("ui.msauth._02"));
         ImmutablePair<String, String> token = acquireAccessToken(args[0]);
         return getUserFromToken(token);
     }
 
-    public MicrosoftUser getUserFromToken(ImmutablePair<String, String> token) throws RuntimeException {
+    public MicrosoftUser getUserFromToken(ImmutablePair<String, String> token) throws Exception {
         updater.accept(40, Launcher.languageManager.get("ui.msauth._03"));
         ImmutablePair<String, String> xbl_token = acquireXBLToken(token.getKey());
         updater.accept(60, Launcher.languageManager.get("ui.msauth._04"));

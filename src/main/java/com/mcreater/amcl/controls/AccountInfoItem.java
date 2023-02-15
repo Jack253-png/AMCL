@@ -10,6 +10,7 @@ import com.mcreater.amcl.controls.skin.SkinView;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -161,7 +162,7 @@ public class AccountInfoItem extends VBox {
     Thread cutSkinThread;
     public void cutSkinStart() {
         if (cutSkinThread != null) cutSkinThread.stop();
-        cutSkinThread = new Thread(this::cutSkin);
+        cutSkinThread = ThreadBuilder.createBuilder().runTarget(this::cutSkin).build();
         cutSkinThread.start();
     }
     public AccountInfoItem(AbstractUser user, double width) {

@@ -98,7 +98,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
             if (coreSelected) {
                 ProcessDialog dialog = new ProcessDialog(1, Launcher.languageManager.get("ui.moddownloadpage.downloadingMods.title"));
                 dialog.setV(0, 5, Launcher.languageManager.get("ui.downloadmod._01"));
-                Thread t = new Thread(() -> {
+                ThreadBuilder.createBuilder().runTarget(() -> {
                     try {
                         dialog.Create();
                         dialog.setV(0, 7, Launcher.languageManager.get("ui.downloadmod._02"));
@@ -166,7 +166,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                             }).buildAndRun();
                         }
                         do {
-                            Thread.sleep(500);
+                            Sleeper.sleep(500);
                             double processTemp = (double) downloaded.get() / (double) tasks.size();
                             dialog.setV(0, (int) (10 + 90 * processTemp), Launcher.languageManager.get("ui.downloadmod._04", downloaded.get(), tasks.size()));
                         } while (downloaded.get() != tasks.size());
@@ -176,8 +176,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     } finally {
                         Platform.runLater(dialog::close);
                     }
-                });
-                t.start();
+                }).buildAndRun();
             } else {
                 SimpleDialogCreater.create(Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.title"), Launcher.languageManager.get("ui.moddownloadpage.coreNotSelected.content"), "");
             }
@@ -270,13 +269,10 @@ public class ModDownloadPage extends AbstractAnimationPage {
             install.setDisable(true);
             getrc.setDisable(true);
             do {
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException ignored) {
-                }
+                Sleeper.sleep(10);
             } while (this.v.getChildren().size() != 0);
 
-            loadThread = new Thread(() -> {
+            loadThread = ThreadBuilder.createBuilder().runTarget(() -> {
                 try {
                     Map<String, ? extends Vector<? extends AbstractModFileModel>> files;
                     if (model.isCurseMod()) {
@@ -344,8 +340,7 @@ public class ModDownloadPage extends AbstractAnimationPage {
                     });
                     e.printStackTrace();
                 }
-            });
-            loadThread.start();
+            }).buildAndRun();
         }
     }
 

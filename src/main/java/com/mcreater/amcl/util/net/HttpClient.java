@@ -1,5 +1,6 @@
 package com.mcreater.amcl.util.net;
 
+import com.mcreater.amcl.exceptions.RequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -48,7 +49,7 @@ public class HttpClient {
         finalUrl = new URL(u);
     }
 
-    public static String ofFormData1(Map<Object, Object> data) {
+    private static String ofFormData1(Map<Object, Object> data) {
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<Object, Object> entry : data.entrySet()) {
             if (builder.length() > 0) {
@@ -116,7 +117,8 @@ public class HttpClient {
                 }
             }
             if (!ignoreHttpCode)
-                throw new IOException(String.format("Server returned code %d with content %s", conn.getResponseCode(), builder));
+                throw new RequestException(String.format("Server returned code %d with content %s", conn.getResponseCode(), builder), e);
+            e.printStackTrace();
             return builder.toString();
         }
     }

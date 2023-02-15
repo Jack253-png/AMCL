@@ -4,6 +4,7 @@ import com.jfoenix.controls.JFXDialog;
 import com.mcreater.amcl.Launcher;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import com.mcreater.amcl.util.concurrent.Sleeper;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -57,27 +58,28 @@ public abstract class AbstractDialog extends JFXDialog {
             );
         });
         nowRadius.addListener((observable, oldValue, newValue) -> Launcher.wrapper.setEffect(new GaussianBlur(newValue.intValue())));
-        new Thread("Dialog blur calc thread") {
-            public void run() {
-                while (true) {
-                    if (nowRadius.getValue().intValue() != exceptedRadius.getValue().intValue()) {
-                        double now = nowRadius.get();
-                        nowRadius.set(now < exceptedRadius.get() ? now + blurRadius / 40 : now - blurRadius / 40);
-                    }
-                    try {
-                        dialogs.forEach(abstractDialog -> {
-                            if (abstractDialog.dialogNowRadius.getValue().intValue() != abstractDialog.dialogExceptedRadius.getValue().intValue()) {
-                                double now2 = abstractDialog.dialogNowRadius.get();
-                                abstractDialog.dialogNowRadius.set(now2 < abstractDialog.dialogExceptedRadius.get() ? now2 + blurRadius / 40 : now2 - blurRadius / 40);
-                            }
-                        });
-                    } catch (Exception ignored) {
+        ThreadBuilder.createBuilder()
+                .runTarget(() -> {
+                    while (true) {
+                        if (nowRadius.getValue().intValue() != exceptedRadius.getValue().intValue()) {
+                            double now = nowRadius.get();
+                            nowRadius.set(now < exceptedRadius.get() ? now + blurRadius / 40 : now - blurRadius / 40);
+                        }
+                        try {
+                            dialogs.forEach(abstractDialog -> {
+                                if (abstractDialog.dialogNowRadius.getValue().intValue() != abstractDialog.dialogExceptedRadius.getValue().intValue()) {
+                                    double now2 = abstractDialog.dialogNowRadius.get();
+                                    abstractDialog.dialogNowRadius.set(now2 < abstractDialog.dialogExceptedRadius.get() ? now2 + blurRadius / 40 : now2 - blurRadius / 40);
+                                }
+                            });
+                        } catch (Exception ignored) {
 
+                        }
+                        Sleeper.sleep(5);
                     }
-                    Sleeper.sleep(5);
-                }
-            }
-        }.start();
+                })
+                .name("Dialog blur calc thread")
+                .buildAndRun();
     }
 
     public void show() {

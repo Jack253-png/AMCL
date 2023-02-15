@@ -25,11 +25,9 @@ public class UpdateItem extends VBox {
         this.url.setFont(Fonts.t_f);
         copy = new JFXButton(Launcher.languageManager.get("ui.updateItem.copy.name"));
         copy.setFont(Fonts.t_f);
-        copy.setOnAction(event -> {
-            ThreadBuilder.createBuilder()
-                    .runTarget(() -> SystemActions.copyContent(this.url.getText()))
-                    .buildAndRun();
-        });
+        copy.setOnAction(event -> ThreadBuilder.createBuilder()
+                .runTarget(() -> SystemActions.copyContent(this.url.getText()))
+                .buildAndRun());
         this.getChildren().addAll(type, this.url, copy);
         BorderStroke bs = new BorderStroke(null,null, Color.BLACK,null, null,null, BorderStrokeStyle.SOLID,null,null, BorderWidths.DEFAULT,new Insets(2,2,2,2));
         this.setBorder(new Border(bs));

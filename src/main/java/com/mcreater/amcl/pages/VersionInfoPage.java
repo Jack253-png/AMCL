@@ -255,11 +255,10 @@ public class VersionInfoPage extends AbstractMenuBarPage {
 
     public void startLoadingMods(Runnable finish) {
         if (modLoadThread != null) modLoadThread.stop();
-        modLoadThread = new Thread(() -> {
+        modLoadThread = ThreadBuilder.createBuilder().runTarget(() -> {
             loadMods();
             finish.run();
-        });
-        modLoadThread.start();
+        }).buildAndRun();
     }
 
     public void loadMods() {

@@ -12,6 +12,7 @@ import com.mcreater.amcl.pages.dialogs.commons.SimpleDialogCreater;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
@@ -44,7 +45,7 @@ public class MicrosoftLoginDialog extends AbstractDialog {
         login.setFont(Fonts.t_f);
         login.setOnAction(event -> {
             login.setDisable(true);
-            loginThread = new Thread(() -> {
+            loginThread = ThreadBuilder.createBuilder().runTarget(() -> {
                 try {
                     MicrosoftUser user = login();
                     processor.accept(user);
@@ -53,8 +54,7 @@ public class MicrosoftLoginDialog extends AbstractDialog {
                     SimpleDialogCreater.exception(e);
                 }
                 login.setDisable(false);
-            });
-            loginThread.start();
+            }).buildAndRun();
         });
 
         Label label = new Label(title);

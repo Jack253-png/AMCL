@@ -16,6 +16,7 @@ import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.FXUtils.Platform;
 import com.mcreater.amcl.util.J8Utils;
+import com.mcreater.amcl.util.builders.ThreadBuilder;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -174,8 +175,7 @@ public class DownloadMcPage extends AbstractAnimationPage {
                 load.setDisable(false);
             });
         };
-        service = new Thread(r);
-        service.start();
+        service = ThreadBuilder.createBuilder().runTarget(r).buildAndRun();
     }
     public void setType(Parent b){
         setted = b;
