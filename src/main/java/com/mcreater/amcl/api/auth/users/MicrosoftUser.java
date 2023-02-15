@@ -12,6 +12,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -121,11 +122,11 @@ public class MicrosoftUser extends AbstractUser {
     }
 
     public void changeName(String name) throws Exception {
-        MSAuth.UserProfileModel model = HttpClient.getInstance(String.format(MSAuth.MC_NAME_CHANGE_URL, name))
+        HttpClient.getInstance(String.format(MSAuth.MC_NAME_CHANGE_URL, name))
                 .open()
                 .method(HttpClient.Method.PUT)
                 .header("Authorization", "Bearer " + accessToken)
-                .header("Content-Length", String.valueOf(name.length()))
+                .write(name.getBytes(StandardCharsets.UTF_8))
                 .toJson(MSAuth.UserProfileModel.class);
 
         username = name;
