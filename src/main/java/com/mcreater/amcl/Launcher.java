@@ -34,8 +34,12 @@ import com.mcreater.amcl.util.math.Fraction;
 import com.mcreater.amcl.util.svg.AbstractSVGIcons;
 import com.mcreater.amcl.util.svg.DefaultSVGIcons;
 import com.mcreater.amcl.util.svg.Icons;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -62,6 +66,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -295,9 +300,46 @@ public class Launcher {
         JFXButton about = new JFXButton();
         about.setPrefWidth(t_size / 2.5);
         about.setPrefHeight(t_size / 2.5);
-        about.setGraphic(getSVGManager().dotsVertical(ThemeManager.createPaintBinding(), barSize / 3 * 2, barSize / 3 * 2));
+        about.setGraphic(getSVGManager().informationOutline(ThemeManager.createPaintBinding(), barSize / 3 * 2, barSize / 3 * 2));
         about.setButtonType(JFXButton.ButtonType.RAISED);
         about.setOnAction(event -> new AboutDialog().Create());
+
+        JFXButton messages = new JFXButton();
+        messages.setPrefWidth(t_size / 2.5);
+        messages.setPrefHeight(t_size / 2.5);
+        messages.setGraphic(getSVGManager().bell(ThemeManager.createPaintBinding(), barSize / 3 * 2, barSize / 3 * 2));
+        messages.setButtonType(JFXButton.ButtonType.RAISED);
+        messages.setOnAction(event -> PopupMessage.showDialog());
+
+        DoubleProperty property = new SimpleDoubleProperty(1);
+        property.addListener((observable, oldValue, newValue) -> messages.setGraphic(getSVGManager().bell(Bindings.createObjectBinding(() -> transparent(ThemeManager.createPaintBinding().get(), newValue.doubleValue())), barSize / 3 * 2, barSize / 3 * 2)));
+
+        Timeline line = new Timeline(
+                new KeyFrame(
+                        Duration.ZERO,
+                        new KeyValue(
+                                property,
+                                1
+                        )
+                ),
+                new KeyFrame(
+                        Duration.millis(300),
+                        new KeyValue(
+                                property,
+                                0.5
+                        )
+                )
+        );
+        line.setCycleCount(Timeline.INDEFINITE);
+        line.setAutoReverse(true);
+
+        PopupMessage.addUnreadedListener((observable, oldValue, newValue) -> {
+            if (newValue) line.playFromStart();
+            else {
+                line.stop();
+                property.set(1);
+            }
+        });
 
         setTitle();
         FXUtils.ControlSize.setAll(t_size / 6 * 5, t_size / 6 * 5, about, back, min, close);
@@ -306,7 +348,7 @@ public class Launcher {
         b.setMinSize((double) width / 2, t_size);
         b.setMaxSize((double) width / 2, t_size);
         title.add(b, 0, 0, 1, 1);
-        HBox cl = new HBox(about, min, close);
+        HBox cl = new HBox(messages, about, min, close);
         cl.setAlignment(Pos.CENTER_RIGHT);
         cl.setMinSize((double) width / 2, t_size);
         cl.setMaxSize((double) width / 2, t_size);
