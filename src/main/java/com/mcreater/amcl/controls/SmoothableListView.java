@@ -3,30 +3,28 @@ package com.mcreater.amcl.controls;
 import com.jfoenix.controls.JFXButton;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.geometry.Bounds;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
+import java.util.Arrays;
 import java.util.Vector;
 
 public class SmoothableListView<T extends Region> extends VBox {
     public Vector<T> vecs = new Vector<>();
-    public Vector<JFXButton> bs = new Vector<>();
+    private final Vector<JFXButton> bs = new Vector<>();
     public AdvancedScrollPane page;
     public T selectedItem = null;
     public JFXButton selectedButton = null;
-    public ObjectProperty<Runnable> onActionProperty = new SimpleObjectProperty<>(() -> {
-    });
-    public ObjectProperty<Runnable> onReleasedProperty = new SimpleObjectProperty<>(() -> {
-    });
+    public ObjectProperty<Runnable> onActionProperty = new SimpleObjectProperty<>(() -> {});
+    public ObjectProperty<Runnable> onReleasedProperty = new SimpleObjectProperty<>(() -> {});
 
     public void select(int index) {
         try {
@@ -37,11 +35,11 @@ public class SmoothableListView<T extends Region> extends VBox {
 
     public SmoothableListView(double width, double height) {
         page = new AdvancedScrollPane(width, height, this, false);
+        page.setId("opc");
         this.setSpacing(5);
         ThemeManager.loadNodeAnimations(this);
 
         ThemeManager.applyNode(page, "SmoothableListView");
-        page.setStyle("-fx-background-color: transparent");
         FXUtils.ControlSize.setWidth(this, width - 15);
     }
 
@@ -72,12 +70,50 @@ public class SmoothableListView<T extends Region> extends VBox {
     }
 
     public void clear() {
-        vecs.forEach(node -> node.setOnMouseReleased(event -> {
-        }));
+        vecs.forEach(node -> node.setOnMouseReleased(event -> {}));
         vecs.clear();
         bs.clear();
         this.getChildren().clear();
         FXUtils.ControlSize.setWidth(this, page.width - 15);
         selectedItem = null;
+    }
+
+    public void removeItem(T item) {
+        if (vecs.contains(item)) {
+            item.setOnMouseReleased(event -> {});
+            int index = vecs.indexOf(item);
+            vecs.remove(item);
+
+            JFXButton tempButton = bs.get(index);
+            bs.remove(index);
+            FXUtils.ControlSize.setWidth(this, page.width - 15);
+            if (item == selectedItem) selectedItem = null;
+            if (tempButton == selectedButton) selectedButton = null;
+            Timeline timeline = new Timeline(
+                    new KeyFrame(
+                            Duration.ZERO,
+                            new KeyValue(
+                                    tempButton.opacityProperty(),
+                                    1
+                            )
+                    ),
+                    new KeyFrame(
+                            Duration.millis(350),
+                            new KeyValue(
+                                    tempButton.opacityProperty(),
+                                    0
+                            )
+                    )
+            );
+            timeline.setCycleCount(1);
+            timeline.setAutoReverse(false);
+            timeline.setOnFinished(event -> getChildren().remove(tempButton));
+            timeline.playFromStart();
+        }
+    }
+
+    @SafeVarargs
+    public final void removeItems(T... items) {
+        Arrays.stream(items).forEach(this::removeItem);
     }
 }
