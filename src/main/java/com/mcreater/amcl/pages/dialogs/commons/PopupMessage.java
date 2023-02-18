@@ -3,15 +3,12 @@ package com.mcreater.amcl.pages.dialogs.commons;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.mcreater.amcl.Launcher;
-import com.mcreater.amcl.controls.AdvancedScrollPane;
+import com.mcreater.amcl.controls.SmoothableListView;
 import com.mcreater.amcl.pages.dialogs.AbstractDialog;
 import com.mcreater.amcl.pages.interfaces.Fonts;
 import com.mcreater.amcl.theme.ThemeManager;
 import com.mcreater.amcl.util.FXUtils;
 import com.mcreater.amcl.util.StringUtils;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -29,24 +26,23 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.util.Duration;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.event.ChangeEvent;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 import static com.mcreater.amcl.util.FXUtils.ColorUtil.reverse;
 
 public class PopupMessage {
     public static final ObservableList<MessageItem> messages = FXCollections.observableArrayList();
     private static MessageDialog dialog;
-    private static BooleanProperty unreaded = new SimpleBooleanProperty(false);
+    private static final BooleanProperty unreaded = new SimpleBooleanProperty(false);
     static {
-        messages.addListener((ListChangeListener<MessageItem>) c -> unreaded.set(true));
+        messages.addListener((ListChangeListener<MessageItem>) c -> {
+            c.next();
+            if (c.getRemovedSize() == 0) unreaded.set(true);
+        });
     }
     public enum MessageTypes {
         LABEL,
@@ -83,12 +79,13 @@ public class PopupMessage {
         }
         Labeled finalL = l;
         Platform.runLater(() -> createMessageInternal(finalL));
-        ThemeManager.loadNodeAnimations(l);
+        l.setId("noW");
         return finalL;
     }
     private static Labeled createMessageInternal(Labeled node) {
         ThemeManager.addLis((observable, oldValue, newValue) -> node.setTextFill(reverse(newValue)));
-        messages.add(new MessageItem(java.util.Date.from(Instant.now(Clock.systemDefaultZone())), node));
+        MessageItem item = new MessageItem(java.util.Date.from(Instant.now(Clock.systemDefaultZone())), node);
+        messages.add(0, item);
         return node;
     }
 
@@ -118,6 +115,9 @@ public class PopupMessage {
         public JFXButton getDeleteButton() {
             return delete;
         }
+        public Labeled getLabeled() {
+            return content;
+        }
     }
 
     public static void showDialog() {
@@ -127,17 +127,17 @@ public class PopupMessage {
         dialog.Create();
     }
 
-    public static boolean getUnreaded() {
-        return unreaded.get();
-    }
-
     public static void addUnreadedListener(ChangeListener<Boolean> handler) {
         unreaded.addListener(handler);
     }
 
+    public static BooleanProperty unreadedProperty() {
+        return unreaded;
+    }
+
     private static class MessageDialog extends AbstractDialog {
         JFXButton close;
-        VBox messages;
+        SmoothableListView<MessageItem> messages;
         public MessageDialog() {
             JFXDialogLayout layout = new JFXDialogLayout();
 
@@ -147,43 +147,27 @@ public class PopupMessage {
             close.setFont(Fonts.t_f);
             close.setOnAction(event -> close());
 
-            messages = new VBox();
-            messages.getChildren().addAll(PopupMessage.messages);
+            messages = new SmoothableListView<>(350, 300);
+            PopupMessage.messages.forEach(messages::addItem);
             reloadMessages();
             PopupMessage.messages.addListener((ListChangeListener<MessageItem>) c -> {
                 c.next();
-                List<KeyValue> value = c.getRemoved().stream()
-                        .map((Function<MessageItem, KeyValue>) messageItem -> new KeyValue(messageItem.opacityProperty(), 1))
-                        .collect(Collectors.toList());
-
-                List<KeyValue> value2 = c.getRemoved().stream()
-                        .map((Function<MessageItem, KeyValue>) messageItem -> new KeyValue(messageItem.opacityProperty(), 0))
-                        .collect(Collectors.toList());
-
-                KeyFrame frame = new KeyFrame(Duration.ZERO, "", null, value);
-                KeyFrame frame1 = new KeyFrame(Duration.millis(350), "", null, value2);
-
-                Timeline timeline = new Timeline(frame, frame1);
-                timeline.setOnFinished(event -> {
-                    messages.getChildren().clear();
-                    messages.getChildren().addAll(PopupMessage.messages);
-                    reloadMessages();
-                });
-                timeline.playFromStart();
+                c.getRemoved().forEach(messages::removeItem);
+                c.getAddedSubList().forEach((Consumer<MessageItem>) item -> messages.addItem(item, 0));
+                reloadMessages();
             });
 
-            AdvancedScrollPane scrollPane = new AdvancedScrollPane(350, 300, messages, false);
-            scrollPane.setId("opc");
-
             ThemeManager.loadNodeAnimations(close, title);
-            layout.setBody(scrollPane);
+            layout.setBody(messages.page);
             layout.setHeading(title);
             layout.setActions(close);
             setContent(layout);
         }
         private void reloadMessages() {
-            PopupMessage.messages.forEach(ThemeManager::loadSingleNodeAnimate);
-            PopupMessage.messages.forEach(messageItem -> messageItem.getDeleteButton().setOnAction(event2 -> PopupMessage.messages.remove(messageItem)));
+            PopupMessage.messages.forEach(i -> {
+                i.getDeleteButton().setOnAction(event2 -> PopupMessage.messages.remove(i));
+                i.getLabeled().setWrapText(false);
+            });
         }
     }
 }

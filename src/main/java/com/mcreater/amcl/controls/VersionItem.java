@@ -25,8 +25,9 @@ public class VersionItem extends HBox {
         else versionType.setImage(VersionTypeGetter.VersionType.getImage(f));
         butt = new HBox();
         butt.setAlignment(Pos.CENTER_LEFT);
-         v = new Label(s);
+        v = new Label(s);
         v.setFont(Fonts.t_f);
+        v.setId("noW");
         butt.getChildren().add(v);
         setSpacing(15);
         getChildren().addAll(versionType, butt);

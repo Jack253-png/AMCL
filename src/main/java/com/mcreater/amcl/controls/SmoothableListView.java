@@ -14,7 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
 public class SmoothableListView<T extends Region> extends VBox {
@@ -69,13 +69,34 @@ public class SmoothableListView<T extends Region> extends VBox {
         FXUtils.ControlSize.setWidth(this, page.width - 15);
     }
 
+    public void addItem(T item, int index) {
+        vecs.add(index, item);
+        JFXButton button = new JFXButton();
+        button.setGraphic(item);
+        button.setButtonType(JFXButton.ButtonType.RAISED);
+
+        bs.add(index, button);
+
+        ThemeManager.loadNodeAnimations(button);
+
+        button.setOnAction(event -> {
+            selectedItem = item;
+            selectedButton = button;
+        });
+        button.setOnMouseClicked(event -> onActionProperty.get().run());
+        button.setOnMouseReleased(event -> onReleasedProperty.get().run());
+
+        FXUtils.ControlSize.setWidth(button, this.getMaxWidth());
+        this.getChildren().add(index, button);
+        FXUtils.ControlSize.setWidth(this, page.width - 15);
+    }
+
     public void clear() {
-        vecs.forEach(node -> node.setOnMouseReleased(event -> {}));
         vecs.clear();
         bs.clear();
-        this.getChildren().clear();
-        FXUtils.ControlSize.setWidth(this, page.width - 15);
+        getChildren().clear();
         selectedItem = null;
+        selectedButton = null;
     }
 
     public void removeItem(T item) {
@@ -112,8 +133,7 @@ public class SmoothableListView<T extends Region> extends VBox {
         }
     }
 
-    @SafeVarargs
-    public final void removeItems(T... items) {
-        Arrays.stream(items).forEach(this::removeItem);
+    public final void removeItems(List<T> items) {
+        items.forEach(this::removeItem);
     }
 }

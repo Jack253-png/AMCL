@@ -69,14 +69,16 @@ public class UserSelectPage extends AbstractAnimationPage {
                     default:
                         return;
                     case 0:
-                        Launcher.configReader.configModel.accounts.add(new OffLineUser(dialog.getInputedName(), OffLineUser.SkinType.STEVE.uuid, OffLineUser.SkinType.STEVE.isSlim, null, null));
+                        OffLineUser user0 = new OffLineUser(dialog.getInputedName(), OffLineUser.SkinType.STEVE.uuid, OffLineUser.SkinType.STEVE.isSlim, null, null);
+                        Launcher.configReader.configModel.accounts.add(user0);
                         dialog.close();
-                        reloadUser();
+                        userList.addItem(buildItem(user0));
                         break;
                     case 1:
-                        Launcher.configReader.configModel.accounts.add(new OffLineUser(dialog.getInputedName(), OffLineUser.SkinType.ALEX.uuid, OffLineUser.SkinType.ALEX.isSlim, null, null));
+                        OffLineUser user1 = new OffLineUser(dialog.getInputedName(), OffLineUser.SkinType.ALEX.uuid, OffLineUser.SkinType.ALEX.isSlim, null, null);
+                        Launcher.configReader.configModel.accounts.add(user1);
                         dialog.close();
-                        reloadUser();
+                        userList.addItem(buildItem(user1));
                         break;
                     case 2:
                         InputDialog dialog1 = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
@@ -94,12 +96,13 @@ public class UserSelectPage extends AbstractAnimationPage {
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                                Launcher.configReader.configModel.accounts.add(new OffLineUser(dialog.getInputedName(), uuid, isSlim, null, null));
+                                OffLineUser user2 = new OffLineUser(dialog.getInputedName(), uuid, isSlim, null, null);
+                                Launcher.configReader.configModel.accounts.add(user2);
                                 FXUtils.Platform.runLater(() -> {
                                     dialog2.close();
                                     dialog.close();
                                 });
-                                reloadUser();
+                                userList.addItem(buildItem(user2));
                             }).buildAndRun();
                         });
                         dialog1.Create();
@@ -108,10 +111,11 @@ public class UserSelectPage extends AbstractAnimationPage {
                         OfflineUserCustomSkinDialog dialog2 = new OfflineUserCustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.login.offlineskin"));
                         dialog2.setCancel(event14 -> dialog2.close());
                         dialog2.setEvent(event15 -> {
-                            Launcher.configReader.configModel.accounts.add(new OffLineUser(dialog.getInputedName(), dialog2.getSelectedModelType() == 0 ? OffLineUser.SkinType.STEVE.uuid : OffLineUser.SkinType.ALEX.uuid, dialog2.getSelectedModelType() != 0, dialog2.getSkinPath(), dialog2.getCapePath()));
+                            OffLineUser user3 = new OffLineUser(dialog.getInputedName(), dialog2.getSelectedModelType() == 0 ? OffLineUser.SkinType.STEVE.uuid : OffLineUser.SkinType.ALEX.uuid, dialog2.getSelectedModelType() != 0, dialog2.getSkinPath(), dialog2.getCapePath());
+                            Launcher.configReader.configModel.accounts.add(user3);
                             dialog.close();
                             dialog2.close();
-                            reloadUser();
+                            userList.addItem(buildItem(user3));
                         });
                         dialog2.Create();
                         break;
@@ -131,7 +135,7 @@ public class UserSelectPage extends AbstractAnimationPage {
             dialog.setLoginEvent(microsoftUser -> {
                 configReader.configModel.accounts.add(microsoftUser);
                 dialog.close();
-                reloadUser();
+                userList.addItem(buildItem(microsoftUser));
             });
             dialog.Create();
         });
@@ -163,6 +167,7 @@ public class UserSelectPage extends AbstractAnimationPage {
         setAlignment(Pos.TOP_LEFT);
         add(sideBar, 0, 0, 1, 1);
         add(page1, 1, 0, 1, 1);
+        userList.opacityProperty().addListener((observable, oldValue, newValue) -> System.out.println(newValue));
     }
 
     public void checkActiveState() {
@@ -186,196 +191,190 @@ public class UserSelectPage extends AbstractAnimationPage {
     }
 
     public void reloadUser() {
-        Runnable runn = () -> ThreadBuilder.createBuilder().runTarget(() -> {
+        userList.page.setDisable(true);
+        userList.setDisable(true);
+        refreshList.setDisable(true);
+        ThreadBuilder.createBuilder().runTarget(() -> {
             checkActiveState();
-            for (AbstractUser user : Launcher.configReader.configModel.accounts) {
-                AccountInfoItem item = new AccountInfoItem(user, width / 3 * 2);
-                item.selector.setSelected(user.active);
-                item.selector.setOnAction(event -> {
-                    if (!item.selector.isSelected()) {
-                        item.selector.setSelected(true);
+            FXUtils.Platform.runLater(userList::clear);
+
+            userList.setOnAction(() -> {
+                AccountInfoItem item2 = userList.selectedItem;
+                if (item2 != null) {
+                    if (!item2.selector.isSelected()) {
+                        item2.selector.setSelected(true);
                     }
                     userList.vecs.forEach(accountInfoItem -> {
-                        if (accountInfoItem != item) accountInfoItem.selector.setSelected(false);
+                        if (accountInfoItem != item2) accountInfoItem.selector.setSelected(false);
                     });
-                    Launcher.configReader.write();
-                });
-
-                userList.setOnAction(() -> {
-                    AccountInfoItem item2 = userList.selectedItem;
-                    if (item2 != null) {
-                        if (!item2.selector.isSelected()) {
-                            item2.selector.setSelected(true);
-                        }
-                        userList.vecs.forEach(accountInfoItem -> {
-                            if (accountInfoItem != item2) accountInfoItem.selector.setSelected(false);
-                        });
-                        Launcher.configReader.write();
-                    }
-                });
-
-                item.selector.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue) UserSelectPage.user.set(item.user);
-                });
-
-                item.setDelete(event -> {
-                    Launcher.configReader.configModel.accounts.remove(item.user);
-                    Launcher.configReader.write();
-
-                    reloadUser();
-                });
-                item.setRefresh(event -> {
-                    LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.refresh.title"));
-                    dialog.show();
-                    ThreadBuilder.createBuilder().runTarget(() -> {
-                        try {
-                            if (!item.user.validate()) item.user.refresh();
-                            item.cutSkinStart();
-                        } catch (Exception e) {
-                            SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"));
-                        } finally {
-                            FXUtils.Platform.runLater(dialog::close);
-                            Launcher.configReader.write();
-                        }
-                    }).buildAndRun();
-                });
-                item.setModify(event -> {
-                    Runnable modify = () -> {
-                        switch (item.user.getUserType()) {
-                            case AbstractUser.OFFLINE:
-                                OfflineUserModifyDialog dialog = new OfflineUserModifyDialog(item.user.toOfflineUser(), Launcher.languageManager.get("ui.userselectpage.modify.title"));
-                                Runnable finalRunnable = () -> {
-                                    item.user.username = dialog.getInputedUserName();
-                                    dialog.close();
-                                    reloadUser();
-                                };
-                                dialog.setCancel(event12 -> dialog.close());
-                                dialog.setAction(event13 -> {
-                                    switch (dialog.getSelection()) {
-                                        case 0:
-                                            item.user.uuid = OffLineUser.SkinType.STEVE.uuid;
-                                            item.user.toOfflineUser().is_slim = OffLineUser.SkinType.STEVE.isSlim;
-                                            finalRunnable.run();
-                                            break;
-                                        case 1:
-                                            item.user.uuid = OffLineUser.SkinType.ALEX.uuid;
-                                            item.user.toOfflineUser().is_slim = OffLineUser.SkinType.ALEX.isSlim;
-                                            finalRunnable.run();
-                                            break;
-                                        case 2:
-                                            LoadingDialog dialog1 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.offline.id"));
-                                            InputDialog dialog2 = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
-                                            dialog2.setCancel(event14 -> dialog2.close());
-                                            dialog2.setEvent(event15 -> {
-                                                dialog1.show();
-                                                ThreadBuilder.createBuilder().runTarget(() -> {
-                                                    String uuid = OffLineUser.SkinType.STEVE.uuid;
-                                                    boolean isSlim = OffLineUser.SkinType.STEVE.isSlim;
-                                                    try {
-                                                        uuid = MSAuth.getUserUUID(dialog2.f.getText());
-                                                        isSlim = MSAuth.getUserSkin(uuid).skin.isSlim;
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                    item.user.uuid = uuid;
-                                                    item.user.toOfflineUser().is_slim = isSlim;
-                                                    FXUtils.Platform.runLater(() -> {
-                                                        dialog2.close();
-                                                        dialog1.close();
-                                                        finalRunnable.run();
-                                                    });
-                                                }).buildAndRun();
-                                            });
-                                            ThreadBuilder.createBuilder().runTarget(() -> {
-                                                try {
-                                                    String name = MSAuth.getUserSkin(item.user.uuid).name;
-                                                    FXUtils.Platform.runLater(() -> dialog2.f.setText(name));
-                                                } catch (Exception ignored) {
-
-                                                } finally {
-                                                    FXUtils.Platform.runLater(() -> {
-                                                        dialog1.close();
-                                                        dialog2.show();
-                                                    });
-                                                }
-                                            }).buildAndRun();
-                                            dialog1.show();
-                                            break;
-                                        case 3:
-                                            OfflineUserCustomSkinDialog dialog3 = new OfflineUserCustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.login.offlineskin"));
-                                            dialog3.setSkinPath(item.user.toOfflineUser().skin);
-                                            dialog3.setCapePath(item.user.toOfflineUser().cape);
-                                            dialog3.group.cont.select(item.user.toOfflineUser().is_slim ? 1 : 0);
-                                            dialog3.setCancel(event14 -> dialog3.close());
-                                            dialog3.setEvent(event15 -> {
-                                                item.user.toOfflineUser().is_slim = dialog3.getSelectedModelType() != 0;
-                                                item.user.toOfflineUser().skin = dialog3.getSkinPath();
-                                                item.user.toOfflineUser().cape = dialog3.getCapePath();
-                                                dialog3.close();
-                                                finalRunnable.run();
-                                            });
-                                            dialog3.Create();
-                                            break;
-                                    }
-                                });
-                                dialog.show();
-                                return;
-                            case AbstractUser.MICROSOFT:
-                                MicrosoftModifyDialog dialog1 = new MicrosoftModifyDialog(Launcher.languageManager.get("ui.userselectpage.modify.title"), item.user.toMicrosoftUser());
-                                dialog1.setFinish(event16 -> {
-                                    dialog1.close();
-                                    reloadUser();
-                                });
-                                dialog1.show();
-                                return;
-                            default:
-                        }
-                    };
-
-                    LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.validate"));
-                    dialog.show();
-                    ThreadBuilder.createBuilder().runTarget(() -> {
-                        if (!item.user.validate()) {
-                            SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.validate.fail.title"), Launcher.languageManager.get("ui.userselectpage.validate.fail.content"), "");
-                            FXUtils.Platform.runLater(dialog::close);
-                        } else {
-                            FXUtils.Platform.runLater(dialog::close);
-                            FXUtils.Platform.runLater(modify);
-                        }
-                    }).buildAndRun();
-                });
-                item.setValidate(event -> {
-                    LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.validate"));
-                    dialog.show();
-                    ThreadBuilder.createBuilder().runTarget(() -> {
-                        if (!item.user.validate()) {
-                            SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.validate.fail.title"), Launcher.languageManager.get("ui.userselectpage.validate.fail.content"), "");
-                        }
-                        FXUtils.Platform.runLater(dialog::close);
-                    }).buildAndRun();
-                });
-                FXUtils.Platform.runLater(() -> userList.addItem(item));
-            }
-
-            Launcher.configReader.write();
+                    configReader.write();
+                }
+            });
+            configReader.configModel.accounts.forEach(user -> FXUtils.Platform.runLater(() -> userList.addItem(buildItem(user))));
+            configReader.write();
 
             FXUtils.Platform.runLater(() -> {
                 userList.page.setDisable(false);
                 userList.setDisable(false);
                 refreshList.setDisable(false);
             });
-
-            FXUtils.AnimationUtils.runSingleCycleAnimation(userList.page.opacityProperty(), 0, 1, 100, 300, event1 -> {
-            });
         }).buildAndRun();
+    }
 
-        FXUtils.AnimationUtils.runSingleCycleAnimation(userList.page.opacityProperty(), 1, 0, 100, 300, event1 -> {
-            userList.page.setDisable(true);
-            userList.setDisable(true);
-            refreshList.setDisable(true);
-            userList.clear();
-            runn.run();
+    public AccountInfoItem buildItem(AbstractUser user) {
+        AccountInfoItem item = new AccountInfoItem(user, width / 3 * 2);
+        item.selector.setSelected(user.active);
+        item.selector.setOnAction(event -> {
+            if (!item.selector.isSelected()) {
+                item.selector.setSelected(true);
+            }
+            userList.vecs.forEach(accountInfoItem -> {
+                if (accountInfoItem != item) accountInfoItem.selector.setSelected(false);
+            });
+            Launcher.configReader.write();
         });
+
+        item.selector.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) UserSelectPage.user.set(item.user);
+        });
+
+        item.setDelete(event -> {
+            Launcher.configReader.configModel.accounts.remove(item.user);
+            Launcher.configReader.write();
+
+            userList.removeItem(item);
+        });
+        item.setRefresh(event -> {
+            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.account.refresh.title"));
+            dialog.show();
+            ThreadBuilder.createBuilder().runTarget(() -> {
+                try {
+                    if (!item.user.validate()) item.user.refresh();
+                    item.cutSkinStart();
+                } catch (Exception e) {
+                    SimpleDialogCreater.exception(e, Launcher.languageManager.get("ui.userselectpage.account.refresh.fail"));
+                } finally {
+                    FXUtils.Platform.runLater(dialog::close);
+                    Launcher.configReader.write();
+                }
+            }).buildAndRun();
+        });
+        item.setModify(event -> {
+            Runnable modify = () -> {
+                switch (item.user.getUserType()) {
+                    case AbstractUser.OFFLINE:
+                        OfflineUserModifyDialog dialog = new OfflineUserModifyDialog(item.user.toOfflineUser(), Launcher.languageManager.get("ui.userselectpage.modify.title"));
+                        Runnable finalRunnable = () -> {
+                            item.user.username = dialog.getInputedUserName();
+                            dialog.close();
+                            reloadUser();
+                        };
+                        dialog.setCancel(event12 -> dialog.close());
+                        dialog.setAction(event13 -> {
+                            switch (dialog.getSelection()) {
+                                case 0:
+                                    item.user.uuid = OffLineUser.SkinType.STEVE.uuid;
+                                    item.user.toOfflineUser().is_slim = OffLineUser.SkinType.STEVE.isSlim;
+                                    finalRunnable.run();
+                                    break;
+                                case 1:
+                                    item.user.uuid = OffLineUser.SkinType.ALEX.uuid;
+                                    item.user.toOfflineUser().is_slim = OffLineUser.SkinType.ALEX.isSlim;
+                                    finalRunnable.run();
+                                    break;
+                                case 2:
+                                    LoadingDialog dialog1 = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.offline.id"));
+                                    InputDialog dialog2 = new InputDialog(Launcher.languageManager.get("ui.userselectpage.skin.input"));
+                                    dialog2.setCancel(event14 -> dialog2.close());
+                                    dialog2.setEvent(event15 -> {
+                                        dialog1.show();
+                                        ThreadBuilder.createBuilder().runTarget(() -> {
+                                            String uuid = OffLineUser.SkinType.STEVE.uuid;
+                                            boolean isSlim = OffLineUser.SkinType.STEVE.isSlim;
+                                            try {
+                                                uuid = MSAuth.getUserUUID(dialog2.f.getText());
+                                                isSlim = MSAuth.getUserSkin(uuid).skin.isSlim;
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                            item.user.uuid = uuid;
+                                            item.user.toOfflineUser().is_slim = isSlim;
+                                            FXUtils.Platform.runLater(() -> {
+                                                dialog2.close();
+                                                dialog1.close();
+                                                finalRunnable.run();
+                                            });
+                                        }).buildAndRun();
+                                    });
+                                    ThreadBuilder.createBuilder().runTarget(() -> {
+                                        try {
+                                            String name = MSAuth.getUserSkin(item.user.uuid).name;
+                                            FXUtils.Platform.runLater(() -> dialog2.f.setText(name));
+                                        } catch (Exception ignored) {
+
+                                        } finally {
+                                            FXUtils.Platform.runLater(() -> {
+                                                dialog1.close();
+                                                dialog2.show();
+                                            });
+                                        }
+                                    }).buildAndRun();
+                                    dialog1.show();
+                                    break;
+                                case 3:
+                                    OfflineUserCustomSkinDialog dialog3 = new OfflineUserCustomSkinDialog(Launcher.languageManager.get("ui.userselectpage.login.offlineskin"));
+                                    dialog3.setSkinPath(item.user.toOfflineUser().skin);
+                                    dialog3.setCapePath(item.user.toOfflineUser().cape);
+                                    dialog3.group.cont.select(item.user.toOfflineUser().is_slim ? 1 : 0);
+                                    dialog3.setCancel(event14 -> dialog3.close());
+                                    dialog3.setEvent(event15 -> {
+                                        item.user.toOfflineUser().is_slim = dialog3.getSelectedModelType() != 0;
+                                        item.user.toOfflineUser().skin = dialog3.getSkinPath();
+                                        item.user.toOfflineUser().cape = dialog3.getCapePath();
+                                        dialog3.close();
+                                        finalRunnable.run();
+                                    });
+                                    dialog3.Create();
+                                    break;
+                            }
+                        });
+                        dialog.show();
+                        return;
+                    case AbstractUser.MICROSOFT:
+                        MicrosoftModifyDialog dialog1 = new MicrosoftModifyDialog(Launcher.languageManager.get("ui.userselectpage.modify.title"), item.user.toMicrosoftUser());
+                        dialog1.setFinish(event16 -> {
+                            dialog1.close();
+                            reloadUser();
+                        });
+                        dialog1.show();
+                        return;
+                    default:
+                }
+            };
+
+            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.validate"));
+            dialog.show();
+            ThreadBuilder.createBuilder().runTarget(() -> {
+                if (!item.user.validate()) {
+                    SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.validate.fail.title"), Launcher.languageManager.get("ui.userselectpage.validate.fail.content"), "");
+                    FXUtils.Platform.runLater(dialog::close);
+                } else {
+                    FXUtils.Platform.runLater(dialog::close);
+                    FXUtils.Platform.runLater(modify);
+                }
+            }).buildAndRun();
+        });
+        item.setValidate(event -> {
+            LoadingDialog dialog = new LoadingDialog(Launcher.languageManager.get("ui.userselectpage.validate"));
+            dialog.show();
+            ThreadBuilder.createBuilder().runTarget(() -> {
+                if (!item.user.validate()) {
+                    SimpleDialogCreater.create(Launcher.languageManager.get("ui.userselectpage.validate.fail.title"), Launcher.languageManager.get("ui.userselectpage.validate.fail.content"), "");
+                }
+                FXUtils.Platform.runLater(dialog::close);
+            }).buildAndRun();
+        });
+        return item;
     }
 
     public void refresh() {

@@ -41,6 +41,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -333,13 +334,16 @@ public class Launcher {
         line.setCycleCount(Timeline.INDEFINITE);
         line.setAutoReverse(true);
 
-        PopupMessage.addUnreadedListener((observable, oldValue, newValue) -> {
+        ChangeListener<Boolean> handler = (observable, oldValue, newValue) -> {
             if (newValue) line.playFromStart();
             else {
                 line.stop();
                 property.set(1);
             }
-        });
+        };
+
+        handler.changed(PopupMessage.unreadedProperty(), PopupMessage.unreadedProperty().get(), PopupMessage.unreadedProperty().get());
+        PopupMessage.addUnreadedListener(handler);
 
         setTitle();
         FXUtils.ControlSize.setAll(t_size / 6 * 5, t_size / 6 * 5, about, back, min, close);

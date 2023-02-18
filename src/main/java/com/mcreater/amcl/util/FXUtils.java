@@ -45,6 +45,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.CountDownLatch;
 
 import static com.mcreater.amcl.Launcher.height;
 import static com.mcreater.amcl.Launcher.width;
@@ -156,6 +157,23 @@ public class FXUtils {
                     }
                 }
             });
+        }
+        public static void runUntil(Runnable runnable) {
+            CountDownLatch latch = new CountDownLatch(1);
+            javafx.application.Platform.runLater(() -> {
+                while (true) {
+                    try {
+                        runnable.run();
+                        latch.countDown();
+                        break;
+                    } catch (Exception ignored) {
+                    }
+                }
+            });
+            try {
+                latch.await();
+            }
+            catch (Exception ignored) {}
         }
     }
 
